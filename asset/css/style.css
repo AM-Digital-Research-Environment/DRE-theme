@@ -2051,7 +2051,14 @@ body[data-theme=dark] .theme-toggle .theme-toggle__icon--moon {
   }
 }
 .main-search-button {
-  padding: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--size-control-md);
+  height: var(--size-control-md);
+  padding: 0;
+  font-size: 1.125rem;
   line-height: 1;
   margin-left: auto;
   margin-right: 20px;

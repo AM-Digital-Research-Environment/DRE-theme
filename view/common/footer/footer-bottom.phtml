@@ -13,7 +13,7 @@ if ( $this->themeSetting( 'footer_bottom_terms_link' ) || $this->themeSetting( '
             <?php if ( $copyright = $this->themeSetting( 'footer_bottom_copyright' ) ) : ?>
                 <?php echo $copyright; ?>
             <?php else: ?>
-                <?php echo $this->translate( 'Powered by Omeka S' ); ?>
+                &copy; <?php echo date('Y'); ?> <a href="https://www.africamultiple.uni-bayreuth.de/en/1_5-Digital-Solutions1/index.html" target="_blank" rel="noopener noreferrer"><?php echo $this->escapeHtml($this->translate('Digital Research Environment (DRE)')); ?></a>
             <?php endif; ?>
         </div>
 

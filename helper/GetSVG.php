@@ -18,9 +18,16 @@ class GetSVG extends AbstractHelper
             return '';
         }
 
-        $view = $this->getView();
-        
-        $filePath = $view->assetUrl("img/{$name}.svg", null, false, true, true);
-        return file_get_contents($filePath);
+        // Read the SVG straight from disk (the theme's asset/img). Reading the
+        // file directly avoids an HTTP round-trip via file_get_contents() to the
+        // server's own asset URL, which fails wherever PHP can't reach its own
+        // public URL (e.g. behind Docker/proxies). __DIR__ is <theme>/helper,
+        // so its parent is the theme root. basename() guards against traversal.
+        $file = dirname(__DIR__) . '/asset/img/' . basename((string) $name) . '.svg';
+        if (is_readable($file)) {
+            return file_get_contents($file);
+        }
+
+        return '';
     }
 }

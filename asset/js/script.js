@@ -69,7 +69,9 @@ const dreScripts = () => {
     });
 
     function refreshBodyPaddingTop() {
-        body.style.paddingTop = mainHeader.offsetHeight + 'px';
+        // The header is position: sticky (in normal flow), so the page needs no
+        // body padding — adding it would create a gap equal to the header height.
+        // We only keep the anchor-jump offset in sync with the header.
         document.documentElement.style.scrollPaddingTop = (mainHeaderMainBar.offsetHeight + 20) + 'px';
     }
 

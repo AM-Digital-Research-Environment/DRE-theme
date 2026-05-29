@@ -5,12 +5,6 @@
 $escAttr = $this->plugin('escapeHtmlAttr');
 $translate = $this->plugin('translate');
 
-$setting = $this->themeSetting('show_partners');
-$showPartners = ($setting === null) ? true : (bool) $setting;
-if (!$showPartners) {
-    return;
-}
-
 $partners = [
     ['file' => 'partner-ujkz.webp',   'name' => 'Université Joseph Ki-Zerbo'],
     ['file' => 'partner-ulg.webp',    'name' => 'University of Lagos'],
