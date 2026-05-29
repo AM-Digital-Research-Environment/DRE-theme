@@ -1,0 +1,36 @@
+<?php
+// Partner-universities strip — the African Multiple Research Centres and the
+// privileged partner of the Cluster of Excellence. Logos ship with the theme;
+// the strip can be hidden via the "Show partner universities" theme setting.
+$escAttr = $this->plugin('escapeHtmlAttr');
+$translate = $this->plugin('translate');
+
+$setting = $this->themeSetting('show_partners');
+$showPartners = ($setting === null) ? true : (bool) $setting;
+if (!$showPartners) {
+    return;
+}
+
+$partners = [
+    ['file' => 'partner-ujkz.webp',   'name' => 'Université Joseph Ki-Zerbo'],
+    ['file' => 'partner-ulg.webp',    'name' => 'University of Lagos'],
+    ['file' => 'partner-moi.webp',    'name' => 'Moi University'],
+    ['file' => 'partner-rhodes.webp', 'name' => 'Rhodes University'],
+    ['file' => 'partner-ufba.webp',   'name' => 'Universidade Federal da Bahia'],
+];
+?>
+
+<div class="main-footer__partners">
+    <div class="container">
+        <h2 class="main-footer__partners-heading"><?php echo $this->escapeHtml($translate('African Multiple Research Centres')); ?></h2>
+        <div class="main-footer__partners-grid">
+            <?php foreach ($partners as $partner): ?>
+                <span class="main-footer__partner">
+                    <img src="<?php echo $this->assetUrl('img/' . $partner['file']); ?>"
+                        alt="<?php echo $escAttr($partner['name']); ?>"
+                        loading="lazy" decoding="async" height="48" />
+                </span>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</div>

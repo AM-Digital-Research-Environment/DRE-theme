@@ -19,14 +19,18 @@ select {
     background-color: $color__white;
     border: 1px solid $color__field-border;
     margin-bottom: 8px;
-    padding: 10px 15px;
-    border-radius: 22px;
+    padding: 0.6rem 0.9rem;
+    border-radius: var(--radius-md);
     line-height: 1.4;
+    color: var(--ink);
     text-overflow: ellipsis;
     width: 100%;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 
     &:focus {
-        
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: var(--ring-focus);
     }
 
     &::placeholder {

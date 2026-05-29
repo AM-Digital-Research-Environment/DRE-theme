@@ -3,6 +3,9 @@ h2,
 h3,
 h4 {
     color: $color__headings;
+    font-family: $font__headings;
+    letter-spacing: var(--tracking-tight);
+    text-wrap: balance;
     margin-top: 0;
 }
 

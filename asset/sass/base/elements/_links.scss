@@ -1,24 +1,22 @@
 a {
-    color: $color__link;
-    transition: all 0.2s;
+    color: var(--link);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.15em;
+    transition: color var(--transition-fast), text-decoration-color var(--transition-fast);
     word-wrap: break-word;
 
     &:visited {
-        color: $color__link;
-    }
-
-    &:hover,
-    &:focus,
-    &:active {
-        color: $color__secondary-dark;
-    }
-
-    &:focus {
-        outline: thin dotted;
+        color: var(--link);
     }
 
     &:hover,
     &:active {
-        outline: 0;
+        color: var(--link-hover);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--focus-color);
+        outline-offset: 2px;
+        border-radius: var(--radius-sm);
     }
 }

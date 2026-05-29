@@ -4,10 +4,13 @@ input,
 select,
 optgroup,
 textarea {
-    color: $color__gray-40;
+    color: $color__main-text;
     font-family: $font__body;
-    font-size: 1rem;
+    font-size: $font__base-size;
     line-height: $font__base-line-height;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "kern", "liga", "calt";
 }
 
 @import "headings";

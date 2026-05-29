@@ -1,34 +1,37 @@
+// ==========================================================================
+// Page & block titles — a short Uni-Grün underline accent (editorial rule),
+// replacing the base theme's left-edge colour bar. The display serif and the
+// generous space above carry the hierarchy; the rule is a quiet brand cue.
+// ==========================================================================
 .title,
 .block-pageTitle {
     display: inline-block;
-    border-radius: 5px 0 0 5px;
     margin-bottom: 1.875rem !important;
-    padding-left: 18px;
+    padding-bottom: 0.5rem;
     position: relative;
 
-    &::before {
-        display: block;
+    &::after {
         content: "";
-        background-color: $color__primary;
-        border-radius: 5px 0 0 5px;
-        height: 100%;
-        left: 0;
-        position: absolute;
-        top: 0;
-        width: 8px;
+        display: block;
+        width: 2.75rem;
+        height: var(--accent-line-md);
+        margin-top: 0.6rem;
+        background-color: var(--primary);
+        border-radius: var(--radius-full);
     }
 
+    // Nested titles (e.g. a .title inside a page-title block) stay plain.
     .title {
         margin-bottom: 0 !important;
-        padding-left: 0;
+        padding-bottom: 0;
 
-        &::before {
+        &::after {
             content: none;
         }
     }
 
     .slick-slide & {
-        &::before {
+        &::after {
             content: none;
         }
     }
@@ -36,8 +39,4 @@
     &.has-background {
         padding-right: 10px;
     }
-}
-
-.title {
-    padding-bottom: 0.5rem;
 }

@@ -15,7 +15,7 @@
         
         &::after {
             content: "";
-            background: linear-gradient(to right, rgba($color__white, 0), rgba($color__white, 1) 60%);
+            background: linear-gradient(to right, transparent, var(--surface) 60%);
             height: 1.7rem;
             left: 50%;
             position: absolute;

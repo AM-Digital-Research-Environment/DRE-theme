@@ -5,17 +5,25 @@
 
     .resource {
         display: flex;
-        background-color: $color__white;
-        border: 1px dashed $color__hr;
-        border-radius: 20px 0;
+        background-color: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
         position: relative !important;
         left: auto !important;
         top: auto !important;
         width: 100% !important;
         margin-bottom: 16px;
+        transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
 
         &::before {
             content: none !important;
+        }
+
+        &:hover {
+            border-color: var(--border-strong);
+            box-shadow: var(--shadow-md);
+            transform: translateY(var(--lift-xs));
         }
 
         &__thumbnail {

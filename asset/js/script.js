@@ -1,4 +1,4 @@
-const livelyScripts = () => {
+const dreScripts = () => {
 
     const body = document.body;
     const mainHeader = document.querySelector('.main-header');
@@ -222,7 +222,7 @@ const livelyScripts = () => {
 }
 
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', livelyScripts);
+    document.addEventListener('DOMContentLoaded', dreScripts);
 } else {
-    livelyScripts();
+    dreScripts();
 }

@@ -1,9 +1,11 @@
 .breadcrumbs {
     display: inline-block;
-    background-color: $color__light-bg;
-    border-radius: 22px;
+    background-color: var(--surface-sunken);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-full);
+    color: var(--ink-light);
     font-size: $font__sm-size;
-    padding: 8px 15px;
+    padding: var(--space-2) var(--space-4);
     width: auto;
-    margin-bottom: 15px;
+    margin-bottom: var(--space-4);
 }

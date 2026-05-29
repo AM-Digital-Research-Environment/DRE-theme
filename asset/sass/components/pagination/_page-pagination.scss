@@ -1,6 +1,6 @@
 .site-page-pagination {
     display: flex;
-    border-top: 1px solid $color__secondary;
+    border-top: 1px solid var(--border);
     gap: 1rem;
     justify-content: center;
     margin: 30px 0;

@@ -18,8 +18,9 @@
 
 .collapse + .collapsible {
 	display: block;
-	border-left: 3px solid $color__hr;
-	padding: 0 0 0 1rem;
+	background-color: var(--surface-sunken);
+	border-radius: var(--radius-md);
+	padding: var(--space-3) var(--space-4);
 	margin: 0 0 1rem;
 	width: 100%;
 }

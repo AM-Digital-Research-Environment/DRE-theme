@@ -1,6 +1,8 @@
 {
-    "name": "omeka-s-themes/lively",
+    "name": "am-digital-research-environment/dre-theme",
     "type": "omeka-s-theme",
+    "description": "Africa Multiple — Digital Research Environment theme for Omeka S.",
+    "license": "GPL-3.0-or-later",
     "require": {
         "omeka/omeka-s": "*"
     }

@@ -3,15 +3,10 @@ html, body {
 }
 
 html {
-    scroll-padding-top: 133px;
-}
-
-body {
-    padding-top: 133px;
-
-    @media (min-width: $lg) {
-        padding-top: 160px;
-    }
+    // The header sits in normal flow (position: sticky), so the page needs no
+    // top offset. This only keeps in-page anchor jumps from landing beneath the
+    // sticky header.
+    scroll-padding-top: 6rem;
 }
 
 .container {

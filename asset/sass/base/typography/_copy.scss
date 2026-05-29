@@ -11,35 +11,38 @@ i {
 }
 
 blockquote {
-    display: flex;
-    background-color: $color__white;
-    border: 1px dashed $color__gray-80;
-    border-radius: 20px 0;
+    background-color: var(--blockquote-bg);
+    border: 1px solid var(--blockquote-border);
+    border-radius: var(--radius-lg);
+    color: var(--ink);
+    font-family: $font__headings;
+    font-size: $font__h6-base-size;
     font-style: italic;
-    padding: 20px 25px 20px 60px;
+    line-height: 1.5;
+    padding: var(--space-6) var(--space-6) var(--space-6) var(--space-12);
     position: relative;
-    margin: 1rem 0 1.5rem;
+    margin: 1.5rem 0;
 
     @media (min-width: $md) {
-        margin: 1rem 2.5rem 1.5rem;
+        margin: 1.5rem 2.5rem;
     }
 
+    // Display-serif quotation mark — no icon-font dependency.
     &::before {
-        @include font-awesome;
-        color: $color__primary;
-        opacity: 0.3;
-        content: open-quote;
-        font-size: 6rem;
+        content: "\201C";
+        color: var(--blockquote-quote);
+        opacity: 0.55;
+        font-family: $font__headings;
+        font-size: 4.5rem;
         font-style: normal;
-        left: 10px;
+        left: var(--space-4);
         position: absolute;
-        top: 0px;
+        top: var(--space-3);
         line-height: 1;
     }
 
-    &::after {
-        opacity: 0;
-        content: close-quote;
+    > *:last-child {
+        margin-bottom: 0;
     }
 
     a[rel="footnote"] {
@@ -52,10 +55,12 @@ address {
 }
 
 pre {
-    background: $color__gray-87;
+    background: var(--surface-sunken);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
     font-family: $font__pre;
     line-height: $font__pre-base-line-height;
-    color: $color__gray-33;
+    color: var(--ink);
     margin-bottom: 1.6em;
     max-width: 100%;
     overflow: auto;

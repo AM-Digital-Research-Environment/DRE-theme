@@ -18,7 +18,7 @@
     margin-right: auto;
     padding: 0 15px;
     position: relative;
-    
+
     @media (min-width: $md) {
         padding: 0 30px;
     }
@@ -32,75 +32,110 @@
     }
 }
 
+// Icon font glyphs (used by checkbox ticks and a few legacy markers).
 @mixin font-awesome {
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
 }
 
+// ==========================================================================
+// Buttons — token-driven, theme-aware. Primary uses the Uni-Grün fill with a
+// contrast-safe label (--primary-contrast flips between modes); secondary is
+// a quiet outline that fills with a primary tint on hover.
+// ==========================================================================
 @mixin button {
     appearance: none;
-    -moz-appearance: none;
-    -webkit-appearance: none;
-    border-radius: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    border-radius: var(--radius-md);
     cursor: pointer;
-    padding: 12px 30px;
+    padding: 0.7rem 1.4rem;
+    font-family: $font__body;
+    font-weight: 600;
+    font-size: $font__sm-size;
+    line-height: 1.2;
+    letter-spacing: 0.005em;
     text-decoration: none;
-    transition: all 0.3s ease;
+    transition:
+        background-color var(--transition-base),
+        border-color var(--transition-base),
+        color var(--transition-base),
+        box-shadow var(--transition-base),
+        transform var(--transition-fast);
 }
 
 @mixin primary-button {
     @include button;
-    background-color: $color__buttons;
-    border: none;
-    color: $color__white;
-    
-    &:hover:not(.disabled) {
-        background-color: $color__primary-dark;
-        color: $color__white;
+    background-color: var(--primary);
+    border: 1px solid transparent;
+    color: var(--primary-contrast);
+    box-shadow: var(--shadow-xs);
+
+    &:hover:not(.disabled):not(:disabled) {
+        background-color: var(--primary-hover);
+        color: var(--primary-contrast);
+        box-shadow: var(--glow-sm);
+        transform: translateY(var(--lift-xs));
     }
-    
-    &:focus {
-        color: $color__white;
-        outline: 5px auto Highlight;
+
+    &:active:not(.disabled):not(:disabled) {
+        background-color: var(--primary-active);
+        box-shadow: var(--shadow-xs);
+        transform: none;
     }
-    
+
+    &:focus-visible {
+        outline: 2px solid var(--focus-color);
+        outline-offset: 2px;
+    }
+
     &:disabled,
-    &[disabled]
+    &[disabled],
     &.disabled {
-        background-color: $color__disabled;
+        background-color: var(--muted);
+        color: var(--surface);
         cursor: default;
+        box-shadow: none;
+        transform: none;
     }
-    
+
     &:visited {
-        color: $color__white;
+        color: var(--primary-contrast);
     }
 }
 
 @mixin secondary-button {
     @include button;
-    background-color: $color__white;
-    border: 1px solid $color__buttons;
-    color: $color__buttons;
-    
-    &:hover:not(.disabled) {
-        background-color: $color__white;
-        border: 1px solid $color__secondary;
-        color: $color__secondary;
+    background-color: transparent;
+    border: 1px solid var(--border-strong);
+    color: var(--primary-text);
+
+    &:hover:not(.disabled):not(:disabled) {
+        background-color: var(--primary-muted);
+        border-color: var(--primary);
+        color: var(--primary-text);
     }
-    
-    &:focus {
-        outline: 5px auto Highlight;
+
+    &:active:not(.disabled):not(:disabled) {
+        background-color: color-mix(in oklab, var(--primary-muted), var(--primary) 10%);
     }
-    
+
+    &:focus-visible {
+        outline: 2px solid var(--focus-color);
+        outline-offset: 2px;
+    }
+
     &:disabled,
-    &[disabled]
+    &[disabled],
     &.disabled {
-        border-color: $color__disabled;
-        color: $color__disabled;
+        border-color: var(--border);
+        color: var(--muted);
         cursor: default;
     }
-    
+
     &:visited {
-        color: $color__buttons;
+        color: var(--primary-text);
     }
 }

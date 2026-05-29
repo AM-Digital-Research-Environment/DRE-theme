@@ -1,7 +1,8 @@
 .main-banner {
     position: relative;
-    background-color: $color__gray-95;
-    margin-bottom: 1rem;
+    background-color: var(--surface-sunken);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: var(--space-8);
     overflow-x: clip;
     overflow-y: clip;
 

@@ -1,38 +1,41 @@
 {
-  "name": "lively-theme",
-  "version": "1.0.0",
-  "description": "An Omeka S Theme.",
+  "name": "dre-theme",
+  "version": "2.0.0",
+  "description": "Africa Multiple — Digital Research Environment. An Omeka S theme for the Africa Multiple Cluster of Excellence (University of Bayreuth), built on a modern OKLCH design-token system with light/dark modes.",
   "main": "gulpfile.js",
   "scripts": {
     "start": "gulp",
-    "build": "gulp css"
+    "build": "gulp css",
+    "watch": "gulp css:watch"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nelsonamaya82/theme-lively.git"
+    "url": "git+https://github.com/AM-Digital-Research-Environment/DRE-theme.git"
   },
   "keywords": [
     "omeka-s",
-    "theme"
+    "theme",
+    "africa-multiple",
+    "digital-humanities"
   ],
-  "author": "RRCHNM",
-  "license": "GPL-3.0",
+  "author": "Frédérick Madore",
+  "license": "GPL-3.0-or-later",
   "bugs": {
-    "url": "https://github.com/nelsonamaya82/theme-lively/issues"
+    "url": "https://github.com/AM-Digital-Research-Environment/DRE-theme/issues"
   },
-  "homepage": "https://github.com/nelsonamaya82/theme-lively#readme",
+  "homepage": "https://github.com/AM-Digital-Research-Environment/DRE-theme#readme",
   "devDependencies": {
-    "autoprefixer": "^9.2.1",
-    "gulp": "^4.0.2",
-    "gulp-postcss": "^8.0.0",
-    "gulp-sass": "^5.0.0"
+    "autoprefixer": "^10.5.0",
+    "gulp": "^5.0.1",
+    "gulp-postcss": "^10.0.0",
+    "gulp-sass": "^6.0.1",
+    "sass": "^1.100.0"
   },
   "browserslist": [
-    "> 5%",
-    "> 1% in US"
-  ],
-  "dependencies": {
-    "minimist": "^1.2.6",
-    "sass": "^1.58.3"
-  }
+    "last 2 versions",
+    "> 1%",
+    "not dead",
+    "safari >= 14",
+    "ios >= 14"
+  ]
 }

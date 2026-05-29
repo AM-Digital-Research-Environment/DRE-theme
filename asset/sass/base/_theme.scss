@@ -1,0 +1,48 @@
+// ==========================================================================
+// Theme Infrastructure
+// Global resets, focus, selection, motion — the connective tissue that makes
+// light/dark switching feel intentional.
+// ==========================================================================
+
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 6rem; // offset for the sticky header on anchor jumps
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    // Smooth the page chrome when toggling themes (cheap: body only).
+    transition: background-color var(--transition-base), color var(--transition-base);
+}
+
+// Selection — brand tint
+::selection {
+    background: var(--selection-bg);
+    color: var(--ink-strong);
+}
+
+// Keyboard focus — a single, consistent ring everywhere
+:focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+}
+
+// Respect reduced-motion: drop transitions/animation and smooth scroll
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
