@@ -92,54 +92,59 @@ document.addEventListener("DOMContentLoaded", function() {
 		itemButton.setAttribute('aria-expanded', 'false');
 
 		if (item.closest('.main-navigation')) { // Desktop only.
-			item.addEventListener('mouseover', () => {
+			// Hover-intent: open immediately on enter, but defer closing so the
+			// pointer can travel from the label into the panel without it
+			// snapping shut. mouseenter/mouseleave (unlike mouseover/mouseout)
+			// don't fire on inner-element transitions, so there's no flicker.
+			let closeTimer = null;
+			const CLOSE_DELAY = 180;
+
+			const openSubmenu = () => {
+				clearTimeout(closeTimer);
 				item.classList.add('open');
 				itemLink.setAttribute('aria-expanded', 'true');
 				itemButton.setAttribute('aria-expanded', 'true');
+			};
 
-				requestAnimationFrame(() => {
-					itemSubmenu.style.opacity = '1';
-				});
-			});
-
-			item.addEventListener('mouseout', () => {
+			const closeSubmenu = () => {
+				clearTimeout(closeTimer);
 				item.classList.remove('open');
 				itemLink.setAttribute('aria-expanded', 'false');
 				itemButton.setAttribute('aria-expanded', 'false');
-				itemSubmenu.style.opacity = '0';
-			});
+			};
 
-			item.addEventListener('focusout', (e) => {
-				// Wait a tick to let focus settle
+			const scheduleClose = () => {
+				clearTimeout(closeTimer);
+				closeTimer = setTimeout(closeSubmenu, CLOSE_DELAY);
+			};
+
+			item.addEventListener('mouseenter', openSubmenu);
+			item.addEventListener('mouseleave', scheduleClose);
+
+			item.addEventListener('focusin', openSubmenu);
+			item.addEventListener('focusout', () => {
+				// Wait a tick to let focus settle before deciding to close.
 				requestAnimationFrame(() => {
 					if (!item.contains(document.activeElement)) {
-						item.classList.remove('open');
-						itemLink.setAttribute('aria-expanded', 'false');
-						itemButton.setAttribute('aria-expanded', 'false');
+						closeSubmenu();
 					}
 				});
 			});
 
 			item.addEventListener('keydown', function (e) {
 				if (e.key === 'Escape' || e.key === 'Esc') {
-					item.classList.remove('open');
-					itemLink.setAttribute('aria-expanded', 'false');
-					itemButton.setAttribute('aria-expanded', 'false');
+					closeSubmenu();
 					itemButton.focus(); // Return focus to button
 				}
 			});
 
 			itemButton.addEventListener('click', function (event) {
-				const isOpen = this.parentNode.classList.toggle('open');
-
-				this.parentNode.querySelector('a').setAttribute('aria-expanded', isOpen.toString());
-				this.parentNode.querySelector('button').setAttribute('aria-expanded', isOpen.toString());
-
-				requestAnimationFrame(() => {
-					itemSubmenu.style.opacity = '1';
-				});
-
 				event.preventDefault();
+				if (item.classList.contains('open')) {
+					closeSubmenu();
+				} else {
+					openSubmenu();
+				}
 			});
 		}
 	});

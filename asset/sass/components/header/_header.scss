@@ -85,6 +85,8 @@
     }
 
     &__site-title {
+        display: flex;          // flex container kills the inline baseline gap
+        align-items: center;    // that left ~18px of dead space under the logo
         flex-shrink: 0;
         margin-bottom: 0;
         max-width: 60%;

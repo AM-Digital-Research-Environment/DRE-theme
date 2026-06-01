@@ -1,6 +1,6 @@
 # Africa Multiple — DRE · Omeka S theme
 
-[![release v2.0.1](https://img.shields.io/badge/release-v2.0.1-009260?logo=git&logoColor=white)](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases/latest)
+[![release v2.0.2](https://img.shields.io/badge/release-v2.0.2-009260?logo=git&logoColor=white)](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases/latest)
 [![Omeka S v4.2.0+](https://img.shields.io/badge/Omeka%20S-v4.2.0+-8a1f1f)](https://omeka.org/s/)
 [![PHP v8.1+](https://img.shields.io/badge/PHP-v8.1+-605F8E?logo=php&logoColor=white)](https://www.php.net/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-009260.svg)](LICENSE)
@@ -14,7 +14,7 @@ The **Digital Research Environment** theme for the [Africa Multiple Cluster of E
 - **Single-seed brand engine** — one Uni-Grün seed (`#009260`) drives every accent, hover, focus ring and tint via `color-mix(in oklab, …)`. Change the **Brand colour** setting and the whole theme re-tints, AA-legible in both modes.
 - **Light & dark modes** — respects the visitor’s system preference, with a manual sun/moon toggle that persists; a synchronous head-script prevents any flash of the wrong theme.
 - **Distinctive typography** — Spectral (display serif) + Hanken Grotesk (body/UI) served via **Bunny Fonts**, a privacy-first, GDPR-compliant mirror of Google Fonts (no IP logging) — relevant for an EU deployment.
-- **Brand assets** — the Africa Multiple lockup (with an auto-generated dark-mode variant), a partner-universities footer strip, and [Lucide](https://lucide.dev/) icons.
+- **Brand assets** — the Africa Multiple lockup (with an auto-generated dark-mode variant), institutional footer marks (University of Bayreuth + the Cluster), and [Lucide](https://lucide.dev/) icons.
 - **OKLCH design tokens** — colour, spacing, radius, shadow, motion and z-index, all as CSS custom properties for easy maintenance.
 - **Accessible** — WCAG AA text/surface pairings in both modes, always-visible focus, and `prefers-reduced-motion` support.
 
@@ -38,7 +38,7 @@ Build toolchain: gulp 5, Dart Sass 1.x, gulp-postcss, autoprefixer.
 - **Contact info** — location, phone, email; show in top header and/or footer.
 - **Header** — top-navigation depth; optional custom *Logo* (overrides the bundled Africa Multiple lockup).
 - **Banner** — image, heading, description, button, positioning.
-- **Footer** — footer logo, site description, menu (title/depth), content; **Show partner universities** (the African Multiple Research Centres strip).
+- **Footer** — footer logo, site description, menu (title/depth), content. Below it sit fixed institutional marks: the University of Bayreuth and the Africa Multiple Cluster of Excellence.
 - **Social media** — Facebook, X/Twitter, LinkedIn, Instagram, YouTube, Mastodon.
 - **Footer bottom** — copyright, terms and privacy links.
 - **Media** — decorative borders; media caption in the viewer.

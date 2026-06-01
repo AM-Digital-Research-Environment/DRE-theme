@@ -81,10 +81,20 @@ if ($userBar) {
 
 		<?php echo $this->partial('common/footer'); ?>
 
+		<button type="button" class="back-to-top" data-back-to-top
+			aria-label="<?php echo $this->escapeHtmlAttr($this->translate('Back to top')); ?>">
+			<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+				fill="none" stroke="currentColor" stroke-width="2.25"
+				stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+				<path d="m18 15-6-6-6 6"/>
+			</svg>
+		</button>
+
 		<?php
 		echo $this->inlineScript()
 			->prependFile($this->assetUrl('js/theme-toggle.js'))
 			->prependFile($this->assetUrl('js/navigation.js'))
+			->prependFile($this->assetUrl('js/back-to-top.js'))
 			->prependFile($this->assetUrl('js/script.js'))
 			->prependFile($this->assetUrl('js/utils.js'));
 		?>

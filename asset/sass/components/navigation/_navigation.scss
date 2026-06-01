@@ -84,113 +84,166 @@
     .navigation { //main ul
         list-style: none;
         display: flex;
-        margin-bottom: 0;
+        align-items: center;       // vertical centring — the bar sizes to the pills, not stray margins
+        gap: 0.15rem;
+        margin: 0;
         padding-left: 0;
-        margin-left: 0;
 
         .main-header--inline & {
-            margin-right: -15px;
+            margin-right: -10px;
         }
 
         li {
+            margin-bottom: 0;
+
             &::before {
                 content: none !important;
             }
         }
-    
+
         > li { //main menu items
             display: flex;
+            align-items: center;
             cursor: pointer;
-            margin-bottom: 0;
-    
-            &:hover a::after,
-            &.focus a::after {
-                transform: scale(1);
+
+            &.active > a { //active top-level item — a quiet filled pill, not a drawn border
+                color: var(--primary-text);
+                font-weight: 600;
+                background-color: color-mix(in oklab, var(--primary) 14%, transparent);
+                border-color: color-mix(in oklab, var(--primary) 32%, transparent);
             }
 
-            &.active {
-                > a{ //main menu items links (active)
-                    color: $color__primary;
-                    font-weight: 600;
-                    border: 1px solid $color__primary;
-                    border-radius: 30px;
+            // Highlight on hover OR keyboard focus anywhere in the item.
+            &:hover > a,
+            &:focus-within > a {
+                color: var(--primary-text);
+                background-color: color-mix(in oklab, var(--primary) 12%, transparent);
+            }
+
+            > a { //main menu items links — the pill
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.35em;
+                position: relative;
+                color: $color__headings;
+                text-decoration: none;
+                margin: 0;
+                // Fluid horizontal padding: tightens toward $xl so eight items
+                // fit without overflow, breathes on wide screens. Labels are
+                // free to wrap (no nowrap) — the responsive safety valve.
+                padding: var(--space-2) clamp(0.55rem, 0.3rem + 0.6vw, 0.95rem);
+                border: 1px solid transparent;
+                border-radius: var(--radius-full);
+                text-align: center;
+                font-size: $font__sm-size;   // 15px — nav scale, also fits more items single-line
+                font-weight: 600;
+                line-height: 1.2;            // compact pills; keeps any wrap tight
+                transition:
+                    background-color var(--transition-fast),
+                    color var(--transition-fast),
+                    border-color var(--transition-fast);
+
+                &:focus-visible {
+                    outline: 2px solid var(--focus-color);
+                    outline-offset: 2px;
                 }
             }
 
             &.menu-item-has-children {
-                margin-right: 10px;
+                > a {
+                    padding-right: 1.85rem; // room for the caret + tap target
 
-                a {
-                    padding-right: 23px;
+                    // Caret — a crisp CSS chevron, vertically centred with the label.
+                    &::after {
+                        content: "";
+                        position: absolute;
+                        right: 0.85rem;
+                        top: 50%;
+                        width: 0.42rem;
+                        height: 0.42rem;
+                        border-right: 2px solid var(--primary);
+                        border-bottom: 2px solid var(--primary);
+                        transform: translateY(-65%) rotate(45deg);
+                        transition: transform var(--transition-fast);
+                    }
+
+                    // Invisible bridge from the label down to the panel so the
+                    // pointer never crosses dead space on its way to the submenu.
+                    &::before {
+                        content: "";
+                        position: absolute;
+                        left: 0;
+                        right: 0;
+                        top: 100%;
+                        height: 1.4rem;
+                    }
                 }
 
+                &.open > a::after {
+                    transform: translateY(-25%) rotate(225deg); // flip up when open
+                }
+
+                // Keyboard / touch toggle injected by navigation.js — a
+                // transparent hit-area over the caret; the label still navigates.
                 .submenu-btn {
-                    align-self: center;
+                    align-self: stretch;
+                    width: 1.85rem;
+                    margin-left: -1.85rem;   // overlay the caret zone, no extra width
+                    position: relative;
+                    z-index: 1;
+                    padding: 0;
                     background-color: transparent;
                     border: none;
-                    line-height: 1;
-                    margin-left: -26px;
-                    padding: 3px;
+                    border-radius: var(--radius-full);
+                    cursor: pointer;
 
-                    &::after {
-                        @include font-awesome;
-                        content: "\f107" !important;
-                        display: inline-block;
-                        font-weight: 600;
-                        font-size: .75rem;
-                        color: $color__primary;
-                    }
-                }
-
-                &.open {
-                    > ul {
-                        display: flex;
-                        height: auto;
-                        padding: 40px;
+                    &:focus-visible {
+                        outline: 2px solid var(--focus-color);
+                        outline-offset: 2px;
                     }
                 }
             }
 
-            > a { //main menu items links
+            > ul { //mega menu — solid, theme-aware panel, flush under the header
                 display: flex;
-                align-items: center;
-                color: $color__headings;
-                text-decoration: none;
-                margin: 30px 5px;
-                position: relative;
-                padding: 10px 17px;
-                border: 1px solid transparent;
-                text-align: center;
-                font-weight: 700;
-
-                &:hover,
-                &:focus {
-                    border: 1px solid $color__headings;
-                    border-radius: 30px;
-                    transition: all 0.7s ease;
-                }
-            }
-
-            > ul { //mega menu hidden
-                display: none;
-                gap: 47px;
-                transition: opacity 0.5s ease-out;
-                opacity: 0;
-                height: 0;
-                overflow: hidden;
-                justify-content: center;
                 flex-wrap: wrap;
-                background-color: $color__white;
-                border-top: 1px solid $color__secondary;
-                border-radius: 0 0 22px 22px;
-                box-shadow: 0px 2px 5px 2px rgba(0,0,0,0.11);
+                justify-content: center;
+                gap: clamp(var(--space-6), 2.2vw, var(--space-12)); // fluid column spacing
                 position: absolute;
-                list-style: none;
-                margin: 0 auto;
-                width: 100%;
+                top: 100%;
                 left: 0;
                 right: 0;
-                top: 100%;
+                width: 100%;
+                margin: 0 auto;
+                padding: clamp(var(--space-5), 2.5vw, var(--space-8)) clamp(var(--space-6), 3vw, var(--space-10));
+                list-style: none;
+                background-color: var(--surface);
+                border-top: var(--accent-line-md) solid var(--primary);
+                border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+                box-shadow: var(--shadow-lg);
+                z-index: var(--z-dropdown);
+
+                // Closed state — hidden but not display:none, so it animates.
+                opacity: 0;
+                visibility: hidden;
+                transform: translateY(-0.4rem);
+                pointer-events: none;
+                transition:
+                    opacity var(--transition-fast),
+                    transform var(--transition-fast),
+                    visibility 0s linear var(--transition-fast);
+
+                // Bridge above the panel (only live when the panel is open, via
+                // its pointer-events) to seal the gap from the header.
+                &::before {
+                    content: "";
+                    position: absolute;
+                    left: 0;
+                    right: 0;
+                    bottom: 100%;
+                    height: 1.4rem;
+                }
 
                 > li { //mega menu columns
                     max-width: 260px;
@@ -201,15 +254,15 @@
                         height: 100%;
                         width: 1px;
                         position: absolute;
-                        background-color: $color__gray-93;
+                        background-color: var(--border);
                         top: 0;
                         bottom: 0;
-                        right: -20px;
+                        right: -1.35rem;
                     }
 
                     > a { //Links 1st level mega menu
                         font-weight: 700;
-                        color: $color__black;
+                        color: $color__headings;
 
                         &:has(+ ul)::after {
                             @include font-awesome;
@@ -222,13 +275,13 @@
                         }
                     }
 
-                    > ul { //2do level columns
+                    > ul { //2nd level columns
                         margin-top: 0.8rem;
                         margin-left: 0;
                         padding-left: 0;
                         list-style: none;
 
-                        li { //2do level links
+                        li { //2nd level links
                             margin-bottom: 5px;
 
                             ul {
@@ -244,14 +297,27 @@
                     text-transform: none;
                     text-decoration: none;
                     font-size: 0.94rem;
-                    transition: color 0.5s ease;
+                    border-radius: var(--radius-sm);
+                    transition: color var(--transition-fast);
 
                     &:hover {
+                        color: var(--primary-text);
                         text-decoration: underline;
+                        text-underline-offset: 0.15em;
                     }
-                    
                 }
+            }
 
+            // Open the panel via the JS .open class, with a CSS :hover fallback.
+            &.menu-item-has-children.open > ul,
+            &.menu-item-has-children:hover > ul {
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                pointer-events: auto;
+                transition:
+                    opacity var(--transition-fast),
+                    transform var(--transition-fast);
             }
         }
 

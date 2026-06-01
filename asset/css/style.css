@@ -5,7 +5,7 @@ Theme URI: https://github.com/AM-Digital-Research-Environment/DRE-theme
 Author: Frédérick Madore
 Author URI: https://www.frederickmadore.com/
 Description: Digital Research Environment theme for the Africa Multiple Cluster of Excellence (University of Bayreuth). Scholarly Modernism on an OKLCH design-token foundation, with light and dark modes. Based on the Lively theme by the Omeka Team.
-Version: 2.0.1
+Version: 2.0.2
 Omeka Version Constraint: ^4.2.0
 Requires PHP: 8.1
 License: GNU General Public License v3 or later
@@ -1939,6 +1939,8 @@ html {
   padding-bottom: var(--space-3);
 }
 .main-header__site-title {
+  display: flex;
+  align-items: center;
   flex-shrink: 0;
   margin-bottom: 0;
   max-width: 60%;
@@ -2210,95 +2212,130 @@ body[data-theme=dark] .theme-toggle .theme-toggle__icon--moon {
 .main-navigation .navigation {
   list-style: none;
   display: flex;
-  margin-bottom: 0;
+  align-items: center;
+  gap: 0.15rem;
+  margin: 0;
   padding-left: 0;
-  margin-left: 0;
 }
 .main-header--inline .main-navigation .navigation {
-  margin-right: -15px;
+  margin-right: -10px;
+}
+.main-navigation .navigation li {
+  margin-bottom: 0;
 }
 .main-navigation .navigation li::before {
   content: none !important;
 }
 .main-navigation .navigation > li {
   display: flex;
+  align-items: center;
   cursor: pointer;
-  margin-bottom: 0;
-}
-.main-navigation .navigation > li:hover a::after, .main-navigation .navigation > li.focus a::after {
-  transform: scale(1);
 }
 .main-navigation .navigation > li.active > a {
-  color: var(--primary);
+  color: var(--primary-text);
   font-weight: 600;
-  border: 1px solid var(--primary);
-  border-radius: 30px;
+  background-color: color-mix(in oklab, var(--primary) 14%, transparent);
+  border-color: color-mix(in oklab, var(--primary) 32%, transparent);
 }
-.main-navigation .navigation > li.menu-item-has-children {
-  margin-right: 10px;
-}
-.main-navigation .navigation > li.menu-item-has-children a {
-  padding-right: 23px;
-}
-.main-navigation .navigation > li.menu-item-has-children .submenu-btn {
-  align-self: center;
-  background-color: transparent;
-  border: none;
-  line-height: 1;
-  margin-left: -26px;
-  padding: 3px;
-}
-.main-navigation .navigation > li.menu-item-has-children .submenu-btn::after {
-  font-family: "Font Awesome 5 Free";
-  font-weight: 900;
-  content: "\f107" !important;
-  display: inline-block;
-  font-weight: 600;
-  font-size: 0.75rem;
-  color: var(--primary);
-}
-.main-navigation .navigation > li.menu-item-has-children.open > ul {
-  display: flex;
-  height: auto;
-  padding: 40px;
+.main-navigation .navigation > li:hover > a, .main-navigation .navigation > li:focus-within > a {
+  color: var(--primary-text);
+  background-color: color-mix(in oklab, var(--primary) 12%, transparent);
 }
 .main-navigation .navigation > li > a {
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
+  gap: 0.35em;
+  position: relative;
   color: var(--ink-strong);
   text-decoration: none;
-  margin: 30px 5px;
-  position: relative;
-  padding: 10px 17px;
+  margin: 0;
+  padding: var(--space-2) clamp(0.55rem, 0.3rem + 0.6vw, 0.95rem);
   border: 1px solid transparent;
+  border-radius: var(--radius-full);
   text-align: center;
-  font-weight: 700;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.2;
+  transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
 }
-.main-navigation .navigation > li > a:hover, .main-navigation .navigation > li > a:focus {
-  border: 1px solid var(--ink-strong);
-  border-radius: 30px;
-  transition: all 0.7s ease;
+.main-navigation .navigation > li > a:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
 }
-.main-navigation .navigation > li > ul {
-  display: none;
-  gap: 47px;
-  transition: opacity 0.5s ease-out;
-  opacity: 0;
-  height: 0;
-  overflow: hidden;
-  justify-content: center;
-  flex-wrap: wrap;
-  background-color: var(--surface);
-  border-top: 1px solid var(--secondary);
-  border-radius: 0 0 22px 22px;
-  box-shadow: 0px 2px 5px 2px rgba(0, 0, 0, 0.11);
+.main-navigation .navigation > li.menu-item-has-children > a {
+  padding-right: 1.85rem;
+}
+.main-navigation .navigation > li.menu-item-has-children > a::after {
+  content: "";
   position: absolute;
-  list-style: none;
-  margin: 0 auto;
-  width: 100%;
+  right: 0.85rem;
+  top: 50%;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-right: 2px solid var(--primary);
+  border-bottom: 2px solid var(--primary);
+  transform: translateY(-65%) rotate(45deg);
+  transition: transform var(--transition-fast);
+}
+.main-navigation .navigation > li.menu-item-has-children > a::before {
+  content: "";
+  position: absolute;
   left: 0;
   right: 0;
   top: 100%;
+  height: 1.4rem;
+}
+.main-navigation .navigation > li.menu-item-has-children.open > a::after {
+  transform: translateY(-25%) rotate(225deg);
+}
+.main-navigation .navigation > li.menu-item-has-children .submenu-btn {
+  align-self: stretch;
+  width: 1.85rem;
+  margin-left: -1.85rem;
+  position: relative;
+  z-index: 1;
+  padding: 0;
+  background-color: transparent;
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+}
+.main-navigation .navigation > li.menu-item-has-children .submenu-btn:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+.main-navigation .navigation > li > ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(var(--space-6), 2.2vw, var(--space-12));
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  width: 100%;
+  margin: 0 auto;
+  padding: clamp(var(--space-5), 2.5vw, var(--space-8)) clamp(var(--space-6), 3vw, var(--space-10));
+  list-style: none;
+  background-color: var(--surface);
+  border-top: var(--accent-line-md) solid var(--primary);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  z-index: var(--z-dropdown);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-0.4rem);
+  pointer-events: none;
+  transition: opacity var(--transition-fast), transform var(--transition-fast), visibility 0s linear var(--transition-fast);
+}
+.main-navigation .navigation > li > ul::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: 1.4rem;
 }
 .main-navigation .navigation > li > ul > li {
   max-width: 260px;
@@ -2309,10 +2346,10 @@ body[data-theme=dark] .theme-toggle .theme-toggle__icon--moon {
   height: 100%;
   width: 1px;
   position: absolute;
-  background-color: var(--surface-sunken);
+  background-color: var(--border);
   top: 0;
   bottom: 0;
-  right: -20px;
+  right: -1.35rem;
 }
 .main-navigation .navigation > li > ul > li > a {
   font-weight: 700;
@@ -2346,10 +2383,20 @@ body[data-theme=dark] .theme-toggle .theme-toggle__icon--moon {
   text-transform: none;
   text-decoration: none;
   font-size: 0.94rem;
-  transition: color 0.5s ease;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast);
 }
 .main-navigation .navigation > li > ul a:hover {
+  color: var(--primary-text);
   text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+.main-navigation .navigation > li.menu-item-has-children.open > ul, .main-navigation .navigation > li.menu-item-has-children:hover > ul {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  pointer-events: auto;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
 }
 .main-navigation .navigation a {
   display: block;
@@ -4642,57 +4689,61 @@ body.search .results .resource__content {
   margin-top: var(--space-4);
   border-radius: var(--radius-full);
 }
-.main-footer__partners {
+.main-footer__institutions {
   border-top: 1px solid var(--footer-divider);
 }
-.main-footer__partners .container {
+.main-footer__institutions .container {
   padding-top: var(--space-10);
   padding-bottom: var(--space-10);
 }
-.main-footer__partners-heading {
-  font-family: var(--font-display);
-  font-size: 0.9375rem;
-  font-weight: 600;
-  letter-spacing: var(--tracking-widest);
-  text-transform: uppercase;
-  color: var(--footer-text-muted);
-  text-align: center;
-  margin: 0 0 var(--space-6);
-}
-.main-footer__partners-grid {
+.main-footer__institution-grid {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: var(--space-4);
+  gap: var(--space-6);
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
-.main-footer__partner {
+.main-footer__institution-grid li::before {
+  content: none !important;
+}
+.main-footer__institution {
+  margin: 0;
+}
+.main-footer__institution a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--white);
+  background-color: #fff;
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-4) var(--space-6);
   box-shadow: var(--shadow-xs);
+  text-decoration: none;
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
-.main-footer__partner img {
+.main-footer__institution a:hover {
+  transform: translateY(var(--lift-xs));
+  box-shadow: var(--shadow-md);
+}
+.main-footer__institution a:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+.main-footer__institution img {
   display: block;
   width: auto;
-  height: 40px;
-  max-width: 150px;
+  height: 36px;
+  max-width: 230px;
   -o-object-fit: contain;
      object-fit: contain;
 }
 @media (min-width: 768px) {
-  .main-footer__partner img {
-    height: 48px;
+  .main-footer__institution img {
+    height: 44px;
   }
-}
-.main-footer__partner:hover {
-  transform: translateY(var(--lift-xs));
-  box-shadow: var(--shadow-md);
 }
 .main-footer__social-network {
   display: flex;
@@ -4760,6 +4811,59 @@ body.search .results .resource__content {
 .main-footer__links {
   display: flex;
   gap: var(--space-10);
+}
+
+/* Back to top
+--------------------------------------------- */
+.back-to-top {
+  position: fixed;
+  right: clamp(1rem, 3vw, 2rem);
+  bottom: clamp(1rem, 3vw, 2rem);
+  z-index: var(--z-sticky);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-control-lg);
+  height: var(--size-control-lg);
+  padding: 0;
+  color: var(--primary-contrast);
+  background-color: var(--primary);
+  border: 1px solid color-mix(in oklab, var(--primary), black 18%);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(0.75rem);
+  transition: opacity var(--transition-base), transform var(--transition-base), visibility 0s linear var(--transition-base), background-color var(--transition-fast);
+}
+.back-to-top.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity var(--transition-base), transform var(--transition-base), background-color var(--transition-fast);
+}
+.back-to-top:hover {
+  background-color: var(--primary-hover);
+  box-shadow: var(--shadow-xl);
+}
+.back-to-top:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+.back-to-top svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .back-to-top {
+    transform: none;
+    transition: opacity var(--transition-base), visibility 0s linear var(--transition-base), background-color var(--transition-fast);
+  }
+  .back-to-top.is-visible {
+    transform: none;
+  }
 }
 
 /*--------------------------------------------------------------

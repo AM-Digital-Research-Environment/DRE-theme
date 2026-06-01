@@ -1,6 +1,7 @@
 // ==========================================================================
-// Site footer — deep forest band (theme-aware via --footer-* tokens), a
-// partner-universities strip, footer columns, social, and a bottom bar.
+// Site footer — deep forest band (theme-aware via --footer-* tokens), footer
+// columns, social, an institutional-marks strip (Bayreuth + Cluster), and a
+// bottom bar.
 // ==========================================================================
 .main-footer {
     display: flex;
@@ -224,8 +225,8 @@
         }
     }
 
-    // --- Partner-universities strip --------------------------------------
-    &__partners {
+    // --- Institutional marks (host university + cluster) -----------------
+    &__institutions {
         border-top: 1px solid var(--footer-divider);
 
         .container {
@@ -234,51 +235,55 @@
         }
     }
 
-    &__partners-heading {
-        font-family: $font__headings;
-        font-size: $font__sm-size;
-        font-weight: 600;
-        letter-spacing: var(--tracking-widest);
-        text-transform: uppercase;
-        color: var(--footer-text-muted);
-        text-align: center;
-        margin: 0 0 var(--space-6);
-    }
-
-    &__partners-grid {
+    &__institution-grid {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
         justify-content: center;
-        gap: var(--space-4);
+        gap: var(--space-6);
+        list-style: none;
+        margin: 0;
+        padding: 0;
+
+        li::before { content: none !important; }
     }
 
-    &__partner {
-        // Consistent light plaque so the varied full-colour university marks
-        // read on the dark band in both light and dark mode.
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background-color: var(--white);
-        border: 1px solid var(--border-light);
-        border-radius: var(--radius-md);
-        padding: var(--space-3) var(--space-4);
-        box-shadow: var(--shadow-xs);
-        transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    &__institution {
+        margin: 0;
+
+        a {
+            // Light plaque so the dark-ink institutional marks stay legible on
+            // the forest footer band in both light and dark mode.
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #fff;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: var(--space-4) var(--space-6);
+            box-shadow: var(--shadow-xs);
+            text-decoration: none;
+            transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+
+            &:hover {
+                transform: translateY(var(--lift-xs));
+                box-shadow: var(--shadow-md);
+            }
+
+            &:focus-visible {
+                outline: 2px solid var(--focus-color);
+                outline-offset: 2px;
+            }
+        }
 
         img {
             display: block;
             width: auto;
-            height: 40px;
-            max-width: 150px;
+            height: 36px;
+            max-width: 230px;
             object-fit: contain;
 
-            @media (min-width: $md) { height: 48px; }
-        }
-
-        &:hover {
-            transform: translateY(var(--lift-xs));
-            box-shadow: var(--shadow-md);
+            @media (min-width: $md) { height: 44px; }
         }
     }
 
