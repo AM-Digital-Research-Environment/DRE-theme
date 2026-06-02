@@ -9,13 +9,18 @@
     font-size: 1.125rem;
     line-height: 1;
     margin-left: auto;   // mobile: the one auto margin — pushes the whole control
-    margin-right: 0;     // cluster (search · hamburger · toggle) to the right
+    margin-right: 0;     // cluster (search · toggle · hamburger) to the right
 
     @media (min-width: $xl) {
         margin-left: 0;
         order: initial;
     }
 
+    // Cancel the global primary-button hover lift — it reads as twitchy on a
+    // small header control. The double :not() matches the mixin's specificity.
+    &:hover:not(.disabled):not(:disabled) {
+        transform: none;
+    }
 }
 
 .main-header-search {

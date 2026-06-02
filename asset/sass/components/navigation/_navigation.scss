@@ -1,4 +1,6 @@
 .main-navigation {
+    order: 3;   // mobile: the hamburger is the rightmost control in the bar
+
     @media (min-width: $xl) {
         margin-left: auto;
         margin-right: 20px;
@@ -30,8 +32,13 @@
             display: none;
         }
 
-        &:hover {
-            background-color: transparent !important;
+        // Stay flat on hover — no fill, no CTA lift, no glow. The double :not()
+        // matches the global button mixin's hover specificity so this wins
+        // (no !important needed).
+        &:hover:not(.disabled):not(:disabled) {
+            background-color: transparent;
+            transform: none;
+            box-shadow: none;
         }
 
         span {

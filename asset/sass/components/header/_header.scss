@@ -114,12 +114,17 @@
         display: flex;
         align-items: center;
         gap: var(--space-2);
+        // Mobile: order the toggle before the hamburger (the hamburger/nav is
+        // ordered last so it lands at the extreme right). The search button's
+        // single auto margin still pushes the whole right cluster over.
+        order: 2;
 
         // Push right only on desktop. On mobile the single auto margin lives on
-        // the search button, so the search + hamburger + toggle stay one cluster
+        // the search button, so the search + toggle + hamburger stay one cluster
         // on the right (a second auto here would split them — the old bug).
         @media (min-width: $xl) {
             margin-left: auto;
+            order: initial;
         }
     }
 }
@@ -172,10 +177,14 @@ body[data-theme="dark"] {
         background-color var(--transition-fast),
         border-color var(--transition-fast);
 
-    &:hover {
+    // The double :not() matches the global button mixin's hover specificity so
+    // this quiet icon-button hover wins — no green fill, no CTA lift, no glow.
+    &:hover:not(.disabled):not(:disabled) {
         background-color: var(--surface-sunken);
         border-color: var(--border-strong);
         color: var(--primary-text);
+        box-shadow: none;
+        transform: none;
     }
 
     &:focus-visible {

@@ -2,10 +2,11 @@
 /**
  * Consolidated, faceted "Linked resources" view.
  *
- * Renders every record that links to the current resource as one scannable
- * list — an editorial "relationship → title" row per connected record — with
- * relationship facet pills to filter and a control to sort. Replaces the old
- * per-property accordion stack.
+ * Renders every record that links to the current resource as a dense,
+ * scannable card grid — one card per connected record, showing its type and
+ * how it relates — inside a collapsible disclosure. Relationship facet pills
+ * filter the grid and a control sorts it. Replaces the old per-property
+ * accordion stack.
  *
  * Variables provided by the core LinkedResources view helper:
  *   $subjectValues          array  groups of subject values, one per property
@@ -17,7 +18,8 @@
  *   $objectResource                the resource being viewed
  *
  * Facets and sorting are client-side (linked-resources.js) and act on the
- * records loaded into the current page; the list is fully usable without JS.
+ * records loaded into the current page; collapse is native <details>. The list
+ * is fully usable without JS.
  */
 
 $escape     = $this->plugin('escapeHtml');
@@ -124,6 +126,8 @@ uasort($connections, function ($a, $b) {
 
 $uniqueCount = count($connections);
 $hasFacets   = count($facets) > 1;
+$showSort    = $uniqueCount > 1;
+$showControls = $hasFacets || $showSort;
 
 // Resource-type switch (only when more than one type links here).
 $typeLabels = [
@@ -139,88 +143,110 @@ foreach (['items', 'item_sets', 'media'] as $type) {
 }
 $baseUrl = $this->url(null, [], true);
 ?>
-<div class="resources-linked" id="<?php echo $fragment; ?>" role="region" aria-labelledby="linked-resources-heading">
+<details class="resources-linked" id="<?php echo $fragment; ?>" open>
 
-    <div class="resources-linked__bar<?php echo $hasFacets ? '' : ' resources-linked__bar--divided'; ?>">
-        <div class="resources-linked__headwrap">
+    <summary class="resources-linked__head">
+        <span class="resources-linked__headwrap">
             <h3 class="resources-linked__heading" id="linked-resources-heading"><?php echo $translate('Linked resources'); ?></h3>
-            <p class="resources-linked__summary" aria-live="polite">
+            <span class="resources-linked__summary" aria-live="polite">
                 <b data-lr-count><?php echo $uniqueCount; ?></b>
                 <?php echo $isPaginated ? $translate('connections on this page') : $translate('connections to this record'); ?>
-            </p>
-        </div>
+            </span>
+        </span>
+        <span class="resources-linked__chevron" aria-hidden="true"></span>
+    </summary>
 
-        <?php if ($uniqueCount > 1): ?>
-        <div class="resources-linked__sort">
-            <label class="resources-linked__sort-label" for="linked-resources-sort"><?php echo $translate('Sort'); ?></label>
-            <select id="linked-resources-sort" data-lr-sort>
-                <option value="relationship"><?php echo $translate('Relationship'); ?></option>
-                <option value="title-asc"><?php echo $translate('Title (A–Z)'); ?></option>
-                <option value="title-desc"><?php echo $translate('Title (Z–A)'); ?></option>
-            </select>
+    <div class="resources-linked__panel">
+
+        <?php if (count($typesWithValues) > 1): ?>
+        <nav class="resources-linked__types" aria-label="<?php echo $escapeAttr($translate('Linked resource type')); ?>">
+            <?php foreach ($typesWithValues as $type): ?>
+            <a class="lr-type"
+               href="<?php echo $escapeAttr($baseUrl . '?resource_property=' . rawurlencode($type . ':') . '#' . $fragment); ?>"
+               <?php echo ($type === $resourceType) ? 'aria-current="true"' : ''; ?>>
+                <?php echo $escape($typeLabels[$type]); ?>
+            </a>
+            <?php endforeach; ?>
+        </nav>
+        <?php endif; ?>
+
+        <?php if ($showControls): ?>
+        <div class="resources-linked__controls">
+            <?php if ($hasFacets): ?>
+            <div class="resources-linked__facets" role="group" aria-label="<?php echo $escapeAttr($translate('Filter connections by relationship')); ?>">
+                <button type="button" class="lr-facet is-active" data-lr-facet="all" aria-pressed="true">
+                    <span class="lr-facet__label"><?php echo $translate('All'); ?></span>
+                    <span class="lr-facet__count"><?php echo $uniqueCount; ?></span>
+                </button>
+                <?php foreach ($ranked as $facet): ?>
+                <button type="button" class="lr-facet" data-lr-facet="p<?php echo (int) $facet['id']; ?>" aria-pressed="false">
+                    <span class="lr-facet__label"><?php echo $escape($facet['label']); ?></span>
+                    <span class="lr-facet__count"><?php echo (int) $facet['count']; ?></span>
+                </button>
+                <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
+
+            <?php if ($showSort): ?>
+            <div class="resources-linked__sort">
+                <label class="resources-linked__sort-label" for="linked-resources-sort"><?php echo $translate('Sort'); ?></label>
+                <select id="linked-resources-sort" data-lr-sort>
+                    <option value="relationship"><?php echo $translate('Relationship'); ?></option>
+                    <option value="title-asc"><?php echo $translate('Title (A–Z)'); ?></option>
+                    <option value="title-desc"><?php echo $translate('Title (Z–A)'); ?></option>
+                </select>
+            </div>
+            <?php endif; ?>
         </div>
         <?php endif; ?>
+
+        <ul class="connections" data-lr-list>
+            <?php foreach ($connections as $c): ?>
+                <?php
+                $resource = $c['resource'];
+                $propAttr = implode(' ', array_map(function ($id) {
+                    return 'p' . (int) $id;
+                }, $c['relIds']));
+                // Item type = the record's resource class label (e.g. Person,
+                // Still Image, Bibliographic Resource); empty when unclassed.
+                $resourceClass = $resource->resourceClass();
+                $typeLabel = $resourceClass ? $translate($resourceClass->label()) : '';
+                // Relationship(s), already rank-ordered, joined with a middot.
+                $relText = implode(' · ', array_map(function ($rel) {
+                    return $rel['label'];
+                }, $c['rels']));
+                // thumbnail() resolves an item's primary-media thumbnail (or an
+                // item set's / media's own) and returns '' when there is none.
+                $thumbnail = $this->thumbnail($resource, 'square', ['alt' => '']);
+                ?>
+                <li class="connection"
+                    data-props="<?php echo $escapeAttr($propAttr); ?>"
+                    data-rel-order="<?php echo (int) $c['relOrder']; ?>"
+                    data-title="<?php echo $escapeAttr(mb_strtolower($c['heading'])); ?>">
+                    <a class="connection__card" href="<?php echo $escapeAttr($resource->url()); ?>">
+                        <?php if ($thumbnail): ?>
+                        <span class="connection__thumb" aria-hidden="true"><?php echo $thumbnail; ?></span>
+                        <?php endif; ?>
+                        <span class="connection__body">
+                            <span class="connection__title"><?php echo $escape($c['heading']); ?></span>
+                            <span class="connection__meta">
+                                <?php if ($typeLabel): ?>
+                                <span class="connection__type"><?php echo $escape($typeLabel); ?></span>
+                                <?php endif; ?>
+                                <?php if ($relText): ?>
+                                <span class="connection__rel"><?php echo $escape($relText); ?></span>
+                                <?php endif; ?>
+                            </span>
+                        </span>
+                    </a>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+
+        <p class="connections__empty" data-lr-empty hidden><?php echo $translate('No connections match this filter.'); ?></p>
+
+        <?php echo $isPaginated ? '<div class="linked-footer">' . $pagination . '</div>' : ''; ?>
+
     </div>
 
-    <?php if (count($typesWithValues) > 1): ?>
-    <nav class="resources-linked__types" aria-label="<?php echo $escapeAttr($translate('Linked resource type')); ?>">
-        <?php foreach ($typesWithValues as $type): ?>
-        <a class="lr-type"
-           href="<?php echo $escapeAttr($baseUrl . '?resource_property=' . rawurlencode($type . ':') . '#' . $fragment); ?>"
-           <?php echo ($type === $resourceType) ? 'aria-current="true"' : ''; ?>>
-            <?php echo $escape($typeLabels[$type]); ?>
-        </a>
-        <?php endforeach; ?>
-    </nav>
-    <?php endif; ?>
-
-    <?php if ($hasFacets): ?>
-    <div class="resources-linked__facets" role="group" aria-label="<?php echo $escapeAttr($translate('Filter connections by relationship')); ?>">
-        <button type="button" class="lr-facet is-active" data-lr-facet="all" aria-pressed="true">
-            <span class="lr-facet__label"><?php echo $translate('All'); ?></span>
-            <span class="lr-facet__count"><?php echo $uniqueCount; ?></span>
-        </button>
-        <?php foreach ($ranked as $facet): ?>
-        <button type="button" class="lr-facet" data-lr-facet="p<?php echo (int) $facet['id']; ?>" aria-pressed="false">
-            <span class="lr-facet__label"><?php echo $escape($facet['label']); ?></span>
-            <span class="lr-facet__count"><?php echo (int) $facet['count']; ?></span>
-        </button>
-        <?php endforeach; ?>
-    </div>
-    <?php endif; ?>
-
-    <ul class="connections" data-lr-list>
-        <?php foreach ($connections as $c): ?>
-            <?php
-            $resource = $c['resource'];
-            $propAttr = implode(' ', array_map(function ($id) {
-                return 'p' . (int) $id;
-            }, $c['relIds']));
-            // thumbnail() resolves an item's primary-media thumbnail (or an
-            // item set's / media's own) and returns '' when there is none.
-            $thumbnail = $this->thumbnail($resource, 'square', ['alt' => '']);
-            ?>
-            <li class="connection"
-                data-props="<?php echo $escapeAttr($propAttr); ?>"
-                data-rel-order="<?php echo (int) $c['relOrder']; ?>"
-                data-title="<?php echo $escapeAttr(mb_strtolower($c['heading'])); ?>">
-                <div class="connection__body">
-                    <p class="connection__rel">
-                        <?php foreach ($c['rels'] as $rel): ?>
-                        <span class="connection__rel-item"><?php echo $escape($rel['label']); ?></span>
-                        <?php endforeach; ?>
-                    </p>
-                    <?php echo $resource->link($c['heading'], null, ['class' => 'connection__title']); ?>
-                </div>
-                <?php if ($thumbnail): ?>
-                <?php echo $resource->linkRaw($thumbnail, null, ['class' => 'connection__thumb', 'tabindex' => '-1', 'aria-hidden' => 'true']); ?>
-                <?php endif; ?>
-            </li>
-        <?php endforeach; ?>
-    </ul>
-
-    <p class="connections__empty" data-lr-empty hidden><?php echo $translate('No connections match this filter.'); ?></p>
-
-    <?php echo $isPaginated ? '<div class="linked-footer">' . $pagination . '</div>' : ''; ?>
-
-</div>
+</details>

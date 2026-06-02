@@ -181,12 +181,14 @@ theme-aware in one move. Notable bespoke work:
 - **Cards** (resource grid/list) — clean surface cards: hairline border, soft
   shadow, hover lift. (Replaced the dashed / asymmetric-radius base style.)
 - **Linked resources** — a consolidated, faceted view of every record that
-  references the current one. Records are merged (a record linked as both
-  *author* and *editor* appears once, carrying both relationships) and laid out
-  as an editorial “relationship → title” list. Relationship **facet pills**
-  filter the list and a control sorts it (relationship / title), all client-side
+  references the current one, inside a native `<details>` disclosure
+  (collapsible, no JS, open by default). Records are merged (a record linked as
+  both *author* and *editor* appears once, carrying both relationships) and laid
+  out as a dense, responsive **card grid** — each card showing the record’s
+  **type** (its resource class) and how it relates. Relationship **facet pills**
+  filter the grid and a control sorts it (relationship / title), all client-side
   over the server-rendered DOM (`asset/js/linked-resources.js`). Replaced the
-  old per-property **accordion** stack (dashed boxes, centred titles).
+  old per-property **accordion** stack, then the earlier one-row-per-record list.
 - **Titles** — a short Uni-Grün underline accent (replaced the left-edge colour
   bar — see anti-patterns below).
 - **Blockquote** — full-bordered, primary-tinted panel with a serif quotation
