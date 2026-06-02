@@ -1,68 +1,292 @@
+// ==========================================================================
+// Linked resources — a consolidated, faceted view of every record that
+// connects to the current resource.
+//
+// Replaces the old per-property accordion stack (dashed boxes, centred
+// titles, asymmetric 20px/0 radius — the base-theme tells removed elsewhere)
+// with one scannable list: an editorial "relationship → title" row per
+// connected record, relationship facet pills to filter, and a sort control.
+// Everything speaks in semantic tokens, so it is theme-aware by construction
+// and carries no side-stripes, gradient text or glassmorphism.
+// ==========================================================================
+
 .resources-linked {
 
-    &__header {
+    // ----------------------------------------------------------------------
+    // Bar — heading + summary on the left, sort control on the right
+    // ----------------------------------------------------------------------
+    &__bar {
         display: flex;
+        flex-wrap: wrap;
         align-items: flex-end;
-    }
-
-    &__expand-collapse-btn {
-        background-color: transparent;
-        color: $color__primary;
-        flex-shrink: 0;
-        margin-bottom: 1.875rem;
-        margin-left: auto;
-        padding: 5px 10px;
-
-        &::after {
-            @include font-awesome;
-            content: "\f13a";
-            display: inline-block;
-            font-size: 1.2rem;
-            margin-left: 7px;
-            transition: transform .3s;
-        }
-
-        &:hover,
-        &:focus {
-            background-color: transparent !important;
-            color: $color__primary !important;
-        }
-
-        &.expanded {
-            &::after {
-                transform: rotate(-180deg);
-            }
-        }
-    }
-
-    .resource-tags {
-        margin-bottom: 10px;
-    }
-
-    .linked-resource {
-        display: flex;
-        flex-wrap: nowrap;
-        gap: 15px;
         justify-content: space-between;
-        padding: 1rem 0;
-        border-bottom: 1px dashed $color__hr;
+        gap: var(--space-3) var(--space-6);
+        margin-bottom: var(--space-5);
+    }
 
-        &:last-child {
-            border-bottom: none;
+    &__heading {
+        margin: 0;
+    }
+
+    &__summary {
+        margin: 0.4rem 0 0;
+        font-size: var(--text-sm);
+        color: var(--ink-light);
+
+        b {
+            color: var(--ink);
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
         }
+    }
+
+    &__sort {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        flex-shrink: 0;
+    }
+
+    &__sort-label {
+        color: var(--ink-light);
+        font-size: var(--text-xs);
+        font-weight: 600;
+        letter-spacing: var(--tracking-wide);
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    // The global field style makes <select> full-width and 44px tall; in the
+    // toolbar it only needs to be as wide as its longest option.
+    &__sort select {
+        width: auto;
+        min-width: 11.5rem;
+        margin-bottom: 0;
+    }
+
+    // ----------------------------------------------------------------------
+    // Resource-type switch — only rendered when a record is linked from more
+    // than one resource type (items / item sets / media). A segmented pill.
+    // ----------------------------------------------------------------------
+    &__types {
+        display: inline-flex;
+        gap: var(--space-1);
+        margin-bottom: var(--space-4);
+        padding: var(--space-1);
+        background-color: var(--surface-sunken);
+        border-radius: var(--radius-full);
+    }
+}
+
+.lr-type {
+    padding: 0.35rem 0.95rem;
+    border-radius: var(--radius-full);
+    color: var(--ink-light);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    text-decoration: none;
+    transition: color var(--transition-fast), background-color var(--transition-fast);
+
+    &:hover { color: var(--ink); }
+
+    &[aria-current="true"] {
+        background-color: var(--surface);
+        color: var(--ink-strong);
+        box-shadow: var(--shadow-xs);
+    }
+
+    &:focus-visible {
+        outline: none;
+        box-shadow: var(--ring-focus);
+    }
+}
+
+// --------------------------------------------------------------------------
+// Relationship facet pills — filter the list by how each record connects.
+// --------------------------------------------------------------------------
+.resources-linked__facets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0 0 var(--space-5);
+    padding: 0 0 var(--space-5);
+    border-bottom: 1px solid var(--border);
+}
+
+.lr-facet {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.45rem 0.9rem;
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--ink);
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: background-color var(--transition-fast),
+                border-color var(--transition-fast),
+                color var(--transition-fast);
+
+    &:hover {
+        background-color: var(--surface-raised);
+        border-color: var(--border-strong);
+    }
+
+    &:focus-visible {
+        outline: none;
+        box-shadow: var(--ring-focus);
+    }
+
+    &__count {
+        color: var(--ink-subtle);
+        font-size: var(--text-xs);
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+    }
+
+    &.is-active {
+        background-color: var(--primary);
+        border-color: var(--primary);
+        color: var(--primary-contrast);
+
+        .lr-facet__count {
+            color: var(--primary-contrast);
+            opacity: 0.78;
+        }
+    }
+}
+
+// --------------------------------------------------------------------------
+// The consolidated list — one row per connected record.
+// --------------------------------------------------------------------------
+.connections {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.connection {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-4);
+    margin-bottom: 0; // neutralise the global `ul li` margin
+    padding-block: var(--space-4);
+    border-bottom: 1px solid var(--border-light);
+    transition: background-color var(--transition-fast);
+
+    &:last-of-type { border-bottom: none; }
+
+    &:hover { background-color: var(--surface); }
+
+    // [hidden] must beat `display: flex`, or filtered-out rows stay visible.
+    &[hidden] { display: none; }
+
+    &__body {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    // Relationship eyebrow — the kicker that names how the record connects.
+    // Multiple relationships are joined with a middot.
+    &__rel {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 0 0 0.3rem;
+        color: var(--ink-light);
+        font-size: var(--text-xs);
+        font-weight: 600;
+        letter-spacing: var(--tracking-wide);
+        line-height: 1.3;
+        text-transform: uppercase;
+    }
+
+    &__rel-item:not(:first-child) {
+        margin-left: 0.5rem;
+
+        &::before {
+            content: "·";
+            margin-right: 0.5rem;
+            color: var(--ink-subtle);
+            font-weight: 400;
+        }
+    }
+
+    &__title {
+        font-family: var(--font-body);
+        font-size: var(--text-base);
+        font-weight: 500;
+        line-height: 1.4;
+        color: var(--link);
+        text-decoration: none;
+        text-underline-offset: 0.16em;
+        text-decoration-thickness: 1px;
+
+        &:hover { color: var(--link-hover); text-decoration: underline; }
+
+        &:focus-visible {
+            outline: none;
+            box-shadow: var(--ring-focus);
+            border-radius: var(--radius-sm);
+            text-decoration: underline;
+        }
+    }
+
+    &:hover &__title { color: var(--link-hover); }
+
+    // Thumbnail rides the trailing edge so every title stays left-aligned,
+    // whether the list is thumbnail-heavy (media) or text-only (publications).
+    &__thumb {
+        flex-shrink: 0;
+        display: block;
+        width: 3.5rem;
+        height: 3.5rem;
+        overflow: hidden;
+        border-radius: var(--radius-md);
+        background-color: var(--surface-sunken);
+        box-shadow: inset 0 0 0 1px var(--border-light);
 
         img {
-            border-radius: 10px 0 !important;
-            height: 50px;
+            display: block;
+            width: 100%;
+            height: 100%;
             object-fit: cover;
-            width: 50px;
+        }
+
+        &:focus-visible {
+            outline: none;
+            box-shadow: var(--ring-focus);
         }
     }
+}
 
-    .resource__thumbnail {
-        flex-shrink: 0;
-        line-height: 1;
-        margin-left: auto;
-        order: 1;
+.connections__empty {
+    margin: var(--space-4) 0 0;
+    padding: var(--space-8) var(--space-6);
+    text-align: center;
+    color: var(--ink-light);
+    font-size: var(--text-sm);
+    background-color: var(--surface-sunken);
+    border-radius: var(--radius-lg);
+}
+
+// Pagination (only when the linked set spans more than one page).
+.resources-linked .linked-footer {
+    margin-top: var(--space-6);
+}
+
+// --------------------------------------------------------------------------
+// Responsive — stack the sort control under the heading on narrow screens.
+// --------------------------------------------------------------------------
+@media (max-width: $sm) {
+    .resources-linked__bar { align-items: flex-start; }
+
+    .resources-linked__sort {
+        width: 100%;
+
+        select { flex: 1 1 auto; }
     }
 }

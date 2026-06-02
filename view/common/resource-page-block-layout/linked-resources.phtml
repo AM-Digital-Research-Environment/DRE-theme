@@ -1,34 +1,17 @@
 <?php
-$siteId = null;
-if ($this->siteSetting('exclude_resources_not_in_site')) {
-    $siteId = $this->currentSite()->id();
-}
+/**
+ * "Linked resources" resource-page block.
+ *
+ * Thin wrapper: render only when the resource is referenced by others, then
+ * defer the whole consolidated, faceted view to common/linked-resources.phtml
+ * (via the core linkedResources helper). The facet/sort behaviour lives in
+ * js/linked-resources.js — no accordion, no expand/collapse control.
+ */
+$siteId = $this->siteSetting('exclude_resources_not_in_site')
+    ? $this->currentSite()->id()
+    : null;
 
-$expandAllText = $this->translate('Expand all');
-$collapseAllText = $this->translate('Collapse all');
-?>
-<?php if ($resource->subjectValueTotalCount(null, null, $siteId)): ?>
-    <div class="linked-resources-wrapper resources-linked">
-        <div class="resources-linked__header">
-            <h3 class="resources-linked__heading"><?php echo $this->translate('Linked resources'); ?></h3>
-            <button class="resources-linked__expand-collapse-btn"><?php echo $expandAllText; ?></button>
-        </div>
-        <?php echo $this->linkedResources($resource); ?>
-    </div>
-<?php endif; ?>
-
-<script>
-    const expandAllText = <?php echo json_encode($expandAllText); ?>;
-    const collapseAllText = <?php echo json_encode($collapseAllText); ?>;
-
-    const propertySelect = $('#resource-property-select');
-    const url = propertySelect.data('url');
-    const fragment = propertySelect.data('fragment');
-    propertySelect.on('change', function(e) {
-        const selectedOption = propertySelect.find(':selected');
-        const resourceProperty = selectedOption.val();
-        window.location = url + '?' + $.param({resource_property: resourceProperty}) + '#' + fragment;
-    });
-</script>
-
-<?php $this->inlineScript()->appendFile($this->assetUrl('js/accordion.js')); ?>
+if ($resource->subjectValueTotalCount(null, null, $siteId)):
+    echo $this->linkedResources($resource);
+    $this->inlineScript()->appendFile($this->assetUrl('js/linked-resources.js'));
+endif;
