@@ -1,7 +1,9 @@
 <?php
 // Institutional marks — the host university and the cluster it belongs to.
-// Shown on light plaques so the full-colour marks stay legible on the dark
-// footer band in both light and dark mode. Each links out to its home page.
+// Shown on light plaques so the full-colour marks stay legible on the forest
+// footer band in both light and dark mode. Rendered inside the masthead's
+// right-hand column (the wrapping .main-footer__institutions lives there), so
+// this partial emits only the grid. Each mark links out to its home page.
 $escAttr   = $this->plugin('escapeHtmlAttr');
 $translate = $this->plugin('translate');
 
@@ -19,20 +21,16 @@ $institutions = [
 ];
 ?>
 
-<div class="main-footer__institutions">
-    <div class="container">
-        <ul class="main-footer__institution-grid">
-            <?php foreach ($institutions as $org): ?>
-                <li class="main-footer__institution">
-                    <a href="<?php echo $escAttr($org['url']); ?>"
-                        target="_blank" rel="noopener noreferrer"
-                        aria-label="<?php echo $escAttr($translate($org['name'])); ?>">
-                        <img src="<?php echo $this->assetUrl('img/' . $org['file']); ?>"
-                            alt="<?php echo $escAttr($translate($org['name'])); ?>"
-                            loading="lazy" decoding="async" />
-                    </a>
-                </li>
-            <?php endforeach; ?>
-        </ul>
-    </div>
-</div>
+<ul class="main-footer__institution-grid">
+    <?php foreach ($institutions as $org): ?>
+        <li class="main-footer__institution">
+            <a href="<?php echo $escAttr($org['url']); ?>"
+                target="_blank" rel="noopener noreferrer"
+                aria-label="<?php echo $escAttr($translate($org['name'])); ?>">
+                <img src="<?php echo $this->assetUrl('img/' . $org['file']); ?>"
+                    alt="<?php echo $escAttr($translate($org['name'])); ?>"
+                    loading="lazy" decoding="async" />
+            </a>
+        </li>
+    <?php endforeach; ?>
+</ul>

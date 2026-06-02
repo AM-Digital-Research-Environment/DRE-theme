@@ -1,6 +1,6 @@
 # Africa Multiple — DRE · Omeka S theme
 
-[![release v2.0.3](https://img.shields.io/badge/release-v2.0.3-009260?logo=git&logoColor=white)](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases/latest)
+[![release v2.2.0](https://img.shields.io/badge/release-v2.2.0-009260?logo=git&logoColor=white)](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases/latest)
 [![Omeka S v4.2.0+](https://img.shields.io/badge/Omeka%20S-v4.2.0+-8a1f1f)](https://omeka.org/s/)
 [![PHP v8.1+](https://img.shields.io/badge/PHP-v8.1+-605F8E?logo=php&logoColor=white)](https://www.php.net/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-009260.svg)](LICENSE)
@@ -38,8 +38,8 @@ Build toolchain: gulp 5, Dart Sass 1.x, gulp-postcss, autoprefixer.
 - **Contact info** — location, phone, email; show in top header and/or footer.
 - **Header** — top-navigation depth; optional custom *Logo* (overrides the bundled Africa Multiple lockup).
 - **Banner** — image, heading, description, button, positioning.
-- **Footer** — footer logo, site description, menu (title/depth), content. Below it sit fixed institutional marks: the University of Bayreuth and the Africa Multiple Cluster of Excellence.
-- **Social media** — Facebook, X/Twitter, LinkedIn, Instagram, YouTube, Mastodon.
+- **Footer** — a single forest band: a brand-identity masthead (title + description, overridable via *Footer site description*) with social links on the left and the fixed institutional marks (University of Bayreuth + Africa Multiple Cluster) on the right, over a quiet legal row (copyright + a discreet designer credit).
+- **Social media** — Facebook, X/Twitter, LinkedIn, Instagram, YouTube, Mastodon. The Cluster's Facebook, Instagram and YouTube show by default; any setting entered here overrides its default.
 - **Footer bottom** — copyright, terms and privacy links.
 - **Media** — decorative borders; media caption in the viewer.
 - **Resource tags** — show tags by resource type and/or class.

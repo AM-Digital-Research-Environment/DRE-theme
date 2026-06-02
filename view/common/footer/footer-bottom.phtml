@@ -1,44 +1,49 @@
 <?php
-$hasFooterBottomLinks = false;
-if ( $this->themeSetting( 'footer_bottom_terms_link' ) || $this->themeSetting( 'footer_bottom_privacy_link' )) {
-	$hasFooterBottomLinks = true;
-}
+$escHtml = $this->plugin('escapeHtml');
+$escAttr = $this->plugin('escapeHtmlAttr');
+
+$termsLink     = $this->themeSetting('footer_bottom_terms_link');
+$privacyLink   = $this->themeSetting('footer_bottom_privacy_link');
+$hasLegalLinks = ($termsLink || $privacyLink);
 ?>
 
 <div class="main-footer__bottom">
-    <div class="main-footer__bottom-container container <?php echo $hasFooterBottomLinks ? 'has-links' : ''; ?>">
 
-        <!-- Copyright -->
-        <div class="main-footer__copyright">
-            <?php if ( $copyright = $this->themeSetting( 'footer_bottom_copyright' ) ) : ?>
-                <?php echo $copyright; ?>
-            <?php else: ?>
-                &copy; <?php echo date('Y'); ?> <a href="https://www.africamultiple.uni-bayreuth.de/en/1_5-Digital-Solutions1/index.html" target="_blank" rel="noopener noreferrer"><?php echo $this->escapeHtml($this->translate('Digital Research Environment (DRE)')); ?></a>
-            <?php endif; ?>
-        </div>
-
-        <!-- Footer Bottom Links -->
-        <div class="main-footer__links">
-            <?php if ( $terms_link = $this->themeSetting( 'footer_bottom_terms_link' ) ) : ?>
-                <?php
-                    $terms_title = $this->themeSetting( 'footer_bottom_terms_title' );
-                    if ( !$terms_title ) {
-                        $terms_title = $terms_link;
-                    }
-                ?>
-                <a target="_blank" href="<?php echo $this->escapeHtmlAttr($terms_link); ?>"><?php echo $this->escapeHtml($terms_title); ?></a>
-            <?php endif; ?>
-
-            <?php if ( $privacy_link = $this->themeSetting( 'footer_bottom_privacy_link' ) ) : ?>
-                <?php
-                    $privacy_title = $this->themeSetting( 'footer_bottom_privacy_title' );
-                    if ( !$privacy_title ) {
-                        $privacy_title = $privacy_link;
-                    }
-                ?>
-                <a target="_blank" href="<?php echo $this->escapeHtmlAttr($privacy_link); ?>"><?php echo $this->escapeHtml($privacy_title); ?></a>
-            <?php endif; ?>
-        </div>
-
+    <!-- Copyright -->
+    <div class="main-footer__copyright">
+        <?php if ( $copyright = $this->themeSetting( 'footer_bottom_copyright' ) ) : ?>
+            <?php echo $copyright; ?>
+        <?php else: ?>
+            &copy; <?php echo date('Y'); ?> <a href="https://www.africamultiple.uni-bayreuth.de/en/1_5-Digital-Solutions1/index.html" target="_blank" rel="noopener noreferrer"><?php echo $escHtml($this->translate('Digital Research Environment (DRE)')); ?></a>
+        <?php endif; ?>
     </div>
+
+    <!-- Credit + optional legal links -->
+    <div class="main-footer__meta">
+        <p class="main-footer__credit">
+            <?php
+            // %s carries the linked name so translators can reorder the
+            // sentence; the name and URL are static, not user input.
+            echo sprintf(
+                $escHtml($this->translate('Designed & developed by %s')),
+                '<a href="https://www.frederickmadore.com/" target="_blank" rel="noopener noreferrer">Frédérick Madore</a>'
+            );
+            ?>
+        </p>
+
+        <?php if ($hasLegalLinks) : ?>
+            <ul class="main-footer__links">
+                <?php if ($termsLink) : ?>
+                    <?php $termsTitle = $this->themeSetting('footer_bottom_terms_title') ?: $termsLink; ?>
+                    <li><a target="_blank" rel="noopener noreferrer" href="<?php echo $escAttr($termsLink); ?>"><?php echo $escHtml($termsTitle); ?></a></li>
+                <?php endif; ?>
+
+                <?php if ($privacyLink) : ?>
+                    <?php $privacyTitle = $this->themeSetting('footer_bottom_privacy_title') ?: $privacyLink; ?>
+                    <li><a target="_blank" rel="noopener noreferrer" href="<?php echo $escAttr($privacyLink); ?>"><?php echo $escHtml($privacyTitle); ?></a></li>
+                <?php endif; ?>
+            </ul>
+        <?php endif; ?>
+    </div>
+
 </div>

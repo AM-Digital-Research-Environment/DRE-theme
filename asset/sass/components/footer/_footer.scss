@@ -1,14 +1,15 @@
 // ==========================================================================
-// Site footer — deep forest band (theme-aware via --footer-* tokens), footer
-// columns, social, an institutional-marks strip (Bayreuth + Cluster), and a
-// bottom bar.
+// Site footer — a single deep-forest band (theme-aware via --footer-* tokens).
+// One surface, one hairline: an asymmetric masthead (brand identity + social
+// on the left, institutional marks on the right) sits over a quiet legal row.
+// The old stacked bands (empty top, bordered institution strip, darker bottom
+// bar) were collapsed into this one band to read as a single, intentional
+// panel rather than a pile of layers.
 // ==========================================================================
 .main-footer {
-    display: flex;
     background-color: var(--footer-surface);
     clear: both;
     color: var(--footer-text);
-    flex-direction: column;
     font-size: $font__sm-size;
 
     &.has-contact-info {
@@ -25,7 +26,17 @@
         }
     }
 
-    // --- Floating contact card -------------------------------------------
+    // --- Text selection --------------------------------------------------
+    // The footer band stays dark in BOTH themes, but the global ::selection
+    // pairs a faint tint with dark ink — so selected text all but vanishes
+    // here. Override with the brand green + its contrast (the same AA-safe
+    // pairing used for green fills / the social-button hover).
+    & ::selection {
+        background-color: var(--primary);
+        color: var(--primary-contrast);
+    }
+
+    // --- Floating contact card (opt-in) ----------------------------------
     .footer-contact-info {
         margin-top: -40px;
 
@@ -62,176 +73,116 @@
         }
     }
 
-    // --- Top columns ------------------------------------------------------
-    &__top {
-        display: flex;
-        flex-direction: column;
+    // --- The single padded band ------------------------------------------
+    &__inner {
+        padding-block: clamp(var(--space-12), 6vw, var(--space-20));
+    }
+
+    // --- Masthead: identity (left) + institutional marks (right) ----------
+    &__masthead {
+        display: grid;
         gap: var(--space-12);
-        padding-top: var(--space-12);
-
-        > div:last-child {
-            padding-bottom: var(--space-16);
-        }
+        align-items: start;
 
         @media (min-width: $lg) {
-            padding-top: var(--space-16);
+            grid-template-columns: minmax(0, 1.5fr) auto;
+            gap: var(--space-16);
         }
     }
 
-    &__top-container {
+    // --- Brand identity ---------------------------------------------------
+    &__identity {
         display: flex;
         flex-direction: column;
-        gap: var(--space-12);
-
-        @media (min-width: $lg) {
-            flex-direction: row;
-        }
-
-        > div {
-            flex-grow: 1;
-            margin-bottom: var(--space-4);
-            position: relative;
-
-            &:first-child {
-                padding-left: 0;
-            }
-        }
-
-        &.no-menu {
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-
-            @media (min-width: $lg) {
-                flex-direction: row;
-                align-items: flex-start;
-                text-align: left;
-            }
-        }
+        align-items: flex-start;
+        min-width: 0;
     }
 
-    &__col1,
-    &__col3 {
-        text-align: center;
-
-        @media (min-width: $lg) {
-            max-width: 30%;
-            text-align: left;
-        }
-
-        .no-menu & {
-            max-width: 600px;
-            margin-left: 0;
-        }
-
-        .all-columns & {
-            @media (min-width: $lg) { max-width: 26%; }
-        }
-
-        .all-columns.menu-depth-2 & {
-            @media (min-width: $lg) { max-width: 20%; }
-        }
-    }
-
-    &__col1 img {
-        max-width: 160px;
-        height: auto;
-    }
-
-    &__col2 {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-
-        .navigation {
-            display: flex;
-            flex-direction: column;
-            flex-wrap: wrap;
-            gap: var(--space-10);
-            justify-content: center;
-            list-style: none;
-            margin-bottom: 0;
-            margin-left: 0;
-            padding-left: 0;
-            text-align: center;
-
-            @media (min-width: $md) { flex-direction: row; text-align: left; }
-            @media (min-width: $lg) { justify-content: flex-start; }
-
-            li::before { content: none !important; }
-
-            > li {
-                @media (min-width: $md) { max-width: 20%; }
-
-                > a {
-                    font-weight: 600;
-                    display: block;
-                }
-
-                > ul {
-                    margin-left: 0;
-                    margin-top: var(--space-3);
-                    list-style: none;
-                    padding-left: 0;
-
-                    li {
-                        margin-bottom: var(--space-1);
-                        ul { margin-left: 0; padding-left: var(--space-6); }
-                    }
-                }
-            }
-
-            a {
-                color: var(--footer-text);
-                text-transform: none;
-                text-decoration: none;
-
-                &:visited { color: var(--footer-text); }
-                &:hover { text-decoration: underline; }
-            }
-
-            ul {
-                display: none;
-                @media (min-width: $lg) { display: block; }
-            }
-        }
-    }
-
-    &__col3 {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-    }
-
-    &__heading {
-        display: flex;
-        align-items: center;
-        color: var(--footer-text);
+    &__brand {
+        margin: 0;
         font-family: $font__headings;
-        flex-direction: column;
-        margin-bottom: var(--space-6);
+        font-size: var(--text-xl);
+        font-weight: 600;
+        line-height: 1.2;
+        letter-spacing: var(--tracking-tight);
+        color: var(--footer-text);
 
-        @media (min-width: $lg) { align-items: flex-start; }
-
+        // A short Uni-Grün flag rule — the brand's quiet underline accent
+        // (deliberately a bottom rule, never a side stripe).
         &::after {
             content: "";
-            background-color: var(--complementary);
-            height: 2px;
-            width: 44px;
             display: block;
-            margin-top: var(--space-4);
+            width: 2.5rem;
+            height: 2px;
+            margin-top: var(--space-3);
+            background-color: var(--primary);
             border-radius: var(--radius-full);
+        }
+    }
+
+    &__tagline {
+        max-width: 46ch;
+        margin-top: var(--space-5);
+        color: var(--footer-text-muted);
+        line-height: var(--line-height-relaxed);
+
+        p { margin: 0; }
+        p + p { margin-top: var(--space-2); }
+    }
+
+    // --- Social ----------------------------------------------------------
+    &__social {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-3);
+        margin: var(--space-8) 0 0;
+        padding: 0;
+        list-style: none;
+
+        li {
+            margin: 0;
+            &::before { content: none !important; }
+        }
+
+        a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: var(--size-control-lg);
+            height: var(--size-control-lg);
+            color: var(--footer-text);
+            border: 1px solid var(--footer-divider);
+            border-radius: var(--radius-full);
+            text-decoration: none;
+            transition:
+                color var(--transition-fast),
+                border-color var(--transition-fast),
+                background-color var(--transition-fast),
+                transform var(--transition-fast);
+
+            &:hover {
+                color: var(--primary-contrast);
+                background-color: var(--primary);
+                border-color: var(--primary);
+                transform: translateY(var(--lift-xs));
+            }
+
+            &:focus-visible {
+                outline: 2px solid var(--focus-color);
+                outline-offset: 2px;
+            }
+
+            svg {
+                width: 18px;
+                height: 18px;
+            }
         }
     }
 
     // --- Institutional marks (host university + cluster) -----------------
     &__institutions {
-        border-top: 1px solid var(--footer-divider);
-
-        .container {
-            padding-top: var(--space-10);
-            padding-bottom: var(--space-10);
+        @media (min-width: $lg) {
+            justify-self: end;
         }
     }
 
@@ -239,11 +190,12 @@
         display: flex;
         flex-wrap: wrap;
         align-items: center;
-        justify-content: center;
-        gap: var(--space-6);
+        gap: var(--space-4);
         list-style: none;
         margin: 0;
         padding: 0;
+
+        @media (min-width: $lg) { justify-content: flex-end; }
 
         li::before { content: none !important; }
     }
@@ -253,14 +205,14 @@
 
         a {
             // Light plaque so the dark-ink institutional marks stay legible on
-            // the forest footer band in both light and dark mode.
+            // the forest band in both light and dark mode.
             display: inline-flex;
             align-items: center;
             justify-content: center;
             background-color: #fff;
             border: 1px solid var(--border-light);
             border-radius: var(--radius-md);
-            padding: var(--space-4) var(--space-6);
+            padding: var(--space-4) var(--space-5);
             box-shadow: var(--shadow-xs);
             text-decoration: none;
             transition: transform var(--transition-fast), box-shadow var(--transition-fast);
@@ -279,72 +231,78 @@
         img {
             display: block;
             width: auto;
-            height: 36px;
-            max-width: 230px;
+            height: 34px;
+            max-width: 220px;
             object-fit: contain;
 
-            @media (min-width: $md) { height: 44px; }
+            @media (min-width: $md) { height: 40px; }
         }
     }
 
-    // --- Social ----------------------------------------------------------
-    &__social-network {
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        flex-shrink: 0;
-        gap: var(--space-4);
-        justify-content: center;
-
-        @media (min-width: $lg) { order: 1; }
-
-        a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid var(--footer-divider);
-            border-radius: var(--radius-full);
-            height: 44px;
-            width: 44px;
-            color: var(--footer-text);
-            text-decoration: none;
-            transition: color var(--transition-fast), border-color var(--transition-fast), background-color var(--transition-fast);
-
-            &:hover {
-                color: var(--primary-contrast);
-                background-color: var(--primary);
-                border-color: var(--primary);
-            }
-
-            svg { width: 18px; height: 18px; }
-        }
-    }
-
-    // --- Bottom bar ------------------------------------------------------
+    // --- Legal row -------------------------------------------------------
+    // One hairline above; copyright left, credit + any legal links right.
     &__bottom {
-        background-color: var(--footer-surface-alt);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-4);
+        margin-top: clamp(var(--space-10), 4vw, var(--space-16));
+        padding-top: var(--space-6);
         border-top: 1px solid var(--footer-divider);
         color: var(--footer-text-muted);
-        padding: var(--space-6) 0;
+        font-size: var(--text-xs);
+
+        @media (min-width: $md) {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        a {
+            color: var(--footer-text-muted);
+            &:hover { color: color-mix(in oklab, var(--footer-text-muted), white 30%); }
+        }
     }
 
-    &__bottom-container {
+    &__copyright a {
+        text-decoration: underline;
+        text-underline-offset: 0.15em;
+    }
+
+    &__meta {
         display: flex;
-        align-items: center;
         flex-direction: column;
-        gap: var(--space-6);
-        justify-content: center;
-        text-align: center;
+        gap: var(--space-2);
 
-        @media (min-width: $lg) { flex-direction: row; text-align: left; }
+        @media (min-width: $md) {
+            align-items: flex-end;
+        }
+    }
 
-        &.has-links { justify-content: space-between; }
+    &__credit {
+        margin: 0;
 
-        a { color: var(--footer-text-muted); &:hover { text-decoration: underline; } }
+        a {
+            text-decoration: underline;
+            text-underline-offset: 0.15em;
+        }
     }
 
     &__links {
         display: flex;
-        gap: var(--space-10);
+        flex-wrap: wrap;
+        gap: var(--space-4) var(--space-6);
+        margin: 0;
+        padding: 0;
+        list-style: none;
+
+        li {
+            margin: 0;
+            &::before { content: none !important; }
+        }
+
+        a {
+            text-decoration: none;
+            &:hover { text-decoration: underline; }
+        }
     }
 }

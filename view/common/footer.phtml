@@ -19,8 +19,10 @@ if (is_array($contactInfo['position'])
         <?php echo $this->partial('common/footer/footer-contact-info', ['contactInfo' => $contactInfo]); ?>
     <?php endif; ?>
 
-    <?php echo $this->partial('common/footer/footer-top'); ?>
-    <?php echo $this->partial('common/footer/footer-institutions'); ?>
-    <?php echo $this->partial('common/footer/footer-bottom'); ?>
+    <?php // One forest band: an asymmetric masthead over a quiet legal row. ?>
+    <div class="main-footer__inner container">
+        <?php echo $this->partial('common/footer/footer-masthead'); ?>
+        <?php echo $this->partial('common/footer/footer-bottom'); ?>
+    </div>
 
 </footer>

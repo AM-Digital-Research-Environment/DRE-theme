@@ -168,9 +168,14 @@ theme-aware in one move. Notable bespoke work:
 
 - **Header** — sticky surface with a 3 px Uni-Grün top “flag” rule, quiet utility
   bar, the lockup with light/dark swap, and the sun/moon toggle.
-- **Footer** — deep forest band (`--footer-*`), institutional marks (Bayreuth +
-  Cluster, on light plaques), inline `currentColor` social icons (so they show on
-  the dark band), bottom bar.
+- **Footer** — one deep-forest band (`--footer-*`): an asymmetric masthead
+  pairing a brand-identity block (title in Spectral + description, with inline
+  `currentColor` social icons that recolour on the dark band) against the
+  institutional marks (Bayreuth + Cluster, on light plaques), over a single
+  hairline-separated legal row (copyright + a discreet designer credit). The
+  Cluster's Facebook / Instagram / YouTube are wired as overridable defaults.
+  Replaced the old stack of three bands (empty top, bordered marks strip, darker
+  bottom bar).
 - **Back to top** — a fixed brand-green control that fades in past a scroll
   threshold and smooth-scrolls to the top (honours `prefers-reduced-motion`).
 - **Cards** (resource grid/list) — clean surface cards: hairline border, soft
