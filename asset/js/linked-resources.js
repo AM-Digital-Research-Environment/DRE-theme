@@ -3,95 +3,99 @@
  *
  * Progressive enhancement for the consolidated "Linked resources" block:
  *  - relationship facet pills filter the list (aria-pressed, live count),
- *  - the sort control reorders it (relationship / title A–Z / Z–A).
+ *  - the sort control reorders it (relationship / title A-Z / Z-A).
  *
- * Operates on the server-rendered DOM, so the list is fully usable without
- * JS (every record and its relationship is already on the page). Facets and
- * sorting act on the records loaded into the current page.
+ * Uses event delegation on `document` rather than binding on load. The item
+ * page also loads heavy resource-visualizations scripts, and binding at
+ * DOMContentLoaded proved unreliable there (the listeners could attach before
+ * the block was matchable, or be lost if the subtree was re-rendered).
+ * Delegating from `document` is immune to script order and DOM re-rendering,
+ * and the DOM is re-queried on each interaction so state always reflects what
+ * is actually on the page. The list is fully usable without JS.
  */
 (function () {
     'use strict';
 
-    function init(root) {
+    function activeFacet(root) {
+        var btn = root.querySelector('[data-lr-facet].is-active');
+        return btn ? btn.getAttribute('data-lr-facet') : 'all';
+    }
+
+    function applyFilter(root) {
+        var active = activeFacet(root);
+        var items = root.querySelectorAll('[data-lr-list] .connection');
+        var visible = 0;
+        items.forEach(function (li) {
+            var props = (li.getAttribute('data-props') || '').split(' ');
+            var show = active === 'all' || props.indexOf(active) !== -1;
+            li.hidden = !show;
+            if (show) {
+                visible++;
+            }
+        });
+        var countEl = root.querySelector('[data-lr-count]');
+        if (countEl) {
+            countEl.textContent = visible;
+        }
+        var emptyEl = root.querySelector('[data-lr-empty]');
+        if (emptyEl) {
+            emptyEl.hidden = visible !== 0;
+        }
+    }
+
+    function sortItems(root, mode) {
         var list = root.querySelector('[data-lr-list]');
         if (!list) {
             return;
         }
-
         var items = Array.prototype.slice.call(list.querySelectorAll('.connection'));
-        var facets = Array.prototype.slice.call(root.querySelectorAll('[data-lr-facet]'));
-        var sortSelect = root.querySelector('[data-lr-sort]');
-        var countEl = root.querySelector('[data-lr-count]');
-        var emptyEl = root.querySelector('[data-lr-empty]');
-        var active = 'all';
-
-        function applyFilter() {
-            var visible = 0;
-            items.forEach(function (li) {
-                var props = (li.getAttribute('data-props') || '').split(' ');
-                var show = active === 'all' || props.indexOf(active) !== -1;
-                li.hidden = !show;
-                if (show) {
-                    visible++;
-                }
-            });
-            if (countEl) {
-                countEl.textContent = visible;
+        items.sort(function (a, b) {
+            if (mode === 'title-asc' || mode === 'title-desc') {
+                var byTitle = (a.dataset.title || '').localeCompare(b.dataset.title || '');
+                return mode === 'title-desc' ? -byTitle : byTitle;
             }
-            if (emptyEl) {
-                emptyEl.hidden = visible !== 0;
+            // "relationship": cluster by the record's primary relationship,
+            // then alphabetically within each cluster.
+            var ra = parseInt(a.dataset.relOrder || '0', 10);
+            var rb = parseInt(b.dataset.relOrder || '0', 10);
+            if (ra !== rb) {
+                return ra - rb;
             }
-        }
-
-        function sortItems(mode) {
-            var sorted = items.slice().sort(function (a, b) {
-                if (mode === 'title-asc' || mode === 'title-desc') {
-                    var byTitle = (a.dataset.title || '').localeCompare(b.dataset.title || '');
-                    return mode === 'title-desc' ? -byTitle : byTitle;
-                }
-                // "relationship": cluster by the record's primary relationship,
-                // then alphabetically within each cluster.
-                var ra = parseInt(a.dataset.relOrder || '0', 10);
-                var rb = parseInt(b.dataset.relOrder || '0', 10);
-                if (ra !== rb) {
-                    return ra - rb;
-                }
-                return (a.dataset.title || '').localeCompare(b.dataset.title || '');
-            });
-            sorted.forEach(function (li) {
-                list.appendChild(li);
-            });
-        }
-
-        facets.forEach(function (btn) {
-            btn.addEventListener('click', function () {
-                active = btn.getAttribute('data-lr-facet');
-                facets.forEach(function (other) {
-                    var on = other === btn;
-                    other.classList.toggle('is-active', on);
-                    other.setAttribute('aria-pressed', on ? 'true' : 'false');
-                });
-                applyFilter();
-            });
+            return (a.dataset.title || '').localeCompare(b.dataset.title || '');
         });
+        // appendChild moves nodes, preserving each row's hidden state, so the
+        // active filter survives a re-sort.
+        items.forEach(function (li) {
+            list.appendChild(li);
+        });
+    }
 
-        if (sortSelect) {
-            sortSelect.addEventListener('change', function () {
-                sortItems(sortSelect.value);
-            });
-            sortItems(sortSelect.value);
+    document.addEventListener('click', function (e) {
+        var btn = e.target && e.target.closest ? e.target.closest('[data-lr-facet]') : null;
+        if (!btn) {
+            return;
         }
+        var root = btn.closest('.resources-linked');
+        if (!root) {
+            return;
+        }
+        root.querySelectorAll('[data-lr-facet]').forEach(function (other) {
+            var on = other === btn;
+            other.classList.toggle('is-active', on);
+            other.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        applyFilter(root);
+    });
 
-        applyFilter();
-    }
-
-    function boot() {
-        document.querySelectorAll('.resources-linked').forEach(init);
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', boot, { once: true });
-    } else {
-        boot();
-    }
+    document.addEventListener('change', function (e) {
+        var sel = e.target && e.target.closest ? e.target.closest('[data-lr-sort]') : null;
+        if (!sel) {
+            return;
+        }
+        var root = sel.closest('.resources-linked');
+        if (!root) {
+            return;
+        }
+        sortItems(root, sel.value);
+    });
 })();
