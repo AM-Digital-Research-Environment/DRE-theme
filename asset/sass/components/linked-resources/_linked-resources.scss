@@ -131,12 +131,22 @@
         white-space: nowrap;
     }
 
-    // The global field style makes <select> full-width and 44px tall; in the
-    // toolbar it only needs to be as wide as its longest option.
+    // The global field style makes <select> full-width and 44px tall, which
+    // towers over the facet pills. Reset it to a compact, pill-shaped control
+    // on the same scale as the pills (text-sm, ~pill height, room for the
+    // arrow on the right).
     &__sort select {
         width: auto;
-        min-width: 10.5rem;
+        min-width: 9.5rem;
+        height: auto;
         margin-bottom: 0;
+        padding: 0.4rem 2rem 0.4rem 0.9rem;
+        font-size: var(--text-sm);
+        line-height: 1.2;
+        border-color: var(--border);
+        border-radius: var(--radius-full);
+        background-position: calc(100% - 0.7rem) center;
+        background-size: 14px;
     }
 }
 
@@ -221,7 +231,10 @@
     padding: 0;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
-    gap: var(--space-3);
+    // More vertical than horizontal: equal-width cards stacked on the warm,
+    // low-contrast surfaces read as one block at a tight row gap, so give the
+    // rows clearer breathing room (closer to the browse-grid card rhythm).
+    gap: var(--space-5) var(--space-3);
 }
 
 .connection {
