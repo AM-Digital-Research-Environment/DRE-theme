@@ -175,6 +175,12 @@
     gap: var(--space-4);
     margin-bottom: 0; // neutralise the global `ul li` margin
     padding-block: var(--space-4);
+    // Inset the content and pull the row back by the same amount, so the hover
+    // tint and hairline gain breathing room on both sides while the text stays
+    // aligned with the heading. Kept within the container gutter (>=15px) so it
+    // can't cause horizontal overflow.
+    padding-inline: var(--space-3);
+    margin-inline: calc(-1 * var(--space-3));
     border-bottom: 1px solid var(--border-light);
     transition: background-color var(--transition-fast);
 
