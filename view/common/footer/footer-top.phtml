@@ -4,33 +4,20 @@ $escAttr = $this->plugin('escapeHtmlAttr');
 
 $footerLogo      	= $this->themeSetting( 'footer_logo' );
 $footerSiteInfo  	= $this->themeSetting( 'footer_site_info' );
-$footerMenu      	= $this->themeSetting( 'footer_menu' );
-$footerMenuTitle 	= $this->themeSetting('footer_menu_title');
-$footerMenuDepth = (int) $this->themeSetting('footer_menu_depth') ? (int) $this->themeSetting('footer_menu_depth') -1 : -1;
+// Footer navigation menu intentionally removed for a leaner footer — the
+// primary navigation already lives in the header, so repeating it here added
+// clutter without value. Forcing $footerMenu off keeps the column logic below
+// on the "no-menu" path.
+$footerMenu      	= false;
 $footerContentTitle = $this->themeSetting('footer_content_title');
 $footerContent   	= $this->themeSetting( 'footer_content' );
 $socialNetworks  	= array( 'facebook', 'twitter', 'linkedin', 'instagram', 'youtube', 'mastodon' );
 
-$additional_classes = '';
+// With the nav menu gone, only the brand/site-info column and the optional
+// content column remain — the footer always takes the "no-menu" layout path.
+$additional_classes = ' no-menu';
 
-if ( ! $footerMenu ) {
-	$additional_classes .= ' no-menu';
-} elseif ( ! $footerLogo && ! $footerSiteInfo && ! $footerContent ) {
-	$additional_classes .= ' menu-only';
-}
-
-if ( $footerMenu && ( $footerLogo || $footerSiteInfo ) && $footerContent ) {
-	$additional_classes .= ' all-columns';
-
-	if ( $footerMenuDepth > 1 ) {
-		$additional_classes .= ' menu-depth-2';
-	}
-}
-
-$hasFooterTopColumns = false;
-if ( $footerLogo || $footerSiteInfo || $footerMenu || $footerContent ) {
-	$hasFooterTopColumns = true;
-}
+$hasFooterTopColumns = ( $footerLogo || $footerSiteInfo || $footerContent );
 
 $hasSocialNetworks = false;
 foreach ( $socialNetworks as $social_network ) {
@@ -63,23 +50,6 @@ foreach ( $socialNetworks as $social_network ) {
                     </div>
                 </div>
                 
-            <?php endif; ?>
-
-            <!-- Column 2 -->
-            <?php if ( $footerMenu ) : ?>
-            
-                <div class="main-footer__col2">
-                    <?php if ( $footerMenuTitle ) : ?>
-                        <h6 class="main-footer__heading"><?php echo $this->escapeHtml($footerMenuTitle); ?></h6>
-                    <?php endif; ?>
-
-                    <?php
-                        echo $site->publicNav()->menu()->renderMenu(null, [
-                            'maxDepth' => $footerMenuDepth
-                        ]);
-                    ?>
-                </div>
-
             <?php endif; ?>
 
             <!-- Column 3 -->

@@ -35,9 +35,11 @@
 
 		window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
 
-		// Move focus to the top of the document for keyboard / screen-reader users.
-		const target = document.getElementById('skipnav') || document.body;
-		if (typeof target.focus === 'function') {
+		// Move focus to the main content region for keyboard / screen-reader
+		// users. NB: target #content (role="main", tabindex="-1") — never the
+		// skip link, whose :focus style would flash a visible popup.
+		const target = document.getElementById('content');
+		if (target && typeof target.focus === 'function') {
 			target.focus({ preventScroll: true });
 		}
 	});

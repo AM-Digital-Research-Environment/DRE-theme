@@ -8,12 +8,11 @@
     padding: 0;
     font-size: 1.125rem;
     line-height: 1;
-    margin-left: auto;
-    margin-right: 20px;
+    margin-left: auto;   // mobile: the one auto margin — pushes the whole control
+    margin-right: 0;     // cluster (search · hamburger · toggle) to the right
 
     @media (min-width: $xl) {
         margin-left: 0;
-        margin-right: 0;
         order: initial;
     }
 
