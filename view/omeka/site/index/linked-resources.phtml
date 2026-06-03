@@ -1,0 +1,65 @@
+<?php
+/**
+ * Theme override of Omeka's terminal "linked resources" endpoint.
+ *
+ * AMIRA surfaces linked resources only as *items* (and media) — never item
+ * sets. The public site has no styled item-set page, so an item-set link in
+ * this block dead-ends on an unstyled blank screen. We therefore strip item
+ * sets from the linked-resources view entirely:
+ *   - the default type is the first of items/media that actually links here
+ *     (core would otherwise default to whichever type comes first, including
+ *     item_sets when nothing else links);
+ *   - an explicit ?resource_property=item_sets: switch is ignored;
+ *   - when only item sets link here, nothing is rendered.
+ *
+ * Mirrors core view/omeka/site/index/linked-resources.phtml, adding only the
+ * resource-type guard. The item_sets *tab* is removed in
+ * common/linked-resources.phtml, and the block is hidden outright for
+ * item-set-only resources in
+ * common/resource-page-block-layout/linked-resources.phtml.
+ */
+$siteId = null;
+if ($this->siteSetting('exclude_resources_not_in_site')) {
+    $siteId = $this->currentSite()->id();
+}
+
+// Linked-resource types we are willing to show, in display-priority order.
+// item_sets is deliberately absent.
+$allowedTypes = ['items', 'media'];
+
+$counts = [];
+foreach ($allowedTypes as $type) {
+    $counts[$type] = $resource->subjectValueTotalCount(null, $type, $siteId);
+}
+
+// Honour an explicit type switch only when it targets an allowed type that
+// actually has links here; otherwise fall back to the first allowed type that
+// does — so we never default to (or land on) item_sets.
+$resourceProperty = null;
+$requested = $this->params()->fromQuery('resource_property');
+if ($requested && false !== strpos($requested, ':')) {
+    $requestedType = strstr($requested, ':', true);
+    if (in_array($requestedType, $allowedTypes, true) && !empty($counts[$requestedType])) {
+        $resourceProperty = $requested;
+    }
+}
+if ($resourceProperty === null) {
+    foreach ($allowedTypes as $type) {
+        if ($counts[$type]) {
+            $resourceProperty = $type . ':';
+            break;
+        }
+    }
+}
+
+// Only item sets (or nothing) link here — render nothing.
+if ($resourceProperty === null) {
+    return;
+}
+
+echo $resource->displaySubjectValues([
+    'page' => $this->params()->fromQuery('page', 1),
+    'perPage' => $this->siteSetting('pagination_per_page', $this->setting('pagination_per_page', 25)),
+    'resourceProperty' => $resourceProperty,
+    'siteId' => $siteId,
+]);

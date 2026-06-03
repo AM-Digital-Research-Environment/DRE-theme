@@ -11,7 +11,15 @@ $siteId = $this->siteSetting('exclude_resources_not_in_site')
     ? $this->currentSite()->id()
     : null;
 
-if ($resource->subjectValueTotalCount(null, null, $siteId)):
+// Linked resources are shown only as items (and media) — never item sets, which
+// dead-end on an unstyled item-set page. Gate the whole block on whether any
+// *item or media* links here, so a resource linked solely by item sets shows no
+// empty "Linked resources" shell (and skips the wasted AJAX round-trip). Keep in
+// sync with the resource-type guard in view/omeka/site/index/linked-resources.phtml.
+$linkedCount = $resource->subjectValueTotalCount(null, 'items', $siteId)
+    + $resource->subjectValueTotalCount(null, 'media', $siteId);
+
+if ($linkedCount):
     echo $this->linkedResources($resource);
     $this->inlineScript()->appendFile($this->assetUrl('js/linked-resources.js'));
 endif;

@@ -136,7 +136,11 @@ $typeLabels = [
     'media'     => $translate('Media'),
 ];
 $typesWithValues = [];
-foreach (['items', 'item_sets', 'media'] as $type) {
+// Item sets are never surfaced as linked resources (the public site has no
+// styled item-set page), so they are never offered as a switchable type either.
+// Keep in sync with the resource-type guard in
+// view/omeka/site/index/linked-resources.phtml.
+foreach (['items', 'media'] as $type) {
     if (!empty($resourcePropertiesAll[$type])) {
         $typesWithValues[] = $type;
     }
