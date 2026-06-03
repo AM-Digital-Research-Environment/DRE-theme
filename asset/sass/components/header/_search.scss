@@ -121,4 +121,22 @@
     transform: translateY(var(--space-2));   // small gap under the bar
 }
 
+// The suggestions panel is a SIBLING of the field above, anchored to the same
+// header bar — so it needs the matching re-lay. Left alone it keeps the module's
+// `top: calc(100% + .3rem)` / `inset-inline-end: 0`, which lands it ON TOP of the
+// floating input (both originate at the bar's bottom edge) and right-flush to the
+// bar instead of the gutter. Drop it below the field — past the field's own
+// offset plus its height — and match the gutters so it lines up with the input.
+.main-header__search-bar.d-xl-none
+    .dre-search-bar--collapsible.dre-search-bar--expanded
+    .dre-search-bar__suggest {
+    inset-inline: var(--space-3);            // align with the field's gutters
+    width: auto;                             // span gutter-to-gutter, like the field
+    top: 100%;                               // same origin as the field…
+    // …then clear it: field offset (--space-2) + field height + a matching gap.
+    transform: translateY(
+        calc(var(--space-2) + var(--size-control-md, 2.5rem) + var(--space-2))
+    );
+}
+
 

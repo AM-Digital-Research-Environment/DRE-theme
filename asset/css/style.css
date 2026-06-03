@@ -2148,6 +2148,13 @@ body[data-theme=dark] .theme-toggle .theme-toggle__icon--moon {
   transform: translateY(var(--space-2));
 }
 
+.main-header__search-bar.d-xl-none .dre-search-bar--collapsible.dre-search-bar--expanded .dre-search-bar__suggest {
+  inset-inline: var(--space-3);
+  width: auto;
+  top: 100%;
+  transform: translateY(calc(var(--space-2) + var(--size-control-md, 2.5rem) + var(--space-2)));
+}
+
 /* Navigation
 --------------------------------------------- */
 .main-navigation {
