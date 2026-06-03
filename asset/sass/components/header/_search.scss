@@ -84,4 +84,41 @@
     }
 }
 
+// --- Mobile instance: the collapsible magnifier (dreSearchBar "header-mobile")
+// This instance renders OUTSIDE .main-header__utilities, as a direct child of
+// the main bar, and is hidden at $xl+ via `.d-xl-none` — so these rules only
+// shape the mobile bar.
+.main-header__search-bar.d-xl-none {
+    // Position: the single auto margin that clusters search · toggle · hamburger
+    // to the right used to live on the core-search button (.main-search-button
+    // above); that element is not rendered while the dreSearchBar helper is
+    // active, so the magnifier wrapper carries it now. It stays the ONLY auto
+    // margin in the mobile bar (nav + utilities only gain theirs at $xl), so the
+    // cluster can't split — without it the controls spread via `space-between`
+    // and the magnifier floats mid-bar.
+    margin-left: auto;
+
+    // Out-of-bounds fix: the module anchors the expanded field to this compact
+    // wrapper (position: absolute; inset-inline-end: 0; width: min(20rem, 80vw)),
+    // so on a narrow screen the field overhangs the left edge. Drop the two
+    // intermediate positioning contexts so it anchors to .main-header__main-bar
+    // (already position: relative) instead.
+    &,
+    .dre-search-bar--collapsible {
+        position: static;
+    }
+}
+
+// …then re-lay the expanded field as a tidy full-width drop-down within the
+// viewport gutters, just below the header row. Five classes out-specify the
+// module's four-class rule, so no !important is needed.
+.main-header__search-bar.d-xl-none
+    .dre-search-bar--collapsible.dre-search-bar--expanded
+    .dre-search-bar__input-wrap {
+    inset-inline: var(--space-3);            // 12px gutters on both edges
+    width: auto;                             // span gutter-to-gutter
+    top: 100%;                               // drop just below the header bar
+    transform: translateY(var(--space-2));   // small gap under the bar
+}
+
 

@@ -11,6 +11,18 @@ html {
     text-size-adjust: 100%;
 }
 
+// While a search field in the sticky header has focus, drop the scroll-padding
+// offset. The browser's caret-scroll (fired on every keystroke, and which honours
+// scroll-padding via block:"nearest") keeps trying to push the in-header input
+// below the 6rem zone; because the header is `position: sticky` the input never
+// leaves that zone, so the page creeps upward one nudge per keystroke. Anchor-jump
+// navigation — the reason the offset exists — never coincides with typing in the
+// bar, so zeroing it only while the field is focused is safe. (:has specificity
+// (0,2,2) beats the base `html` rule, so no !important is needed.)
+html:has(.main-header input:focus) {
+    scroll-padding-top: 0;
+}
+
 body {
     min-height: 100vh;
     min-height: 100dvh;

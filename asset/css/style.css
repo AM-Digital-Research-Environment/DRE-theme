@@ -746,6 +746,10 @@ html {
        text-size-adjust: 100%;
 }
 
+html:has(.main-header input:focus) {
+  scroll-padding-top: 0;
+}
+
 body {
   min-height: 100vh;
   min-height: 100dvh;
@@ -2127,6 +2131,21 @@ body[data-theme=dark] .theme-toggle .theme-toggle__icon--moon {
   .main-header__utilities .main-header__search-bar {
     margin-left: auto;
   }
+}
+
+.main-header__search-bar.d-xl-none {
+  margin-left: auto;
+}
+.main-header__search-bar.d-xl-none,
+.main-header__search-bar.d-xl-none .dre-search-bar--collapsible {
+  position: static;
+}
+
+.main-header__search-bar.d-xl-none .dre-search-bar--collapsible.dre-search-bar--expanded .dre-search-bar__input-wrap {
+  inset-inline: var(--space-3);
+  width: auto;
+  top: 100%;
+  transform: translateY(var(--space-2));
 }
 
 /* Navigation
