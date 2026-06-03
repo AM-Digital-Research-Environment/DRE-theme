@@ -1,39 +1,42 @@
 <?php
+    // The quiet top utility bar previously always carried an "Advanced search"
+    // link; that has moved into the header's Typesense search. The bar now exists
+    // only to show contact info, so render it only when contact info is enabled
+    // for the top header (otherwise it would be an empty sunken strip).
     $contactInfoPosition = $this->themeSetting('contact_info_position');
-    $contactInfoPhone = $this->themeSetting('contact_info_phone') ?? '';
-    $contactInfoEmail = $this->themeSetting('contact_info_email') ?? '';
-    $contactInfoLocation = $this->themeSetting('contact_info_location') ?? '';
-    $contactInfoLocationLink = $this->themeSetting('contact_info_location_link') ?? '';
+    $showTopBar = is_array($contactInfoPosition) && in_array('top_header', $contactInfoPosition);
+
+    if ($showTopBar) :
+        $contactInfoPhone = $this->themeSetting('contact_info_phone') ?? '';
+        $contactInfoEmail = $this->themeSetting('contact_info_email') ?? '';
+        $contactInfoLocation = $this->themeSetting('contact_info_location') ?? '';
+        $contactInfoLocationLink = $this->themeSetting('contact_info_location_link') ?? '';
 ?>
 
 <div class="main-header__top-bar">
     <div class="container">
-        <?php if (is_array($contactInfoPosition) && in_array('top_header', $contactInfoPosition)) : ?>
-            <div class="top-bar__info">
-                <?php if ($contactInfoLocation) : ?>
-                    <?php if ($contactInfoLocationLink) : ?>
-                        <a class="contact_info contact_info_location" target="_blank" href="<?php echo $this->escapeHtmlAttr($contactInfoLocationLink); ?>">
-                    <?php else : ?>
-                        <div class="contact_info contact_info_location">
-                    <?php endif; ?>
-                            <?php echo $this->escapeHtml($contactInfoLocation); ?>
+        <div class="top-bar__info">
+            <?php if ($contactInfoLocation) : ?>
+                <?php if ($contactInfoLocationLink) : ?>
+                    <a class="contact_info contact_info_location" target="_blank" href="<?php echo $this->escapeHtmlAttr($contactInfoLocationLink); ?>">
+                <?php else : ?>
+                    <div class="contact_info contact_info_location">
+                <?php endif; ?>
+                        <?php echo $this->escapeHtml($contactInfoLocation); ?>
 	                <?php if ($contactInfoLocationLink) : ?>
-                        </a>
+                    </a>
 	                <?php else : ?>
-                        </div>
+                    </div>
 		            <?php endif; ?>
-                <?php endif; ?>
-                <?php if ($contactInfoPhone) : ?>
-                    <div class="contact_info contact_info_phone"><a href="tel:<?php echo $this->escapeHtmlAttr($contactInfoPhone); ?>"><?php echo $this->escapeHtml($contactInfoPhone); ?></a></div>
-                <?php endif; ?>
-                <?php if ($contactInfoEmail) : ?>
-                    <div class="contact_info contact_info_email"><a target="_blank" href="mailto:<?php echo $this->escapeHtmlAttr($contactInfoEmail); ?>"><?php echo $this->escapeHtml($contactInfoEmail); ?></a></div>
-                <?php endif; ?>
-            </div>
-        <?php endif; ?>
-
-        <a class="top-bar__advanced-search" href="<?php echo $site->url() . '/item/search'; ?>"><?php echo $this->translate('Advanced search'); ?></a>
-
+            <?php endif; ?>
+            <?php if ($contactInfoPhone) : ?>
+                <div class="contact_info contact_info_phone"><a href="tel:<?php echo $this->escapeHtmlAttr($contactInfoPhone); ?>"><?php echo $this->escapeHtml($contactInfoPhone); ?></a></div>
+            <?php endif; ?>
+            <?php if ($contactInfoEmail) : ?>
+                <div class="contact_info contact_info_email"><a target="_blank" href="mailto:<?php echo $this->escapeHtmlAttr($contactInfoEmail); ?>"><?php echo $this->escapeHtml($contactInfoEmail); ?></a></div>
+            <?php endif; ?>
+        </div>
     </div>
 </div>
 
+<?php endif; ?>

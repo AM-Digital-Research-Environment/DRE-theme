@@ -45,6 +45,14 @@
 
     &__heading {
         margin: 0;
+        // Sit at the same scale as the Resource Visualizations module's block
+        // headings (.resource-vis-block h3 / .dashboard-header h3 → 1.25rem/600)
+        // so this disclosure reads consistently alongside the visualization
+        // blocks, instead of inheriting the much larger global h3 (1.5rem, and
+        // 1.875rem from ≥md up).
+        font-size: 1.25rem;
+        font-weight: 600;
+        line-height: 1.2;
         transition: color var(--transition-fast);
     }
 
@@ -231,10 +239,12 @@
     padding: 0;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
-    // More vertical than horizontal: equal-width cards stacked on the warm,
-    // low-contrast surfaces read as one block at a tight row gap, so give the
-    // rows clearer breathing room (closer to the browse-grid card rhythm).
-    gap: var(--space-5) var(--space-3);
+    // Equal-width cards on the warm, near-white surfaces sit only ~2% lighter
+    // than the page, so a tight row gap blurs the rows into one block. Give the
+    // rows generous vertical breathing room (≈⅓ of a card's height) while
+    // keeping the columns tighter, so the grid still scans as a dense — but
+    // clearly separated — set of cards.
+    gap: var(--space-8) var(--space-4);
 }
 
 .connection {
@@ -254,7 +264,10 @@
     background-color: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-xs);
+    // A gentle resting lift (rather than the near-invisible xs) so each card
+    // reads as a discrete tile against the low-contrast page and the row gaps
+    // register as real separation.
+    box-shadow: var(--shadow-sm);
     text-decoration: none;
     transition:
         border-color var(--transition-fast),
@@ -264,7 +277,7 @@
     &:hover {
         border-color: var(--border-strong);
         background-color: var(--surface-raised);
-        box-shadow: var(--shadow-sm);
+        box-shadow: var(--shadow-md);
     }
 
     &:focus-visible {

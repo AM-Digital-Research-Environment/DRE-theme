@@ -29,7 +29,13 @@ $logo = $this->themeSetting('logo');
 			</a>
 		</h1>
 
-		<?php echo $this->partial('common/main-header-search', ['class' => 'd-block d-xl-none', 'site' => $site]); ?>
+		<?php // Federated Typesense search (DRESearch module). Falls back to the
+		      // core search form when the module is absent. Mobile: collapsible. ?>
+		<?php if ($this->getHelperPluginManager()->has('dreSearchBar')): ?>
+			<?php echo $this->dreSearchBar('header-mobile', 'd-block d-xl-none', true); ?>
+		<?php else: ?>
+			<?php echo $this->partial('common/main-header-search', ['class' => 'd-block d-xl-none', 'site' => $site]); ?>
+		<?php endif; ?>
 
 		<nav class="main-navigation" aria-label="<?php echo $this->escapeHtmlAttr($translate('Primary navigation')); ?>">
 			<div class="main-navigation__container">
@@ -53,7 +59,12 @@ $logo = $this->themeSetting('logo');
 		</nav>
 
 		<div class="main-header__utilities">
-			<?php echo $this->partial('common/main-header-search', ['class' => 'd-none d-xl-block', 'site' => $site]); ?>
+			<?php // Desktop: always-visible federated search input (see mobile note above). ?>
+			<?php if ($this->getHelperPluginManager()->has('dreSearchBar')): ?>
+				<?php echo $this->dreSearchBar('header-desktop', 'd-none d-xl-block', false); ?>
+			<?php else: ?>
+				<?php echo $this->partial('common/main-header-search', ['class' => 'd-none d-xl-block', 'site' => $site]); ?>
+			<?php endif; ?>
 
 			<?php // Both icons render; CSS reveals the active one based on body[data-theme],
 			      // which the head-script sets before first paint (no flash of wrong icon). ?>

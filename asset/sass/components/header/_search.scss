@@ -70,20 +70,17 @@
         padding: 10px 15px;
         border-radius: 0 22px 22px 0;
     }
-    
-    &__advanced-search {
-        display: flex;
-        align-items: center;
-        text-decoration: none;
-    
-        &::after {
-            @include font-awesome;
-            content: "\f0a9" !important;
-            display: inline-block;
-            font-weight: 600;
-            font-size: 1.2rem;
-            margin-left: 5px; 
-        }
+}
+
+// Federated Typesense search bar (DRESearch module's dreSearchBar helper). The
+// module ships the box + dropdown styles (component-scoped); the theme only sizes
+// the desktop instance within the header utilities cluster. The mobile instance
+// is a collapsible magnifier button, so it stays intrinsically small.
+.main-header__utilities .main-header__search-bar {
+    width: clamp(11rem, 20vw, 16rem);
+
+    @media (min-width: $xl) {
+        margin-left: auto;
     }
 }
 

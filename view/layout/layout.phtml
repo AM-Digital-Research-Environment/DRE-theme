@@ -29,6 +29,14 @@ $this->headLink()->prependStylesheet('https://fonts.bunny.net/css?family=hanken-
 $this->headScript()->prependFile($this->assetUrl('js/global.js', 'Omeka'));
 $this->headScript()->prependFile($this->assetUrl('vendor/jquery/jquery.min.js', 'Omeka'));
 $this->jsTranslate();
+
+// DRESearch module: inject the Typesense search bundle into <head> here (before
+// the head is rendered below), so the header search bar — which renders later as
+// layout chrome — has the bundle. Guarded so the theme works without the module.
+if ($this->getHelperPluginManager()->has('dreSearchAssets')) {
+	echo $this->dreSearchAssets();
+}
+
 $this->trigger('view.layout');
 
 if ($userBar) {

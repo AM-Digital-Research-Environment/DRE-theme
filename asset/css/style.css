@@ -1913,16 +1913,6 @@ html {
   align-items: center;
   gap: var(--space-2);
 }
-.main-header__top-bar .container .top-bar__advanced-search {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  margin-left: auto;
-  font-weight: 600;
-  letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
-  font-size: 0.6875rem;
-}
 .main-header hr {
   background-color: var(--border);
   border: 0;
@@ -2129,19 +2119,14 @@ body[data-theme=dark] .theme-toggle .theme-toggle__icon--moon {
   padding: 10px 15px;
   border-radius: 0 22px 22px 0;
 }
-.main-header-search__advanced-search {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
+
+.main-header__utilities .main-header__search-bar {
+  width: clamp(11rem, 20vw, 16rem);
 }
-.main-header-search__advanced-search::after {
-  font-family: "Font Awesome 5 Free";
-  font-weight: 900;
-  content: "\f0a9" !important;
-  display: inline-block;
-  font-weight: 600;
-  font-size: 1.2rem;
-  margin-left: 5px;
+@media (min-width: 1200px) {
+  .main-header__utilities .main-header__search-bar {
+    margin-left: auto;
+  }
 }
 
 /* Navigation
@@ -3145,6 +3130,9 @@ body.menu-drawer-toggled {
 }
 .resources-linked__heading {
   margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.2;
   transition: color var(--transition-fast);
 }
 .resources-linked__summary {
@@ -3298,7 +3286,7 @@ body.menu-drawer-toggled {
   padding: 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
-  gap: var(--space-5) var(--space-3);
+  gap: var(--space-8) var(--space-4);
 }
 
 .connection {
@@ -3320,14 +3308,14 @@ body.menu-drawer-toggled {
   background-color: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-xs);
+  box-shadow: var(--shadow-sm);
   text-decoration: none;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
 }
 .connection__card:hover {
   border-color: var(--border-strong);
   background-color: var(--surface-raised);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
 }
 .connection__card:focus-visible {
   outline: none;
