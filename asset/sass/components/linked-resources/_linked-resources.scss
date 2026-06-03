@@ -45,14 +45,10 @@
 
     &__heading {
         margin: 0;
-        // Sit at the same scale as the Resource Visualizations module's block
-        // headings (.resource-vis-block h3 / .dashboard-header h3 → 1.25rem/600)
-        // so this disclosure reads consistently alongside the visualization
-        // blocks, instead of inheriting the much larger global h3 (1.5rem, and
-        // 1.875rem from ≥md up).
-        font-size: 1.25rem;
-        font-weight: 600;
-        line-height: 1.2;
+        // Inherit the theme's global h3 scale (1.5rem, 1.875rem from ≥md, 700) so
+        // this disclosure sits at the same size as the Resource Visualizations
+        // module's section headings (which also inherit the global h3) and steps
+        // cleanly down from the page h1/h2 instead of looking undersized.
         transition: color var(--transition-fast);
     }
 

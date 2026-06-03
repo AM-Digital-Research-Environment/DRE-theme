@@ -3130,9 +3130,6 @@ body.menu-drawer-toggled {
 }
 .resources-linked__heading {
   margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  line-height: 1.2;
   transition: color var(--transition-fast);
 }
 .resources-linked__summary {
