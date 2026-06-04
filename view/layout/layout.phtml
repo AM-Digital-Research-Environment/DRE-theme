@@ -4,26 +4,24 @@ $userBar = $this->userBar();
 
 // Is this the site's home page? Used to choose the hero vs. masthead banner and
 // to let the hero own the page <h1> (the header drops to a plain home link there).
-// The home page is served either at the site root (route "site") or directly via
-// its own slug (route "site/page" matching the configured homepage).
+// Detected from the request path — the home page is served at the site root
+// (e.g. /s/amira) or at its own slug (/s/amira/page/<homepage-slug>). This avoids
+// the MVC route match (the `status` view helper does not expose getRouteMatch())
+// and is wrapped so a detection hiccup can never take a page down: it just falls
+// back to the non-home layout (slim masthead + header <h1>).
 $isHome = false;
-// Guard the helper lookup the same way the search-module check below does, so a
-// missing "status" helper degrades gracefully (no hero) instead of fataling the
-// whole site — every page renders through this layout.
-if ($this->getHelperPluginManager()->has('status')) {
-    $status = $this->status();
-    if ($status->isSiteRequest()) {
-        $routeMatch = $status->getRouteMatch();
-        $matchedRoute = $routeMatch ? $routeMatch->getMatchedRouteName() : null;
-        if ($matchedRoute === 'site') {
-            $isHome = true;
-        } elseif ($matchedRoute === 'site/page') {
-            $homepage = $site->homepage();
-            if ($homepage && $homepage->slug() === $routeMatch->getParam('page-slug')) {
-                $isHome = true;
-            }
+try {
+    $currentPath = rtrim((string) parse_url((string) $this->serverUrl(true), PHP_URL_PATH), '/');
+    $sitePath    = rtrim((string) parse_url((string) $site->url(), PHP_URL_PATH), '/');
+    if ($currentPath !== '' && $sitePath !== '') {
+        if ($currentPath === $sitePath) {
+            $isHome = true; // site root
+        } elseif (method_exists($site, 'homepage') && ($homepage = $site->homepage())) {
+            $isHome = ($currentPath === $sitePath . '/page/' . $homepage->slug());
         }
     }
+} catch (\Throwable $e) {
+    $isHome = false;
 }
 
 // Brand colour: the SCSS derives every primary variant (--primary,
