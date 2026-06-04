@@ -3313,10 +3313,30 @@ body.menu-drawer-toggled {
 .connections {
   list-style: none;
   margin: 0;
-  padding: 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
   gap: var(--space-8) var(--space-4);
+  max-height: clamp(28rem, 62vh, 44rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-2) var(--space-1);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+.connections::-webkit-scrollbar {
+  width: 0.875rem;
+}
+.connections::-webkit-scrollbar-track {
+  background: transparent;
+}
+.connections::-webkit-scrollbar-thumb {
+  background-color: var(--border-strong);
+  background-clip: padding-box;
+  border: 0.3rem solid transparent;
+  border-radius: var(--radius-full);
+}
+.connections::-webkit-scrollbar-thumb:hover {
+  background-color: var(--ink-light);
 }
 
 .connection {

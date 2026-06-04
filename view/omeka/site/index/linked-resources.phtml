@@ -57,9 +57,21 @@ if ($resourceProperty === null) {
     return;
 }
 
+// Show every linked record on a single page — no pager. The card grid is
+// height-capped and scrolls internally (see `.connections` in
+// _linked-resources.scss), so even a hub record with hundreds of connections
+// stays a calm, fixed-size section while still surfacing the full total; the
+// facet/sort controls then act on the complete set rather than one page of 25.
+// perPage tracks the active type's full subject-value count, so the set always
+// fits a single page; shorter sets simply render in full with no scrollbar.
+// (The core Omeka pager never fit the theme, and the brief is to show the whole
+// set on the page, not 25 at a time.)
+$activeType = strstr($resourceProperty, ':', true);
+$perPage = max(1, (int) $counts[$activeType]);
+
 echo $resource->displaySubjectValues([
-    'page' => $this->params()->fromQuery('page', 1),
-    'perPage' => $this->siteSetting('pagination_per_page', $this->setting('pagination_per_page', 25)),
+    'page' => 1,
+    'perPage' => $perPage,
     'resourceProperty' => $resourceProperty,
     'siteId' => $siteId,
 ]);

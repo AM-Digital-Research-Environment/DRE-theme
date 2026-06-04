@@ -232,7 +232,6 @@
 .connections {
     list-style: none;
     margin: 0;
-    padding: 0;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
     // Equal-width cards on the warm, near-white surfaces sit only ~2% lighter
@@ -241,6 +240,43 @@
     // keeping the columns tighter, so the grid still scans as a dense — but
     // clearly separated — set of cards.
     gap: var(--space-8) var(--space-4);
+
+    // The block shows every connection at once (no pager — see the perPage note
+    // in view/omeka/site/index/linked-resources.phtml). A hub record can link
+    // hundreds of others, so cap the grid at roughly one screenful and let it
+    // scroll in place: the page stays a calm, fixed height while the full set —
+    // and the facet/sort controls that act on it — stays reachable. Short sets
+    // sit under the cap and never scroll. The block padding keeps card shadows
+    // and focus rings off the clipping edge; overscroll-behavior stops the page
+    // from scrolling on when the list bottoms out.
+    max-height: clamp(28rem, 62vh, 44rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: var(--space-2) var(--space-1);
+
+    // A quiet, always-visible scrollbar is the scroll affordance — no fade
+    // gradients that would have to track the page surface behind the cards.
+    // Styling the WebKit scrollbar also overrides macOS overlay auto-hide, so
+    // the cue stays reliable cross-browser; the transparent border + padding-box
+    // clip insets the thumb to a hairline that fits the theme's restraint.
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+
+    &::-webkit-scrollbar {
+        width: 0.875rem;
+    }
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+        background-color: var(--border-strong);
+        background-clip: padding-box;
+        border: 0.3rem solid transparent;
+        border-radius: var(--radius-full);
+    }
+    &::-webkit-scrollbar-thumb:hover {
+        background-color: var(--ink-light);
+    }
 }
 
 .connection {
