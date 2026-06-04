@@ -3640,10 +3640,11 @@ body.menu-drawer-toggled {
 .metadata .value.resource img {
   flex-shrink: 0;
   height: 60px;
+  width: auto;
+  max-width: 100%;
   margin-right: 1rem;
-  -o-object-fit: cover;
-     object-fit: cover;
-  width: 60px;
+  -o-object-fit: contain;
+     object-fit: contain;
 }
 .metadata .media-list dd {
   margin-bottom: 1rem !important;

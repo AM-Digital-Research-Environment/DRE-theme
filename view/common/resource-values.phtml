@@ -55,7 +55,8 @@ foreach ($values as $term => $propertyData):
             $valueLang = $value->lang();
             $valueAnnotation = $value->valueAnnotation();
             $class = ['value'];
-            if ('resource' == $valueType || strpos($valueType, 'resource') !== false) {
+            $isResource = ('resource' == $valueType || strpos($valueType, 'resource') !== false);
+            if ($isResource) {
                 $class[] = 'resource';
                 $class[] = $escape($value->valueResource()->resourceName());
             } elseif ('uri' == $valueType) {
@@ -66,7 +67,19 @@ foreach ($values as $term => $propertyData):
                 <?php if ($showLocale && $valueLang) : ?>
                     <span class="language"><?php echo $valueLang; ?></span>
                 <?php endif; ?>
-                <span class="value-content"><?php echo $filterLocale ? $value->asHtml($lang) : $value->asHtml(); ?></span>
+                <span class="value-content"><?php
+                    // Resource values: render the link ourselves with an aspect-
+                    // preserving ('medium') thumbnail. The core resource data type
+                    // hard-codes linkPretty('square'), which centre-crops wide
+                    // logos/wordmarks to a square; 'medium' keeps the full image.
+                    // (_metadata.scss caps the height and frees the width.)
+                    // Everything else still goes through asHtml() unchanged.
+                    if ($isResource && $value->valueResource()):
+                        echo $value->valueResource()->linkPretty('medium', null, null, null, $filterLocale ? $lang : []);
+                    else:
+                        echo $filterLocale ? $value->asHtml($lang) : $value->asHtml();
+                    endif;
+                ?></span>
                 <?php if(!$value->isPublic()) : ?>
                     <span class="o-icon-private" aria-role="tooltip" title="<?php echo $this->escapeHtml($translate('Private')); ?>" aria-label="<?php echo $this->escapeHtml($translate('Private')); ?>"></span>
                 <?php endif; ?>
