@@ -234,8 +234,8 @@ indistinguishable from the theme itself:
 
 | Module | Role | How it attaches | Where it is styled |
 |---|---|---|---|
-| **[DRE-Search](https://github.com/AM-Digital-Research-Environment/DRE-Search)** | Typesense-backed faceted search (a Svelte 5 client) | site block layouts (`Research*SearchBlock`), a header search-bar view helper, and a federated results route (`/s/{slug}/dre-search`) | server shell in `asset/css/dre-search.css`; component styles compiled into `asset/dist/dre-search.css` |
-| **[ResourceVisualizations](https://github.com/AM-Digital-Research-Environment/ResourceVisualizations)** | D3 + MapLibre dashboards, charts, maps and a knowledge graph | block layouts (collection / compare / explorer / photo-browse / what's-new…) and resource-page blocks (knowledge graph, item-set dashboard, sibling sparkline…) | one stylesheet, `asset/css/resource-visualizations.css` |
+| **[DRE-Search](https://github.com/AM-Digital-Research-Environment/DRESearch)** | Typesense-backed faceted search (a Svelte 5 client) | site block layouts (`Research*SearchBlock`), a header search-bar view helper, and a federated results route (`/s/{slug}/dre-search`) | server shell in `asset/css/dre-search.css`; component styles compiled into `asset/dist/dre-search.css` |
+| **[ResourceVisualizations](https://github.com/fmadore/ResourceVisualizations)** | ECharts + MapLibre dashboards, charts, maps and a knowledge graph | block layouts (collection / compare / explorer / photo-browse / what's-new…) and resource-page blocks (knowledge graph, item-set dashboard, sibling sparkline…) | one stylesheet, `asset/css/resource-visualizations.css`, plus per-chart JS under `asset/js/` |
 
 **The design tokens are the contract between them.** The custom properties this
 theme defines on `:root` (and re-defines per mode) are a *de-facto public API*:
@@ -261,6 +261,32 @@ breaking change for the modules.
 | Layout | `--space-*` `--radius-sm/-md/-lg/-full` `--size-control-md/-lg` `--z-dropdown` |
 | Effect | `--shadow-xs/-sm/-md/-lg` `--ring-focus` `--transition-fast/-base` |
 
+### The data-colour contract (charts & maps)
+
+Colour in a visualization is **data**, not chrome, so it has its own slice of the
+contract — distinct from the UI tokens above:
+
+- **The six brand pigments are the categorical palette.** A multi-series chart
+  leads with `--brand-green · --brand-gelb · --brand-hellblau · --brand-braun ·
+  --brand-dunkelblau · --brand-gold` (§2), then harmonious extensions for charts
+  with more than six series. There is a light set and a **dark-lifted** set — the
+  two darkest pigments (Uni-Grün, Dunkelblau) are raised so they don't disappear
+  on the forest-dark surface.
+- **Canvas / WebGL renderers can't read the tokens directly.** ECharts (zrender)
+  and MapLibre don't parse `oklch()` / `color-mix()`, so ResourceVisualizations
+  resolves each token to a plain `rgb()` at runtime — a hidden probe + 1×1 canvas
+  (`cssColor()` / `readTheme()` in `dashboard-core.js`) — and re-resolves on every
+  `[data-theme]` flip. **Never hand a raw `oklch` token to a canvas/WebGL lib;**
+  route it through that bridge (or through a `--rv-*` alias it has already
+  resolved). This is why the modules can follow the live toggle even though the
+  tokens are in a colour space the chart libraries reject.
+- **Keep the palette and the tokens identical.** The palette needs twelve stops
+  and a dark-lifted variant the tokens don't carry, so the module hard-codes the
+  hex values — meaning the brand-anchored stops **duplicate** `--brand-*`. They
+  are one brand: when a `--brand-*` value changes, change the module palette in
+  the same commit (and vice-versa). A drift between them is the data-side of the
+  "competing design variables" failure.
+
 ### Rules for keeping the modules in sync
 
 1. **Consume tokens by their exact name; never redefine one.** A module must not
@@ -282,6 +308,10 @@ breaking change for the modules.
    `--text-*`.
 5. **The anti-patterns (§8) apply equally.** No side-stripe accents, no gradient
    text, no glassmorphism — in the modules as much as in the theme.
+6. **Data colours are part of the contract too.** A chart palette tracks the six
+   `--brand-*` pigments and reaches the tokens through the runtime bridge — see
+   *The data-colour contract* above. Don't ship a palette that disagrees with
+   `--brand-*`.
 
 > Each module also states this contract at the top of its own stylesheet
 > (ResourceVisualizations’ CSS header; DRE-Search’s `dre-search.css`). This
