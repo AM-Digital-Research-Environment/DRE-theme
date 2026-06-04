@@ -92,6 +92,10 @@ if ($userBar) {
 				var theme = (stored === 'light' || stored === 'dark')
 					? stored
 					: (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+				// Set on <html> so the root color-scheme (scrollbars / native UI)
+				// matches the chosen theme, and on <body> for subtree theming and
+				// chart modules that observe body[data-theme].
+				document.documentElement.setAttribute('data-theme', theme);
 				document.body.setAttribute('data-theme', theme);
 			} catch (e) {}
 		})();

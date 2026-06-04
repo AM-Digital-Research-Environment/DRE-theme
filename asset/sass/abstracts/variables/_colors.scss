@@ -188,18 +188,30 @@
 body[data-theme="dark"]  { @include am-dark-theme; }
 body[data-theme="light"] { @include am-light-theme; }
 
+// `color-scheme` governs native UI (scrollbars, the viewport canvas, form
+// widgets) and is read off the ROOT element. The toggle / head-script mirror
+// [data-theme] onto <html> as well as <body>, so set it here — otherwise, when
+// the manual choice differs from the OS preference (e.g. system-dark visitor
+// who picks light), the root keeps the OS color-scheme and the page gets a dark
+// scrollbar on a light page. Token theming stays on <body> above and cascades,
+// so everything else is unchanged.
+:root[data-theme="dark"]  { color-scheme: dark; }
+:root[data-theme="light"] { color-scheme: light; }
+
 // ==========================================================================
-// Brand accent family — fixed reference tokens for tags, categories and
-// decorative use. Tuned to read on both warm-stone (light) and forest
-// (dark) surfaces, so they are not flipped per theme.
+// Brand accent family — the Cluster's canonical brand-book pigments (exact
+// values). Fixed reference tokens for tags, categories and decorative use; not
+// flipped per theme. For legibility on a given ground, mix toward the active
+// --surface (as the banner wash does) instead of painting them raw on a
+// low-contrast surface — e.g. --brand-dunkelblau is near-black on forest dark.
 // ==========================================================================
 :root {
   --brand-green:       #009260;  // Uni-Grün
   --brand-braun:       #d57912;  // Braun
-  --brand-gelb:        #f0980b;  // Gelb
-  --brand-dunkelblau:  #1f4bc4;  // Dunkelblau (lifted for legibility)
-  --brand-hellblau:    #0e8acd;  // Hellblau
-  --brand-gold:        #c79938;  // Gold
+  --brand-gelb:        #f59c08;  // Gelb
+  --brand-dunkelblau:  #00268a;  // Dunkelblau
+  --brand-hellblau:    #44b8f2;  // Hellblau
+  --brand-gold:        #cca352;  // Gold
 }
 
 // ==========================================================================

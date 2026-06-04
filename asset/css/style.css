@@ -352,13 +352,21 @@ body[data-theme=light] {
   --footer-text-muted: oklch(74% 0.010 90);
 }
 
+:root[data-theme=dark] {
+  color-scheme: dark;
+}
+
+:root[data-theme=light] {
+  color-scheme: light;
+}
+
 :root {
   --brand-green: #009260;
   --brand-braun: #d57912;
-  --brand-gelb: #f0980b;
-  --brand-dunkelblau: #1f4bc4;
-  --brand-hellblau: #0e8acd;
-  --brand-gold: #c79938;
+  --brand-gelb: #f59c08;
+  --brand-dunkelblau: #00268a;
+  --brand-hellblau: #44b8f2;
+  --brand-gold: #cca352;
 }
 
 :root {
@@ -2573,7 +2581,7 @@ body[data-theme=dark] .theme-toggle .theme-toggle__icon--moon {
   padding-left: 2rem;
 }
 .menu-drawer .menu-header {
-  border-bottom: 1px solid #999;
+  border-bottom: 1px solid var(--border-strong);
 }
 .menu-drawer .menu-header a {
   border-bottom: none;
@@ -4059,10 +4067,10 @@ body[data-theme=dark] .site-banner__art {
 }
 .tl-timeline .tl-timemarker .tl-timemarker-content-container .tl-timemarker-content .tl-timemarker-text h2.tl-headline,
 .tl-timeline .tl-timemarker .tl-timemarker-content-container .tl-timemarker-content .tl-timemarker-text h2.tl-headline p {
-  color: #666;
+  color: #6c6357;
 }
 .tl-timeline .tl-attribution a {
-  color: #707070 !important;
+  color: #8c8377 !important;
 }
 
 /* Pagination
@@ -5003,7 +5011,7 @@ body.search .results .resource__content {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: #fff;
+  background-color: var(--white);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   padding: var(--space-4) var(--space-5);

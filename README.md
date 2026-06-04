@@ -1,6 +1,6 @@
 # Africa Multiple — DRE · Omeka S theme
 
-[![release v2.4.1](https://img.shields.io/badge/release-v2.4.1-009260?logo=git&logoColor=white)](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases/latest)
+[![release v2.5.0](https://img.shields.io/badge/release-v2.5.0-009260?logo=git&logoColor=white)](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases/latest)
 [![Omeka S v4.2.0+](https://img.shields.io/badge/Omeka%20S-v4.2.0+-8a1f1f)](https://omeka.org/s/)
 [![PHP v8.1+](https://img.shields.io/badge/PHP-v8.1+-605F8E?logo=php&logoColor=white)](https://www.php.net/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-009260.svg)](LICENSE)
@@ -38,7 +38,7 @@ Build toolchain: gulp 5, Dart Sass 1.x, gulp-postcss, autoprefixer.
 - **General** — *Brand colour* (single seed; default Uni-Grün `#009260`).
 - **Contact info** — location, phone, email; show in top header and/or footer.
 - **Header** — top-navigation depth; optional custom *Logo* (overrides the bundled Africa Multiple lockup).
-- **Banner** — copy for the abstract “Atlas Field” masthead: eyebrow, title (defaults to the site title), tagline, optional call-to-action button, and a toggle to show the slim banner on interior pages.
+- **Banner** — copy for the abstract earth-tone wash masthead: eyebrow, title (defaults to the site title), tagline, optional call-to-action button, and a toggle to show the slim banner on interior pages.
 - **Footer** — a single forest band: a brand-identity masthead (title + description, overridable via *Footer site description*) with social links on the left and the fixed institutional marks (University of Bayreuth + Africa Multiple Cluster) on the right, over a quiet legal row (copyright + a discreet designer credit).
 - **Social media** — Facebook, X/Twitter, LinkedIn, Instagram, YouTube, Mastodon. The Cluster's Facebook, Instagram and YouTube show by default; any setting entered here overrides its default.
 - **Footer bottom** — copyright, terms and privacy links.
@@ -48,7 +48,7 @@ Build toolchain: gulp 5, Dart Sass 1.x, gulp-postcss, autoprefixer.
 
 ## Design system
 
-The visual language — palette, the single-seed colour engine, typography, tokens, dark mode, components and maintenance recipes — is documented in **[`DESIGN.md`](DESIGN.md)**.
+The visual language — palette, the single-seed colour engine, typography, tokens, dark mode, components and maintenance recipes — is documented in **[`DESIGN.md`](DESIGN.md)**. The theme’s design tokens are also the shared contract for its sibling modules, **DRE-Search** and **ResourceVisualizations**, which consume them so they follow the brand and the light/dark toggle automatically — see [§9 “The module ecosystem”](DESIGN.md#9-the-module-ecosystem--search--visualizations).
 
 ## Credits
 

@@ -29,10 +29,10 @@ Anchored on the Cluster’s signature green and earth-tone accent family.
 |---|---|---|
 | **Uni-Grün** | `#009260` | Primary — the brand seed (`--primary-base`) |
 | **Braun** | `#d57912` | Accent — warmth, secondary emphasis |
-| **Gelb** | `#f0980b` | Brand yellow (decorative / data) |
-| **Dunkelblau** | `#1f4bc4` | Brand deep blue (data) |
-| **Hellblau** | `#0e8acd` | Brand light blue (data) |
-| **Gold** | `#c79938` | Complementary — decorative rules & dividers |
+| **Gelb** | `#f59c08` | Brand yellow (decorative / data) |
+| **Dunkelblau** | `#00268a` | Brand deep blue (data) |
+| **Hellblau** | `#44b8f2` | Brand light blue (data) |
+| **Gold** | `#cca352` | Complementary — decorative rules & dividers |
 
 Neutrals are **warm stone** in light mode (a faint earth cast, never cold grey)
 and a Uni-Grün-tinted **forest dark** in dark mode (deep neutral, anchored to the
@@ -90,12 +90,15 @@ All are defined in `asset/sass/abstracts/variables/_colors.scss`, once for light
 
 ## 4. Light / dark mode
 
-A `data-theme` attribute on `<body>` drives the modes:
+A `data-theme` attribute drives the modes. It is mirrored on **both `<html>` and
+`<body>`**: `<html>` so the root `color-scheme` (scrollbars and the viewport
+canvas) tracks the active theme, and `<body>` for the subtree token theming and
+for chart modules that observe `body[data-theme]`.
 
 - **Default** = follow the OS (`@media (prefers-color-scheme: dark)` applies dark
   to `:root:not([data-theme="light"])`), falling back to light.
 - **Manual** = the sun/moon toggle writes `light` / `dark` to
-  `localStorage['dre-theme-preference']` and sets `body[data-theme]`.
+  `localStorage['dre-theme-preference']` and sets `data-theme` on both elements.
 - **No flash (FOUC)** = a tiny synchronous script at the top of `<body>` in
   `layout.phtml` applies the stored/preferred theme **before first paint**. The
   toggle icon is chosen by CSS from `[data-theme]`, so there’s no flash of the
@@ -223,7 +226,70 @@ theme-aware in one move. Notable bespoke work:
 
 ---
 
-## 9. Build
+## 9. The module ecosystem — Search & Visualizations
+
+The theme is not consumed in isolation. Two sibling Omeka S **modules**, developed
+alongside it, render their own UI into theme pages and are styled to be
+indistinguishable from the theme itself:
+
+| Module | Role | How it attaches | Where it is styled |
+|---|---|---|---|
+| **[DRE-Search](https://github.com/AM-Digital-Research-Environment/DRE-Search)** | Typesense-backed faceted search (a Svelte 5 client) | site block layouts (`Research*SearchBlock`), a header search-bar view helper, and a federated results route (`/s/{slug}/dre-search`) | server shell in `asset/css/dre-search.css`; component styles compiled into `asset/dist/dre-search.css` |
+| **[ResourceVisualizations](https://github.com/AM-Digital-Research-Environment/ResourceVisualizations)** | D3 + MapLibre dashboards, charts, maps and a knowledge graph | block layouts (collection / compare / explorer / photo-browse / what's-new…) and resource-page blocks (knowledge graph, item-set dashboard, sibling sparkline…) | one stylesheet, `asset/css/resource-visualizations.css` |
+
+**The design tokens are the contract between them.** The custom properties this
+theme defines on `:root` (and re-defines per mode) are a *de-facto public API*:
+both modules read them and inherit the brand, the warm-stone/forest palette, the
+type scale, spacing, radii, shadows and focus rings — and they follow the live
+light/dark toggle **for free**, because the theme flips the tokens at
+`body[data-theme]` and the modules only ever *reference* them.
+
+### The shared token contract
+
+Modules may rely on these token families (defined in
+`asset/sass/abstracts/variables/`). Treat them as stable; renaming one is a
+breaking change for the modules.
+
+| Group | Tokens modules consume |
+|---|---|
+| Brand | `--primary` `--primary-hover` `--primary-contrast` · `--accent` |
+| Ink | `--ink-strong` `--ink` `--ink-light` `--muted` |
+| Surfaces | `--surface` `--surface-raised` `--surface-sunken` `--surface-overlay` |
+| Lines | `--border` `--border-light` `--border-strong` |
+| State | `--error` (+ the rest of the `--success/-warning/-info` family) |
+| Type | `--font-display` `--font-body` · `--text-xs … --text-2xl` · `--measure-wide` |
+| Layout | `--space-*` `--radius-sm/-md/-lg/-full` `--size-control-md/-lg` `--z-dropdown` |
+| Effect | `--shadow-xs/-sm/-md/-lg` `--ring-focus` `--transition-fast/-base` |
+
+### Rules for keeping the modules in sync
+
+1. **Consume tokens by their exact name; never redefine one.** A module must not
+   set `--primary`, `--surface`, … to a *different value* — that is the
+   "competing design variables" failure. Read them, don't override them.
+2. **Alias into a local namespace if you need to.** ResourceVisualizations maps
+   the theme tokens onto `--rv-*` aliases declared **on `body`** (not `:root`),
+   so each alias resolves the *active* token from the body's own cascade and the
+   `[data-theme]` flip carries through. This is the pattern to copy for any new
+   module.
+3. **Keep fallbacks on-brand.** Every `var(--token, <fallback>)` carries a literal
+   for hosts that lack the DRE tokens. That literal **must be the brand value** —
+   Uni-Grün / warm stone (light) / forest (dark) — never a cold grey and never a
+   different hue. (The fallback is inert whenever this theme is loaded — the token
+   always wins — but it is what an isolated render, a non-DRE host, or a
+   maintainer reading the code sees, so it must not encode a "shadow brand.")
+4. **Don't invent parallel scales.** No module-local spacing, radius or type
+   scale that competes with the theme's. Use `--space-*`, `--radius-*`,
+   `--text-*`.
+5. **The anti-patterns (§8) apply equally.** No side-stripe accents, no gradient
+   text, no glassmorphism — in the modules as much as in the theme.
+
+> Each module also states this contract at the top of its own stylesheet
+> (ResourceVisualizations’ CSS header; DRE-Search’s `dre-search.css`). This
+> section is the canonical, theme-side reference; keep them consistent.
+
+---
+
+## 10. Build
 
 ```bash
 npm install
@@ -256,7 +322,7 @@ base/ … components/ … utilities/      ← consume the tokens above
 
 ---
 
-## 10. Maintenance recipes
+## 11. Maintenance recipes
 
 **Re-brand to a different colour.** Change **Brand colour** in the theme settings
 (or `--primary-base` default in `_colors.scss`). Everything else re-derives.
@@ -267,6 +333,13 @@ inside *both* the light and dark blocks if it must differ per mode.
 **Style a new component theme-aware.** Use the semantic tokens
 (`var(--surface)`, `var(--ink)`, `var(--border)`, `var(--primary)`) — never a raw
 hex or a cold grey. Avoid `border-left/right` accent stripes.
+
+**Touch a sibling module’s styles (Search / Visualizations).** Both consume this
+theme’s tokens — see §9. Reference tokens by name, keep every
+`var(--token, <fallback>)` fallback on-brand (Uni-Grün / warm stone / forest),
+and never redefine a theme token to a new value. After editing a module, rebuild
+it from its own folder (`npm run build`); the search client also wants
+`npm run lint && npm run check`.
 
 **Swap the header logo.** Upload via the **Logo** setting, or replace
 `asset/img/africamultiple{,-dark}.webp`.

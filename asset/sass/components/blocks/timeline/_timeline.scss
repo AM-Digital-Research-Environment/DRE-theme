@@ -4,12 +4,16 @@
         outline: none;
     }
 
+    // TimelineJS renders on its own permanently-light widget surface, so these
+    // greys stay fixed rather than following the theme's flipping ink tokens
+    // (a theme token would go light-on-light in dark mode). Warm stone, tuned
+    // to the light-mode --ink-light / --muted tones rather than cold grey.
     .tl-timemarker .tl-timemarker-content-container .tl-timemarker-content .tl-timemarker-text h2.tl-headline,
     .tl-timemarker .tl-timemarker-content-container .tl-timemarker-content .tl-timemarker-text h2.tl-headline p {
-        color: #666;
+        color: #6c6357;
     }
 
     .tl-attribution a {
-        color: #707070 !important;
+        color: #8c8377 !important;
     }
 }

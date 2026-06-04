@@ -3,7 +3,7 @@
  * Dark / light switching with localStorage persistence, defaulting to the
  * visitor's system preference. The synchronous head-script in layout.phtml
  * applies the stored theme before first paint; this module wires the toggle
- * button and keeps the <body> data-theme attribute in sync.
+ * button and keeps the <html> and <body> data-theme attributes in sync.
  */
 (function () {
     'use strict';
@@ -26,6 +26,9 @@
     }
 
     function applyTheme(theme) {
+        // <html> drives the root color-scheme (scrollbars / native UI); <body>
+        // drives subtree theming and is what chart modules observe.
+        document.documentElement.setAttribute(THEME_ATTRIBUTE, theme);
         document.body.setAttribute(THEME_ATTRIBUTE, theme);
         updateToggleButton(theme);
     }
