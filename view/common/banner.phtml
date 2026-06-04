@@ -1,57 +1,73 @@
 <?php
-$escHtml = $this->plugin('escapeHtml');
-$escAttr = $this->plugin('escapeHtmlAttr');
+/**
+ * Site banner — an earth-tone colour wash.
+ *
+ * A photography-free masthead: a soft diagonal sweep through the brand's earth
+ * tones (Uni-Grün → Gold → Braun), drawn purely in CSS (see the component
+ * stylesheet). It needs no image and is theme-aware — a pale wash under dark
+ * type in light mode, a deep wash under light type in dark mode.
+ *
+ *  • Home  → a tall hero that carries the site title as the page <h1>.
+ *  • Other → a slim masthead that keeps the title visible across the site.
+ *
+ * Copy is overridable from the theme's "Banner" settings; with nothing set it
+ * falls back to the site title so the banner is meaningful out of the box.
+ */
 
-$bannerImage              = $this->themeSettingAsset('banner_image');
-$bannerHeading            = $this->themeSetting('banner_heading');
-$bannerDescription        = $this->themeSetting('banner_description');
-$bannerButtonLabel        = $this->themeSetting('banner_button_label');
-$bannerButtonLink         = $this->themeSetting('banner_button_link');
-$bannerContentPosition    = $this->themeSetting('banner_content_position') ?? 'right';
-$bannerVerticalPosition   = $this->themeSetting('banner_v_position') ?? 'center';
-$bannerHorizontalPosition = $this->themeSetting('banner_h_position') ?? 'center';
-$decoration               = $this->themeSetting('image_decoration');
+$escHtml   = $this->plugin('escapeHtml');
+$escAttr   = $this->plugin('escapeHtmlAttr');
+$translate = $this->plugin('translate');
 
+$isHome = isset($isHome) ? (bool) $isHome : false;
+$site   = isset($site) ? $site : $this->currentSite();
 
-$class = ['main-banner'];
-$hasText = false;
-if ($bannerHeading || $bannerDescription || $bannerButtonLink) {
-    $class[] = 'has-text';
-    $hasText = true;
+// Interior pages can opt out of the masthead (default on for fresh installs).
+$showInterior = !in_array((string) $this->themeSetting('banner_show_interior', '1'), ['0', ''], true);
+if (!$isHome && !$showInterior) {
+    return;
 }
 
-$bannerHeightProperty = $hasText ? 'min-height' : 'height';
+$siteTitle = $site ? $site->title() : '';
+$heading   = $this->themeSetting('banner_heading') ?: $siteTitle;
+if ($heading === '' || $heading === null) {
+    return; // nothing to show, no point rendering an empty band
+}
 
-$bannerInlineStyles = "{$bannerHeightProperty}: 20vh;";
-$imageInlineStyles = "object-position: {$bannerHorizontalPosition} {$bannerVerticalPosition};";
+$eyebrow = $this->themeSetting('banner_eyebrow');
+if ($eyebrow === null) {
+    $eyebrow = $translate('Digital Research Environment');
+}
+$tagline     = $this->themeSetting('banner_description');
+$buttonLabel = $this->themeSetting('banner_button_label');
+$buttonLink  = $this->themeSetting('banner_button_link');
+
+$variant = $isHome ? 'home' : 'page';
 ?>
+<div class="site-banner site-banner--<?php echo $variant; ?>">
+    <?php // Decorative earth-tone wash (green → gold → braun); styled in CSS. ?>
+    <div class="site-banner__art" aria-hidden="true"></div>
 
-<?php if ($bannerImage || $hasText) : ?>
-    <div role="banner" class="<?php echo implode(' ', $class); ?>" style="<?php echo $escAttr($bannerInlineStyles); ?>">
-        <div class="container main-banner__container main-banner__container--<?php echo $bannerContentPosition; ?>">
-            <?php if ( $bannerImage ) : ?>
-                <div class="main-banner__image-wrapper">
-                    <div class="height-controller"></div>
-                    <?php echo $this->thumbnail($bannerImage, 'large', ['style' => $imageInlineStyles, 'role' => 'presentation', 'aria-hidden' => 'true']); ?>
-                </div>
-                <?php if (is_array($decoration) && in_array('banner', $decoration)) : ?>
-                    <div class="main-banner__image-shape">
-                        <?php echo $this->GetSVG('banner-shape'); ?>
-                    </div>
-                <?php endif; ?>
+    <div class="container site-banner__inner">
+        <div class="site-banner__content">
+            <?php if ($isHome && $eyebrow): ?>
+                <p class="site-banner__eyebrow"><?php echo $escHtml($eyebrow); ?></p>
             <?php endif; ?>
 
-            <div class="main-banner__content">
-                <?php if($bannerHeading) : ?>
-                    <h2 class="main-banner__heading"><?php echo $escHtml($bannerHeading); ?></h2>
-                <?php endif; ?>
-                <?php if($bannerDescription) : ?>
-                    <p class="main-banner__description"><?php echo nl2br($this->escapeHtml($bannerDescription)); ?></p>
-                <?php endif; ?>
-                <?php if($bannerButtonLink) : ?>
-                    <a class="button" target="_blank" href="<?php echo $this->escapeHtmlAttr($bannerButtonLink); ?>"><?php echo $this->escapeHtml($bannerButtonLabel); ?></a>
-                <?php endif; ?>
-            </div>
+            <?php if ($isHome): ?>
+                <h1 class="site-banner__title"><?php echo $escHtml($heading); ?></h1>
+            <?php else: ?>
+                <p class="site-banner__title"><?php echo $escHtml($heading); ?></p>
+            <?php endif; ?>
+
+            <?php if ($isHome && $tagline): ?>
+                <p class="site-banner__tagline"><?php echo nl2br($escHtml($tagline)); ?></p>
+            <?php endif; ?>
+
+            <?php if ($isHome && $buttonLink): ?>
+                <a class="button site-banner__cta" href="<?php echo $escAttr($buttonLink); ?>">
+                    <?php echo $escHtml($buttonLabel ?: $translate('Explore the collection')); ?>
+                </a>
+            <?php endif; ?>
         </div>
     </div>
-<?php endif; ?>
+</div>

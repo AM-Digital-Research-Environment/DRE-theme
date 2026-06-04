@@ -2,6 +2,10 @@
 $translate = $this->plugin('translate');
 $navDepth = (int) $this->themeSetting('nav_depth') ? (int) $this->themeSetting('nav_depth') - 1 : -1;
 $logo = $this->themeSetting('logo');
+$isHome = isset($isHome) ? (bool) $isHome : false;
+// On the home page the hero banner carries the site title as the page <h1>, so
+// the header lockup steps down to a plain home link to avoid two competing h1s.
+$titleTag = $isHome ? 'div' : 'h1';
 ?>
 
 <header class="main-header">
@@ -11,7 +15,7 @@ $logo = $this->themeSetting('logo');
 	<?php echo $this->partial('common/top-header'); ?>
 
 	<div class="main-header__main-bar container">
-		<h1 class="main-header__site-title site-title">
+		<<?php echo $titleTag; ?> class="main-header__site-title site-title">
 			<a href="<?php echo $site->url(); ?>" rel="home">
 			<?php if ($logo): ?>
 				<img class="site-logo site-logo--custom" src="<?php echo $this->themeSettingAssetUrl('logo'); ?>" alt="<?php echo $this->escapeHtmlAttr($site->title()); ?>" />
@@ -27,7 +31,7 @@ $logo = $this->themeSetting('logo');
 					alt="" aria-hidden="true" width="1200" height="295" decoding="async" />
 			<?php endif; ?>
 			</a>
-		</h1>
+		</<?php echo $titleTag; ?>>
 
 		<?php // Federated Typesense search (DRESearch module). Falls back to the
 		      // core search form when the module is absent. Mobile: collapsible. ?>

@@ -167,7 +167,22 @@ Most component partials consume the legacy `$color__*` Sass aliases, which are
 theme-aware in one move. Notable bespoke work:
 
 - **Header** — sticky surface with a 3 px Uni-Grün top “flag” rule, quiet utility
-  bar, the lockup with light/dark swap, and the sun/moon toggle.
+  bar, the lockup with light/dark swap, and the sun/moon toggle. On the home page
+  the lockup steps down from `<h1>` to a plain home link, because the hero banner
+  there carries the site title as the page `<h1>` (one `<h1>` per page).
+- **Banner — earth-tone wash** — a photography-free masthead: a soft diagonal
+  sweep through the brand earth tones (Uni-Grün → Gold → Braun), drawn purely in
+  CSS. Each stop is `color-mix`-ed toward `--surface`, so the wash is a pale tint
+  under dark type in light mode and a deep tint under light type in dark mode
+  (AA+ either way); a surface-based left scrim keeps the type on calm ground
+  while the colour blooms to the right. Two variants from one partial
+  (`common/banner.phtml`): a **tall hero** on the home page (eyebrow + site title
+  `<h1>` + tagline + optional CTA) and a **slim masthead** elsewhere that keeps
+  the title present site-wide (toggle: *Show banner on interior pages*). Home
+  detection lives in `layout.phtml` (route `site`, or `site/page` matching
+  `homepage()`), passed to both the header and the banner. Copy comes from the
+  **Banner** theme settings and falls back to the site title, so it is meaningful
+  out of the box.
 - **Footer** — one deep-forest band (`--footer-*`): an asymmetric masthead
   pairing a brand-identity block (title in Spectral + description, with inline
   `currentColor` social icons that recolour on the dark band) against the

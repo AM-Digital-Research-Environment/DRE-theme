@@ -1,9 +1,30 @@
 <?php
 $siteTitle = $site->title();
 $userBar = $this->userBar();
-$bannerHeading = $this->themeSetting('banner_heading');
-$bannerDescription = $this->themeSetting('banner_description');
-$bannerHeightProperty = $bannerHeading || $bannerDescription ? 'min-height' : 'height';
+
+// Is this the site's home page? Used to choose the hero vs. masthead banner and
+// to let the hero own the page <h1> (the header drops to a plain home link there).
+// The home page is served either at the site root (route "site") or directly via
+// its own slug (route "site/page" matching the configured homepage).
+$isHome = false;
+// Guard the helper lookup the same way the search-module check below does, so a
+// missing "status" helper degrades gracefully (no hero) instead of fataling the
+// whole site — every page renders through this layout.
+if ($this->getHelperPluginManager()->has('status')) {
+    $status = $this->status();
+    if ($status->isSiteRequest()) {
+        $routeMatch = $status->getRouteMatch();
+        $matchedRoute = $routeMatch ? $routeMatch->getMatchedRouteName() : null;
+        if ($matchedRoute === 'site') {
+            $isHome = true;
+        } elseif ($matchedRoute === 'site/page') {
+            $homepage = $site->homepage();
+            if ($homepage && $homepage->slug() === $routeMatch->getParam('page-slug')) {
+                $isHome = true;
+            }
+        }
+    }
+}
 
 // Brand colour: the SCSS derives every primary variant (--primary,
 // --primary-hover, --primary-active, --focus-ring, glows, …) from a single
@@ -79,9 +100,9 @@ if ($userBar) {
 		</script>
 		<a id="skipnav" href="#content"><?php echo $this->translate('Skip to main content'); ?></a>
 
-		<?php echo $this->partial('common/header', ['userBar' => $userBar, 'site' => $site]); ?>
+		<?php echo $this->partial('common/header', ['userBar' => $userBar, 'site' => $site, 'isHome' => $isHome]); ?>
 
-		<?php echo $this->partial('common/banner'); ?>
+		<?php echo $this->partial('common/banner', ['site' => $site, 'isHome' => $isHome]); ?>
 
 		<div id="content" class="container" role="main" tabindex="-1">
 			<?php echo $this->content; ?>
