@@ -2326,7 +2326,14 @@ body[data-theme=dark] .theme-toggle .theme-toggle__icon--moon {
   background-color: transparent;
   border: none;
   border-radius: var(--radius-full);
+  box-shadow: none;
+  color: inherit;
   cursor: pointer;
+}
+.main-navigation .navigation > li.menu-item-has-children .submenu-btn:hover:not(.disabled):not(:disabled), .main-navigation .navigation > li.menu-item-has-children .submenu-btn:active:not(.disabled):not(:disabled) {
+  background-color: transparent;
+  box-shadow: none;
+  transform: none;
 }
 .main-navigation .navigation > li.menu-item-has-children .submenu-btn:focus-visible {
   outline: 2px solid var(--focus-color);

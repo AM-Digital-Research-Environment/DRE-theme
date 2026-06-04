@@ -194,6 +194,14 @@
 
                 // Keyboard / touch toggle injected by navigation.js — a
                 // transparent hit-area over the caret; the label still navigates.
+                // It's a <button>, so it inherits the global primary-button
+                // mixin. The base properties below neutralise the fill/border,
+                // but the mixin's :hover (green --glow-sm + --lift-xs) and
+                // resting --shadow-xs leak through — they'd paint a floating
+                // green glow-pill over the caret that jumps on hover and shifts
+                // with the fluid pill geometry across breakpoints. Reset the
+                // shadow at rest and flatten every interaction state, exactly as
+                // .main-navigation__toggle does, so only the caret reads.
                 .submenu-btn {
                     align-self: stretch;
                     width: 1.85rem;
@@ -204,7 +212,19 @@
                     background-color: transparent;
                     border: none;
                     border-radius: var(--radius-full);
+                    box-shadow: none;        // drop the inherited resting --shadow-xs
+                    color: inherit;          // not the mixin's near-white --primary-contrast
                     cursor: pointer;
+
+                    // The double :not() matches the global mixin's hover
+                    // specificity; transparent base already wins the fill, this
+                    // kills the glow + lift the mixin would otherwise add.
+                    &:hover:not(.disabled):not(:disabled),
+                    &:active:not(.disabled):not(:disabled) {
+                        background-color: transparent;
+                        box-shadow: none;
+                        transform: none;
+                    }
 
                     &:focus-visible {
                         outline: 2px solid var(--focus-color);
