@@ -127,7 +127,12 @@ uasort($connections, function ($a, $b) {
 $uniqueCount = count($connections);
 $hasFacets   = count($facets) > 1;
 $showSort    = $uniqueCount > 1;
-$showControls = $hasFacets || $showSort;
+// Offer a text filter once the set is large enough that scanning the grid (or
+// its scroll panel) gets tedious. It runs purely client-side over the already-
+// loaded cards (linked-resources.js) — no extra request — so it adds nothing to
+// page load. Threshold ≈ one screenful of cards.
+$showSearch  = $uniqueCount > 12;
+$showControls = $hasFacets || $showSort || $showSearch;
 
 // Resource-type switch (only when more than one type links here).
 $typeLabels = [
@@ -176,6 +181,16 @@ $baseUrl = $this->url(null, [], true);
 
         <?php if ($showControls): ?>
         <div class="resources-linked__controls">
+            <?php if ($showSearch): ?>
+            <div class="resources-linked__search">
+                <svg class="lr-search__icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <input type="search" class="lr-search__input" data-lr-search
+                    placeholder="<?php echo $escapeAttr($translate('Search connections…')); ?>"
+                    aria-label="<?php echo $escapeAttr($translate('Search connections by name or type')); ?>"
+                    aria-controls="linked-resources-list" autocomplete="off" />
+            </div>
+            <?php endif; ?>
+
             <?php if ($hasFacets): ?>
             <div class="resources-linked__facets" role="group" aria-label="<?php echo $escapeAttr($translate('Filter connections by relationship')); ?>">
                 <button type="button" class="lr-facet is-active" data-lr-facet="all" aria-pressed="true">
@@ -204,7 +219,7 @@ $baseUrl = $this->url(null, [], true);
         </div>
         <?php endif; ?>
 
-        <ul class="connections" data-lr-list>
+        <ul class="connections" id="linked-resources-list" data-lr-list>
             <?php foreach ($connections as $c): ?>
                 <?php
                 $resource = $c['resource'];
@@ -219,6 +234,10 @@ $baseUrl = $this->url(null, [], true);
                 $relText = implode(' · ', array_map(function ($rel) {
                     return $rel['label'];
                 }, $c['rels']));
+                // Haystack for the client-side search: everything legible on the
+                // card (title + type + relationship), lower-cased once here so the
+                // JS filter is a plain substring test.
+                $searchText = mb_strtolower(trim($c['heading'] . ' ' . $typeLabel . ' ' . $relText));
                 // thumbnail() resolves an item's primary-media thumbnail (or an
                 // item set's / media's own) and returns '' when there is none.
                 $thumbnail = $this->thumbnail($resource, 'square', ['alt' => '']);
@@ -226,7 +245,8 @@ $baseUrl = $this->url(null, [], true);
                 <li class="connection"
                     data-props="<?php echo $escapeAttr($propAttr); ?>"
                     data-rel-order="<?php echo (int) $c['relOrder']; ?>"
-                    data-title="<?php echo $escapeAttr(mb_strtolower($c['heading'])); ?>">
+                    data-title="<?php echo $escapeAttr(mb_strtolower($c['heading'])); ?>"
+                    data-search="<?php echo $escapeAttr($searchText); ?>">
                     <a class="connection__card" href="<?php echo $escapeAttr($resource->url()); ?>">
                         <?php if ($thumbnail): ?>
                         <span class="connection__thumb" aria-hidden="true"><?php echo $thumbnail; ?></span>

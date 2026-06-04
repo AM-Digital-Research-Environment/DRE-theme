@@ -21,13 +21,25 @@
         return btn ? btn.getAttribute('data-lr-facet') : 'all';
     }
 
+    function searchQuery(root) {
+        var input = root.querySelector('[data-lr-search]');
+        return input ? input.value.trim().toLowerCase() : '';
+    }
+
+    // A card shows when it passes BOTH the active relationship facet and the
+    // search box (AND). Both are plain attribute reads — data-props for the
+    // facet, the pre-lowercased data-search haystack for the query — so a full
+    // pass over a few hundred cards is sub-millisecond.
     function applyFilter(root) {
         var active = activeFacet(root);
+        var query = searchQuery(root);
         var items = root.querySelectorAll('[data-lr-list] .connection');
         var visible = 0;
         items.forEach(function (li) {
             var props = (li.getAttribute('data-props') || '').split(' ');
-            var show = active === 'all' || props.indexOf(active) !== -1;
+            var facetOk = active === 'all' || props.indexOf(active) !== -1;
+            var searchOk = !query || (li.getAttribute('data-search') || '').indexOf(query) !== -1;
+            var show = facetOk && searchOk;
             li.hidden = !show;
             if (show) {
                 visible++;
@@ -41,6 +53,24 @@
         if (emptyEl) {
             emptyEl.hidden = visible !== 0;
         }
+        // Pull the scroll panel back to the top so matches read from the first
+        // row rather than wherever the user had scrolled to.
+        var list = root.querySelector('[data-lr-list]');
+        if (list) {
+            list.scrollTop = 0;
+        }
+    }
+
+    // Coalesce keystrokes to one filter pass per frame (kept per-root so two
+    // blocks on a page never cancel each other).
+    function scheduleFilter(root) {
+        if (root._lrSearchRaf) {
+            cancelAnimationFrame(root._lrSearchRaf);
+        }
+        root._lrSearchRaf = requestAnimationFrame(function () {
+            root._lrSearchRaf = null;
+            applyFilter(root);
+        });
     }
 
     function sortItems(root, mode) {
@@ -97,5 +127,35 @@
             return;
         }
         sortItems(root, sel.value);
+    });
+
+    // Live search. `input` also fires for the native search-field clear (×) and
+    // for paste, so clearing the box restores the full set automatically.
+    document.addEventListener('input', function (e) {
+        var input = e.target && e.target.closest ? e.target.closest('[data-lr-search]') : null;
+        if (!input) {
+            return;
+        }
+        var root = input.closest('.resources-linked');
+        if (root) {
+            scheduleFilter(root);
+        }
+    });
+
+    // Escape clears the search from within the field (in addition to the native
+    // clear button), then re-filters.
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape' && e.key !== 'Esc') {
+            return;
+        }
+        var input = e.target && e.target.closest ? e.target.closest('[data-lr-search]') : null;
+        if (!input || !input.value) {
+            return;
+        }
+        input.value = '';
+        var root = input.closest('.resources-linked');
+        if (root) {
+            applyFilter(root);
+        }
     });
 })();
