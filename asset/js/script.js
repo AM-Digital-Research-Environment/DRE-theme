@@ -19,7 +19,15 @@ const dreScripts = () => {
     let scrollDirection = 'up';
 
     function onScroll(scrollPos) {
-        if(scrollPos > 60 && scrollDirection == 'down') {
+        // The header is a single position:sticky surface (see _header.scss); the
+        // legacy "slide the top utility bar away on scroll-down" path only applies
+        // to the old two-tier header (.main-header__top-bar), which no longer
+        // exists. Guard every element ref so a missing one no-ops instead of
+        // throwing, and otherwise keep the header pinned to the top.
+        if (!mainHeader || !menuDrawer) {
+            return;
+        }
+        if (scrollPos > 60 && scrollDirection == 'down' && mainHeaderTopBar && mainHeaderMainBar) {
             mainHeader.style.top = - (userBarHeight + mainHeaderTopBar.offsetHeight) + 'px';
             menuDrawer.style.top = mainHeaderMainBar.offsetHeight + 'px';
             menuDrawer.style.height = 'calc(100% - ' + mainHeaderMainBar.offsetHeight + 'px)';
@@ -58,7 +66,7 @@ const dreScripts = () => {
         onScroll(lastKnownScrollPosition);
         setBannerImagePosition();
 
-        if (window.innerWidth >= 1200 && menuToggle.getAttribute('aria-expanded') === 'true') {
+        if (menuToggle && window.innerWidth >= 1200 && menuToggle.getAttribute('aria-expanded') === 'true') {
             menuToggle.click();
         }
     }
@@ -72,7 +80,9 @@ const dreScripts = () => {
         // The header is position: sticky (in normal flow), so the page needs no
         // body padding — adding it would create a gap equal to the header height.
         // We only keep the anchor-jump offset in sync with the header.
-        document.documentElement.style.scrollPaddingTop = (mainHeaderMainBar.offsetHeight + 20) + 'px';
+        if (mainHeaderMainBar) {
+            document.documentElement.style.scrollPaddingTop = (mainHeaderMainBar.offsetHeight + 20) + 'px';
+        }
     }
 
     function getUserBarHeight() {
@@ -148,7 +158,6 @@ const dreScripts = () => {
     function onDocumentClick(e) {
         if (e.target.classList.contains('main-search-button')) {
             const nextSibling = e.target.nextElementSibling;
-            console.log('nextSibling=', nextSibling);
             if (nextSibling && nextSibling.classList.contains('main-header-search')) {
                 mainHeaderSearch = nextSibling;
                 mainHeaderSearch.classList.toggle('visible');
