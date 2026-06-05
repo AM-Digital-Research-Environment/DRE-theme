@@ -158,8 +158,30 @@ The header logo is overridable via the **Logo** theme setting.
 
 **Icons** are [Lucide](https://lucide.dev/) SVGs (`sun`, `moon`, `search`,
 `chevron-*`, …) — the same family the AMIRA dashboard uses, for cross-product
-consistency. They use `stroke="currentColor"`, so they inherit theme colour.
-Rendered inline via the `GetSVG` view helper (`$this->GetSVG('sun')`).
+consistency — kept in `asset/img/*.svg`. They use `stroke="currentColor"`, so
+they inherit theme colour, and are painted two ways, with **no icon webfont**:
+
+- **Static decorations** (select arrows, the drawer chevron, …) — a plain CSS
+  `background-image: url("../img/<name>.svg")`.
+- **Recolouring `::before` / `::after` glyphs** — the
+  `svg-icon($icon, $size, $color)` mixin (`abstracts/mixins/_mixins.scss`): a
+  `mask-image` of an inline-SVG data-URI tinted with
+  `background-color: currentColor`, so the glyph follows its host's colour token
+  and its hover / disabled states exactly as a font glyph did.
+
+**No FontAwesome.** As of **v2.5.5** the theme stopped loading Omeka core's
+`iconfonts.css` (and its ~77 KiB `fa-solid` webfont — ~91 KiB/page). The core
+`o-icon-*` classes the theme still renders — pagination `prev`/`next`, media
+`grid`/`list`, `search`, advanced-search `add`/`delete`, `private`/`annotation`
+— are repainted with `svg-icon()` masks in `base/elements/_icons.scss`. To add a
+glyph: drop a URL-encoded Lucide data-URI into `_mixins.scss` and apply
+`svg-icon()`. With the webfont gone, any unstyled `o-icon-*` renders nothing
+(an empty `::before`) rather than a “tofu” box.
+
+> Note: the `GetSVG` view helper declared in `theme.ini` is **vestigial** —
+> nothing calls it and it is not actually registered (calling `$this->getSVG()`
+> throws). The CSS `background-image` / `svg-icon()` mask paths above are the
+> icon system; don't reach for `GetSVG`.
 
 ---
 
@@ -223,6 +245,9 @@ theme-aware in one move. Notable bespoke work:
   faceted list (see Components above).
 - **Gradient text**, glassmorphism, neon-on-dark → not used.
 - **Cold grey** neutrals → warm stone (light) / forest (dark).
+- **FontAwesome icon webfont** (Omeka core `iconfonts.css` + the `fa-solid`
+  woff2, ~91 KiB/page) → removed; glyphs are painted from `currentColor`-tinted
+  Lucide SVG masks (`svg-icon()`), so there is no icon-font request.
 
 ---
 
