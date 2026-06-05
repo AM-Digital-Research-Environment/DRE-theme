@@ -78,6 +78,10 @@
 // is a collapsible magnifier button, so it stays intrinsically small.
 .main-header__utilities .main-header__search-bar {
     width: clamp(11rem, 20vw, 16rem);
+    // Overflow guard: under tight widths the field shrinks (down to ~9rem)
+    // instead of forcing the header to overflow on the right.
+    min-width: 9rem;
+    flex-shrink: 1;
 
     @media (min-width: $xl) {
         margin-left: auto;
