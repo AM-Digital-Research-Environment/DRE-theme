@@ -237,9 +237,9 @@ body[data-theme=light] {
     --blockquote-bg: color-mix(in oklab, var(--surface-raised) 76%, var(--primary) 24%);
     --blockquote-border: color-mix(in oklab, var(--primary) 64%, var(--ink) 36%);
     --blockquote-quote: color-mix(in oklab, var(--primary) 78%, white 22%);
-    --footer-surface: color-mix(in oklab, var(--surface) 82%, black 18%);
-    --footer-surface-alt: color-mix(in oklab, var(--surface) 70%, black 30%);
-    --footer-divider: color-mix(in oklab, var(--border) 86%, var(--ink) 14%);
+    --footer-surface: oklch(24% 0.024 165);
+    --footer-surface-alt: oklch(20% 0.022 165);
+    --footer-divider: oklch(40% 0.020 165);
     --footer-text: var(--ink);
     --footer-text-muted: var(--ink-light);
   }
@@ -290,9 +290,9 @@ body[data-theme=dark] {
   --blockquote-bg: color-mix(in oklab, var(--surface-raised) 76%, var(--primary) 24%);
   --blockquote-border: color-mix(in oklab, var(--primary) 64%, var(--ink) 36%);
   --blockquote-quote: color-mix(in oklab, var(--primary) 78%, white 22%);
-  --footer-surface: color-mix(in oklab, var(--surface) 82%, black 18%);
-  --footer-surface-alt: color-mix(in oklab, var(--surface) 70%, black 30%);
-  --footer-divider: color-mix(in oklab, var(--border) 86%, var(--ink) 14%);
+  --footer-surface: oklch(24% 0.024 165);
+  --footer-surface-alt: oklch(20% 0.022 165);
+  --footer-divider: oklch(40% 0.020 165);
   --footer-text: var(--ink);
   --footer-text-muted: var(--ink-light);
 }

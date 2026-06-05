@@ -4,8 +4,11 @@ $escAttr   = $this->plugin('escapeHtmlAttr');
 $translate = $this->plugin('translate');
 
 // --- Brand identity ------------------------------------------------------
-// The DRE's public name anchors the footer. The "Footer site description"
-// theme setting (CKEditor) overrides the factual default tagline.
+// The site title anchors the footer (mirrors the header/banner), falling back
+// to the DRE's public name if the partial is ever rendered without a site. The
+// "Footer site description" theme setting (CKEditor) overrides the factual
+// default tagline.
+$footerTitle = (isset($site) && $site) ? $site->title() : $translate('Digital Research Environment');
 $footerSiteInfo = $this->themeSetting('footer_site_info');
 
 // --- Social networks -----------------------------------------------------
@@ -51,7 +54,7 @@ foreach ($socialNetworks as $network) {
 <div class="main-footer__masthead">
 
     <div class="main-footer__identity">
-        <p class="main-footer__brand"><?php echo $escHtml($translate('Digital Research Environment')); ?></p>
+        <p class="main-footer__brand"><?php echo $escHtml($footerTitle); ?></p>
 
         <div class="main-footer__tagline">
             <?php if ($footerSiteInfo) : ?>

@@ -21,7 +21,7 @@ if (is_array($contactInfo['position'])
 
     <?php // One forest band: an asymmetric masthead over a quiet legal row. ?>
     <div class="main-footer__inner container">
-        <?php echo $this->partial('common/footer/footer-masthead'); ?>
+        <?php echo $this->partial('common/footer/footer-masthead', ['site' => $site ?? null]); ?>
         <?php echo $this->partial('common/footer/footer-bottom'); ?>
     </div>
 

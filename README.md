@@ -1,6 +1,6 @@
 # Africa Multiple — DRE · Omeka S theme
 
-[![release v2.5.2](https://img.shields.io/badge/release-v2.5.2-009260?logo=git&logoColor=white)](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases/latest)
+[![release v2.5.3](https://img.shields.io/badge/release-v2.5.3-009260?logo=git&logoColor=white)](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases/latest)
 [![Omeka S v4.2.0+](https://img.shields.io/badge/Omeka%20S-v4.2.0+-8a1f1f)](https://omeka.org/s/)
 [![PHP v8.1+](https://img.shields.io/badge/PHP-v8.1+-605F8E?logo=php&logoColor=white)](https://www.php.net/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-009260.svg)](LICENSE)
