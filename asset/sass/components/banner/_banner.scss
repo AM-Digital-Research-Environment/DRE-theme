@@ -173,8 +173,11 @@ body[data-theme="dark"] .site-banner__art {
 @media (max-width: ($md - 1)) {
     .site-banner--home {
         .site-banner__inner {
-            min-height: clamp(16rem, 50vh, 22rem);
-            padding-block: var(--space-10);
+            // Mobile hero: let the content (eyebrow + title) set the height with
+            // a tighter floor, rather than reserving ~22rem that left a big band
+            // of empty wash under the title on phones.
+            min-height: clamp(7rem, 24vh, 11rem);
+            padding-block: var(--space-8);
         }
 
         .site-banner__title {

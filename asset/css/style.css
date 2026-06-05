@@ -3112,8 +3112,8 @@ body[data-theme=dark] .site-banner__art {
 }
 @media (max-width: 767px) {
   .site-banner--home .site-banner__inner {
-    min-height: clamp(16rem, 50vh, 22rem);
-    padding-block: var(--space-10);
+    min-height: clamp(7rem, 24vh, 11rem);
+    padding-block: var(--space-8);
   }
   .site-banner--home .site-banner__title {
     font-size: var(--text-3xl);
