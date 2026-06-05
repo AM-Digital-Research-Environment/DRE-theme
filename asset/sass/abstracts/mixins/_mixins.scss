@@ -32,11 +32,55 @@
     }
 }
 
-// Icon font glyphs (used by checkbox ticks and a few legacy markers).
-@mixin font-awesome {
-    font-family: "Font Awesome 5 Free";
-    font-weight: 900;
+// ==========================================================================
+// Inline-SVG icon masks — replaces the former `font-awesome` webfont glyphs.
+//
+// The theme draws all of its own iconography as Lucide-style inline SVG
+// (stroke-based, currentColor; see asset/img/*.svg and the GetSVG helper), so
+// the chrome had no reason to keep pulling in Omeka's FontAwesome webfont just
+// for a handful of CSS ::before / ::after decorations (checkbox tick, menu
+// chevrons, carousel arrows, ToC markers). Each is now painted by masking a
+// small inline SVG: the glyph shape comes from the SVG `mask`, the colour from
+// `background-color`, so it still recolours with the surrounding token exactly
+// as the font glyph did — but with no external font request.
+//
+// `$svg` must be a pre-URL-encoded `data:image/svg+xml` value (spaces as %20,
+// `#` as %23). `$size` controls the rendered box; `$color` the fill (a token,
+// `currentColor`, …). Pseudo-elements that use this still need `content: ""`.
+@mixin svg-icon($svg, $size: 1em, $color: currentColor) {
+    content: "";
+    display: inline-block;
+    width: $size;
+    height: $size;
+    background-color: $color;
+    -webkit-mask: url($svg) no-repeat center / contain;
+    mask: url($svg) no-repeat center / contain;
 }
+
+// Lucide-style glyph data URIs (24×24, stroke-based to match asset/img/*.svg).
+// Stroke colour is irrelevant — the shape is used as an alpha mask — but the
+// stroke width / line-caps are tuned to read like the bundled Lucide icons.
+$icon-chevron-left: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%23000'%20stroke-width='2.5'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='m15%2018-6-6%206-6'/%3E%3C/svg%3E";
+$icon-chevron-right: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%23000'%20stroke-width='2.5'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='m9%2018%206-6-6-6'/%3E%3C/svg%3E";
+$icon-chevron-down: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%23000'%20stroke-width='2.5'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='m6%209%206%206%206-6'/%3E%3C/svg%3E";
+// Solid check — matches Lucide `check` but filled is unnecessary (stroke reads
+// as a crisp tick at the small checkbox size).
+$icon-check: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%23000'%20stroke-width='3'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M20%206%209%2017l-5-5'/%3E%3C/svg%3E";
+// Solid filled disc — the nested ToC bullet (was FA circle \f111).
+$icon-circle: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='%23000'%3E%3Ccircle%20cx='12'%20cy='12'%20r='10'/%3E%3C/svg%3E";
+// Solid filled triangles — the collapse widget carets (were FA caret \f0da/\f0d7).
+$icon-caret-right: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='%23000'%3E%3Cpath%20d='M9%205l8%207-8%207z'/%3E%3C/svg%3E";
+$icon-caret-down: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='%23000'%3E%3Cpath%20d='M5%209l7%208%207-8z'/%3E%3C/svg%3E";
+// Glyphs for the Omeka core o-icon-* classes the theme renders (pagination,
+// media-view toggle, header search, advanced-search rows, resource markers)
+// now that iconfonts.css / FontAwesome is gone. Same Lucide stroke style.
+$icon-search: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%23000'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Ccircle%20cx='11'%20cy='11'%20r='8'/%3E%3Cpath%20d='m21%2021-4.3-4.3'/%3E%3C/svg%3E";
+$icon-grid: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%23000'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Crect%20width='7'%20height='7'%20x='3'%20y='3'%20rx='1'/%3E%3Crect%20width='7'%20height='7'%20x='14'%20y='3'%20rx='1'/%3E%3Crect%20width='7'%20height='7'%20x='14'%20y='14'%20rx='1'/%3E%3Crect%20width='7'%20height='7'%20x='3'%20y='14'%20rx='1'/%3E%3C/svg%3E";
+$icon-list: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%23000'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M3%2012h.01'/%3E%3Cpath%20d='M3%206h.01'/%3E%3Cpath%20d='M3%2018h.01'/%3E%3Cpath%20d='M8%2012h13'/%3E%3Cpath%20d='M8%206h13'/%3E%3Cpath%20d='M8%2018h13'/%3E%3C/svg%3E";
+$icon-plus: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%23000'%20stroke-width='2.5'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M5%2012h14'/%3E%3Cpath%20d='M12%205v14'/%3E%3C/svg%3E";
+$icon-close: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%23000'%20stroke-width='2.5'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M18%206%206%2018'/%3E%3Cpath%20d='m6%206%2012%2012'/%3E%3C/svg%3E";
+$icon-lock: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%23000'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Crect%20width='18'%20height='11'%20x='3'%20y='11'%20rx='2'%20ry='2'/%3E%3Cpath%20d='M7%2011V7a5%205%200%200%201%2010%200v4'/%3E%3C/svg%3E";
+$icon-comment: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%23000'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M21%2015a2%202%200%200%201-2%202H7l-4%204V5a2%202%200%200%201%202-2h14a2%202%200%200%201%202%202z'/%3E%3C/svg%3E";
 
 // ==========================================================================
 // Buttons — token-driven, theme-aware. Primary uses the Uni-Grün fill with a

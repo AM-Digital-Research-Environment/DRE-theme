@@ -293,13 +293,9 @@
                         color: $color__headings;
 
                         &:has(+ ul)::after {
-                            @include font-awesome;
-                            content: "\f054" !important;
-                            display: inline;
-                            font-weight: 600;
-                            font-size: .6rem;
-                            color: $color__accent;
-                            padding-left: 5px;
+                            @include svg-icon($icon-chevron-right, 0.6rem, $color__accent);
+                            margin-left: 5px;
+                            vertical-align: 0.02em;
                         }
                     }
 

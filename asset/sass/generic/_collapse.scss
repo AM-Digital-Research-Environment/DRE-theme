@@ -1,15 +1,11 @@
-.expand:after,
-.collapse:after {
-	font-family: "Font Awesome 5 Free";
-	font-weight: 900;
-}
-
 .expand:after {
-	content: "\f0da";
+	@include svg-icon($icon-caret-right, 0.75em);
+	vertical-align: -0.05em;
 }
 
 .collapse:after {
-	content: "\f0d7"
+	@include svg-icon($icon-caret-down, 0.75em);
+	vertical-align: -0.05em;
 }
 
 .collapsible {

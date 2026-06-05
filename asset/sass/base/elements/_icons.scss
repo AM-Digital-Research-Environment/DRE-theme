@@ -1,3 +1,34 @@
+// Omeka core uses `.o-icon-chevron-down` (an iconfonts.css class) in a few
+// widgets; the theme no longer loads that webfont, so paint the chevron with
+// the same inline-SVG mask the rest of the chrome uses.
 .o-icon-chevron-down::before {
-    content: "\f078";
+    @include svg-icon($icon-chevron-down, 1em);
+    vertical-align: -0.1em;
 }
+
+// Omeka core renders these o-icon-* classes as elements whose only visual is a
+// ::before glyph supplied by iconfonts.css (FontAwesome) — which the theme no
+// longer loads. Repaint each with the matching inline-SVG mask so it recolours
+// with currentColor and follows the host link/button states (hover, disabled).
+// Pagination prev/next sit centred in a flex .button; the rest are inline with
+// text, so nudge them onto the baseline.
+.o-icon-prev::before { @include svg-icon($icon-chevron-left); }
+.o-icon-next::before { @include svg-icon($icon-chevron-right); }
+
+.o-icon-grid::before,
+.o-icon-list::before,
+.o-icon-search::before,
+.o-icon-add::before,
+.o-icon-delete::before,
+.o-icon-private::before,
+.o-icon-annotation::before {
+    vertical-align: -0.125em;
+}
+
+.o-icon-grid::before { @include svg-icon($icon-grid); }
+.o-icon-list::before { @include svg-icon($icon-list); }
+.o-icon-search::before { @include svg-icon($icon-search); }
+.o-icon-add::before { @include svg-icon($icon-plus); }
+.o-icon-delete::before { @include svg-icon($icon-close); }
+.o-icon-private::before { @include svg-icon($icon-lock); }
+.o-icon-annotation::before { @include svg-icon($icon-comment); }

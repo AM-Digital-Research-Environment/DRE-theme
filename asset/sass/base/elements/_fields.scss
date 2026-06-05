@@ -58,16 +58,11 @@ input[type="checkbox"]:not(input[name="numeric-toggle-time-checkbox"]) {
         border: 2px solid $color__primary;
         background-color: $color__primary;
         
+        // The checkbox is `display: grid; place-content: center`, so the tick
+        // is centred by the grid — no absolute positioning needed (the former FA
+        // glyph filled the box and self-centred with flex).
         &::before {
-            @include font-awesome;
-            content: "\f00c";
-            font-size: .6rem;
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            @include svg-icon($icon-check, 0.85rem, $color__white);
         }
     }
 

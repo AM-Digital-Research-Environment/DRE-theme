@@ -36,7 +36,14 @@ $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1')
 $this->headTitle($siteTitle)->setSeparator(' · ');
 $this->headTitle()->append($this->setting('installation_title', 'Omeka S'));
 $this->headLink()->prependStylesheet($this->assetUrl('css/style.css'));
-$this->headLink()->prependStylesheet($this->assetUrl('css/iconfonts.css', 'Omeka'));
+// NOTE: Omeka core's FontAwesome webfont (css/iconfonts.css + fa-solid-900.woff2,
+// ~91 KiB/page) is intentionally NOT loaded. The theme draws all of its icons as
+// inline Lucide-style SVG (see asset/img/*.svg, the GetSVG helper, and the
+// svg-icon mask mixin in _mixins.scss); the few former FA ::before/::after
+// glyphs (checkbox tick, menu chevrons, carousel arrows, ToC markers) are now
+// painted with that mask. Omeka's public user bar uses its own user-bar.css and
+// no icon font. If a future module needs FA glyphs, re-add the line below.
+// $this->headLink()->prependStylesheet($this->assetUrl('css/iconfonts.css', 'Omeka'));
 // Bunny Fonts — a privacy-first, GDPR-compliant mirror of Google Fonts (no IP
 // logging), appropriate for a University of Bayreuth (EU) deployment.
 // Spectral (display serif) + Hanken Grotesk (body/UI sans). Requested as two

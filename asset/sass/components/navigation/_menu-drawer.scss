@@ -150,11 +150,9 @@
             position: relative;
 
             &::after {
-                @include font-awesome;
-                content: "\f054" !important;
-                font-size: .8rem;
-                color: $color__primary;
-                padding-left: 5px;
+                @include svg-icon($icon-chevron-right, 0.8rem, $color__primary);
+                margin-left: 5px;
+                flex-shrink: 0;
             }
         }
 

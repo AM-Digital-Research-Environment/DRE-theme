@@ -7,13 +7,9 @@
             margin-bottom: 2rem !important;
 
             &:before {
-                @include font-awesome;
-                content: "\f054" !important;
-                display: inline-block;
-                font-weight: 600;
-                font-size: .75rem;
-                color: $color__primary;
+                @include svg-icon($icon-chevron-right, 0.75rem, $color__primary);
                 margin-right: 15px;
+                vertical-align: 0.02em;
             }
         
             > a {
@@ -30,12 +26,9 @@
                 margin-bottom: 0.3rem;
 
                 &:before {
-                    @include font-awesome;
-                    content: "\f111" !important;
-                    font-weight: 600;
-                    font-size: .4rem;
-                    color: $color__primary !important;
+                    @include svg-icon($icon-circle, 0.4rem, $color__primary);
                     margin-right: 15px;
+                    vertical-align: 0.25em;
                 }
     
             }

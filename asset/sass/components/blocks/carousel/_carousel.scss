@@ -14,7 +14,7 @@
             .slick-prev-icon,
             .slick-next-icon {
                 &::before {
-                    color: $color__white;
+                    background-color: $color__white;
                 }
             }
         }
@@ -32,23 +32,32 @@
         .slick-prev-icon,
         .slick-next-icon {
             &::before {
-                @include font-awesome;
-                color: $color__buttons;
-                font-size: 25px;
-                line-height: 1;
-                transition: color 0.3s ease;
+                content: "";
+                display: inline-block;
+                width: 22px;
+                height: 22px;
+                background-color: $color__buttons;
+                -webkit-mask-repeat: no-repeat;
+                mask-repeat: no-repeat;
+                -webkit-mask-position: center;
+                mask-position: center;
+                -webkit-mask-size: contain;
+                mask-size: contain;
+                transition: background-color 0.3s ease;
             }
         }
 
         .slick-prev-icon {
             &::before {
-                content: "\f053";
+                -webkit-mask-image: url($icon-chevron-left);
+                mask-image: url($icon-chevron-left);
             }
         }
 
         .slick-next-icon {
             &::before {
-                content: "\f054";
+                -webkit-mask-image: url($icon-chevron-right);
+                mask-image: url($icon-chevron-right);
             }
         }
     }

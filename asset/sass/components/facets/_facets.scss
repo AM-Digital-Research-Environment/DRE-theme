@@ -141,12 +141,9 @@
         margin-bottom: 33px;
 
         &::before {
-            @include font-awesome;
-            content: "\f053";
-            display: inline-block;
-            font-size: .8rem;
-            padding-right: 5px;
-            text-decoration: none;
+            @include svg-icon($icon-chevron-left, 0.8rem);
+            margin-right: 5px;
+            vertical-align: -0.08em;
         }
     }
 
