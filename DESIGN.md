@@ -233,7 +233,83 @@ theme-aware in one move. Notable bespoke work:
   bar — see anti-patterns below).
 - **Blockquote** — full-bordered, primary-tinted panel with a serif quotation
   glyph (no icon-font dependency, no side-stripe).
+- **Value annotations** — the metadata-value annotation popover
+  (`components/annotation`) restyled onto the tokens: a hairline-bordered,
+  soft-shadowed `--surface-raised` card (was a dashed box with an asymmetric
+  `10px/0` radius). Its width is now intrinsic and viewport-capped
+  (`min(22rem, calc(100vw − 2·--space-4))`) and the inner property list stacks
+  and wraps, so a long URI or resource link no longer overflows on mobile.
 - **Buttons, links, fields** — token-driven, with proper `:focus-visible` rings.
+
+### Mirador — the IIIF viewer
+
+The item page's media region is the **[Mirador](https://github.com/Daniel-KM/Omeka-S-module-Mirador)**
+block (Daniel-KM's module). The theme replaced **Universal Viewer** with it in
+**v2.6.0**; three theme-side pieces make it fit the system:
+
+1. **Embed fallback** (`view/common/resource-page-block-layout/mirador.phtml`).
+   Mirador renders from a IIIF manifest, but a YouTube / oEmbed / raw-HTML media
+   is **not** a IIIF canvas, so the manifest is empty and the viewer has nothing
+   to show. For items whose media use those ingesters the override renders the
+   media's **native player** instead (the same IIIF-vs-embed split the old
+   Universal Viewer override carried — only the fallback viewer changed). Image /
+   AV-file items fall through to `$this->mirador($resource)` with deep-zoom intact.
+2. **Theme-reactive** (`asset/js/mirador-theme.js`, enqueued only by the Mirador
+   branch of that partial). Mirador 3 holds its active Material-UI theme in its
+   Redux store (`config.selectedTheme`); the module leaves each live viewer in
+   `window.miradors`, so the script dispatches `updateConfig({ selectedTheme })`
+   to follow the site's light/dark toggle — the same `body[data-theme]` signal
+   the chart modules watch (§4, §9). It is brand-agnostic and fully guarded: if
+   the module's globals ever change it no-ops and Mirador keeps its configured
+   theme.
+3. **Chrome insulation** (`components/blocks/mirador`). Mirador's controls are
+   bare `<button>`s in the light DOM, so the global `primary-button` hover
+   (`button:hover…`, 0,3,1) outranks Material-UI's hover (0,2,0) and leaks a
+   green fill + lift + glow into the toolbar — the same leak the Universal Viewer
+   override fixed. A `.block-mirador`-scoped rule neutralises it.
+
+**Branding lives in the module, not the theme.** Mirador's MUI themes can't read
+`oklch()` / `color-mix()`, so — exactly like the chart libraries (§9) — the brand
+palette is resolved to sRGB and pasted into the module's **site setting**
+(*Site → Mirador → Mirador config*) as JSON. `mirador-theme.js` only switches
+*which* theme is active, so this can be tuned without a rebuild. Starting point,
+matched to the theme's warm-stone (light) and forest-dark (dark) surfaces:
+
+```json
+{
+  "selectedTheme": "light",
+  "themes": {
+    "light": {
+      "palette": {
+        "type": "light",
+        "primary":    { "main": "#007a50" },
+        "secondary":  { "main": "#007a50" },
+        "shades":     { "dark": "#f3f0eb", "main": "#fdfcf9", "light": "#ffffff" },
+        "background": { "default": "#f8f6f1", "paper": "#fdfcf9" }
+      }
+    },
+    "dark": {
+      "palette": {
+        "type": "dark",
+        "primary":    { "main": "#4da67b" },
+        "secondary":  { "main": "#4da67b" },
+        "shades":     { "dark": "#080f0c", "main": "#0e1612", "light": "#151d19" },
+        "background": { "default": "#0e1612", "paper": "#151d19" }
+      }
+    }
+  },
+  "window": {
+    "allowFullscreen": true,
+    "allowMaximize": false,
+    "sideBarOpenByDefault": false
+  },
+  "workspaceControlPanel": { "enabled": false }
+}
+```
+
+> The Mirador config field is **JSON, not JS** — double quotes, no comments, no
+> trailing commas. The `window` / `workspaceControlPanel` keys are opinionated
+> single-item-embed defaults; drop or tune them as needed.
 
 ### Anti-patterns deliberately removed
 

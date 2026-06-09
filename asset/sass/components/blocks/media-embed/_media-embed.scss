@@ -1,8 +1,8 @@
 .media-embed {
     // Native video embed (e.g. a YouTube iframe) rendered in the item-page
-    // media region by the universal-viewer block override, for items whose
-    // media can't produce a IIIF manifest. A fluid 16:9 frame so the player
-    // fills the column at any width instead of the renderer's fixed pixel size.
+    // media region by the mirador block override, for items whose media can't
+    // produce a IIIF manifest. A fluid 16:9 frame so the player fills the column
+    // at any width instead of the renderer's fixed pixel size.
     &--video {
         position: relative;
         width: 100%;

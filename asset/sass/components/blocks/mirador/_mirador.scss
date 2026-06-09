@@ -1,0 +1,40 @@
+// ==========================================================================
+// Mirador (Omeka-S-module-Mirador, Daniel-KM)
+//
+// Mirador renders its chrome (Material-UI controls) and its image canvas
+// (OpenSeadragon) into the page's *light* DOM — there is no shadow root — so
+// the theme's global `button` rules cascade straight into the viewer. The base
+// `primary-button` mixin (base/elements/_buttons.scss) styles every bare
+// <button>; Mirador's own MUI classes (0,1,0) outrank the element rule at rest,
+// but the mixin's hover — `button:hover:not(.disabled):not(:disabled)` (0,3,1)
+// — outranks MUI's hover (0,2,0) and leaks a Uni-Grün fill + translateY lift +
+// glow onto every viewer button. This is the same leak the former Universal
+// Viewer override fixed in v2.5.9–v2.5.10; Mirador inherits it because its
+// controls are also bare <button> elements in the light DOM.
+//
+// Scoped to `.block-mirador`, the override wrapper, so nothing outside the
+// viewer is touched. `!important` forecloses every cascade path because the OSD
+// controls live in OpenSeadragon's own nested subtree. The embed-fallback
+// branch of the block (a native player) carries `block-media-embed` and renders
+// no Mirador chrome, so it is unaffected.
+//
+// NOTE: written against the known button-mixin leak; the viewer could not be
+// rendered locally (Mirador is a React/MUI app and the install freezes Chrome
+// screenshots — see project memory). Eyeball the toolbar once the module is
+// live and tune if a control still inherits theme chrome.
+// ==========================================================================
+
+.block-mirador {
+    // No viewer button may take the theme's green fill, lift or glow on
+    // interaction. Only the states the mixin actually writes are neutralised —
+    // the theme leaves `:focus-visible` to its own outline, which is a useful,
+    // on-brand focus ring inside the viewer, so it is left in place.
+    button {
+        &:hover:not(:disabled):not(.disabled),
+        &:active:not(:disabled):not(.disabled) {
+            background-color: transparent !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+    }
+}
