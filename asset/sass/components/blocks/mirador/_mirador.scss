@@ -25,6 +25,20 @@
 // ==========================================================================
 
 .block-mirador {
+    // --- Keep the viewer's chrome out of the site header ----------------------
+    // Mirador's Material-UI chrome carries very high z-indexes — backdrops at
+    // 9999, the window/companion bars at 1098–1100, drawers at 1099 — and renders
+    // it all *inside* this container (nothing is portaled to <body>, verified on
+    // the live viewer). The container otherwise establishes no stacking context,
+    // so those z-indexes land in the page root and paint over the sticky site
+    // header (--z-header: 250) when the viewer scrolls beneath it. `isolation`
+    // gives the block its own stacking context so all of that is scoped below the
+    // header — without becoming a containing block for Mirador's fixed/absolute
+    // internals, so the viewer's own layout and its native fullscreen are
+    // unaffected.
+    isolation: isolate;
+
+    // --- Neutralise the global primary-button hover leak ----------------------
     // No viewer button may take the theme's green fill, lift or glow on
     // interaction. Only the states the mixin actually writes are neutralised —
     // the theme leaves `:focus-visible` to its own outline, which is a useful,

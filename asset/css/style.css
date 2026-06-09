@@ -4185,6 +4185,9 @@ body[data-theme=dark] .site-banner__art {
 
 /* Mirador
 --------------------------------------------- */
+.block-mirador {
+  isolation: isolate;
+}
 .block-mirador button:hover:not(:disabled):not(.disabled), .block-mirador button:active:not(:disabled):not(.disabled) {
   background-color: transparent !important;
   box-shadow: none !important;
