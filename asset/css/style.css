@@ -4155,40 +4155,45 @@ body[data-theme=dark] .site-banner__art {
 
 /* Universal Viewer
 --------------------------------------------- */
-.uv button:hover:not(.disabled):not(:disabled), .uv button:active:not(.disabled):not(:disabled),
-.uv .button:hover:not(.disabled):not(:disabled),
-.uv .button:active:not(.disabled):not(:disabled) {
-  transform: none;
-  box-shadow: none;
-}
-.uv button:disabled, .uv button[disabled], .uv button.disabled,
-.uv .button:disabled,
-.uv .button[disabled],
-.uv .button.disabled {
-  transform: none;
-  box-shadow: none;
-  background-color: transparent;
+.uv button:hover, .uv button:focus, .uv button:focus-visible, .uv button:active,
+.uv .btn:hover,
+.uv .btn:focus,
+.uv .btn:focus-visible,
+.uv .btn:active {
+  transform: none !important;
+  box-shadow: none !important;
 }
 .uv .imageBtn:hover:not(.disabled):not(:disabled), .uv .imageBtn:focus-visible,
 .uv .viewportNavButton:hover:not(.disabled):not(:disabled),
 .uv .viewportNavButton:focus-visible {
-  background-color: color-mix(in oklab, var(--primary) 40%, transparent);
+  background-color: color-mix(in oklab, var(--primary) 30%, transparent);
   color: #fff;
 }
 .uv .imageBtn:active:not(.disabled):not(:disabled),
 .uv .viewportNavButton:active:not(.disabled):not(:disabled) {
-  background-color: color-mix(in oklab, var(--primary) 55%, transparent);
+  background-color: color-mix(in oklab, var(--primary) 46%, transparent);
+}
+.uv button:disabled,
+.uv button[disabled],
+.uv button.disabled {
+  background-color: transparent;
 }
 .uv button:focus-visible,
-.uv .button:focus-visible {
+.uv .btn:focus-visible {
   outline: 2px solid rgba(255, 255, 255, 0.92);
   outline-offset: 2px;
-  box-shadow: none;
 }
-.uv .openseadragon-container div:has(> .viewportNavButton) {
+.uv .openseadragon-container > div:has(.viewportNavButton) {
+  top: auto !important;
+  right: auto !important;
+  bottom: var(--space-3) !important;
+  left: var(--space-3) !important;
   width: -moz-max-content !important;
   width: max-content !important;
-  margin: var(--space-3) !important;
+  height: -moz-max-content !important;
+  height: max-content !important;
+}
+.uv .openseadragon-container div:has(> .viewportNavButton) {
   padding: 3px !important;
   line-height: 0 !important;
   background-color: color-mix(in srgb, black 52%, transparent) !important;
