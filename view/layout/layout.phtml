@@ -74,6 +74,15 @@ if ($userBar) {
 <?php echo $this->htmlElement('html')->setAttribute('lang', $this->lang()); ?>
 	<head>
 		<link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
+		<?php // Preload the two above-the-fold webfont files (Hanken Grotesk 400
+		      // body/UI + Spectral 600 display) so they fetch in parallel with the
+		      // Bunny stylesheets instead of waiting for the CSS to download and
+		      // parse first — shortens the FCP/LCP font chain. Both are in the
+		      // critical request chain on every page. ?>
+		<link rel="preload" as="font" type="font/woff2" crossorigin
+			href="https://fonts.bunny.net/hanken-grotesk/files/hanken-grotesk-latin-400-normal.woff2">
+		<link rel="preload" as="font" type="font/woff2" crossorigin
+			href="https://fonts.bunny.net/spectral/files/spectral-latin-600-normal.woff2">
 		<?php echo $this->headMeta(); ?>
 		<?php echo $this->headTitle(); ?>
 		<?php echo $this->headLink(); ?>

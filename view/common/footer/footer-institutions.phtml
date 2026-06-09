@@ -7,16 +7,23 @@
 $escAttr   = $this->plugin('escapeHtmlAttr');
 $translate = $this->plugin('translate');
 
+// width/height are the files' intrinsic pixel dimensions: the CSS sizes the
+// marks (height: 34/40px, width: auto), but the attributes give the browser the
+// aspect ratio up front so it reserves the right box and never shifts on load.
 $institutions = [
     [
-        'file' => 'bayreuth.webp',
-        'name' => 'University of Bayreuth',
-        'url'  => 'https://www.uni-bayreuth.de/en',
+        'file'   => 'bayreuth.webp',
+        'name'   => 'University of Bayreuth',
+        'url'    => 'https://www.uni-bayreuth.de/en',
+        'width'  => 1279,
+        'height' => 395,
     ],
     [
-        'file' => 'uni-bayreuth-africa-multiple-logo.webp',
-        'name' => 'Africa Multiple Cluster of Excellence',
-        'url'  => 'https://www.africamultiple.uni-bayreuth.de/en',
+        'file'   => 'uni-bayreuth-africa-multiple-logo.webp',
+        'name'   => 'Africa Multiple Cluster of Excellence',
+        'url'    => 'https://www.africamultiple.uni-bayreuth.de/en',
+        'width'  => 231,
+        'height' => 120,
     ],
 ];
 ?>
@@ -29,6 +36,7 @@ $institutions = [
                 aria-label="<?php echo $escAttr($translate($org['name'])); ?>">
                 <img src="<?php echo $this->assetUrl('img/' . $org['file']); ?>"
                     alt="<?php echo $escAttr($translate($org['name'])); ?>"
+                    width="<?php echo $org['width']; ?>" height="<?php echo $org['height']; ?>"
                     loading="lazy" decoding="async" />
             </a>
         </li>
