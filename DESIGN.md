@@ -255,13 +255,17 @@ block (Daniel-KM's module). The theme replaced **Universal Viewer** with it in
    Universal Viewer override carried — only the fallback viewer changed). Image /
    AV-file items fall through to `$this->mirador($resource)` with deep-zoom intact.
 2. **Theme-reactive** (`asset/js/mirador-theme.js`, enqueued only by the Mirador
-   branch of that partial). Mirador 3 holds its active Material-UI theme in its
-   Redux store (`config.selectedTheme`); the module leaves each live viewer in
-   `window.miradors`, so the script dispatches `updateConfig({ selectedTheme })`
-   to follow the site's light/dark toggle — the same `body[data-theme]` signal
-   the chart modules watch (§4, §9). It is brand-agnostic and fully guarded: if
-   the module's globals ever change it no-ops and Mirador keeps its configured
-   theme.
+   branch of that partial). The module ships **Mirador 4** as an ES module and
+   leaves each live viewer in `window.miradors`; Mirador holds its active
+   Material-UI theme in that viewer's Redux store (`config.selectedTheme`,
+   choosing from `config.themes.{light,dark}`). The script follows the site's
+   light/dark toggle — the same `body[data-theme]` signal the chart modules watch
+   (§4, §9) — by dispatching the updateConfig action on the store. Note: Mirador 4
+   is a module-local ESM import, so there is **no `window.Mirador`** and **no
+   exported `actions`** (both verified against the live viewer); hence the plain
+   action object `{ type: 'mirador/UPDATE_CONFIG', config: { selectedTheme } }`
+   rather than an action creator. Brand-agnostic and fully guarded: if the
+   module's shape changes it no-ops and Mirador keeps its configured theme.
 3. **Chrome insulation** (`components/blocks/mirador`). Mirador's controls are
    bare `<button>`s in the light DOM, so the global `primary-button` hover
    (`button:hover…`, 0,3,1) outranks Material-UI's hover (0,2,0) and leaks a
@@ -281,7 +285,7 @@ matched to the theme's warm-stone (light) and forest-dark (dark) surfaces:
   "themes": {
     "light": {
       "palette": {
-        "type": "light",
+        "mode": "light",
         "primary":    { "main": "#007a50" },
         "secondary":  { "main": "#007a50" },
         "shades":     { "dark": "#f3f0eb", "main": "#fdfcf9", "light": "#ffffff" },
@@ -290,7 +294,7 @@ matched to the theme's warm-stone (light) and forest-dark (dark) surfaces:
     },
     "dark": {
       "palette": {
-        "type": "dark",
+        "mode": "dark",
         "primary":    { "main": "#4da67b" },
         "secondary":  { "main": "#4da67b" },
         "shades":     { "dark": "#080f0c", "main": "#0e1612", "light": "#151d19" },
