@@ -1,0 +1,104 @@
+// ==========================================================================
+// Universal Viewer (Omeka-S-module-UniversalViewer, Daniel-KM)
+//
+// UV 3.x renders its chrome into the page's *light* DOM — there is no shadow
+// root — so the theme's global element rules cascade straight into the viewer.
+// At rest UV's own class selectors (`.btn` / `.imageBtn` / `.viewportNavButton`,
+// specificity 0,2,0) outrank the theme's bare `button` (0,0,1), so the viewer
+// looks right. The damage is on *interaction*: the primary-button mixin ships
+//
+//     button:hover:not(.disabled):not(:disabled) {   // (0,3,1)
+//         transform: translateY(var(--lift-xs));
+//         box-shadow: var(--glow-sm);
+//         background-color: var(--primary-hover);
+//     }
+//
+// which outranks UV's own hover and repaints every icon button Uni-Grün with a
+// lift + glow. That is what made the footer share/download buttons jump and
+// overflow their row on hover, and the OpenSeadragon zoom controls misbehave.
+//
+// Fix: re-scope the same interaction selectors under `.uv` (one extra class →
+// 0,4,1, always wins) to strip the lift/glow/fill, then hand the icon buttons a
+// restrained, on-brand hover suited to UV's dark chrome. Finally, give the
+// OpenSeadragon zoom cluster a tidy, inset placement so it stops floating
+// jammed in the viewport's top-left corner.
+//
+// Everything is scoped to `.uv`, the viewer root, so the embed-fallback branch
+// of the universal-viewer block (which renders a native player, no `.uv`) is
+// untouched. Colours here are deliberately mode-independent: UV's chrome is
+// dark in both light and dark theme, so the scrim/icon values must not flip
+// with the theme tokens.
+// ==========================================================================
+
+.uv {
+    // --- Neutralise the leaked lift + glow on every viewer button ----------
+    // Mirrors the mixin's own selectors so it wins by the single `.uv` class.
+    // Only the motion/elevation is stripped here; non-icon buttons (panel
+    // toggles, the paging "Go") keep the site's standard hover, just grounded.
+    button,
+    .button {
+        &:hover:not(.disabled):not(:disabled),
+        &:active:not(.disabled):not(:disabled) {
+            transform: none;
+            box-shadow: none;
+        }
+
+        &:disabled,
+        &[disabled],
+        &.disabled {
+            transform: none;
+            box-shadow: none;
+            background-color: transparent; // let UV dim via its own opacity
+        }
+    }
+
+    // --- On-brand hover for the icon buttons -------------------------------
+    // Footer main-options (download / share / …), header paging/view toggles
+    // and the viewer nav controls are white glyphs on dark chrome. A full green
+    // fill on a 28px chip reads badly, so use a translucent Uni-Grün highlight
+    // instead — the brand accent, quietened. #fff keeps the glyph matched to
+    // UV's other (untouched) icons rather than drifting off-white.
+    .imageBtn,
+    .viewportNavButton {
+        &:hover:not(.disabled):not(:disabled),
+        &:focus-visible {
+            background-color: color-mix(in oklab, var(--primary) 40%, transparent);
+            color: #fff;
+        }
+
+        &:active:not(.disabled):not(:disabled) {
+            background-color: color-mix(in oklab, var(--primary) 55%, transparent);
+        }
+    }
+
+    // Keep keyboard focus visible on the dark chrome — the leaked
+    // `--focus-color` ring can fall below contrast over black.
+    button:focus-visible,
+    .button:focus-visible {
+        outline: 2px solid rgba(255, 255, 255, 0.92);
+        outline-offset: 2px;
+        box-shadow: none;
+    }
+
+    // --- OpenSeadragon zoom / rotate / adjust cluster ----------------------
+    // UV drops the four nav buttons into an unclassed flow <div> at the very
+    // top-left of the viewport, where they sit jammed against the edge. Group
+    // them into a small, inset pill so they read as deliberate viewer chrome.
+    // `!important` is required *only* here: OpenSeadragon writes margin / padding
+    // / background / border as inline styles on the element, which a normal rule
+    // cannot reach. `:has(> .viewportNavButton)` selects exactly that wrapper.
+    .openseadragon-container div:has(> .viewportNavButton) {
+        width: max-content !important;
+        margin: var(--space-3) !important;
+        padding: 3px !important;
+        line-height: 0 !important; // drop the inline-block descender gap
+        background-color: color-mix(in srgb, black 52%, transparent) !important;
+        border: 1px solid rgba(255, 255, 255, 0.16) !important;
+        border-radius: var(--radius-full) !important;
+    }
+
+    .viewportNavButton {
+        border-radius: var(--radius-full);
+        vertical-align: middle;
+    }
+}

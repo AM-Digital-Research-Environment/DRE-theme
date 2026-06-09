@@ -4153,6 +4153,53 @@ body[data-theme=dark] .site-banner__art {
   margin-bottom: 1.5rem !important;
 }
 
+/* Universal Viewer
+--------------------------------------------- */
+.uv button:hover:not(.disabled):not(:disabled), .uv button:active:not(.disabled):not(:disabled),
+.uv .button:hover:not(.disabled):not(:disabled),
+.uv .button:active:not(.disabled):not(:disabled) {
+  transform: none;
+  box-shadow: none;
+}
+.uv button:disabled, .uv button[disabled], .uv button.disabled,
+.uv .button:disabled,
+.uv .button[disabled],
+.uv .button.disabled {
+  transform: none;
+  box-shadow: none;
+  background-color: transparent;
+}
+.uv .imageBtn:hover:not(.disabled):not(:disabled), .uv .imageBtn:focus-visible,
+.uv .viewportNavButton:hover:not(.disabled):not(:disabled),
+.uv .viewportNavButton:focus-visible {
+  background-color: color-mix(in oklab, var(--primary) 40%, transparent);
+  color: #fff;
+}
+.uv .imageBtn:active:not(.disabled):not(:disabled),
+.uv .viewportNavButton:active:not(.disabled):not(:disabled) {
+  background-color: color-mix(in oklab, var(--primary) 55%, transparent);
+}
+.uv button:focus-visible,
+.uv .button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.92);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+.uv .openseadragon-container div:has(> .viewportNavButton) {
+  width: -moz-max-content !important;
+  width: max-content !important;
+  margin: var(--space-3) !important;
+  padding: 3px !important;
+  line-height: 0 !important;
+  background-color: color-mix(in srgb, black 52%, transparent) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-radius: var(--radius-full) !important;
+}
+.uv .viewportNavButton {
+  border-radius: var(--radius-full);
+  vertical-align: middle;
+}
+
 /* Table of contents
 --------------------------------------------- */
 .toc-block > ul {
