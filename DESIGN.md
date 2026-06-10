@@ -2,8 +2,10 @@
 
 **“Scholarly Modernism.”** A refined, warm, academic visual language for the
 Digital Research Environment of the [Africa Multiple Cluster of Excellence](https://www.africamultiple.uni-bayreuth.de/)
-(University of Bayreuth). The theme is a fork of Omeka S’s **Lively**, re-skinned
-onto a modern OKLCH design-token foundation with first-class light/dark modes.
+(University of Bayreuth). A complete, standalone design system on a modern OKLCH
+design-token foundation with first-class light/dark modes. It began as a fork of
+Omeka S’s **Lively** but has since been rebuilt top to bottom — palette, colour
+engine, typography, tokens, components and templates are all its own.
 
 The brand identity is shared with the **AMIRA** research dashboard. This document
 is the single reference for how the system is put together and how to maintain it.

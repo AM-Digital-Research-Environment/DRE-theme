@@ -52,7 +52,7 @@ The visual language — palette, the single-seed colour engine, typography, toke
 
 ## Credits
 
-Based on the **Lively** theme by the Omeka Team ([omeka-s-themes/lively](https://github.com/omeka-s-themes/lively)), re-skinned for the Africa Multiple Cluster of Excellence. Theme by Frédérick Madore.
+Theme by Frédérick Madore for the Africa Multiple Cluster of Excellence. Originally forked from the **Lively** theme by the Omeka Team ([omeka-s-themes/lively](https://github.com/omeka-s-themes/lively)), it has since been rebuilt into a standalone theme and design system.
 
 ## License
 
