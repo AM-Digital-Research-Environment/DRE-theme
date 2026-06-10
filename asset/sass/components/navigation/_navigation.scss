@@ -5,6 +5,15 @@
         margin-left: auto;
         margin-right: 20px;
         order: initial;
+        // Overflow guarantee, part 1: as a flex child the nav defaults to
+        // min-width:auto, which forbids the row from compressing it below the
+        // menu's one-line width — on viewports shaved by browser side-panels
+        // or classic scrollbars that minimum exceeds the space and the whole
+        // bar overflows the page. Zero it so the menu compresses (and wraps,
+        // below) instead of handing the page a horizontal scrollbar. Desktop
+        // only: on mobile the nav's content is the fixed-size hamburger, and
+        // a zero minimum would let a tight bar squeeze it into the clip edge.
+        min-width: 0;
     }
 
     &__container {
@@ -92,8 +101,15 @@
     .navigation { //main ul
         list-style: none;
         display: flex;
+        // Overflow guarantee, part 2: when the row can't fit every pill on one
+        // line, whole pills reflow onto a second line instead of squeezing the
+        // labels into vertical word-stacks or bleeding past the viewport. Lines
+        // stay anchored to the right, next to the search cluster (flex-end is
+        // invisible while everything fits — the ul is exactly content-sized).
+        flex-wrap: wrap;
+        justify-content: flex-end;
         align-items: center;       // vertical centring — the bar sizes to the pills, not stray margins
-        gap: 0.15rem;
+        gap: 0.25rem 0.15rem;      // wrapped lines get a touch of breathing room
         margin: 0;
         padding-left: 0;
 
@@ -137,10 +153,13 @@
                 color: $color__headings;
                 text-decoration: none;
                 margin: 0;
-                // Fluid horizontal padding: tightens toward $xl so eight items
-                // fit without overflow, breathes on wide screens. Labels are
-                // free to wrap (no nowrap) — the responsive safety valve.
-                padding: var(--space-2) clamp(0.55rem, 0.3rem + 0.6vw, 0.95rem);
+                // Fluid horizontal padding: tightens toward $xl so the items
+                // fit without overflow, breathes on wide screens. Tuned so the
+                // menu holds one line down to ~1350px viewports (the 1366
+                // laptop class sat exactly on the wrap threshold before);
+                // tighter than that, whole pills wrap to a second line (see
+                // the ul), and labels may still word-wrap as a deep fallback.
+                padding: var(--space-2) clamp(0.5rem, 0.25rem + 0.55vw, 0.95rem);
                 border: 1px solid transparent;
                 border-radius: var(--radius-full);
                 text-align: center;
@@ -160,13 +179,16 @@
 
             &.menu-item-has-children {
                 > a {
-                    padding-right: 1.85rem; // room for the caret + tap target
+                    // Room for the caret + tap target. Kept lean: 5 of the 7
+                    // items carry this reserve, so every 0.1rem here costs the
+                    // bar ~8px of one-line headroom around 1366px viewports.
+                    padding-right: 1.5rem;
 
                     // Caret — a crisp CSS chevron, vertically centred with the label.
                     &::after {
                         content: "";
                         position: absolute;
-                        right: 0.85rem;
+                        right: 0.7rem;
                         top: 50%;
                         width: 0.42rem;
                         height: 0.42rem;
@@ -204,8 +226,8 @@
                 // .main-navigation__toggle does, so only the caret reads.
                 .submenu-btn {
                     align-self: stretch;
-                    width: 1.85rem;
-                    margin-left: -1.85rem;   // overlay the caret zone, no extra width
+                    width: 1.5rem;
+                    margin-left: -1.5rem;    // overlay the caret zone, no extra width
                     position: relative;
                     z-index: 1;
                     padding: 0;

@@ -13,6 +13,16 @@
     border-bottom: 1px solid var(--border);
     box-shadow: var(--shadow-sm);
     transition: top 0.3s var(--ease-out-quart), background-color var(--transition-base), border-color var(--transition-base);
+    // Overflow guarantee, part 3 (belt and braces): whatever lives in the bar —
+    // menu pills, the module's search field, a long site title — may shrink or
+    // wrap (see _navigation.scss) but must never hand the page a horizontal
+    // scrollbar; browser side-panels and classic scrollbars shave the viewport
+    // below what the breakpoints assume. `clip` (not `hidden`) so no scroll
+    // container forms, and the y-axis stays visible for the mega-menu panel
+    // that hangs below the bar. (The fixed-position menu drawer escapes this
+    // clip — the header is not its containing block — and old Safari simply
+    // ignores the declaration, falling back to the flex guards above.)
+    overflow: clip visible;
 
     // --- Quiet top utility bar (advanced search, contact) — wide screens ---
     &__top-bar {

@@ -2000,6 +2000,7 @@ html {
   border-bottom: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
   transition: top 0.3s var(--ease-out-quart), background-color var(--transition-base), border-color var(--transition-base);
+  overflow: clip visible;
 }
 .main-header__top-bar {
   background-color: var(--surface-sunken);
@@ -2288,6 +2289,7 @@ body[data-theme=dark] .theme-toggle .theme-toggle__icon--moon {
     margin-left: auto;
     margin-right: 20px;
     order: initial;
+    min-width: 0;
   }
 }
 .main-navigation__container {
@@ -2362,8 +2364,10 @@ body[data-theme=dark] .theme-toggle .theme-toggle__icon--moon {
 .main-navigation .navigation {
   list-style: none;
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   align-items: center;
-  gap: 0.15rem;
+  gap: 0.25rem 0.15rem;
   margin: 0;
   padding-left: 0;
 }
@@ -2400,7 +2404,7 @@ body[data-theme=dark] .theme-toggle .theme-toggle__icon--moon {
   color: var(--ink-strong);
   text-decoration: none;
   margin: 0;
-  padding: var(--space-2) clamp(0.55rem, 0.3rem + 0.6vw, 0.95rem);
+  padding: var(--space-2) clamp(0.5rem, 0.25rem + 0.55vw, 0.95rem);
   border: 1px solid transparent;
   border-radius: var(--radius-full);
   text-align: center;
@@ -2414,12 +2418,12 @@ body[data-theme=dark] .theme-toggle .theme-toggle__icon--moon {
   outline-offset: 2px;
 }
 .main-navigation .navigation > li.menu-item-has-children > a {
-  padding-right: 1.85rem;
+  padding-right: 1.5rem;
 }
 .main-navigation .navigation > li.menu-item-has-children > a::after {
   content: "";
   position: absolute;
-  right: 0.85rem;
+  right: 0.7rem;
   top: 50%;
   width: 0.42rem;
   height: 0.42rem;
@@ -2441,8 +2445,8 @@ body[data-theme=dark] .theme-toggle .theme-toggle__icon--moon {
 }
 .main-navigation .navigation > li.menu-item-has-children .submenu-btn {
   align-self: stretch;
-  width: 1.85rem;
-  margin-left: -1.85rem;
+  width: 1.5rem;
+  margin-left: -1.5rem;
   position: relative;
   z-index: 1;
   padding: 0;

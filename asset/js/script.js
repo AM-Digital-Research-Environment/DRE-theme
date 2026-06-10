@@ -1,45 +1,68 @@
 const dreScripts = () => {
 
-    const body = document.body;
     const mainHeader = document.querySelector('.main-header');
-    const mainHeaderTopBar = document.querySelector('.main-header__top-bar');
     const mainHeaderMainBar = document.querySelector('.main-header__main-bar');
     const mainBanner = document.querySelector('.main-banner');
     const mainBannerImgWrapper = document.querySelector('.main-banner__image-wrapper');
     const mainBannerImgShape = document.querySelector('.main-banner__image-shape');
-    const userBar = document.getElementById('user-bar');
     const menuDrawer = document.getElementById('menu-drawer');
     const menuToggle = document.querySelector( '.main-navigation__toggle' );
     let mainHeaderSearch = null;
 
     // Scrolling Events
+    //
+    // The header is a single position:sticky surface (see _header.scss). On
+    // desktop — where the inline menu shows — scrolling down slides the whole
+    // masthead away to free reading room, and any scroll up brings it straight
+    // back. On mobile it stays pinned so the hamburger is always reachable.
+    // (The legacy logic slid only the top utility bar away and silently did
+    // nothing once .main-header__top-bar stopped rendering by default — nothing
+    // here may require that bar.)
+
+    const DESKTOP_MENU_MIN_WIDTH = 1200; // keep in sync with $xl in _breakpoints.scss
+    const AUTO_HIDE_AFTER = 200;         // scroll depth before the header may hide
+    const DIRECTION_JITTER = 4;          // px of trackpad wobble to ignore
 
     let lastKnownScrollPosition = 0;
     let ticking = false;
     let scrollDirection = 'up';
 
+    function headerHasFocus() {
+        return mainHeader !== null && mainHeader.contains(document.activeElement);
+    }
+
     function onScroll(scrollPos) {
-        // The header is a single position:sticky surface (see _header.scss); the
-        // legacy "slide the top utility bar away on scroll-down" path only applies
-        // to the old two-tier header (.main-header__top-bar), which no longer
-        // exists. Guard every element ref so a missing one no-ops instead of
-        // throwing, and otherwise keep the header pinned to the top.
-        if (!mainHeader || !menuDrawer) {
+        if (!mainHeader) {
             return;
         }
-        if (scrollPos > 60 && scrollDirection == 'down' && mainHeaderTopBar && mainHeaderMainBar) {
-            mainHeader.style.top = - (userBarHeight + mainHeaderTopBar.offsetHeight) + 'px';
-            menuDrawer.style.top = mainHeaderMainBar.offsetHeight + 'px';
-            menuDrawer.style.height = 'calc(100% - ' + mainHeaderMainBar.offsetHeight + 'px)';
+
+        const drawerOpen = menuToggle && menuToggle.getAttribute('aria-expanded') === 'true';
+        const megaMenuInUse = mainHeader.querySelector('.menu-item-has-children.open, .menu-item-has-children:hover') !== null;
+        const mayHide = window.innerWidth >= DESKTOP_MENU_MIN_WIDTH
+            && scrollDirection === 'down'
+            && scrollPos > AUTO_HIDE_AFTER
+            && !drawerOpen
+            && !megaMenuInUse
+            && !headerHasFocus(); // never steal the search bar mid-typing or mid-keyboard-nav
+
+        if (mayHide) {
+            // A little past its own height so the border + shadow leave with it.
+            mainHeader.style.top = -(mainHeader.offsetHeight + 16) + 'px';
         } else {
-            mainHeader.style.top = 0;
+            mainHeader.style.top = '0px';
+        }
+
+        if (menuDrawer) {
             menuDrawer.style.top = mainHeader.offsetHeight + 'px';
             menuDrawer.style.height = 'calc(100% - ' + mainHeader.offsetHeight + 'px)';
         }
     }
 
-    document.addEventListener('scroll', (event) => {
-        scrollDirection = Math.max(lastKnownScrollPosition, window.scrollY) == lastKnownScrollPosition ? 'up': 'down';
+    document.addEventListener('scroll', () => {
+        const delta = window.scrollY - lastKnownScrollPosition;
+        if (Math.abs(delta) > DIRECTION_JITTER) {
+            scrollDirection = delta > 0 ? 'down' : 'up';
+        }
         lastKnownScrollPosition = window.scrollY;
 
         if (!ticking) {
@@ -52,21 +75,55 @@ const dreScripts = () => {
         }
     });
 
+    // Scroll padding — anchor jumps vs. typing in the header search
+    //
+    // Anchor navigation needs scroll-padding-top so targets don't land beneath
+    // the sticky header. But Chromium also honours that padding when scrolling
+    // the caret into view on every keystroke, and the header search lives
+    // *inside* the sticky header — permanently above the padding line — so with
+    // the offset active each keystroke nudged the whole page upward. While focus
+    // is anywhere in the header the offset is zeroed (anchor jumps never
+    // coincide with typing up there) and it comes back on blur. NB: this inline
+    // style outranks the stylesheet, so it must stay in agreement with the
+    // html:has(.main-header input:focus) rule in _theme.scss.
+
+    function refreshScrollPadding() {
+        if (!mainHeaderMainBar) {
+            return;
+        }
+        document.documentElement.style.scrollPaddingTop = headerHasFocus()
+            ? '0px'
+            : (mainHeaderMainBar.offsetHeight + 20) + 'px';
+    }
+
+    document.addEventListener('focusin', () => {
+        refreshScrollPadding();
+        if (headerHasFocus()) {
+            mainHeader.style.top = '0px'; // tabbing into a hidden header reveals it
+        }
+    });
+
+    document.addEventListener('focusout', () => {
+        // No focusin fires when focus dissolves to <body> (a click on the page).
+        // By focusout time the old element has already blurred, so activeElement
+        // reads as the settled state; when focus moves to another control instead,
+        // its focusin re-runs this within the same task — no deferral needed.
+        refreshScrollPadding();
+    });
+
     // Resize Events
 
-    let userBarHeight = 0;
     let timeout = false;
     const delay = 150;
 
     onResize();
 
     function onResize() {
-        getUserBarHeight();
-        refreshBodyPaddingTop();
+        refreshScrollPadding();
         onScroll(lastKnownScrollPosition);
         setBannerImagePosition();
 
-        if (menuToggle && window.innerWidth >= 1200 && menuToggle.getAttribute('aria-expanded') === 'true') {
+        if (menuToggle && window.innerWidth >= DESKTOP_MENU_MIN_WIDTH && menuToggle.getAttribute('aria-expanded') === 'true') {
             menuToggle.click();
         }
     }
@@ -75,21 +132,6 @@ const dreScripts = () => {
         clearTimeout(timeout);
         timeout = setTimeout(onResize, delay);
     });
-
-    function refreshBodyPaddingTop() {
-        // The header is position: sticky (in normal flow), so the page needs no
-        // body padding — adding it would create a gap equal to the header height.
-        // We only keep the anchor-jump offset in sync with the header.
-        if (mainHeaderMainBar) {
-            document.documentElement.style.scrollPaddingTop = (mainHeaderMainBar.offsetHeight + 20) + 'px';
-        }
-    }
-
-    function getUserBarHeight() {
-        if (userBar) {
-            userBarHeight = userBar.offsetHeight;
-        }
-    }
 
     function setBannerImagePosition() {
         if (mainBanner === null || mainBannerImgWrapper === null) {
