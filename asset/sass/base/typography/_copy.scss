@@ -80,9 +80,16 @@ acronym {
     cursor: help;
 }
 
+// Found-term highlight — the same accent-tinted wash DRE-Search paints on
+// result matches (--dre-hl-bg), so "your term" looks identical in core
+// search, faceted browse and the Svelte client. Translucent over the active
+// surface, so it carries through light and dark without a per-mode value.
 mark,
 ins {
-    background: $color__gray-87;
+    background: color-mix(in oklab, var(--accent) 28%, transparent);
+    color: inherit;
+    border-radius: 0.125rem;
+    padding-inline: 0.05em;
     text-decoration: none;
 }
 

@@ -242,6 +242,21 @@ theme-aware in one move. Notable bespoke work:
   (`min(22rem, calc(100vw − 2·--space-4))`) and the inner property list stacks
   and wraps, so a long URI or resource link no longer overflows on mobile.
 - **Buttons, links, fields** — token-driven, with proper `:focus-visible` rings.
+- **Found-term highlight** — `mark` / `ins` carry the same translucent accent
+  wash DRE-Search paints on result matches (`color-mix(in oklab, var(--accent)
+  28%, transparent)`), so "your term" reads identically in core search, faceted
+  browse and the Svelte client.
+- **Search empty state** — the sitewide no-results view is a quiet centred
+  pause with a path onward (spelling/breadth/transliteration hints, advanced
+  search carrying the query over, browse-all) instead of a one-line shrug
+  (`view/omeka/site/index/search.phtml` + `components/search-results`).
+- **Print** (`utilities/_print.scss`) — researchers print item records: chrome
+  (header, footer band, controls, banner wash, Mirador) drops away, the light
+  palette is re-applied over any dark state, the rem scale steps down to a
+  bookish body, and external links spell out their URLs for citation.
+- **Arrival** — the home hero's eyebrow → title → tagline → CTA rise onto the
+  wash on a short stagger (`--ease-expo-out`, one-shot, CSS-only); the wash
+  itself never moves. Entirely absent under `prefers-reduced-motion`.
 
 ### Mirador — the IIIF viewer
 
@@ -393,6 +408,16 @@ contract — distinct from the UI tokens above:
   are one brand: when a `--brand-*` value changes, change the module palette in
   the same commit (and vice-versa). A drift between them is the data-side of the
   "competing design variables" failure.
+- **Community halos have their own family.** In the knowledge graph a ring
+  encodes *community* while the fill encodes *entity type*, so the halo palette
+  (`ns.HALO`, beside the categorical palette in `dashboard-core.js`) is
+  deliberately distinct from the fills but stays in the brand's warm pigment
+  world: deep pigment-pot tones on light, lifted luminous tones on dark,
+  swapped in place by `readTheme()` on every toggle.
+- **Type crosses the bridge too.** `cssFont()` resolves `--font-body` /
+  `--font-display` the same way `cssColor()` resolves colours, so in-canvas
+  chart text (axes, legends, tooltips) is Hanken Grotesk and the rare in-canvas
+  title is Spectral — no more library-default sans.
 
 ### Rules for keeping the modules in sync
 

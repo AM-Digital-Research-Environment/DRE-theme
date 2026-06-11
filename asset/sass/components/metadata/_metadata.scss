@@ -1,4 +1,8 @@
 .metadata {
+    // Label-column width for the two-column dt/dd layout below — one named
+    // constant instead of a magic number repeated on both sides (170px).
+    --metadata-label-col: 10.625rem;
+
     width: 100%;
 
     @media (min-width: $md) {
@@ -7,7 +11,7 @@
 
     > div:not(:last-child),
     .media-render:not(:last-child) {
-        margin-bottom: 2rem;
+        margin-bottom: var(--space-8);
     }
 
     .media-render > * {
@@ -15,48 +19,48 @@
     }
 
     .media-embed {
-        margin-bottom: 1rem;
+        margin-bottom: var(--space-4);
     }
 
     dl {
         margin-top: 0;
-        margin-bottom: 2rem;
+        margin-bottom: var(--space-8);
 
         &:last-child {
             margin-bottom: 0;
         }
 
         > .property {
-            margin-bottom: 1.25rem;
+            margin-bottom: var(--space-5);
 
             &::after {
                 content: "";
                 display: table;
                 clear: both;
             }
-    
+
             dt {
                 line-height: 1.2;
-                margin-bottom: 0.5rem;
-                padding-right: 15px;
+                margin-bottom: var(--space-2);
+                padding-right: var(--space-4);
                 word-wrap: break-word;
 
                 &:not(.sidebar-region &) {
                     @media (min-width: $md) {
                         margin-bottom: 0;
                         float: left;
-                        width: 170px;
+                        width: var(--metadata-label-col);
                     }
                 }
 
                 .field-term {
-                    font-size: $font__sm-size;
+                    font-size: var(--text-sm);
                     font-weight: 500;
                 }
             }
-    
+
             dd {
-                margin: 0 0 1rem;
+                margin: 0 0 var(--space-4);
                 word-break: break-word;
                 overflow-wrap: anywhere;
                 white-space: normal;
@@ -64,7 +68,7 @@
 
                 &:not(.sidebar-region &) {
                     @media (min-width: $md) {
-                        margin-left: 170px;
+                        margin-left: var(--metadata-label-col);
                     }
                 }
 
@@ -72,9 +76,9 @@
                     margin-bottom: 0;
                 }
             }
-    
+
             .language {
-                margin-right: 5px;
+                margin-right: var(--space-1);
             }
         }
     }
@@ -91,17 +95,17 @@
         // common/resource-values.phtml — 'square' here would still be pre-cropped.
         img {
             flex-shrink: 0;
-            height: 60px;
+            height: 3.75rem;
             width: auto;
             max-width: 100%;
-            margin-right: 1rem;
+            margin-right: var(--space-4);
             object-fit: contain;   // only bites if a very wide image hits max-width
         }
     }
 
     .media-list {
         dd {
-            margin-bottom: 1rem !important;
+            margin-bottom: var(--space-4) !important;
 
             &:last-child {
                 margin-bottom: 0 !important;
@@ -114,13 +118,13 @@
 
             img {
                 flex-shrink: 0;
-                height: 100px;
+                height: 6.25rem;
                 object-fit: cover;
-                width: 100px;
+                width: 6.25rem;
             }
 
             .resource-name {
-                padding: 1rem;
+                padding: var(--space-4);
             }
         }
     }

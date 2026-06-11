@@ -1,0 +1,133 @@
+// ==========================================================================
+// Print — the scholarly artifact.
+//
+// Researchers print and PDF item records, search results and exhibit pages.
+// On paper the site chrome is noise: what remains is the record — title,
+// metadata, description — set in the same Spectral / Hanken voice, black on
+// white, with external sources spelled out. CSS-only; no template hooks.
+// ==========================================================================
+@media print {
+
+    // ----------------------------------------------------------------------
+    // Paper is light. Re-apply the light palette regardless of the active
+    // theme (system dark preference or the manual toggle) — these selectors
+    // match the theme's own dark selectors and win on source order.
+    // ----------------------------------------------------------------------
+    :root,
+    :root:not([data-theme="light"]),
+    body[data-theme="dark"] {
+        @include am-light-theme;
+    }
+
+    // Paper ground is true white; elevation is meaningless in ink.
+    body {
+        background: #fff !important;
+    }
+
+    *,
+    *::before,
+    *::after {
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+
+    // ----------------------------------------------------------------------
+    // Page setup & typography — slightly smaller root so the rem scale lands
+    // at a bookish ~11pt body, with sane page margins and break behaviour.
+    // ----------------------------------------------------------------------
+    @page {
+        margin: 1.6cm;
+    }
+
+    html {
+        font-size: 87.5%;
+    }
+
+    p,
+    dd,
+    blockquote {
+        orphans: 3;
+        widows: 3;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        break-after: avoid;
+    }
+
+    .metadata .property,
+    blockquote,
+    .resource {
+        break-inside: avoid;
+    }
+
+    // ----------------------------------------------------------------------
+    // Chrome off. Navigation, theme toggle, search, footer band, pagination,
+    // drawer, back-to-top, admin bar — interaction has no meaning on paper.
+    // ----------------------------------------------------------------------
+    .main-header,
+    .main-footer,
+    .menu-drawer,
+    .back-to-top,
+    .browse-controls,
+    .pagination,
+    #skipnav,
+    #user-bar,
+    .site-banner__art,
+    .site-banner__cta,
+    .dre-search-block,
+    .block-mirador {
+        display: none !important;
+    }
+
+    // Dead UI: every button, select and form control is inert in ink.
+    button,
+    .button,
+    select,
+    input,
+    textarea,
+    iframe {
+        display: none !important;
+    }
+
+    // The banner keeps its title (site context on interior pages, the <h1>
+    // at home) but flattens to a plain rule under the type.
+    .site-banner {
+        background: none !important;
+        border-bottom: 1px solid var(--border-strong);
+        margin-bottom: var(--space-6);
+
+        .site-banner__inner {
+            min-height: 0;
+            padding-block: var(--space-4);
+        }
+    }
+
+    // Cards flatten to hairline-ruled entries; masonry's absolute positioning
+    // cannot paginate, so the grid falls back to flow.
+    .resource-grid {
+        opacity: 1;
+
+        .resource {
+            position: static;
+            box-shadow: none;
+        }
+    }
+
+    // ----------------------------------------------------------------------
+    // Sources spelled out — external links print their URL so a reader of
+    // the paper copy can follow the citation. Internal archive links keep
+    // their text only (the browser's printed header carries the page URL).
+    // ----------------------------------------------------------------------
+    #content a[href^="http"]::after {
+        content: " (" attr(href) ")";
+        font-family: var(--font-mono);
+        font-size: 0.8em;
+        color: var(--ink-light);
+        word-break: break-all;
+    }
+
+    #content a {
+        color: var(--ink) !important;
+        text-decoration: none;
+    }
+}

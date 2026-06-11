@@ -13,7 +13,31 @@ $valueLang = $filterLocale ? [$lang, ''] : null;
 <?php echo $this->pageTitle(sprintf($translate('Search results for “%s”'), $query)); ?>
 
 <?php if (empty($results)): ?>
-    <p><?php echo $translate('No result found'); ?></p>
+    <?php // Empty state: a quiet pause with a path onward — nothing is wrong,
+          // the archive just has no match. The query itself is already restated
+          // by the page title above, so don't repeat it here. ?>
+    <div class="search-empty">
+        <p class="search-empty__lead"><?php echo $translate('Nothing in the collections matched this search.'); ?></p>
+        <ul class="search-empty__hints">
+            <li><?php echo $translate('Check the spelling, or try another form of the word.'); ?></li>
+            <li><?php echo $translate('Fewer, broader terms cast a wider net.'); ?></li>
+            <li><?php echo $translate('Names may appear transliterated — try a variant spelling.'); ?></li>
+        </ul>
+        <div class="search-empty__actions">
+            <a class="button" href="<?php echo $this->escapeHtmlAttr($url(
+                'site/resource',
+                ['controller' => 'item', 'action' => 'search'],
+                ['query' => ['fulltext_search' => $query]],
+                true
+            )); ?>"><?php echo $translate('Refine in advanced search'); ?></a>
+            <a class="button btn--secondary" href="<?php echo $this->escapeHtmlAttr($url(
+                'site/resource',
+                ['controller' => 'item', 'action' => 'browse'],
+                [],
+                true
+            )); ?>"><?php echo $translate('Browse all items'); ?></a>
+        </div>
+    </div>
 <?php else: ?>
     <?php
     $resourceLabels = [

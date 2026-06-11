@@ -168,6 +168,33 @@ body[data-theme="dark"] .site-banner__art {
 }
 
 // --------------------------------------------------------------------------
+// Arrival — the one orchestrated moment. On the home hero only, the content
+// rises onto the wash on a short stagger (eyebrow → title → tagline → CTA);
+// the wash itself never moves — colour blooms, type arrives. One-shot,
+// CSS-only, and entirely absent for reduced-motion visitors (the media query
+// also shields pre-@keyframes engines from the opacity:0 start state).
+// --------------------------------------------------------------------------
+@media (prefers-reduced-motion: no-preference) {
+    .site-banner--home .site-banner__content > * {
+        opacity: 0;
+        transform: translateY(0.75rem);
+        animation: site-banner-arrive 640ms var(--ease-expo-out) forwards;
+    }
+
+    .site-banner--home .site-banner__content > :nth-child(1) { animation-delay: 60ms; }
+    .site-banner--home .site-banner__content > :nth-child(2) { animation-delay: 150ms; }
+    .site-banner--home .site-banner__content > :nth-child(3) { animation-delay: 240ms; }
+    .site-banner--home .site-banner__content > :nth-child(4) { animation-delay: 330ms; }
+
+    @keyframes site-banner-arrive {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}
+
+// --------------------------------------------------------------------------
 // Small screens — gentler hero proportions; the wash stays full-bleed.
 // --------------------------------------------------------------------------
 @media (max-width: ($md - 1)) {
