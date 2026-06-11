@@ -1,6 +1,7 @@
 table {
     margin: 0 0 1.5em;
     width: 100%;
+    font-variant-numeric: tabular-nums;   // figures align down columns
 
     td {
         word-break: break-word;

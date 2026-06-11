@@ -58,15 +58,15 @@ opportunity, not a defect.
 | ID | Sev | Finding | Evidence | Status |
 |---|---|---|---|---|
 | T1 | P2 | Resource grid cards use raw px and pre-token geometry (`margin-bottom: 24px`, `margin: 10px 0 0 10px`, `padding: 15px`, `padding: 5px 10px`). The masonry `width: 49%` / `gutter 2%` are layout inputs read by masonry and may stay. | `components/resources/_resource-grid.scss` | ✅ done (v2.8.0) |
-| T2 | P2 | Metadata `<dl>` is a float-based two-column layout with magic numbers (`width: 170px`, `margin-left: 170px`, `padding-right: 15px`, thumb sizes `60px`/`100px`). Works, but it's the core reading surface of the archive and deserves grid + tokens. | `components/metadata/_metadata.scss` | ✅ tokens done (v2.8.0); grid layout → Phase 2 |
+| T2 | P2 | Metadata `<dl>` is a float-based two-column layout with magic numbers (`width: 170px`, `margin-left: 170px`, `padding-right: 15px`, thumb sizes `60px`/`100px`). Works, but it's the core reading surface of the archive and deserves grid + tokens. | `components/metadata/_metadata.scss` | ✅ done — tokens v2.8.0; CSS grid + uppercase eyebrow label rail + tabular values v2.9.0 (verified on the dev instance) |
 | T3 | P2 | Sitewide search results hard-code `max-width: 1160px` (≙ `--measure-wide`) and `margin-bottom: 40px`. | `components/search-results/_search-results.scss` | ✅ done (v2.8.0) |
 | T4 | P1 | `mark, ins` highlight is a grey wash (`$color__gray-87`) — a found-term highlight should carry the brand. DRE-Search already highlights matches with an accent tint (`--dre-hl-bg`: accent 30% over transparent); the theme and module currently speak two different highlight languages for the same concept. | `base/typography/_copy.scss:83` vs DRE-Search `Highlight.svelte` | ✅ done (v2.8.0) |
-| T5 | P1 | Sitewide search empty state is a bare `<p>No result found</p>`. An empty state should keep the researcher moving: restate the query, suggest spelling/broader terms, offer Advanced Search and Browse-all as paths onward. | `view/omeka/site/index/search.phtml:15` | ✅ done (v2.8.0) |
+| T5 | P1 | Sitewide search empty state is a bare `<p>No result found</p>`. An empty state should keep the researcher moving: restate the query, suggest spelling/broader terms, offer Advanced Search and Browse-all as paths onward. | `view/omeka/site/index/search.phtml:15` | ✅ done (v2.8.0) · extended to item browse in v2.9.0 — when `search_resource_names` holds a single type, core search **redirects** to item browse (`IndexController::searchAction`), so the zero-hit browse page is where a fruitless search really lands; it previously rendered a blank masonry area |
 | T6 | P3 | No `@media print` layer. Researchers print/save item records and search results; current output prints the sticky header, theme toggle, banner wash, footer band and back-to-top button. A scholarly print layer (chrome hidden, serif metadata, exposed item URL) is cheap and very on-audience. | no `print` rules anywhere in `asset/sass` | ✅ done (v2.8.0) |
 | T7 | P3 | Motion tokens (`--transition-*`, `--ease-expo-out`) power hovers only; there is no arrival moment. One restrained, staggered entrance on the home hero (eyebrow → title → tagline → CTA) is the philosophy's "one well-orchestrated high-impact moment". Must be CSS-only and fully suppressed under `prefers-reduced-motion`. | `components/banner/_banner.scss` | ✅ done (v2.8.0) |
-| T8 | P3 | OpenType is under-used: global `kern/liga/calt` plus two `tabular-nums` call-sites. Numbers in metadata values, pagination, counts and year facets should be tabular; Spectral's display tier could take `case`-sensitive punctuation. Small, quiet wins. | `base/typography/_typography.scss:13` | ◻ Phase 3 |
-| T9 | P2 | The `container` mixin pads with raw `15px`/`30px` and the masonry vertical rhythm is a literal `24px`. | `abstracts/mixins/_mixins.scss:14` | ◻ Phase 2 |
-| T10 | P2 | The global `button, .button, input[type=…]` element selector applies the full primary-button treatment to *every* `<button>` on the page. Both modules already pay for this: DRE-Search ships `!important` shields and the Mirador block needs an insulation layer. Wrapping the element-level default in `:where()` (specificity 0) would end the arms race while keeping the styling for theme-authored buttons. Needs a careful regression pass (any rule that previously *lost* to it will start winning). | `base/elements/_buttons.scss:1` · DESIGN.md §8 "Chrome insulation" | ◻ Phase 5 |
+| T8 | P3 | OpenType is under-used: global `kern/liga/calt` plus two `tabular-nums` call-sites. Numbers in metadata values, pagination, counts and year facets should be tabular; Spectral's display tier could take `case`-sensitive punctuation. Small, quiet wins. | `base/typography/_typography.scss:13` | ✅ done (v2.9.0) — `tabular-nums` on pagination ×2, tables and metadata `dd`; `text-wrap: balance` was already on h1–h4 |
+| T9 | P2 | The `container` mixin pads with raw `15px`/`30px` and the masonry vertical rhythm is a literal `24px`. | `abstracts/mixins/_mixins.scss:14` | ✅ done (v2.9.0) — `--space-4`/`--space-8` (16/32px, ≤2px deltas). Remaining px sweep: the pagination partials (30px margins, 40px buttons, 15px radii) |
+| T10 | P2 | The global `button, .button, input[type=…]` element selector applies the full primary-button treatment to *every* `<button>` on the page. Both modules already pay for this: DRE-Search ships `!important` shields and the Mirador block needs an insulation layer. | `base/elements/_buttons.scss:1` · DESIGN.md §8 "Chrome insulation" | ✅ done (v2.9.0), narrower than first sketched: the BASE element rule keeps (0,0,1) — flattening it to `:where()` would have let normalize.scss's `button` resets win — and only the **state** tails (`:hover`/`:active`/`:focus-visible`/`:disabled`/`:visited`, formerly up to (0,2,1)) are wrapped in `:where()`, so any single-class module rule now beats them. Verified on the dev instance: theme buttons unchanged, DRE-Search tabs show no glow/lift leak. Follow-up ◻: drop DRE-Search's now-redundant `!important` shields and the Mirador insulation in their next releases |
 | T11 | P2 | Sass partials still use `@import` (deprecated, non-breaking). Mechanical migration to `@use`/`@forward` already sketched in DESIGN.md §10. | all partials | ◻ Phase 5 |
 
 False positives worth recording (so nobody "fixes" them): the two
@@ -91,7 +91,7 @@ dark mode.
 | V2 | P1 | Charts never set a `fontFamily`, so every axis label, legend, tooltip and title renders in the canvas default (system sans) instead of Hanken Grotesk — the only text on the page outside the type system. Resolve `--font-body` (and `--font-display` for chart titles) in `readTheme()` and apply through `buildEchartsTheme()`. | `asset/js/dashboard-core.js` (THEME, buildEchartsTheme) | ✅ done |
 | V3 | — | Photo-lightbox controls use `backdrop-filter` blur. **Sanctioned exception**: frosted controls *over user imagery* are functional (legibility on unknown grounds), not decorative glassmorphism. Keep, and keep it confined to the lightbox. | `asset/css/dre-visualizations.css:1859` | sanctioned |
 | V4 | — | Map labels hard-code white text + dark halo. **Sanctioned**: CartoDB basemaps are outside the theme's control; the halo is a legibility device. | `asset/js/dashboard-charts-map.js:113,177` | sanctioned |
-| V5 | P3 | `THEME.fontSize: 11` is below the theme's smallest step (13px `--text-xs`). Dense chart interiors justify smaller type than UI chrome, but 11px axis text is at the floor of comfortable; consider 12 after V2 lands (Hanken renders larger than the default canvas font). | `asset/js/dashboard-core.js:73` | ◻ Phase 3 |
+| V5 | P3 | `THEME.fontSize: 11` is below the theme's smallest step (13px `--text-xs`). Dense chart interiors justify smaller type than UI chrome, but 11px axis text is at the floor of comfortable; consider 12 after V2 lands (Hanken renders larger than the default canvas font). | `asset/js/dashboard-core.js:73` | ✅ done (module v2.2.1) — 12px |
 
 ---
 
@@ -134,20 +134,23 @@ One brand, one voice, across theme and modules:
 one-line shrug; chart axis text matches site UI text; `<mark>` matches the
 Svelte highlight tint in both modes.
 
-### Phase 2 — Token completeness *(P2 · mostly done)*
+### Phase 2 — Token completeness *(P2 · done, one sweep open)*
 
 Finish the job DESIGN.md describes: every component speaks the scales.
 
 - **T1 ✅ / T3 ✅ / T2 ✅(first half)** — resource grid, search results and
   metadata now use `--space-*`, `--measure-wide`, `--text-*` (masonry %
   inputs intentionally retained).
-- **T2 (second half) ◻** — rebuild the metadata `<dl>` on CSS grid
-  (`grid-template-columns: minmax(10rem, 12rem) 1fr`), eyebrow-style `dt`
-  labels (`--text-xs`, `--tracking-wide`, uppercase, `--ink-subtle`), and
-  `tabular-nums` on value text. This is the item page — the single most-read
-  surface in the archive; treat it as a typographic project, not a cleanup.
-- **T9 ◻** — `container` mixin paddings → `--space-4`/`--space-8`
-  (compiled output is identical; pure vocabulary).
+- **T2 (second half) ✅ (v2.9.0)** — the metadata `<dl>` is a CSS grid
+  (`var(--metadata-label-col) 1fr`, baseline-aligned), the `dt` is an
+  uppercase eyebrow rail in the UI grotesque (`--text-xs`, `--tracking-wide`,
+  600, `--ink-subtle`; the `(dcterms:…)` term annotation stays lowercase),
+  values carry `tabular-nums`, and sidebar regions keep the stacked flow.
+  Verified on the dev instance (grid `170px/1fr`, two-column geometry).
+- **T9 ✅ (v2.9.0)** — `container` paddings → `--space-4`/`--space-8`.
+- **◻ Pagination px sweep** — `_resources-pagination.scss` /
+  `_page-pagination.scss` still carry `30px` margins, `40px` buttons and
+  `15px/22px` radii from the base theme; convert to the scales.
 
 *Acceptance:* `grep -E '\b\d+px' components/` returns only intentional
 hairlines (1px borders), icon geometry, and documented exceptions.
@@ -164,8 +167,8 @@ What a research library does that a product dashboard doesn't:
   pagination, counts, facet totals, metadata dates; `lining-nums` guarded in
   tables. Audit Spectral display sizes for `text-wrap: balance` coverage
   (banner already has it).
-- **V5 ◻ — chart microtype.** After V2, re-evaluate `fontSize: 11 → 12` so
-  Hanken at canvas DPI keeps the same optical size as the old default font.
+- **V5 ✅ — chart microtype** (module v2.2.1). `fontSize: 11 → 12` so Hanken
+  at canvas DPI keeps the optical size of the old default font.
 - **◻ Reading-measure audit.** Verify every long-form surface (page blocks,
   item description, exhibit text) is capped at `--measure-narrow`; today the
   cap is applied per-component rather than guaranteed.
@@ -189,12 +192,10 @@ micro-interactions.
 
 Not visual, but it protects the visual system:
 
-- **T10 ◻ — `:where()` the element defaults.** Wrap the global
-  `button/.button/input[type=submit]` treatment in `:where()` so modules
-  stop needing `!important` shields and Mirador-style insulation layers.
-  Plan: land behind a full visual regression pass of every theme button
-  surface (forms, advanced search, pagination, collecting, user bar), then
-  delete DRE-Search's counter-shields in its next release.
+- **T10 ✅ — `:where()` the button states** (v2.9.0; see the findings row
+  for the narrower-than-sketched shape and dev-instance verification).
+  Follow-up ◻: delete DRE-Search's `!important` counter-shields and the
+  Mirador insulation layer in their next releases — both are now redundant.
 - **T11 ◻ — `@use`/`@forward` migration.** Mechanical; per DESIGN.md §10
   (`loadPaths: ['asset/sass']`, one `@use "abstracts/abstracts" as *;` per
   leaf). Do it in one commit with a byte-diff of compiled CSS as proof.

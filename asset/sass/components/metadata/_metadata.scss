@@ -1,6 +1,14 @@
+// ==========================================================================
+// Metadata — the record itself, the most-read surface in the archive.
+//
+// Two-column layout on a CSS grid: a quiet uppercase label rail in the UI
+// grotesque names each property; the values column carries the content.
+// Labels and first values share a baseline; dates and identifiers align
+// across rows (tabular figures). Sidebar regions keep the stacked flow.
+// ==========================================================================
 .metadata {
-    // Label-column width for the two-column dt/dd layout below — one named
-    // constant instead of a magic number repeated on both sides (170px).
+    // Label-rail width for the two-column dt/dd layout below — one named
+    // constant instead of a magic number repeated on both sides.
     --metadata-label-col: 10.625rem;
 
     width: 100%;
@@ -33,44 +41,48 @@
         > .property {
             margin-bottom: var(--space-5);
 
-            &::after {
-                content: "";
-                display: table;
-                clear: both;
+            @media (min-width: $md) {
+                display: grid;
+                grid-template-columns: var(--metadata-label-col) 1fr;
+                column-gap: var(--space-6);
+                align-items: baseline;
             }
 
+            // Label — an eyebrow in the UI grotesque; the rail names the
+            // property, the values carry the content.
             dt {
-                line-height: 1.2;
-                margin-bottom: var(--space-2);
-                padding-right: var(--space-4);
+                grid-column: 1;
+                font-family: var(--font-body);
+                font-size: var(--text-xs);
+                font-weight: 600;
+                letter-spacing: var(--tracking-wide);
+                text-transform: uppercase;
+                color: var(--ink-subtle);
+                line-height: 1.4;
+                margin-bottom: var(--space-1);
                 word-wrap: break-word;
 
-                &:not(.sidebar-region &) {
-                    @media (min-width: $md) {
-                        margin-bottom: 0;
-                        float: left;
-                        width: var(--metadata-label-col);
-                    }
+                @media (min-width: $md) {
+                    margin-bottom: 0;
                 }
 
+                // The optional "(dcterms:…)" term annotation stays lowercase
+                // and quiet beside the caps label.
                 .field-term {
-                    font-size: var(--text-sm);
-                    font-weight: 500;
+                    font-size: inherit;
+                    font-weight: 400;
+                    letter-spacing: var(--tracking-normal);
+                    text-transform: none;
                 }
             }
 
             dd {
-                margin: 0 0 var(--space-4);
+                grid-column: 2;
+                margin: 0 0 var(--space-3);
                 word-break: break-word;
                 overflow-wrap: anywhere;
                 white-space: normal;
-                align-items: flex-start;
-
-                &:not(.sidebar-region &) {
-                    @media (min-width: $md) {
-                        margin-left: var(--metadata-label-col);
-                    }
-                }
+                font-variant-numeric: tabular-nums;   // dates/ids align across rows
 
                 &:last-child {
                     margin-bottom: 0;
@@ -127,5 +139,16 @@
                 padding: var(--space-4);
             }
         }
+    }
+}
+
+// Narrow sidebar regions keep the stacked flow — a label rail would crush
+// the values at sidebar widths — and recover the label/value gap the grid
+// context zeroes out.
+.sidebar-region .metadata dl > .property {
+    display: block;
+
+    dt {
+        margin-bottom: var(--space-1);
     }
 }

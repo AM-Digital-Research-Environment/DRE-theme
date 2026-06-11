@@ -241,7 +241,17 @@ theme-aware in one move. Notable bespoke work:
   `10px/0` radius). Its width is now intrinsic and viewport-capped
   (`min(22rem, calc(100vw − 2·--space-4))`) and the inner property list stacks
   and wraps, so a long URI or resource link no longer overflows on mobile.
-- **Buttons, links, fields** — token-driven, with proper `:focus-visible` rings.
+- **Metadata record** — the item page's `<dl>` on a CSS grid: an uppercase
+  Hanken eyebrow rail (`--metadata-label-col`) names each property, the
+  values column carries the content with tabular figures, label and first
+  value share a baseline. Sidebar regions keep the stacked flow.
+- **Buttons, links, fields** — token-driven, with proper `:focus-visible`
+  rings. The button **state** selectors are wrapped in `:where()` (zero added
+  specificity), so a module's own single-class styling always beats the
+  theme's hover/active/disabled treatment — no more `!important`
+  counter-shields; the base element rule keeps its (0,0,1) so normalize's
+  resets stay beneath it. The global `:focus-visible` rule still guarantees
+  the focus ring everywhere.
 - **Found-term highlight** — `mark` / `ins` carry the same translucent accent
   wash DRE-Search paints on result matches (`color-mix(in oklab, var(--accent)
   28%, transparent)`), so "your term" reads identically in core search, faceted

@@ -1,6 +1,7 @@
 .pagination {
     display: flex;
     align-items: center;
+    font-variant-numeric: tabular-nums;   // page/row counts hold width as they tick
     border-bottom: 1px solid $color__hr;
     border-top: 1px solid $color__hr;
     flex-wrap: wrap;

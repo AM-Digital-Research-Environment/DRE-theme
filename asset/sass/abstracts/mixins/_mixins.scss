@@ -16,11 +16,11 @@
     max-width: 1440px;
     margin-left: auto;
     margin-right: auto;
-    padding: 0 15px;
+    padding: 0 var(--space-4);
     position: relative;
 
     @media (min-width: $md) {
-        padding: 0 30px;
+        padding: 0 var(--space-8);
     }
 }
 
@@ -110,6 +110,13 @@ $icon-comment: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%2
         transform var(--transition-fast);
 }
 
+// State selectors are wrapped in :where() so they add NO specificity beyond
+// the base selector. The old bare tails (e.g. `button:hover:not(…):not(…)`,
+// 0,2,1) outranked any single-class rule a module wrote (0,1,0) and forced
+// DRE-Search / the Mirador block into !important counter-shields; flattened,
+// a module's own classed styling always wins while the theme's base→state
+// order still resolves by source order. The global :focus-visible rule in
+// base/_theme.scss (0,1,0) keeps the focus ring guaranteed everywhere.
 @mixin primary-button {
     @include button;
     background-color: var(--primary);
@@ -117,27 +124,25 @@ $icon-comment: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%2
     color: var(--primary-contrast);
     box-shadow: var(--shadow-xs);
 
-    &:hover:not(.disabled):not(:disabled) {
+    &:where(:hover:not(.disabled):not(:disabled)) {
         background-color: var(--primary-hover);
         color: var(--primary-contrast);
         box-shadow: var(--glow-sm);
         transform: translateY(var(--lift-xs));
     }
 
-    &:active:not(.disabled):not(:disabled) {
+    &:where(:active:not(.disabled):not(:disabled)) {
         background-color: var(--primary-active);
         box-shadow: var(--shadow-xs);
         transform: none;
     }
 
-    &:focus-visible {
+    &:where(:focus-visible) {
         outline: 2px solid var(--focus-color);
         outline-offset: 2px;
     }
 
-    &:disabled,
-    &[disabled],
-    &.disabled {
+    &:where(:disabled, [disabled], .disabled) {
         background-color: var(--muted);
         color: var(--surface);
         cursor: default;
@@ -145,7 +150,7 @@ $icon-comment: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%2
         transform: none;
     }
 
-    &:visited {
+    &:where(:visited) {
         color: var(--primary-contrast);
     }
 }
@@ -156,30 +161,28 @@ $icon-comment: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%2
     border: 1px solid var(--border-strong);
     color: var(--primary-text);
 
-    &:hover:not(.disabled):not(:disabled) {
+    &:where(:hover:not(.disabled):not(:disabled)) {
         background-color: var(--primary-muted);
         border-color: var(--primary);
         color: var(--primary-text);
     }
 
-    &:active:not(.disabled):not(:disabled) {
+    &:where(:active:not(.disabled):not(:disabled)) {
         background-color: color-mix(in oklab, var(--primary-muted), var(--primary) 10%);
     }
 
-    &:focus-visible {
+    &:where(:focus-visible) {
         outline: 2px solid var(--focus-color);
         outline-offset: 2px;
     }
 
-    &:disabled,
-    &[disabled],
-    &.disabled {
+    &:where(:disabled, [disabled], .disabled) {
         border-color: var(--border);
         color: var(--muted);
         cursor: default;
     }
 
-    &:visited {
+    &:where(:visited) {
         color: var(--primary-text);
     }
 }
