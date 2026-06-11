@@ -197,6 +197,12 @@ theme-aware in one move. Notable bespoke work:
   bar, the lockup with light/dark swap, and the sun/moon toggle. On the home page
   the lockup steps down from `<h1>` to a plain home link, because the hero banner
   there carries the site title as the page `<h1>` (one `<h1>` per page).
+  **The menu never wraps**: at `$xl`+ `navigation.js` measures the menu's
+  one-line width against the lockup→utilities envelope and sets
+  `data-nav="inline|drawer"` on `.main-header` — a menu that wouldn't fit on
+  one row (half-screen windows, long menus, large fonts) collapses to the
+  hamburger/drawer instead of wrapping. Every desktop-menu rule is gated on
+  `:not([data-nav="drawer"])`; without JS the old wrap is the fallback.
 - **Banner — earth-tone wash** — a photography-free masthead: a soft diagonal
   sweep through the brand earth tones (Uni-Grün → Gold → Braun), drawn purely in
   CSS. Each stop is `color-mix`-ed toward `--surface`, so the wash is a pale tint
@@ -465,9 +471,14 @@ contract — distinct from the UI tokens above:
 
 ```bash
 npm install
-npm run build      # gulp css  → asset/css/style.css (compressed, autoprefixed)
-npm run watch      # rebuild on change
+npm run build        # token-contract lint, then gulp css → asset/css/style.css
+npm run watch        # rebuild on change
+npm run lint:tokens  # design-token contract check alone (scripts/check-design-tokens.mjs)
 ```
+
+`lint:tokens` encodes the §8 anti-patterns (raw hex outside `var()` fallback
+position, coloured side-stripes, gradient text, px type) and fails the build
+on a regression; its allowlist records the sanctioned exceptions.
 
 Toolchain (latest as of build): **gulp 5**, **dart-sass 1.100**, **gulp-sass 6**,
 **gulp-postcss 10**, **autoprefixer 10.5**. Browser targets in

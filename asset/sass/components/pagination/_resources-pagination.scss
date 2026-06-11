@@ -5,56 +5,57 @@
     border-bottom: 1px solid $color__hr;
     border-top: 1px solid $color__hr;
     flex-wrap: wrap;
-    gap: 1.5rem;
+    gap: var(--space-6);
     justify-content: center;
-    margin: 30px 0;
-    padding: 30px 0;
+    margin: var(--space-8) 0;
+    padding: var(--space-8) 0;
     width: 100%;
 
     .pager-wrapper {
         display: flex;
         align-items: center;
         flex-shrink: 0;
-        gap: 1rem;
+        gap: var(--space-4);
 
         @media (min-width: $sm) {
-            gap: 1.5rem;
+            gap: var(--space-6);
         }
     }
 
+    // Page-number field — a quiet rounded rect matching the theme's other
+    // fields (was a 15/22px pill, the only pill-shaped input in the system).
     input[type=text] {
         display: inline-block;
-        margin: 0 0 0 0.5rem !important;
-        padding: 12px 10px;
+        margin: 0 0 0 var(--space-2) !important;
+        padding: var(--space-3) var(--space-2);
         text-align: center;
         width: auto;
-        border-radius: 15px;
+        border-radius: var(--radius-md);
 
         @media (min-width: $sm) {
-            padding: 12px 30px;
-            border-radius: 22px;
+            padding: var(--space-3) var(--space-4);
         }
     }
 
     input[type=submit] {
-        padding: 12px 15px;
+        padding: var(--space-3) var(--space-4);
 
         @media (min-width: $sm) {
-            padding: 12px 30px;
+            padding: var(--space-3) var(--space-6);
         }
     }
 
     .row-count {
         color: $color__secondary-text;
         font-size: $font__sm-size;
-        margin-right: 1rem;
+        margin-right: var(--space-4);
     }
 
     .pager {
         label,
         .page-count {
             color: $color__secondary-text;
-            margin-right: 0.5rem;
+            margin-right: var(--space-2);
         }
     }
 
@@ -64,11 +65,11 @@
         align-items: center;
         flex-shrink: 0;
         font-size: 1.4rem;
-        height: 40px;
+        height: var(--size-control-md);
         justify-content: center;
         padding: 0;
         position: relative;
-        width: 40px;
+        width: var(--size-control-md);
 
         &:hover:not(.disabled),
         &:active:not(.disabled) {

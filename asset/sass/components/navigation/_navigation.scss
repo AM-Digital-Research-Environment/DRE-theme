@@ -1,27 +1,53 @@
+// ==========================================================================
+// Inline menu vs. drawer — two switches, not one:
+//
+//   1. The $xl media query (no-JS baseline): below $xl the hamburger/drawer,
+//      at $xl+ the inline pill menu.
+//   2. data-nav on .main-header (set by navigation.js): at $xl+ the script
+//      measures the menu's one-line width against the space between the
+//      lockup and the utilities cluster and sets data-nav="inline" or
+//      "drawer". A menu that would WRAP onto a second row (half-screen
+//      windows, long menus, large font settings) collapses to the drawer
+//      instead — wrapping is only the no-JS fallback.
+//
+// Every "desktop menu" rule below is therefore gated on
+// `.main-header:not([data-nav="drawer"])` so drawer mode can win at any width.
+// ==========================================================================
 .main-navigation {
     order: 3;   // mobile: the hamburger is the rightmost control in the bar
 
     @media (min-width: $xl) {
-        margin-left: auto;
-        margin-right: 20px;
-        order: initial;
-        // Overflow guarantee, part 1: as a flex child the nav defaults to
-        // min-width:auto, which forbids the row from compressing it below the
-        // menu's one-line width — on viewports shaved by browser side-panels
-        // or classic scrollbars that minimum exceeds the space and the whole
-        // bar overflows the page. Zero it so the menu compresses (and wraps,
-        // below) instead of handing the page a horizontal scrollbar. Desktop
-        // only: on mobile the nav's content is the fixed-size hamburger, and
-        // a zero minimum would let a tight bar squeeze it into the clip edge.
-        min-width: 0;
+        .main-header:not([data-nav="drawer"]) & {
+            margin-left: auto;
+            margin-right: 20px;
+            order: initial;
+            // Overflow guarantee, part 1: as a flex child the nav defaults to
+            // min-width:auto, which forbids the row from compressing it below the
+            // menu's one-line width — on viewports shaved by browser side-panels
+            // or classic scrollbars that minimum exceeds the space and the whole
+            // bar overflows the page. Zero it so the menu compresses (and wraps,
+            // below) instead of handing the page a horizontal scrollbar. Desktop
+            // only: on mobile the nav's content is the fixed-size hamburger, and
+            // a zero minimum would let a tight bar squeeze it into the clip edge.
+            min-width: 0;
+        }
     }
 
     &__container {
         display: none;
 
         @media screen and (min-width: $xl) {
-            display: block;
+            .main-header:not([data-nav="drawer"]) & {
+                display: block;
+            }
         }
+    }
+
+    // While the script is in charge (data-nav present) the menu never wraps:
+    // the drawer takes over before a second row can paint. Without JS the
+    // attribute is absent and the wrap below remains the graceful fallback.
+    .main-header[data-nav] & .navigation {
+        flex-wrap: nowrap;
     }
 
     &__toggle {
@@ -38,7 +64,9 @@
         border-radius: 0;
 
         @media (min-width: $xl) {
-            display: none;
+            .main-header:not([data-nav="drawer"]) & {
+                display: none;
+            }
         }
 
         // Stay flat on hover — no fill, no CTA lift, no glow. The double :not()

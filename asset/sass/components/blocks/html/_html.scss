@@ -1,0 +1,23 @@
+// ==========================================================================
+// HTML page blocks — reading measure.
+//
+// Body prose authored in an HTML block otherwise runs the full page container
+// (~1376px ≈ 150+ characters per line at body size). Cap the text elements at
+// the narrow measure (~70ch) while leaving figures, tables, embeds and any
+// author-built layout divs at the block's full width. Blocks placed in narrow
+// page-grid cells are unaffected (max-width only ever shrinks).
+// ==========================================================================
+.block-html {
+    > p,
+    > ul,
+    > ol,
+    > dl,
+    > blockquote,
+    > h2,
+    > h3,
+    > h4,
+    > h5,
+    > h6 {
+        max-width: var(--measure-narrow);
+    }
+}

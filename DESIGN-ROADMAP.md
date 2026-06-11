@@ -67,7 +67,8 @@ opportunity, not a defect.
 | T8 | P3 | OpenType is under-used: global `kern/liga/calt` plus two `tabular-nums` call-sites. Numbers in metadata values, pagination, counts and year facets should be tabular; Spectral's display tier could take `case`-sensitive punctuation. Small, quiet wins. | `base/typography/_typography.scss:13` | ✅ done (v2.9.0) — `tabular-nums` on pagination ×2, tables and metadata `dd`; `text-wrap: balance` was already on h1–h4 |
 | T9 | P2 | The `container` mixin pads with raw `15px`/`30px` and the masonry vertical rhythm is a literal `24px`. | `abstracts/mixins/_mixins.scss:14` | ✅ done (v2.9.0) — `--space-4`/`--space-8` (16/32px, ≤2px deltas). Remaining px sweep: the pagination partials (30px margins, 40px buttons, 15px radii) |
 | T10 | P2 | The global `button, .button, input[type=…]` element selector applies the full primary-button treatment to *every* `<button>` on the page. Both modules already pay for this: DRE-Search ships `!important` shields and the Mirador block needs an insulation layer. | `base/elements/_buttons.scss:1` · DESIGN.md §8 "Chrome insulation" | ✅ done (v2.9.0), narrower than first sketched: the BASE element rule keeps (0,0,1) — flattening it to `:where()` would have let normalize.scss's `button` resets win — and only the **state** tails (`:hover`/`:active`/`:focus-visible`/`:disabled`/`:visited`, formerly up to (0,2,1)) are wrapped in `:where()`, so any single-class module rule now beats them. Verified on the dev instance: theme buttons unchanged, DRE-Search tabs show no glow/lift leak. Follow-up ◻: drop DRE-Search's now-redundant `!important` shields and the Mirador insulation in their next releases |
-| T11 | P2 | Sass partials still use `@import` (deprecated, non-breaking). Mechanical migration to `@use`/`@forward` already sketched in DESIGN.md §10. | all partials | ◻ Phase 5 |
+| T11 | P2 | Sass partials still use `@import` (deprecated, non-breaking). Mechanical migration to `@use`/`@forward` already sketched in DESIGN.md §10. | all partials | ◻ Phase 5 — scope assessed (v2.10.0): not as mechanical as sketched. Watch for: leaf partials consuming Sass vars defined in *other* leaves, namespace collisions across aggregator `@use`s, and CSS-emission order shifts from `@use`'s load-once semantics. Do it in a dedicated pass with a byte-diff of the compiled CSS as the acceptance gate; the deprecation stays non-breaking until Dart Sass 3. |
+| T12 | P1 | At in-between widths (half-screen windows, long menus, large font settings) the desktop menu **wrapped onto a second row** instead of collapsing — the $xl media query alone can't know the menu's rendered width. | `_navigation.scss` · `navigation.js` | ✅ done (v2.10.0) — collapse-on-overflow: navigation.js measures the menu's one-line width (invisible off-screen measurement, re-run on resize + fonts.ready) against the lockup→utilities envelope and sets `data-nav="inline|drawer"` on `.main-header`; every desktop-menu rule is gated on `:not([data-nav="drawer"])`, `flex-wrap: nowrap` while the script is in charge, and the old wrap remains the no-JS fallback. Verified on the dev instance at 1280px (collapses; drawer opens at desktop width) and with a short menu (inline, one row). |
 
 False positives worth recording (so nobody "fixes" them): the two
 `border-right: 2px` hits are CSS chevron carets, not accent stripes
@@ -148,9 +149,17 @@ Finish the job DESIGN.md describes: every component speaks the scales.
   values carry `tabular-nums`, and sidebar regions keep the stacked flow.
   Verified on the dev instance (grid `170px/1fr`, two-column geometry).
 - **T9 ✅ (v2.9.0)** — `container` paddings → `--space-4`/`--space-8`.
-- **◻ Pagination px sweep** — `_resources-pagination.scss` /
-  `_page-pagination.scss` still carry `30px` margins, `40px` buttons and
-  `15px/22px` radii from the base theme; convert to the scales.
+- **Pagination px sweep ✅ (v2.10.0)** — margins/paddings → `--space-*`,
+  buttons → `--size-control-md`, and the page-number field traded its
+  `15/22px` pill for `--radius-md` (it was the only pill-shaped input in
+  the system; fields are rounded rects).
+- **◻ Remaining px tail** — surveyed v2.10.0 (`grep -E '\b([2-9]|\d\d+)px'`
+  minus hairlines): `_advanced-search` (37), `_navigation` (21), `_fields`
+  (16), `_item-with-metadata` (14), `header/_search` (13), `_footer` (12),
+  `_carousel`/`_accordion` (10 each), then a long tail. Much of it is icon
+  geometry and logo sizing (legitimate); convert opportunistically when a
+  file is touched — `_fields.scss` first (every form), then
+  `_advanced-search.scss`.
 
 *Acceptance:* `grep -E '\b\d+px' components/` returns only intentional
 hairlines (1px borders), icon geometry, and documented exceptions.
@@ -169,9 +178,13 @@ What a research library does that a product dashboard doesn't:
   (banner already has it).
 - **V5 ✅ — chart microtype** (module v2.2.1). `fontSize: 11 → 12` so Hanken
   at canvas DPI keeps the optical size of the old default font.
-- **◻ Reading-measure audit.** Verify every long-form surface (page blocks,
-  item description, exhibit text) is capped at `--measure-narrow`; today the
-  cap is applied per-component rather than guaranteed.
+- **Reading-measure audit ✅ (v2.10.0).** The gap was HTML page blocks:
+  prose ran the full 1440px container (~150 ch/line measured on the dev
+  home page). `components/blocks/html/_html.scss` caps the text elements
+  (`> p, ul, ol, dl, blockquote, h2–h6`) at `--measure-narrow` while
+  figures/tables/embeds keep the block's width; verified 1201px → 704px.
+  Author-nested wrapper divs escape the `>` selector — acceptable; revisit
+  if pages start wrapping prose in divs.
 
 ### Phase 4 — One memorable moment *(P3 · done, extendable)*
 
@@ -192,18 +205,21 @@ micro-interactions.
 
 Not visual, but it protects the visual system:
 
-- **T10 ✅ — `:where()` the button states** (v2.9.0; see the findings row
-  for the narrower-than-sketched shape and dev-instance verification).
-  Follow-up ◻: delete DRE-Search's `!important` counter-shields and the
-  Mirador insulation layer in their next releases — both are now redundant.
-- **T11 ◻ — `@use`/`@forward` migration.** Mechanical; per DESIGN.md §10
-  (`loadPaths: ['asset/sass']`, one `@use "abstracts/abstracts" as *;` per
-  leaf). Do it in one commit with a byte-diff of compiled CSS as proof.
-- **◻ Token-contract lint.** A tiny CI grep (theme + both modules): fail on
-  `#hex` outside `var(…, fallback)` position, `border-left/right` > 1px with
-  a colour, `background-clip: text`, and `font-size:.*px`. Encodes the
-  anti-patterns so they can't regress; the false-positive list above seeds
-  the allowlist.
+- **T10 ✅ — `:where()` the button states** (v2.9.0; see the findings row).
+  **Follow-up corrected (v2.10.0):** the module shields are NOT redundant —
+  the theme's flattened hover still applies for properties a module never
+  declares (`box-shadow`, `transform`), so the *declarations* must stay.
+  What T10 buys is that they no longer need `!important`; downgrade them to
+  plain class rules opportunistically. The `.block-mirador` layer also
+  stays: its `isolation: isolate` is z-index containment for the sticky
+  header, unrelated to buttons.
+- **T11 ◻ — `@use`/`@forward` migration.** Deferred with a scope note —
+  see the findings row. Dedicated pass, byte-diff acceptance.
+- **Token-contract lint ✅ (v2.10.0).** `scripts/check-design-tokens.mjs`
+  (no deps), gating `npm run build`: raw hex outside `var(…, fallback)`
+  position, coloured side-stripe borders, `background-clip: text`, px
+  font-sizes — with the false-positive allowlist on record in the script.
+  ◻ Port the same check to the two module repos.
 
 ---
 

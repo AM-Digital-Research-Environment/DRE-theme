@@ -12,8 +12,13 @@
     transition: all 0.3s ease-out;
     visibility: hidden;
 
+    // Keep the drawer parked off-canvas once the inline menu takes over — but
+    // only in inline mode: when navigation.js has collapsed an over-wide menu
+    // (data-nav="drawer"), the drawer must be able to open at any width.
     @media screen and (min-width: $xl) {
-        transform: translateX( -100% ) !important;
+        .main-header:not([data-nav="drawer"]) & {
+            transform: translateX( -100% ) !important;
+        }
     }
 
     > .wrap {

@@ -5,7 +5,7 @@ Theme URI: https://github.com/AM-Digital-Research-Environment/DRE-theme
 Author: Frédérick Madore
 Author URI: https://www.frederickmadore.com/
 Description: Digital Research Environment theme for the Africa Multiple Cluster of Excellence (University of Bayreuth). Scholarly Modernism on an OKLCH design-token foundation, with light and dark modes.
-Version: 2.9.0
+Version: 2.10.0
 Omeka Version Constraint: ^4.2.0
 Requires PHP: 8.1
 License: GNU General Public License v3 or later
@@ -2273,7 +2273,7 @@ body[data-theme=dark] .theme-toggle .theme-toggle__icon--moon {
   order: 3;
 }
 @media (min-width: 1200px) {
-  .main-navigation {
+  .main-header:not([data-nav=drawer]) .main-navigation {
     margin-left: auto;
     margin-right: 20px;
     order: initial;
@@ -2284,9 +2284,12 @@ body[data-theme=dark] .theme-toggle .theme-toggle__icon--moon {
   display: none;
 }
 @media screen and (min-width: 1200px) {
-  .main-navigation__container {
+  .main-header:not([data-nav=drawer]) .main-navigation__container {
     display: block;
   }
+}
+.main-header[data-nav] .main-navigation .navigation {
+  flex-wrap: nowrap;
 }
 .main-navigation__toggle {
   display: block;
@@ -2302,7 +2305,7 @@ body[data-theme=dark] .theme-toggle .theme-toggle__icon--moon {
   border-radius: 0;
 }
 @media (min-width: 1200px) {
-  .main-navigation__toggle {
+  .main-header:not([data-nav=drawer]) .main-navigation__toggle {
     display: none;
   }
 }
@@ -2567,7 +2570,7 @@ body[data-theme=dark] .theme-toggle .theme-toggle__icon--moon {
   visibility: hidden;
 }
 @media screen and (min-width: 1200px) {
-  .menu-drawer {
+  .main-header:not([data-nav=drawer]) .menu-drawer {
     transform: translateX(-100%) !important;
   }
 }
@@ -4000,6 +4003,21 @@ body[data-theme=dark] .site-banner__art {
   float: right;
 }
 
+/* HTML (reading measure)
+--------------------------------------------- */
+.block-html > p,
+.block-html > ul,
+.block-html > ol,
+.block-html > dl,
+.block-html > blockquote,
+.block-html > h2,
+.block-html > h3,
+.block-html > h4,
+.block-html > h5,
+.block-html > h6 {
+  max-width: var(--measure-narrow);
+}
+
 /* Item With metadata
 --------------------------------------------- */
 .item-with-metadata {
@@ -4300,54 +4318,53 @@ body[data-theme=dark] .site-banner__art {
   border-bottom: 1px solid var(--border);
   border-top: 1px solid var(--border);
   flex-wrap: wrap;
-  gap: 1.5rem;
+  gap: var(--space-6);
   justify-content: center;
-  margin: 30px 0;
-  padding: 30px 0;
+  margin: var(--space-8) 0;
+  padding: var(--space-8) 0;
   width: 100%;
 }
 .pagination .pager-wrapper {
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  gap: 1rem;
+  gap: var(--space-4);
 }
 @media (min-width: 600px) {
   .pagination .pager-wrapper {
-    gap: 1.5rem;
+    gap: var(--space-6);
   }
 }
 .pagination input[type=text] {
   display: inline-block;
-  margin: 0 0 0 0.5rem !important;
-  padding: 12px 10px;
+  margin: 0 0 0 var(--space-2) !important;
+  padding: var(--space-3) var(--space-2);
   text-align: center;
   width: auto;
-  border-radius: 15px;
+  border-radius: var(--radius-md);
 }
 @media (min-width: 600px) {
   .pagination input[type=text] {
-    padding: 12px 30px;
-    border-radius: 22px;
+    padding: var(--space-3) var(--space-4);
   }
 }
 .pagination input[type=submit] {
-  padding: 12px 15px;
+  padding: var(--space-3) var(--space-4);
 }
 @media (min-width: 600px) {
   .pagination input[type=submit] {
-    padding: 12px 30px;
+    padding: var(--space-3) var(--space-6);
   }
 }
 .pagination .row-count {
   color: var(--ink-light);
   font-size: 0.9375rem;
-  margin-right: 1rem;
+  margin-right: var(--space-4);
 }
 .pagination .pager label,
 .pagination .pager .page-count {
   color: var(--ink-light);
-  margin-right: 0.5rem;
+  margin-right: var(--space-2);
 }
 .pagination .button {
   -webkit-appearance: none;
@@ -4396,11 +4413,11 @@ body[data-theme=dark] .site-banner__art {
   align-items: center;
   flex-shrink: 0;
   font-size: 1.4rem;
-  height: 40px;
+  height: var(--size-control-md);
   justify-content: center;
   padding: 0;
   position: relative;
-  width: 40px;
+  width: var(--size-control-md);
 }
 .pagination .button:hover:not(.disabled)::before, .pagination .button:active:not(.disabled)::before {
   color: var(--secondary);
@@ -4415,10 +4432,10 @@ body[data-theme=dark] .site-banner__art {
   display: flex;
   font-variant-numeric: tabular-nums;
   border-top: 1px solid var(--border);
-  gap: 1rem;
+  gap: var(--space-4);
   justify-content: center;
-  margin: 30px 0;
-  padding: 30px 0;
+  margin: var(--space-8) 0;
+  padding: var(--space-8) 0;
 }
 .site-page-pagination a {
   -webkit-appearance: none;
@@ -4464,7 +4481,7 @@ body[data-theme=dark] .site-banner__art {
 }
 .site-page-pagination a {
   font-size: 0.8125rem;
-  padding: 10px 14px;
+  padding: var(--space-2) var(--space-3);
 }
 
 /* Facets
