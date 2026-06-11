@@ -1,11 +1,14 @@
 // ==========================================================================
-// HTML page blocks — reading measure.
+// Article column — HTML page blocks & the page title.
 //
 // Body prose authored in an HTML block otherwise runs the full page container
-// (~1376px ≈ 150+ characters per line at body size). Cap the text elements at
-// the narrow measure (~70ch) while leaving figures, tables, embeds and any
-// author-built layout divs at the block's full width. Blocks placed in narrow
-// page-grid cells are unaffected (max-width only ever shrinks).
+// (~1376px ≈ 150+ characters per line at body size). The text elements cap at
+// the narrow measure (~70ch) and the capped column is CENTRED — a deliberate
+// article layout rather than a strip of text against a blank right half —
+// while figures, tables, embeds and author-built layout divs keep the block's
+// full width (data blocks like dashboards stay full-bleed below). Blocks
+// placed in narrow page-grid cells are unaffected (max-width only shrinks,
+// auto margins collapse to zero).
 // ==========================================================================
 .block-html {
     > p,
@@ -19,5 +22,19 @@
     > h5,
     > h6 {
         max-width: var(--measure-narrow);
+        margin-inline: auto;
     }
+}
+
+// The page title joins the same centred column so the heading, its underline
+// accent and the prose below share a left edge. (The inner h1.title keeps the
+// nested-title guard from base/elements/_titles.scss; the underline lives on
+// this wrapper.) `width: min(…)` rather than `max-width`: page-grid layouts
+// make this block a GRID ITEM, and auto inline margins shrink a grid item to
+// fit-content unless its width is definite — with max-width alone the title
+// floated to the page centre as a content-sized box.
+.block-pageTitle {
+    display: block;
+    width: min(100%, var(--measure-narrow));
+    margin-inline: auto;
 }

@@ -5,12 +5,17 @@
 // (OpenSeadragon) into the page's *light* DOM — there is no shadow root — so
 // the theme's global `button` rules cascade straight into the viewer. The base
 // `primary-button` mixin (base/elements/_buttons.scss) styles every bare
-// <button>; Mirador's own MUI classes (0,1,0) outrank the element rule at rest,
-// but the mixin's hover — `button:hover:not(.disabled):not(:disabled)` (0,3,1)
-// — outranks MUI's hover (0,2,0) and leaks a Uni-Grün fill + translateY lift +
-// glow onto every viewer button. This is the same leak the former Universal
-// Viewer override fixed in v2.5.9–v2.5.10; Mirador inherits it because its
-// controls are also bare <button> elements in the light DOM.
+// <button>; Mirador's own MUI classes (0,1,0) outrank the element rule at rest.
+//
+// KEEP THIS even though the mixin's state selectors were flattened to
+// `:where()` in v2.9.0 (T10): flattening means a module's single-class rule
+// CAN now beat the theme's hover, but MUI never *declares* `transform` or
+// `box-shadow` on these buttons — and a property nobody overrides still
+// applies at (0,0,1). Without this layer the hover lift + glow (and a green
+// fill on any control whose MUI class doesn't paint a background) would still
+// leak into the toolbar. This is the same leak the former Universal Viewer
+// override fixed in v2.5.9–v2.5.10; Mirador inherits it because its controls
+// are also bare <button> elements in the light DOM.
 //
 // Scoped to `.block-mirador`, the override wrapper, so nothing outside the
 // viewer is touched. `!important` forecloses every cascade path because the OSD

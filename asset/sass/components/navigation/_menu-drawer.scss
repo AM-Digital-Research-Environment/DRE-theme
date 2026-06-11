@@ -1,23 +1,37 @@
+// A right-anchored panel sliding out from under the hamburger — not a
+// full-viewport sheet. Since v2.10.0's collapse-on-overflow the drawer is
+// also the menu on half-screen desktop windows, where a 1280px-wide sheet of
+// 100%-wide rows read as unfinished; a capped panel reads as designed at any
+// width. Phones keep the full-bleed sheet.
 .menu-drawer {
     display: block !important;
     position: fixed;
     height: calc( 100% - #{$header-min-height} );
-    width: 100%;
-    transform: translateX( -100% );
-    z-index: 23;
+    width: min(24rem, 100%);
+    transform: translateX( 100% );          // parked off the right edge
+    z-index: var(--z-drawer);
     top: $header-min-height;
-    left: 0;
+    right: 0;
+    left: auto;
     background-color: $color__menu-drawer;
+    border-left: 1px solid var(--border);
+    box-shadow: var(--shadow-xl);
     overflow-x: hidden;
-    transition: all 0.3s ease-out;
+    transition: transform 0.3s var(--ease-out-quart), visibility 0.3s var(--ease-out-quart);
     visibility: hidden;
+
+    @media (max-width: ($sm - 1)) {
+        width: 100%;
+        border-left: none;
+        box-shadow: none;
+    }
 
     // Keep the drawer parked off-canvas once the inline menu takes over — but
     // only in inline mode: when navigation.js has collapsed an over-wide menu
     // (data-nav="drawer"), the drawer must be able to open at any width.
     @media screen and (min-width: $xl) {
         .main-header:not([data-nav="drawer"]) & {
-            transform: translateX( -100% ) !important;
+            transform: translateX( 100% ) !important;
         }
     }
 

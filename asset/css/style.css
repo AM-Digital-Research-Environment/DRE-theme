@@ -5,7 +5,7 @@ Theme URI: https://github.com/AM-Digital-Research-Environment/DRE-theme
 Author: Frédérick Madore
 Author URI: https://www.frederickmadore.com/
 Description: Digital Research Environment theme for the Africa Multiple Cluster of Excellence (University of Bayreuth). Scholarly Modernism on an OKLCH design-token foundation, with light and dark modes.
-Version: 2.10.0
+Version: 2.11.0
 Omeka Version Constraint: ^4.2.0
 Requires PHP: 8.1
 License: GNU General Public License v3 or later
@@ -2559,19 +2559,29 @@ body[data-theme=dark] .theme-toggle .theme-toggle__icon--moon {
   display: block !important;
   position: fixed;
   height: calc(100% - 74px);
-  width: 100%;
-  transform: translateX(-100%);
-  z-index: 23;
+  width: min(24rem, 100%);
+  transform: translateX(100%);
+  z-index: var(--z-drawer);
   top: 74px;
-  left: 0;
+  right: 0;
+  left: auto;
   background-color: var(--surface);
+  border-left: 1px solid var(--border);
+  box-shadow: var(--shadow-xl);
   overflow-x: hidden;
-  transition: all 0.3s ease-out;
+  transition: transform 0.3s var(--ease-out-quart), visibility 0.3s var(--ease-out-quart);
   visibility: hidden;
+}
+@media (max-width: 599px) {
+  .menu-drawer {
+    width: 100%;
+    border-left: none;
+    box-shadow: none;
+  }
 }
 @media screen and (min-width: 1200px) {
   .main-header:not([data-nav=drawer]) .menu-drawer {
-    transform: translateX(-100%) !important;
+    transform: translateX(100%) !important;
   }
 }
 .menu-drawer > .wrap {
@@ -4016,6 +4026,13 @@ body[data-theme=dark] .site-banner__art {
 .block-html > h5,
 .block-html > h6 {
   max-width: var(--measure-narrow);
+  margin-inline: auto;
+}
+
+.block-pageTitle {
+  display: block;
+  width: min(100%, var(--measure-narrow));
+  margin-inline: auto;
 }
 
 /* Item With metadata
