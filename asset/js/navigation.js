@@ -237,71 +237,44 @@ document.addEventListener("DOMContentLoaded", function() {
 	});
 
 	// ----------------------------------------------------------------------
-	// Collapse-on-overflow: at desktop widths ($xl+), switch to the drawer
-	// whenever the one-line menu would not fit between the lockup and the
-	// utilities cluster — a wrapped two-row menu never paints. The CSS gates
-	// every desktop-menu rule on .main-header:not([data-nav="drawer"]), and
-	// applies flex-wrap: nowrap while data-nav is present, so without JS the
-	// old wrap remains the fallback.
+	// Collapse-on-overflow (menu-flash fix #06): the nav owns a full-width
+	// row (tier 2), so it almost always fits inline at $xl+, but the safety
+	// net stays. The INITIAL classification runs synchronously BEFORE first
+	// paint in header.phtml (window.__dreClassifyNav), so the desktop menu
+	// never paints then snaps to the drawer. Here we only re-run it on resize
+	// and once webfonts settle (both change the menu width), and retire an
+	// open drawer when the inline menu takes back over. Every desktop-menu
+	// rule is gated on .main-header:not([data-nav="drawer"]); with no JS the
+	// attribute is absent and the no-JS wrap remains the fallback.
 	// ----------------------------------------------------------------------
 	const navHeader = document.querySelector('.main-header');
-	const navBrand = document.querySelector('.main-header__site-title');
-	const navUtilities = document.querySelector('.main-header__utilities');
-	const navContainer = document.querySelector('.main-navigation__container');
-	const navMenuUl = navContainer ? navContainer.querySelector('ul') : null;
-	const inlineMql = window.matchMedia('(min-width: 1200px)'); // = $xl
 
-	// The menu's natural one-line width, measured invisibly (works whether the
-	// container is currently display:none or inline). Restored synchronously,
-	// so nothing flashes.
-	function navMenuNaturalWidth() {
-		const prevContainer = navContainer.style.cssText;
-		const prevMenu = navMenuUl.style.cssText;
-		navContainer.style.cssText =
-			'display:block;position:absolute;visibility:hidden;left:-9999px;top:0;width:max-content';
-		navMenuUl.style.cssText = 'flex-wrap:nowrap;width:max-content';
-		const width = navMenuUl.getBoundingClientRect().width;
-		navContainer.style.cssText = prevContainer;
-		navMenuUl.style.cssText = prevMenu;
-		return width;
-	}
-
-	function updateNavMode() {
-		if (!navHeader || !navBrand || !navUtilities || !navContainer || !navMenuUl) return;
-		if (!inlineMql.matches) {
-			// Below $xl the plain media queries own the layout (always drawer).
-			navHeader.removeAttribute('data-nav');
-			return;
+	function refreshNavMode() {
+		if (typeof window.__dreClassifyNav === 'function') {
+			window.__dreClassifyNav();
 		}
-		// Both anchors sit in the bar in BOTH modes, so the envelope between
-		// them is mode-independent — no feedback loop between the modes.
-		const available = navUtilities.getBoundingClientRect().left
-			- navBrand.getBoundingClientRect().right;
-		// 20px nav margin-right + 16px so the menu never kisses its neighbours.
-		const required = navMenuNaturalWidth() + 36;
-		const mode = required > available ? 'drawer' : 'inline';
-		navHeader.setAttribute('data-nav', mode);
-		// Widening past the threshold while the drawer is open: the inline
-		// menu takes over, so retire the open drawer cleanly.
-		if (mode === 'inline' && mmDrawer && mmDrawer.classList.contains('toggled')) {
+		// Widening past the threshold while the drawer is open: the inline menu
+		// takes over, so retire the open drawer cleanly.
+		if (navHeader && navHeader.getAttribute('data-nav') !== 'drawer'
+			&& mmDrawer && mmDrawer.classList.contains('toggled')) {
 			closeMenuDrawer();
 		}
 	}
 
-	if (navHeader && navMenuUl) {
-		updateNavMode();
+	if (navHeader) {
+		refreshNavMode();
 
 		// Debounced with a timeout, not requestAnimationFrame — rAF stalls in
 		// hidden/background tabs and the mode must track window changes there too.
 		let navModeTimer = null;
 		window.addEventListener('resize', function () {
 			clearTimeout(navModeTimer);
-			navModeTimer = setTimeout(updateNavMode, 80);
+			navModeTimer = setTimeout(refreshNavMode, 80);
 		});
 
 		// Webfonts change the menu's width — re-measure once they're in.
 		if (document.fonts && document.fonts.ready) {
-			document.fonts.ready.then(updateNavMode);
+			document.fonts.ready.then(refreshNavMode);
 		}
 	}
 } );

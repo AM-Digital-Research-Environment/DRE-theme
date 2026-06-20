@@ -50,34 +50,33 @@
         visibility: visible;
     }
 
+    // Back step — a quiet “‹ ALL SECTIONS” row (the section title sits below it,
+    // rendered from the cloned menu-header). Replaces the old solid green bar.
     .navigation-controls {
-        border-bottom: 1px solid $color__gray-60;
-        background-color: $color__secondary;
-        color: $color__white;
-        font-size: 1.1rem;
+        border-bottom: 1px solid var(--border-light);
+        background-color: var(--surface);
+        color: var(--primary-text);
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: var(--tracking-wide);
+        text-transform: uppercase;
         text-align: left;
 
         a {
-            display: block;
-            padding-top: 1rem;
-            padding-bottom: 1rem;
-            padding-left: 4rem;
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 0.95rem 1rem 0.95rem 2.6rem;
             // Force navigation anchors to inherit color
             color: inherit !important;
             text-decoration: none;
 
             &::before {
-                width: 26px;
-                height: 26px;
+                @include svg-icon($icon-chevron-left, 1.05rem, currentColor);
                 position: absolute;
-                left: 1.5rem;
-                content: '';
-                background-image: url(../img/chevron-right-thin.svg);
-                background-repeat: no-repeat;
-                background-position: center;
-                background-size: contain;
-                transition: all 0.1s ease-in;
-                transform: rotate(180deg);
+                left: 1rem;
+                top: 50%;
+                transform: translateY(-50%);
             }
         }
     }
@@ -180,14 +179,49 @@
         }
     }
 
+    // Section title at the top of a slid-in panel — Spectral, like the desktop
+    // panel's rail title. Cloned from the parent row by navigation.js; its
+    // nested .nav-panel copy stays hidden by the `.navigation ul` rule above.
     .menu-header {
-        border-bottom: 1px solid var(--border-strong);
+        border-bottom: 1px solid var(--border-light);
 
         a {
             border-bottom: none;
-            color: $color__primary;
-            font-weight: bold;
+            font-family: $font__headings;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--ink-strong);
         }
+    }
+
+    // --- Designed nav panel inside the drawer -----------------------------
+    // The desktop two-region grid is scoped to .main-navigation, so the cloned
+    // .nav-panel just flows here as a list. Hide the left rail (the section
+    // header above names the section) and render each child as a titled row
+    // with its description — the drawer mirrors the desktop panel (issue #09).
+    .nav-panel__rail {
+        display: none;
+    }
+
+    // Children sit at the panel edge (the slid-in panel is already the section
+    // context), not deep-indented like a classic nested submenu.
+    .menu-item-has-children li.nav-panel__cell {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .nav-panel__cell-title {
+        display: block;
+        font-weight: 600;
+        color: var(--ink-strong);
+    }
+
+    .nav-panel__cell-desc {
+        display: block;
+        margin-top: 2px;
+        font-size: 0.82rem;
+        line-height: 1.4;
+        color: var(--ink-subtle);
     }
 }
 

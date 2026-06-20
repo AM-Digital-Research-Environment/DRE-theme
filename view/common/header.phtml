@@ -6,6 +6,7 @@ $isHome = isset($isHome) ? (bool) $isHome : false;
 // On the home page the hero banner carries the site title as the page <h1>, so
 // the header lockup steps down to a plain home link to avoid two competing h1s.
 $titleTag = $isHome ? 'div' : 'h1';
+$hasSearchBar = $this->getHelperPluginManager()->has('dreSearchBar');
 ?>
 
 <header class="main-header">
@@ -14,6 +15,7 @@ $titleTag = $isHome ? 'div' : 'h1';
 
 	<?php echo $this->partial('common/top-header'); ?>
 
+	<?php // ===== Tier 1 — lockup · prominent global search · utilities ===== ?>
 	<div class="main-header__main-bar container">
 		<<?php echo $titleTag; ?> class="main-header__site-title site-title">
 			<a href="<?php echo $site->url(); ?>" rel="home">
@@ -33,23 +35,36 @@ $titleTag = $isHome ? 'div' : 'h1';
 			</a>
 		</<?php echo $titleTag; ?>>
 
-		<?php // Federated Typesense search (DRESearch module). Falls back to the
-		      // core search form when the module is absent. Mobile: collapsible. ?>
-		<?php if ($this->getHelperPluginManager()->has('dreSearchBar')): ?>
+		<?php // Mobile: the collapsible magnifier. Kept a direct child of the bar so
+		      // the module anchors its expanded field to the bar (see _search.scss). ?>
+		<?php if ($hasSearchBar): ?>
 			<?php echo $this->dreSearchBar('header-mobile', 'd-block d-xl-none', true); ?>
 		<?php else: ?>
 			<?php echo $this->partial('common/main-header-search', ['class' => 'd-block d-xl-none', 'site' => $site]); ?>
 		<?php endif; ?>
 
-		<nav class="main-navigation" aria-label="<?php echo $this->escapeHtmlAttr($translate('Primary navigation')); ?>">
-			<div class="main-navigation__container">
-				<?php
-				echo $site->publicNav()->menu()->renderMenu(null, [
-					'addClassToListItem' => true,
-					'maxDepth' => $navDepth
-				]);
-				?>
-			</div>
+		<?php // Desktop: the federated search now owns the centre of the bar — its own
+		      // prominent tier, so it no longer competes with the menu for one row (#07). ?>
+		<div class="main-header__search">
+			<?php if ($hasSearchBar): ?>
+				<?php echo $this->dreSearchBar('header-desktop', 'main-header__search-field', false); ?>
+			<?php else: ?>
+				<?php echo $this->partial('common/main-header-search', ['class' => 'main-header__search-field', 'site' => $site]); ?>
+			<?php endif; ?>
+		</div>
+
+		<div class="main-header__utilities">
+			<?php // Both icons render; CSS reveals the active one based on body[data-theme],
+			      // which the head-script sets before first paint (no flash of wrong icon). ?>
+			<button class="theme-toggle" data-theme-toggle type="button"
+				aria-label="<?php echo $this->escapeHtmlAttr($translate('Toggle dark mode')); ?>" aria-pressed="false">
+				<span class="theme-toggle__icon theme-toggle__icon--sun" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></span>
+				<span class="theme-toggle__icon theme-toggle__icon--moon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span>
+			</button>
+
+			<?php // Drawer toggle — shown on mobile/tablet, and as the desktop safety net
+			      // when an over-wide menu collapses (data-nav="drawer"). Lives in tier 1
+			      // so it stays beside the search even when the nav row is on tier 2. ?>
 			<button
 				class="main-navigation__toggle"
 				aria-expanded="false"
@@ -60,27 +75,59 @@ $titleTag = $isHome ? 'div' : 'h1';
 				<span aria-hidden="true"></span>
 				<span aria-hidden="true"></span>
 			</button>
-		</nav>
-
-		<div class="main-header__utilities">
-			<?php // Desktop: always-visible federated search input (see mobile note above). ?>
-			<?php if ($this->getHelperPluginManager()->has('dreSearchBar')): ?>
-				<?php echo $this->dreSearchBar('header-desktop', 'd-none d-xl-block', false); ?>
-			<?php else: ?>
-				<?php echo $this->partial('common/main-header-search', ['class' => 'd-none d-xl-block', 'site' => $site]); ?>
-			<?php endif; ?>
-
-			<?php // Both icons render; CSS reveals the active one based on body[data-theme],
-			      // which the head-script sets before first paint (no flash of wrong icon). ?>
-			<button class="theme-toggle" data-theme-toggle type="button"
-				aria-label="<?php echo $this->escapeHtmlAttr($translate('Toggle dark mode')); ?>" aria-pressed="false">
-				<span class="theme-toggle__icon theme-toggle__icon--sun" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></span>
-				<span class="theme-toggle__icon theme-toggle__icon--moon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span>
-			</button>
 		</div>
 
 		<?php echo $this->partial('common/menu-drawer'); ?>
 
 	</div>
+
+	<?php // ===== Tier 2 — primary navigation on its own full-width row ===== ?>
+	<div class="main-header__nav-row">
+		<nav class="main-navigation container" aria-label="<?php echo $this->escapeHtmlAttr($translate('Primary navigation')); ?>">
+			<div class="main-navigation__container">
+				<?php // Designed mega-dropdown: a custom walk of the same nav container
+				      // (see common/nav-menu.phtml). Replaces renderMenu() so each parent
+				      // emits a described two-region panel; navigation.js + the drawer
+				      // still bind to .navigation / .menu-item-has-children. ?>
+				<?php echo $this->partial('common/nav-menu', ['site' => $site]); ?>
+			</div>
+		</nav>
+	</div>
+
+	<?php // ===== Menu-flash fix (#06) — classify BEFORE first paint ===========
+	      // Mirrors the theme FOUC pattern: at $xl+ measure the menu's one-line
+	      // width against its (now full-width) row and set data-nav synchronously,
+	      // so the desktop menu never paints then snaps to the drawer. Exposed as
+	      // window.__dreClassifyNav so navigation.js reuses it on resize/fonts.
+	      // No-JS: html lacks `.js`, the visibility gate is inert, the wrap falls back. ?>
+	<script>
+	(function () {
+		var XL = 1200;
+		var header = document.querySelector('.main-header');
+		var container = header && header.querySelector('.main-navigation__container');
+		var menu = container && container.querySelector('ul');
+		if (!header || !container || !menu) return;
+
+		function naturalWidth() {
+			var pc = container.style.cssText, pm = menu.style.cssText;
+			container.style.cssText = 'display:block;position:absolute;visibility:hidden;left:-9999px;top:0;width:max-content';
+			menu.style.cssText = 'flex-wrap:nowrap;width:max-content';
+			var w = menu.getBoundingClientRect().width;
+			container.style.cssText = pc; menu.style.cssText = pm;
+			return w;
+		}
+
+		function classify() {
+			if (window.innerWidth < XL) { header.removeAttribute('data-nav'); return; }
+			// The nav owns a full-width row, so the envelope is the row itself.
+			var avail = container.clientWidth || header.clientWidth;
+			var need = naturalWidth() + 8;
+			header.setAttribute('data-nav', need > avail ? 'drawer' : 'inline');
+		}
+
+		window.__dreClassifyNav = classify;
+		classify();
+	})();
+	</script>
 
 </header>

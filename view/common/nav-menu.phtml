@@ -1,0 +1,135 @@
+<?php
+/**
+ * Primary navigation — designed mega-dropdown renderer.
+ *
+ * Replaces `$site->publicNav()->menu()->renderMenu()` with a custom walk of the
+ * SAME navigation container, so depth/order/visibility stay driven by the site's
+ * nav config — but each parent emits a two-region panel (a Spectral section
+ * title + framing line + “View all” rail, beside a grid of child links that each
+ * carry a short description) instead of a bare link list. See DESIGN.md §8 and
+ * GitHub issue #09.
+ *
+ * Output contract for asset/js/navigation.js + the menu drawer:
+ *   - the menu is a single `<ul class="navigation">` (the script adds `nav-menu`
+ *     and clones this ul into the drawer);
+ *   - parents with children carry `.menu-item-has-children` (the script injects
+ *     the `.submenu-btn` caret toggle after the parent link);
+ *   - each parent's children live in a child `<ul class="nav-panel">` so the
+ *     drawer's clone-and-slide keeps working unchanged (the `<li> > <ul>` shape);
+ *   - the active branch carries `.active`.
+ * No-JS: the panel is a normal nested list (the wrap fallback still applies).
+ *
+ * Descriptions are hard-coded here, keyed by page slug (stable, accent-free),
+ * and remain trivially editable. A slug with no entry simply renders title-only
+ * — the panel still works (issue #09: “falling back to no-description”).
+ */
+
+$translate = $this->plugin('translate');
+$escapeHtml = $this->plugin('escapeHtml');
+$escapeAttr = $this->plugin('escapeHtmlAttr');
+
+// One framing sentence per section (keyed by the parent page slug).
+$introMap = [
+    'research'       => "Projects, sections and the primary materials they produce.",
+    'index'          => "The named entities that link every record together.",
+    'public-outreach'=> "Public-facing media from the Cluster.",
+    'visualisations' => "Read the metadata at a glance.",
+    'collections'    => "Partner collections, searchable in one place.",
+];
+
+// One short description per child (keyed by the child page slug).
+$descMap = [
+    // Research
+    'research-sections' => "The Cluster's thematic areas",
+    'research-projects' => "Projects across the AMRCs",
+    'research-items'    => "Sources, media & datasets",
+    // Index
+    'people'        => "Authors & named persons",
+    'organisations' => "Institutions & bodies",
+    'genres'        => "Document & media types",
+    'languages'     => "Languages represented",
+    'locations'     => "Places & georeferences",
+    'subjects-tags' => "Topics & keywords",
+    // Outreach
+    'podcasts'       => "Audio series",
+    'youtube-videos' => "Talks & recordings",
+    // Visualisations
+    'project-explorer'           => "Browse projects interactively",
+    'compare'                    => "Datasets side by side",
+    'spatial-exploration'        => "Places mapped & georeferenced",
+    'publications-visualisations'=> "Publication trends & networks",
+    'networks'                   => "Knowledge-graph links",
+    // Collections
+    'international-library-of-african-music-ilam' => "Recorded African-music archive",
+    'memorias-perifericas-capoeira-angola-salvador' => "Capoeira Angola memory project, Salvador",
+    'orixas-fundacao-gregorio-de-mattos' => "Fundação Gregório de Mattos, Salvador",
+    'trabalhadores-na-da-bahia'  => "Labour history in Bahia",
+];
+
+// The last path segment of a page link's href is its slug
+// (.../page/<slug>); used to look up the maps above.
+$slugOf = function ($page) {
+    $path = (string) parse_url((string) $page->getHref(), PHP_URL_PATH);
+    return rtrim(basename($path), '/');
+};
+
+$container = $site->publicNav()->getContainer();
+$topPages = $container->getPages();
+
+// "View all" arrow + the parent caret share the theme's Lucide line style.
+$arrowSvg = '<svg class="nav-panel__viewall-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>';
+?>
+<ul class="navigation">
+    <?php foreach ($topPages as $page): ?>
+        <?php
+        if (!$page->isVisible()) {
+            continue;
+        }
+        $hasPages  = $page->hasPages();
+        $isActive  = $page->isActive(true);
+        $label     = (string) $page->getLabel();
+        $href      = (string) $page->getHref();
+        $intro     = $hasPages ? ($introMap[$slugOf($page)] ?? null) : null;
+
+        // Visible children only; the panel is a 3-column grid on desktop, so the
+        // rail spans one grid row per (up to) three children.
+        $children = [];
+        if ($hasPages) {
+            foreach ($page->getPages() as $child) {
+                if ($child->isVisible()) {
+                    $children[] = $child;
+                }
+            }
+        }
+        $railRows = max(1, (int) ceil(count($children) / 3));
+        ?>
+        <li class="nav-item<?php echo $hasPages ? ' menu-item-has-children' : ''; ?><?php echo $isActive ? ' active' : ''; ?>">
+            <a class="nav-item__link" href="<?php echo $escapeAttr($href); ?>"><?php echo $escapeHtml($label); ?></a>
+
+            <?php if ($children): ?>
+            <ul class="nav-panel">
+                <li class="nav-panel__rail" style="grid-row:1 / span <?php echo $railRows; ?>;">
+                    <span class="nav-panel__title"><?php echo $escapeHtml($label); ?></span>
+                    <?php if ($intro): ?>
+                        <span class="nav-panel__intro"><?php echo $escapeHtml($intro); ?></span>
+                    <?php endif; ?>
+                    <a class="nav-panel__viewall" href="<?php echo $escapeAttr($href); ?>">
+                        <?php echo $escapeHtml($translate('View all')); ?><?php echo $arrowSvg; ?>
+                    </a>
+                </li>
+                <?php foreach ($children as $child): ?>
+                    <?php $desc = $descMap[$slugOf($child)] ?? null; ?>
+                    <li class="nav-panel__cell<?php echo $child->isActive(true) ? ' active' : ''; ?>">
+                        <a href="<?php echo $escapeAttr((string) $child->getHref()); ?>">
+                            <span class="nav-panel__cell-title"><?php echo $escapeHtml((string) $child->getLabel()); ?></span>
+                            <?php if ($desc): ?>
+                                <span class="nav-panel__cell-desc"><?php echo $escapeHtml($desc); ?></span>
+                            <?php endif; ?>
+                        </a>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+            <?php endif; ?>
+        </li>
+    <?php endforeach; ?>
+</ul>

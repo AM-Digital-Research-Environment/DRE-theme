@@ -100,6 +100,10 @@ if ($userBar) {
 
 	<?php echo $this->htmlElement('body'); ?>
 		<script>
+		// Mark JS-capable up front so the header can gate the inline menu's
+		// visibility until navigation.js classifies it (menu-flash fix #06);
+		// without JS the class is absent and the no-JS wrap fallback applies.
+		document.documentElement.classList.add('js');
 		// Apply the saved theme synchronously, before first paint, to prevent a
 		// flash of the wrong theme. Mirrors getPreferredTheme() in theme-toggle.js.
 		(function () {

@@ -14,33 +14,21 @@
 // `.main-header:not([data-nav="drawer"])` so drawer mode can win at any width.
 // ==========================================================================
 .main-navigation {
-    order: 3;   // mobile: the hamburger is the rightmost control in the bar
-
-    @media (min-width: $xl) {
-        .main-header:not([data-nav="drawer"]) & {
-            margin-left: auto;
-            margin-right: 20px;
-            order: initial;
-            // Overflow guarantee, part 1: as a flex child the nav defaults to
-            // min-width:auto, which forbids the row from compressing it below the
-            // menu's one-line width — on viewports shaved by browser side-panels
-            // or classic scrollbars that minimum exceeds the space and the whole
-            // bar overflows the page. Zero it so the menu compresses (and wraps,
-            // below) instead of handing the page a horizontal scrollbar. Desktop
-            // only: on mobile the nav's content is the fixed-size hamburger, and
-            // a zero minimum would let a tight bar squeeze it into the clip edge.
-            min-width: 0;
-        }
-    }
+    // Tier 2: the nav is the sole child of .main-header__nav-row and carries the
+    // `.container` class, so it centres to the page width. The desktop/mobile
+    // switch (inline row vs collapsed drawer) lives on .main-header__nav-row and
+    // the toggle — not here.
+    //
+    // Positioned so it is the containing block for the mega-panel below: the panel
+    // (left:0/right:0/top:100%) then spans this centred container and hangs under
+    // the nav row, with its content aligned to the lockup's gutter.
+    position: relative;
 
     &__container {
-        display: none;
-
-        @media screen and (min-width: $xl) {
-            .main-header:not([data-nav="drawer"]) & {
-                display: block;
-            }
-        }
+        // The nav row owns the switch, so the menu is simply block here; on
+        // mobile the row is display:none and the drawer clone is the only
+        // rendered copy.
+        display: block;
     }
 
     // While the script is in charge (data-nav present) the menu never wraps:
@@ -126,24 +114,19 @@
         }
     }
 
-    .navigation { //main ul
+    .navigation { //main ul — the row of parent links on tier 2
         list-style: none;
         display: flex;
-        // Overflow guarantee, part 2: when the row can't fit every pill on one
-        // line, whole pills reflow onto a second line instead of squeezing the
-        // labels into vertical word-stacks or bleeding past the viewport. Lines
-        // stay anchored to the right, next to the search cluster (flex-end is
-        // invisible while everything fits — the ul is exactly content-sized).
+        // On its own full-width row the menu fits on one line; should a very long
+        // menu or large fonts overflow, whole items reflow to a second line as the
+        // no-JS fallback (with JS the overflow safety net collapses to the drawer
+        // before a second row paints — see navigation.js + the data-nav gate).
         flex-wrap: wrap;
-        justify-content: flex-end;
-        align-items: center;       // vertical centring — the bar sizes to the pills, not stray margins
-        gap: 0.25rem 0.15rem;      // wrapped lines get a touch of breathing room
+        justify-content: flex-start;   // left-aligned, under the lockup
+        align-items: center;
+        gap: 0.25rem 0.15rem;
         margin: 0;
         padding-left: 0;
-
-        .main-header--inline & {
-            margin-right: -10px;
-        }
 
         li {
             margin-bottom: 0;
@@ -158,46 +141,35 @@
             align-items: center;
             cursor: pointer;
 
-            &.active > a { //active top-level item — a quiet filled pill, not a drawn border
+            // Active or open parent — the Uni-Grün underline (the theme's title
+            // motif), no fill and no side-stripe (DESIGN.md §8).
+            &.active > a,
+            &.open > a {
                 color: var(--primary-text);
-                font-weight: 600;
-                background-color: color-mix(in oklab, var(--primary) 14%, transparent);
-                border-color: color-mix(in oklab, var(--primary) 32%, transparent);
+                box-shadow: inset 0 -2px 0 0 var(--primary);
             }
 
-            // Highlight on hover OR keyboard focus anywhere in the item.
+            // Hover / keyboard focus anywhere in the item: a quiet colour shift.
             &:hover > a,
             &:focus-within > a {
                 color: var(--primary-text);
-                background-color: color-mix(in oklab, var(--primary) 12%, transparent);
             }
 
-            > a { //main menu items links — the pill
+            > a { //main menu items links — plain text on the nav row, not a pill
                 display: inline-flex;
                 align-items: center;
-                justify-content: center;
                 gap: 0.35em;
                 position: relative;
-                color: $color__headings;
+                color: var(--ink);
                 text-decoration: none;
                 margin: 0;
-                // Fluid horizontal padding: tightens toward $xl so the items
-                // fit without overflow, breathes on wide screens. Tuned so the
-                // menu holds one line down to ~1350px viewports (the 1366
-                // laptop class sat exactly on the wrap threshold before);
-                // tighter than that, whole pills wrap to a second line (see
-                // the ul), and labels may still word-wrap as a deep fallback.
-                padding: var(--space-2) clamp(0.5rem, 0.25rem + 0.55vw, 0.95rem);
-                border: 1px solid transparent;
-                border-radius: var(--radius-full);
-                text-align: center;
-                font-size: $font__sm-size;   // 15px — nav scale, also fits more items single-line
-                font-weight: 600;
-                line-height: 1.2;            // compact pills; keeps any wrap tight
+                padding: var(--space-3) var(--space-4);
+                font-size: $font__sm-size;   // 15px — nav scale
+                font-weight: 500;
+                line-height: 1.2;
                 transition:
-                    background-color var(--transition-fast),
                     color var(--transition-fast),
-                    border-color var(--transition-fast);
+                    box-shadow var(--transition-fast);
 
                 &:focus-visible {
                     outline: 2px solid var(--focus-color);
@@ -283,21 +255,34 @@
                 }
             }
 
-            > ul { //mega menu — solid, theme-aware panel, flush under the header
-                display: flex;
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: clamp(var(--space-6), 2.2vw, var(--space-12)); // fluid column spacing
+            // ----------------------------------------------------------------
+            // The designed dropdown — a two-region panel flush under the bar:
+            // a left rail (Spectral section title + framing line + “View all”)
+            // beside a grid of child links that each carry a short description.
+            // Still a child <ul> of the parent <li>, so navigation.js’ hover /
+            // submenu-btn logic and the drawer’s clone-and-slide bind unchanged.
+            // (issue #09; DESIGN.md §8 — underline accents, no side-stripes.)
+            // ----------------------------------------------------------------
+            > .nav-panel {
                 position: absolute;
                 top: 100%;
                 left: 0;
                 right: 0;
                 width: 100%;
-                margin: 0 auto;
-                padding: clamp(var(--space-5), 2.5vw, var(--space-8)) clamp(var(--space-6), 3vw, var(--space-10));
+                margin: 0;
                 list-style: none;
+
+                // Full-bleed surface; content aligned to the header container's
+                // gutter so the rail sits under the lockup.
+                display: grid;
+                grid-template-columns: var(--nav-rail-w, 15.5rem) repeat(3, minmax(0, 1fr));
+                column-gap: var(--space-1);
+                row-gap: var(--space-1);
+                align-items: start;
+                padding: var(--space-6) var(--space-8) var(--space-8);
+
                 background-color: var(--surface);
-                border-top: var(--accent-line-md) solid var(--primary);
+                border-top: 1px solid var(--border);
                 border-radius: 0 0 var(--radius-lg) var(--radius-lg);
                 box-shadow: var(--shadow-lg);
                 z-index: var(--z-dropdown);
@@ -312,8 +297,8 @@
                     transform var(--transition-fast),
                     visibility 0s linear var(--transition-fast);
 
-                // Bridge above the panel (only live when the panel is open, via
-                // its pointer-events) to seal the gap from the header.
+                // Bridge above the panel (live only while open, via its
+                // pointer-events) to seal the gap from the header.
                 &::before {
                     content: "";
                     position: absolute;
@@ -322,69 +307,111 @@
                     bottom: 100%;
                     height: 1.4rem;
                 }
+            }
 
-                > li { //mega menu columns
-                    max-width: 260px;
-                    position: relative;
+            // Left rail — spans every grid row in column 1 (the row span is set
+            // inline in the partial, from the child count).
+            .nav-panel__rail {
+                grid-column: 1;
+                align-self: stretch;
+                padding-right: var(--space-6);
+                margin-right: var(--space-4);
+                border-right: 1px solid var(--border-light);
+            }
 
-                    &:not(:last-child)::after {
-                        content: "";
-                        height: 100%;
-                        width: 1px;
-                        position: absolute;
-                        background-color: var(--border);
-                        top: 0;
-                        bottom: 0;
-                        right: -1.35rem;
-                    }
+            .nav-panel__title {
+                display: block;
+                font-family: $font__headings;
+                font-size: 1.4rem;
+                font-weight: 600;
+                line-height: 1.15;
+                color: var(--ink-strong);
+                margin-bottom: var(--space-2);
+            }
 
-                    > a { //Links 1st level mega menu
-                        font-weight: 700;
-                        color: $color__headings;
+            .nav-panel__intro {
+                display: block;
+                font-size: 0.85rem;
+                line-height: 1.5;
+                color: var(--ink-light);
+                margin-bottom: var(--space-4);
+            }
 
-                        &:has(+ ul)::after {
-                            @include svg-icon($icon-chevron-right, 0.6rem, $color__accent);
-                            margin-left: 5px;
-                            vertical-align: 0.02em;
-                        }
-                    }
+            .nav-panel__viewall {
+                display: inline-flex;
+                align-items: center;
+                gap: var(--space-1);
+                font-size: 0.85rem;
+                font-weight: 600;
+                color: var(--primary-text);
+                text-decoration: none;
 
-                    > ul { //2nd level columns
-                        margin-top: 0.8rem;
-                        margin-left: 0;
-                        padding-left: 0;
-                        list-style: none;
-
-                        li { //2nd level links
-                            margin-bottom: 5px;
-
-                            ul {
-                                margin-left: 0;
-                                padding-left: 25px;
-                            }
-                        }
-                    }
+                &:hover {
+                    text-decoration: underline;
+                    text-underline-offset: 0.15em;
                 }
 
-                a { //all mega menu links
-                    color: $color__main-text;
-                    text-transform: none;
-                    text-decoration: none;
-                    font-size: 0.94rem;
-                    border-radius: var(--radius-sm);
-                    transition: color var(--transition-fast);
+                &:focus-visible {
+                    outline: 2px solid var(--focus-color);
+                    outline-offset: 2px;
+                }
 
-                    &:hover {
-                        color: var(--primary-text);
-                        text-decoration: underline;
-                        text-underline-offset: 0.15em;
-                    }
+                .nav-panel__viewall-arrow {
+                    transition: transform var(--transition-fast);
+                }
+
+                &:hover .nav-panel__viewall-arrow {
+                    transform: translateX(2px);
                 }
             }
 
+            // Child cells — a title + short description, auto-flowing into the
+            // three content columns beside the rail.
+            .nav-panel__cell {
+                margin: 0;
+
+                &::before { content: none !important; }
+
+                > a {
+                    display: block;
+                    padding: var(--space-3);
+                    border-radius: var(--radius-md);
+                    text-decoration: none;
+                    transition: background-color var(--transition-fast);
+
+                    &:hover {
+                        background-color: var(--surface-sunken);
+                    }
+
+                    &:focus-visible {
+                        outline: 2px solid var(--focus-color);
+                        outline-offset: 2px;
+                    }
+                }
+
+                &.active > a {
+                    background-color: var(--surface-sunken);
+                }
+            }
+
+            .nav-panel__cell-title {
+                display: block;
+                font-size: 0.92rem;
+                font-weight: 600;
+                color: var(--ink-strong);
+                margin-bottom: 2px;
+            }
+
+            .nav-panel__cell-desc {
+                display: block;
+                font-size: 0.78rem;
+                line-height: 1.4;
+                color: var(--ink-subtle);
+            }
+
             // Open the panel via the JS .open class, with a CSS :hover fallback.
-            &.menu-item-has-children.open > ul,
-            &.menu-item-has-children:hover > ul {
+            &.menu-item-has-children.open > .nav-panel,
+            &.menu-item-has-children:hover > .nav-panel {
                 opacity: 1;
                 visibility: visible;
                 transform: none;

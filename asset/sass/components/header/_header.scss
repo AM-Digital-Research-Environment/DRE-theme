@@ -108,25 +108,59 @@
         }
     }
 
-    // --- Utilities cluster (desktop search + theme toggle) ---
+    // --- Prominent global search — owns the centre of tier 1 on desktop, so it
+    //     no longer competes with the menu for one row (#07). Hidden on mobile,
+    //     where the collapsible magnifier carries search instead.
+    &__search {
+        display: none;
+
+        @media (min-width: $xl) {
+            display: flex;
+            flex: 1 1 auto;
+            min-width: 0;
+            align-items: center;
+        }
+    }
+
+    // --- Utilities cluster (theme toggle + the drawer toggle) ---
     &__utilities {
         display: flex;
         align-items: center;
         gap: var(--space-2);
-        min-width: 0;   // let the cluster shrink rather than push the bar wider than the viewport
-        // Mobile: order the toggle before the hamburger (the hamburger/nav is
-        // ordered last so it lands at the extreme right). The search button's
-        // single auto margin still pushes the whole right cluster over.
+        flex-shrink: 0;
+        // Mobile: the collapsible magnifier carries the single auto margin that
+        // clusters search · toggle · hamburger to the right, so utilities stays
+        // a tidy group at the end of the bar.
         order: 2;
 
-        // Push right only on desktop. On mobile the single auto margin lives on
-        // the search button, so the search + toggle + hamburger stay one cluster
-        // on the right (a second auto here would split them — the old bug).
         @media (min-width: $xl) {
-            margin-left: auto;
             order: initial;
         }
     }
+
+    // --- Tier 2: primary navigation on its own full-width row -------------
+    // Hidden on mobile/tablet (the drawer takes over) and when an over-wide
+    // menu collapses to the drawer at desktop (data-nav="drawer"). Giving the
+    // nav its own row means it (almost) always fits inline at $xl+, so the
+    // overflow→drawer safety net rarely fires — and the flash it caused is
+    // gated below until navigation.js classifies the menu before first paint.
+    &__nav-row {
+        display: none;
+        border-top: 1px solid var(--border-light);
+
+        @media (min-width: $xl) {
+            .main-header:not([data-nav="drawer"]) & {
+                display: block;
+            }
+        }
+    }
+}
+
+// Menu-flash fix (#06): with JS, keep the nav row invisible until the inline
+// pre-paint script (header.phtml) sets data-nav, so the desktop menu never
+// paints then snaps to the drawer. No-JS: <html> lacks `.js`, this is inert.
+html.js .main-header:not([data-nav]) .main-header__nav-row {
+    visibility: hidden;
 }
 
 // --- Brand lockup ---------------------------------------------------------

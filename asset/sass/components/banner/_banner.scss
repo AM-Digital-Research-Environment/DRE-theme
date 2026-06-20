@@ -122,6 +122,61 @@
 }
 
 // --------------------------------------------------------------------------
+// Home "Collection overview" — a live stats strip grounding the hero (§1).
+// Counts come from the Omeka API (banner.phtml). The band sits over the wash on
+// its own opaque surface (z-index above the art), set off by the Uni-Grün flag
+// rule; cells are divided by hairlines drawn as a 1px grid gap over the band's
+// border-light backing, so the dividers reflow correctly at every column count.
+// --------------------------------------------------------------------------
+.site-banner__stats {
+    position: relative;
+    z-index: 1;
+    background-color: var(--surface);
+    border-top: var(--accent-line-md) solid var(--primary);
+}
+
+.site-banner__stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background-color: var(--border-light);
+
+    @media (min-width: $sm) {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (min-width: $lg) {
+        grid-template-columns: repeat(6, 1fr);
+    }
+}
+
+.site-banner__stat {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-5) var(--space-4);
+    background-color: var(--surface);   // leaves the 1px grid gap showing as a divider
+}
+
+.site-banner__stat-num {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--ink-strong);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: var(--tracking-tight);
+}
+
+.site-banner__stat-label {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
+    color: var(--ink-light);
+}
+
+// --------------------------------------------------------------------------
 // Interior masthead — slim, single concern: keep the title in view.
 // --------------------------------------------------------------------------
 .site-banner--page {

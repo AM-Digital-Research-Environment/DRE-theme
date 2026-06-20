@@ -42,6 +42,72 @@ $buttonLabel = $this->themeSetting('banner_button_label');
 $buttonLink  = $this->themeSetting('banner_button_link');
 
 $variant = $isHome ? 'home' : 'page';
+
+// Home-only "Collection overview" stats band (§1). Counts come from the Omeka
+// API (resource-template totals), cached briefly so the home page doesn't
+// re-query on every load. The toggle and the (API-less) research-centres figure
+// are theme settings; any hiccup falls back to no band — the hero still renders.
+$stats = [];
+$showStats = $isHome
+    && !in_array((string) $this->themeSetting('banner_show_stats', '1'), ['0', ''], true);
+if ($showStats) {
+    $siteId = $site ? $site->id() : null;
+    $cacheFile = sys_get_temp_dir() . '/dre-stats-' . ($siteId ?: 'x') . '.json';
+    $nums = (is_readable($cacheFile) && (time() - (int) filemtime($cacheFile)) < 3600)
+        ? json_decode((string) file_get_contents($cacheFile), true)
+        : null;
+    if (!is_array($nums)) {
+        try {
+            $api = $this->api();
+            $tplId = [];
+            // Fetch the templates themselves (limit > 0); the item counts below
+            // use limit=0 + getTotalResults(), which counts without fetching.
+            foreach ($api->search('resource_templates', ['limit' => 1000])->getContent() as $t) {
+                $tplId[$t->label()] = $t->id();
+            }
+            $count = function ($label) use ($api, $tplId, $siteId) {
+                if (!isset($tplId[$label])) {
+                    return 0;
+                }
+                $query = ['resource_template_id' => $tplId[$label], 'limit' => 0];
+                if ($siteId) {
+                    $query['site_id'] = $siteId;
+                }
+                return (int) $api->search('items', $query)->getTotalResults();
+            };
+            // "Publications" is the sum of the bibliographic templates.
+            $publications = 0;
+            foreach (['Article', 'Working paper', 'Conference paper', 'Book chapter',
+                      'Book', 'Doctoral thesis', 'Journal issue', 'Book review',
+                      'Online post'] as $pubLabel) {
+                $publications += $count($pubLabel);
+            }
+            $nums = [
+                'research_items' => $count('Research Items'),
+                'projects'       => $count('Projects'),
+                'publications'   => $publications,
+                'people'         => $count('Persons'),
+                'organisations'  => $count('Organisation'),
+            ];
+            @file_put_contents($cacheFile, json_encode($nums));
+        } catch (\Throwable $e) {
+            $nums = null;
+        }
+    }
+    if (is_array($nums)) {
+        // Research centres has no clean API source (the Cluster's AMRCs), so it
+        // is an editable figure rather than a hard-coded one.
+        $centres = (int) ($this->themeSetting('banner_research_centres') ?: 4);
+        $stats = [
+            ['n' => (int) ($nums['research_items'] ?? 0), 'l' => $translate('Research items')],
+            ['n' => (int) ($nums['projects'] ?? 0),       'l' => $translate('Projects')],
+            ['n' => (int) ($nums['publications'] ?? 0),   'l' => $translate('Publications')],
+            ['n' => (int) ($nums['people'] ?? 0),         'l' => $translate('People')],
+            ['n' => (int) ($nums['organisations'] ?? 0),  'l' => $translate('Organisations')],
+            ['n' => $centres,                              'l' => $translate('Research centres')],
+        ];
+    }
+}
 ?>
 <div class="site-banner site-banner--<?php echo $variant; ?>">
     <?php // Decorative earth-tone wash (green → gold → braun); styled in CSS. ?>
@@ -70,4 +136,19 @@ $variant = $isHome ? 'home' : 'page';
             <?php endif; ?>
         </div>
     </div>
+
+    <?php // Collection overview — a live stats strip grounding the hero (§1).
+          // Sits over the wash on its own surface, set off by the Uni-Grün rule. ?>
+    <?php if ($stats): ?>
+    <div class="site-banner__stats">
+        <div class="container site-banner__stats-grid">
+            <?php foreach ($stats as $s): ?>
+                <div class="site-banner__stat">
+                    <span class="site-banner__stat-num"><?php echo $escHtml(number_format((int) $s['n'])); ?></span>
+                    <span class="site-banner__stat-label"><?php echo $escHtml($s['l']); ?></span>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
 </div>
