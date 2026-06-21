@@ -86,6 +86,17 @@
     .dre-search-bar__input-wrap {
         min-height: var(--size-control-lg);
     }
+
+    // The suggestions dropdown: the module defaults it to a narrow (26rem),
+    // right-anchored box, which floats mid-bar under the now full-width field.
+    // Re-lay it to span the field, aligned edge-to-edge with the input. The
+    // extra `.dre-search-bar` ancestor lifts specificity above the module's
+    // own `.dre-search-bar__suggest.svelte-*` rule regardless of load order.
+    .dre-search-bar .dre-search-bar__suggest {
+        inset-inline: 0;
+        width: auto;
+        max-width: none;
+    }
 }
 
 // --- Mobile instance: the collapsible magnifier (dreSearchBar "header-mobile")
