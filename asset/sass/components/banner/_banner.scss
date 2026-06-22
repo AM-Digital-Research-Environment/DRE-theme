@@ -100,6 +100,14 @@
 .site-banner__cta {
     align-self: flex-start;
     margin-top: var(--space-2);
+
+    .site-banner__cta-arrow {
+        transition: transform var(--transition-fast);
+    }
+
+    &:hover .site-banner__cta-arrow {
+        transform: translateX(2px);
+    }
 }
 
 // --------------------------------------------------------------------------
@@ -141,12 +149,14 @@
     gap: 1px;
     background-color: var(--border-light);
 
-    @media (min-width: $sm) {
-        grid-template-columns: repeat(3, 1fr);
+    @media (min-width: $md) {
+        grid-template-columns: repeat(4, 1fr);
     }
 
-    @media (min-width: $lg) {
-        grid-template-columns: repeat(6, 1fr);
+    // Desktop: one row; the column count follows the rendered stat count (set
+    // inline in banner.phtml), defaulting to 7.
+    @media (min-width: $xl) {
+        grid-template-columns: repeat(var(--stat-count, 7), minmax(0, 1fr));
     }
 }
 

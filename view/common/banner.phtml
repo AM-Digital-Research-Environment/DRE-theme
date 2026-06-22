@@ -40,54 +40,75 @@ if ($eyebrow === null) {
 $tagline     = $this->themeSetting('banner_description');
 $buttonLabel = $this->themeSetting('banner_button_label');
 $buttonLink  = $this->themeSetting('banner_button_link');
+// Default the hero CTA to the federated search (DRE-Search module's /dre-search
+// route) so "Explore the collection" is present out of the box; an admin can
+// repoint or clear it via the Banner settings. Resolved from the site URL so it
+// is correct on every site/host.
+if (($buttonLink === null || $buttonLink === '') && $site) {
+    $buttonLink = rtrim((string) $site->url(), '/') . '/dre-search';
+}
 
 $variant = $isHome ? 'home' : 'page';
 
 // Home-only "Collection overview" stats band (§1). Counts come from the Omeka
-// API (resource-template totals), cached briefly so the home page doesn't
-// re-query on every load. The toggle and the (API-less) research-centres figure
-// are theme settings; any hiccup falls back to no band — the hero still renders.
+// API — resource-template totals plus the Subjects item set — cached briefly so
+// the home page doesn't re-query on every load. Toggle via a theme setting; any
+// hiccup falls back to no band — the hero still renders.
 $stats = [];
 $showStats = $isHome
     && !in_array((string) $this->themeSetting('banner_show_stats', '1'), ['0', ''], true);
 if ($showStats) {
     $siteId = $site ? $site->id() : null;
-    $cacheFile = sys_get_temp_dir() . '/dre-stats-' . ($siteId ?: 'x') . '.json';
+    // The cache key carries a schema version (v2) so a change to the metric set
+    // ignores a stale cache of the old shape instead of serving its missing keys.
+    $cacheFile = sys_get_temp_dir() . '/dre-stats-v2-' . ($siteId ?: 'x') . '.json';
     $nums = (is_readable($cacheFile) && (time() - (int) filemtime($cacheFile)) < 3600)
         ? json_decode((string) file_get_contents($cacheFile), true)
         : null;
     if (!is_array($nums)) {
         try {
             $api = $this->api();
+            // Resolve template + item-set labels to ids (fetched with limit > 0);
+            // the item counts below use limit=0 + getTotalResults() — count only.
             $tplId = [];
-            // Fetch the templates themselves (limit > 0); the item counts below
-            // use limit=0 + getTotalResults(), which counts without fetching.
             foreach ($api->search('resource_templates', ['limit' => 1000])->getContent() as $t) {
                 $tplId[$t->label()] = $t->id();
             }
-            $count = function ($label) use ($api, $tplId, $siteId) {
-                if (!isset($tplId[$label])) {
-                    return 0;
+            $setId = [];
+            foreach ($api->search('item_sets', ['limit' => 1000])->getContent() as $s) {
+                $title = (string) $s->displayTitle();
+                if ($title !== '') {
+                    $setId[$title] = $s->id();
                 }
-                $query = ['resource_template_id' => $tplId[$label], 'limit' => 0];
+            }
+            $total = function (array $query) use ($api, $siteId) {
                 if ($siteId) {
                     $query['site_id'] = $siteId;
                 }
+                $query['limit'] = 0;
                 return (int) $api->search('items', $query)->getTotalResults();
+            };
+            $byTemplate = function ($label) use ($tplId, $total) {
+                return isset($tplId[$label]) ? $total(['resource_template_id' => $tplId[$label]]) : 0;
+            };
+            $bySet = function ($label) use ($setId, $total) {
+                return isset($setId[$label]) ? $total(['item_set_id' => $setId[$label]]) : 0;
             };
             // "Publications" is the sum of the bibliographic templates.
             $publications = 0;
             foreach (['Article', 'Working paper', 'Conference paper', 'Book chapter',
                       'Book', 'Doctoral thesis', 'Journal issue', 'Book review',
                       'Online post'] as $pubLabel) {
-                $publications += $count($pubLabel);
+                $publications += $byTemplate($pubLabel);
             }
             $nums = [
-                'research_items' => $count('Research Items'),
-                'projects'       => $count('Projects'),
+                'research_items' => $byTemplate('Research Items'),
+                'projects'       => $byTemplate('Projects'),
                 'publications'   => $publications,
-                'people'         => $count('Persons'),
-                'organisations'  => $count('Organisation'),
+                'people'         => $byTemplate('Persons'),
+                'organisations'  => $byTemplate('Organisation'),
+                'locations'      => $byTemplate('Location'),
+                'subjects'       => $bySet('Subjects'),
             ];
             @file_put_contents($cacheFile, json_encode($nums));
         } catch (\Throwable $e) {
@@ -95,16 +116,14 @@ if ($showStats) {
         }
     }
     if (is_array($nums)) {
-        // Research centres has no clean API source (the Cluster's AMRCs), so it
-        // is an editable figure rather than a hard-coded one.
-        $centres = (int) ($this->themeSetting('banner_research_centres') ?: 4);
         $stats = [
             ['n' => (int) ($nums['research_items'] ?? 0), 'l' => $translate('Research items')],
             ['n' => (int) ($nums['projects'] ?? 0),       'l' => $translate('Projects')],
             ['n' => (int) ($nums['publications'] ?? 0),   'l' => $translate('Publications')],
             ['n' => (int) ($nums['people'] ?? 0),         'l' => $translate('People')],
             ['n' => (int) ($nums['organisations'] ?? 0),  'l' => $translate('Organisations')],
-            ['n' => $centres,                              'l' => $translate('Research centres')],
+            ['n' => (int) ($nums['locations'] ?? 0),      'l' => $translate('Locations')],
+            ['n' => (int) ($nums['subjects'] ?? 0),       'l' => $translate('Subjects & tags')],
         ];
     }
 }
@@ -132,6 +151,7 @@ if ($showStats) {
             <?php if ($isHome && $buttonLink): ?>
                 <a class="button site-banner__cta" href="<?php echo $escAttr($buttonLink); ?>">
                     <?php echo $escHtml($buttonLabel ?: $translate('Explore the collection')); ?>
+                    <svg class="site-banner__cta-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                 </a>
             <?php endif; ?>
         </div>
@@ -141,7 +161,7 @@ if ($showStats) {
           // Sits over the wash on its own surface, set off by the Uni-Grün rule. ?>
     <?php if ($stats): ?>
     <div class="site-banner__stats">
-        <div class="container site-banner__stats-grid">
+        <div class="container site-banner__stats-grid" style="--stat-count:<?php echo count($stats); ?>;">
             <?php foreach ($stats as $s): ?>
                 <div class="site-banner__stat">
                     <span class="site-banner__stat-num"><?php echo $escHtml(number_format((int) $s['n'])); ?></span>
