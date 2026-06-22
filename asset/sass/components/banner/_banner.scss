@@ -153,10 +153,12 @@
         grid-template-columns: repeat(4, 1fr);
     }
 
-    // Desktop: one row; the column count follows the rendered stat count (set
-    // inline in banner.phtml), defaulting to 7.
-    @media (min-width: $xl) {
-        grid-template-columns: repeat(var(--stat-count, 7), minmax(0, 1fr));
+    // Single overview row only once the labels comfortably fit one line
+    // (≈1360px for the current eight stats); below that the stats sit in tidy
+    // rows of four rather than a cramped single row. The column count follows
+    // the rendered stat count (set inline in banner.phtml).
+    @media (min-width: 1360px) {
+        grid-template-columns: repeat(var(--stat-count, 8), minmax(0, 1fr));
     }
 }
 

@@ -61,7 +61,7 @@ if ($showStats) {
     $siteId = $site ? $site->id() : null;
     // The cache key carries a schema version (v2) so a change to the metric set
     // ignores a stale cache of the old shape instead of serving its missing keys.
-    $cacheFile = sys_get_temp_dir() . '/dre-stats-v2-' . ($siteId ?: 'x') . '.json';
+    $cacheFile = sys_get_temp_dir() . '/dre-stats-v3-' . ($siteId ?: 'x') . '.json';
     $nums = (is_readable($cacheFile) && (time() - (int) filemtime($cacheFile)) < 3600)
         ? json_decode((string) file_get_contents($cacheFile), true)
         : null;
@@ -109,6 +109,7 @@ if ($showStats) {
                 'organisations'  => $byTemplate('Organisation'),
                 'locations'      => $byTemplate('Location'),
                 'subjects'       => $bySet('Subjects'),
+                'resource_types' => $bySet('Type of Resource'),
             ];
             @file_put_contents($cacheFile, json_encode($nums));
         } catch (\Throwable $e) {
@@ -124,6 +125,7 @@ if ($showStats) {
             ['n' => (int) ($nums['organisations'] ?? 0),  'l' => $translate('Organisations')],
             ['n' => (int) ($nums['locations'] ?? 0),      'l' => $translate('Locations')],
             ['n' => (int) ($nums['subjects'] ?? 0),       'l' => $translate('Subjects & tags')],
+            ['n' => (int) ($nums['resource_types'] ?? 0), 'l' => $translate('Resource types')],
         ];
     }
 }
