@@ -252,12 +252,17 @@ theme-aware in one move. Notable bespoke work:
   values column carries the content with tabular figures, label and first
   value share a baseline. Sidebar regions keep the stacked flow.
 - **Buttons, links, fields** — token-driven, with proper `:focus-visible`
-  rings. The button **state** selectors are wrapped in `:where()` (zero added
-  specificity), so a module's own single-class styling always beats the
-  theme's hover/active/disabled treatment — no more `!important`
-  counter-shields; the base element rule keeps its (0,0,1) so normalize's
-  resets stay beneath it. The global `:focus-visible` rule still guarantees
-  the focus ring everywhere.
+  rings. The filled-primary look is **opt-in via the `.button` class** (plus a
+  few core form contexts the theme can't add a class to: search/login submits,
+  the sort-selector and header-search buttons), *not* the bare `button`
+  element. Styling every `<button>` leaked the green fill / shadow / hover-lift
+  into embedded modules (DRESearch, ResourceVisualizations), which then fought
+  back with `!important` resets; scoping to a class lets each module own its
+  controls and the theme request the primary look explicitly. The button
+  **state** selectors are still wrapped in `:where()` (zero added specificity),
+  so a module's own single-class styling beats the theme's
+  hover/active/disabled treatment. The global `:focus-visible` rule still
+  guarantees the focus ring everywhere.
 - **Found-term highlight** — `mark` / `ins` carry the same translucent accent
   wash DRE-Search paints on result matches (`color-mix(in oklab, var(--accent)
   28%, transparent)`), so "your term" reads identically in core search, faceted
@@ -300,10 +305,13 @@ block (Daniel-KM's module). The theme replaced **Universal Viewer** with it in
    rather than an action creator. Brand-agnostic and fully guarded: if the
    module's shape changes it no-ops and Mirador keeps its configured theme.
 3. **Chrome insulation** (`components/blocks/mirador`). Mirador's controls are
-   bare `<button>`s in the light DOM, so the global `primary-button` hover
-   (`button:hover…`, 0,3,1) outranks Material-UI's hover (0,2,0) and leaks a
-   green fill + lift + glow into the toolbar — the same leak the Universal Viewer
-   override fixed. A `.block-mirador`-scoped rule neutralises it.
+   bare `<button>`s in the light DOM. The global `primary-button` used to style
+   every `<button>` and leaked a green fill + lift + glow into the toolbar — the
+   same leak the Universal Viewer override fixed. Now that the primary look is
+   `.button`-scoped (see *Buttons, links, fields*), bare Mirador buttons no
+   longer inherit it, so the leak is fixed at the source; the
+   `.block-mirador`-scoped neutraliser remains as belt-and-suspenders against
+   any future broad `button` rule.
 
 **Branding lives in the module, not the theme.** Mirador's MUI themes can't read
 `oklch()` / `color-mix()`, so — exactly like the chart libraries (§9) — the brand

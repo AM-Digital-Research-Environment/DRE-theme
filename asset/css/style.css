@@ -5,7 +5,7 @@ Theme URI: https://github.com/AM-Digital-Research-Environment/DRE-theme
 Author: Frédérick Madore
 Author URI: https://www.frederickmadore.com/
 Description: Digital Research Environment theme for the Africa Multiple Cluster of Excellence (University of Bayreuth). Scholarly Modernism on an OKLCH design-token foundation, with light and dark modes.
-Version: 2.12.3
+Version: 2.12.4
 Omeka Version Constraint: ^4.2.0
 Requires PHP: 8.1
 License: GNU General Public License v3 or later
@@ -1372,6 +1372,7 @@ table td {
   line-height: 1;
   padding: 0;
   background-color: var(--secondary);
+  color: var(--primary-contrast);
   font-weight: 500;
 }
 .tooltip .tooltip-button:hover, .tooltip .tooltip-button:focus {
@@ -1426,11 +1427,16 @@ a:focus-visible {
 
 /* Forms
 --------------------------------------------- */
-button,
 .button,
+button.button,
 input[type=button],
 input[type=reset],
-input[type=submit] {
+input[type=submit],
+.search button[type=submit],
+#search-form button,
+#advanced-search button[type=submit],
+.main-header-search button,
+.browse-controls .sorting button {
   -webkit-appearance: none;
      -moz-appearance: none;
           appearance: none;
@@ -1453,56 +1459,88 @@ input[type=submit] {
   color: var(--primary-contrast);
   box-shadow: var(--shadow-xs);
 }
-button:where(:hover:not(.disabled):not(:disabled)),
 .button:where(:hover:not(.disabled):not(:disabled)),
+button.button:where(:hover:not(.disabled):not(:disabled)),
 input[type=button]:where(:hover:not(.disabled):not(:disabled)),
 input[type=reset]:where(:hover:not(.disabled):not(:disabled)),
-input[type=submit]:where(:hover:not(.disabled):not(:disabled)) {
+input[type=submit]:where(:hover:not(.disabled):not(:disabled)),
+.search button[type=submit]:where(:hover:not(.disabled):not(:disabled)),
+#search-form button:where(:hover:not(.disabled):not(:disabled)),
+#advanced-search button[type=submit]:where(:hover:not(.disabled):not(:disabled)),
+.main-header-search button:where(:hover:not(.disabled):not(:disabled)),
+.browse-controls .sorting button:where(:hover:not(.disabled):not(:disabled)) {
   background-color: var(--primary-hover);
   color: var(--primary-contrast);
   box-shadow: var(--glow-sm);
   transform: translateY(var(--lift-xs));
 }
-button:where(:active:not(.disabled):not(:disabled)),
 .button:where(:active:not(.disabled):not(:disabled)),
+button.button:where(:active:not(.disabled):not(:disabled)),
 input[type=button]:where(:active:not(.disabled):not(:disabled)),
 input[type=reset]:where(:active:not(.disabled):not(:disabled)),
-input[type=submit]:where(:active:not(.disabled):not(:disabled)) {
+input[type=submit]:where(:active:not(.disabled):not(:disabled)),
+.search button[type=submit]:where(:active:not(.disabled):not(:disabled)),
+#search-form button:where(:active:not(.disabled):not(:disabled)),
+#advanced-search button[type=submit]:where(:active:not(.disabled):not(:disabled)),
+.main-header-search button:where(:active:not(.disabled):not(:disabled)),
+.browse-controls .sorting button:where(:active:not(.disabled):not(:disabled)) {
   background-color: var(--primary-active);
   box-shadow: var(--shadow-xs);
   transform: none;
 }
-button:where(:focus-visible),
 .button:where(:focus-visible),
+button.button:where(:focus-visible),
 input[type=button]:where(:focus-visible),
 input[type=reset]:where(:focus-visible),
-input[type=submit]:where(:focus-visible) {
+input[type=submit]:where(:focus-visible),
+.search button[type=submit]:where(:focus-visible),
+#search-form button:where(:focus-visible),
+#advanced-search button[type=submit]:where(:focus-visible),
+.main-header-search button:where(:focus-visible),
+.browse-controls .sorting button:where(:focus-visible) {
   outline: 2px solid var(--focus-color);
   outline-offset: 2px;
 }
-button:where(:disabled, [disabled], .disabled),
 .button:where(:disabled, [disabled], .disabled),
+button.button:where(:disabled, [disabled], .disabled),
 input[type=button]:where(:disabled, [disabled], .disabled),
 input[type=reset]:where(:disabled, [disabled], .disabled),
-input[type=submit]:where(:disabled, [disabled], .disabled) {
+input[type=submit]:where(:disabled, [disabled], .disabled),
+.search button[type=submit]:where(:disabled, [disabled], .disabled),
+#search-form button:where(:disabled, [disabled], .disabled),
+#advanced-search button[type=submit]:where(:disabled, [disabled], .disabled),
+.main-header-search button:where(:disabled, [disabled], .disabled),
+.browse-controls .sorting button:where(:disabled, [disabled], .disabled) {
   background-color: var(--muted);
   color: var(--surface);
   cursor: default;
   box-shadow: none;
   transform: none;
 }
-button:where(:visited),
 .button:where(:visited),
+button.button:where(:visited),
 input[type=button]:where(:visited),
 input[type=reset]:where(:visited),
-input[type=submit]:where(:visited) {
+input[type=submit]:where(:visited),
+.search button[type=submit]:where(:visited),
+#search-form button:where(:visited),
+#advanced-search button[type=submit]:where(:visited),
+.main-header-search button:where(:visited),
+.browse-controls .sorting button:where(:visited) {
   color: var(--primary-contrast);
 }
+
+a.button, a.button:link, a.button:visited, a.button:hover, a.button:active {
+  color: var(--primary-contrast);
+}
+
+a.btn--secondary, a.btn--secondary:link, a.btn--secondary:visited, a.btn--secondary:hover, a.btn--secondary:active {
+  color: var(--primary-text);
+}
+
+.btn--secondary,
 button.btn--secondary,
-.button.btn--secondary,
-input[type=button].btn--secondary,
-input[type=reset].btn--secondary,
-input[type=submit].btn--secondary {
+input.btn--secondary {
   -webkit-appearance: none;
      -moz-appearance: none;
           appearance: none;
@@ -1524,51 +1562,40 @@ input[type=submit].btn--secondary {
   border: 1px solid var(--border-strong);
   color: var(--primary-text);
 }
+.btn--secondary:where(:hover:not(.disabled):not(:disabled)),
 button.btn--secondary:where(:hover:not(.disabled):not(:disabled)),
-.button.btn--secondary:where(:hover:not(.disabled):not(:disabled)),
-input[type=button].btn--secondary:where(:hover:not(.disabled):not(:disabled)),
-input[type=reset].btn--secondary:where(:hover:not(.disabled):not(:disabled)),
-input[type=submit].btn--secondary:where(:hover:not(.disabled):not(:disabled)) {
+input.btn--secondary:where(:hover:not(.disabled):not(:disabled)) {
   background-color: var(--primary-muted);
   border-color: var(--primary);
   color: var(--primary-text);
 }
+.btn--secondary:where(:active:not(.disabled):not(:disabled)),
 button.btn--secondary:where(:active:not(.disabled):not(:disabled)),
-.button.btn--secondary:where(:active:not(.disabled):not(:disabled)),
-input[type=button].btn--secondary:where(:active:not(.disabled):not(:disabled)),
-input[type=reset].btn--secondary:where(:active:not(.disabled):not(:disabled)),
-input[type=submit].btn--secondary:where(:active:not(.disabled):not(:disabled)) {
+input.btn--secondary:where(:active:not(.disabled):not(:disabled)) {
   background-color: color-mix(in oklab, var(--primary-muted), var(--primary) 10%);
 }
+.btn--secondary:where(:focus-visible),
 button.btn--secondary:where(:focus-visible),
-.button.btn--secondary:where(:focus-visible),
-input[type=button].btn--secondary:where(:focus-visible),
-input[type=reset].btn--secondary:where(:focus-visible),
-input[type=submit].btn--secondary:where(:focus-visible) {
+input.btn--secondary:where(:focus-visible) {
   outline: 2px solid var(--focus-color);
   outline-offset: 2px;
 }
+.btn--secondary:where(:disabled, [disabled], .disabled),
 button.btn--secondary:where(:disabled, [disabled], .disabled),
-.button.btn--secondary:where(:disabled, [disabled], .disabled),
-input[type=button].btn--secondary:where(:disabled, [disabled], .disabled),
-input[type=reset].btn--secondary:where(:disabled, [disabled], .disabled),
-input[type=submit].btn--secondary:where(:disabled, [disabled], .disabled) {
+input.btn--secondary:where(:disabled, [disabled], .disabled) {
   border-color: var(--border);
   color: var(--muted);
   cursor: default;
 }
+.btn--secondary:where(:visited),
 button.btn--secondary:where(:visited),
-.button.btn--secondary:where(:visited),
-input[type=button].btn--secondary:where(:visited),
-input[type=reset].btn--secondary:where(:visited),
-input[type=submit].btn--secondary:where(:visited) {
+input.btn--secondary:where(:visited) {
   color: var(--primary-text);
 }
+
+.link-style,
 button.link-style,
-.button.link-style,
-input[type=button].link-style,
-input[type=reset].link-style,
-input[type=submit].link-style {
+input.link-style {
   background-color: transparent !important;
   color: var(--link);
   padding-left: 0;
@@ -1576,61 +1603,26 @@ input[type=submit].link-style {
   text-transform: none;
   text-decoration: underline;
 }
-button.icon-btn,
-.button.icon-btn,
-input[type=button].icon-btn,
-input[type=reset].icon-btn,
-input[type=submit].icon-btn {
+
+.icon-btn,
+button.icon-btn {
   padding: 0;
   background-color: transparent !important;
   color: var(--primary);
   font-size: 1.7rem;
   line-height: 1;
 }
-button.icon-btn:hover, button.icon-btn:active, button.icon-btn:focus,
-.button.icon-btn:hover,
-.button.icon-btn:active,
-.button.icon-btn:focus,
-input[type=button].icon-btn:hover,
-input[type=button].icon-btn:active,
-input[type=button].icon-btn:focus,
-input[type=reset].icon-btn:hover,
-input[type=reset].icon-btn:active,
-input[type=reset].icon-btn:focus,
-input[type=submit].icon-btn:hover,
-input[type=submit].icon-btn:active,
-input[type=submit].icon-btn:focus {
+.icon-btn:hover, .icon-btn:active, .icon-btn:focus,
+button.icon-btn:hover,
+button.icon-btn:active,
+button.icon-btn:focus {
   color: var(--secondary);
 }
-button.icon-btn:disabled, button.icon-btn[disabled] button.icon-btn.disabled,
-.button.icon-btn:disabled,
-button.icon-btn[disabled] .button.icon-btn.disabled,
-input[type=button].icon-btn:disabled,
-button.icon-btn[disabled] input[type=button].icon-btn.disabled,
-input[type=reset].icon-btn:disabled,
-button.icon-btn[disabled] input[type=reset].icon-btn.disabled,
-input[type=submit].icon-btn:disabled,
-button.icon-btn[disabled] input[type=submit].icon-btn.disabled,
-.button.icon-btn[disabled] button.icon-btn.disabled,
-.button.icon-btn[disabled] .button.icon-btn.disabled,
-.button.icon-btn[disabled] input[type=button].icon-btn.disabled,
-.button.icon-btn[disabled] input[type=reset].icon-btn.disabled,
-.button.icon-btn[disabled] input[type=submit].icon-btn.disabled,
-input[type=button].icon-btn[disabled] button.icon-btn.disabled,
-input[type=button].icon-btn[disabled] .button.icon-btn.disabled,
-input[type=button].icon-btn[disabled] input[type=button].icon-btn.disabled,
-input[type=button].icon-btn[disabled] input[type=reset].icon-btn.disabled,
-input[type=button].icon-btn[disabled] input[type=submit].icon-btn.disabled,
-input[type=reset].icon-btn[disabled] button.icon-btn.disabled,
-input[type=reset].icon-btn[disabled] .button.icon-btn.disabled,
-input[type=reset].icon-btn[disabled] input[type=button].icon-btn.disabled,
-input[type=reset].icon-btn[disabled] input[type=reset].icon-btn.disabled,
-input[type=reset].icon-btn[disabled] input[type=submit].icon-btn.disabled,
-input[type=submit].icon-btn[disabled] button.icon-btn.disabled,
-input[type=submit].icon-btn[disabled] .button.icon-btn.disabled,
-input[type=submit].icon-btn[disabled] input[type=button].icon-btn.disabled,
-input[type=submit].icon-btn[disabled] input[type=reset].icon-btn.disabled,
-input[type=submit].icon-btn[disabled] input[type=submit].icon-btn.disabled {
+.icon-btn:disabled, .icon-btn[disabled] .icon-btn.disabled,
+button.icon-btn:disabled,
+.icon-btn[disabled] button.icon-btn.disabled,
+button.icon-btn[disabled] .icon-btn.disabled,
+button.icon-btn[disabled] button.icon-btn.disabled {
   color: var(--muted);
 }
 
@@ -2483,14 +2475,6 @@ body[data-theme=dark] .theme-toggle .theme-toggle__icon--moon {
   transform: translateY(-0.4rem);
   pointer-events: none;
   transition: opacity var(--transition-fast), transform var(--transition-fast), visibility 0s linear var(--transition-fast);
-}
-.main-navigation .navigation > li > .nav-panel::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 100%;
-  height: 1.4rem;
 }
 .main-navigation .navigation > li .nav-panel__rail {
   grid-column: 1;
@@ -4056,6 +4040,54 @@ body[data-theme=dark] .site-banner__art {
   padding-right: 45px;
 }
 .carousel-block .slick-arrow {
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  padding: 0.7rem 1.4rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  line-height: 1.2;
+  letter-spacing: 0.005em;
+  text-decoration: none;
+  transition: background-color var(--transition-base), border-color var(--transition-base), color var(--transition-base), box-shadow var(--transition-base), transform var(--transition-fast);
+  background-color: var(--primary);
+  border: 1px solid transparent;
+  color: var(--primary-contrast);
+  box-shadow: var(--shadow-xs);
+}
+.carousel-block .slick-arrow:where(:hover:not(.disabled):not(:disabled)) {
+  background-color: var(--primary-hover);
+  color: var(--primary-contrast);
+  box-shadow: var(--glow-sm);
+  transform: translateY(var(--lift-xs));
+}
+.carousel-block .slick-arrow:where(:active:not(.disabled):not(:disabled)) {
+  background-color: var(--primary-active);
+  box-shadow: var(--shadow-xs);
+  transform: none;
+}
+.carousel-block .slick-arrow:where(:focus-visible) {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+.carousel-block .slick-arrow:where(:disabled, [disabled], .disabled) {
+  background-color: var(--muted);
+  color: var(--surface);
+  cursor: default;
+  box-shadow: none;
+  transform: none;
+}
+.carousel-block .slick-arrow:where(:visited) {
+  color: var(--primary-contrast);
+}
+.carousel-block .slick-arrow {
   border: 1px solid var(--border);
   border-radius: 50%;
   height: 40px;
@@ -4629,7 +4661,57 @@ body[data-theme=dark] .site-banner__art {
 }
 .faceted-browse-page #section-sidebar button.close-button,
 .block-facetedBrowsePreview #section-sidebar button.close-button {
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  padding: 0.7rem 1.4rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  line-height: 1.2;
+  letter-spacing: 0.005em;
+  text-decoration: none;
+  transition: background-color var(--transition-base), border-color var(--transition-base), color var(--transition-base), box-shadow var(--transition-base), transform var(--transition-fast);
   background-color: var(--primary);
+  border: 1px solid transparent;
+  color: var(--primary-contrast);
+  box-shadow: var(--shadow-xs);
+}
+.faceted-browse-page #section-sidebar button.close-button:where(:hover:not(.disabled):not(:disabled)),
+.block-facetedBrowsePreview #section-sidebar button.close-button:where(:hover:not(.disabled):not(:disabled)) {
+  background-color: var(--primary-hover);
+  color: var(--primary-contrast);
+  box-shadow: var(--glow-sm);
+  transform: translateY(var(--lift-xs));
+}
+.faceted-browse-page #section-sidebar button.close-button:where(:active:not(.disabled):not(:disabled)),
+.block-facetedBrowsePreview #section-sidebar button.close-button:where(:active:not(.disabled):not(:disabled)) {
+  background-color: var(--primary-active);
+  box-shadow: var(--shadow-xs);
+  transform: none;
+}
+.faceted-browse-page #section-sidebar button.close-button:where(:focus-visible),
+.block-facetedBrowsePreview #section-sidebar button.close-button:where(:focus-visible) {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+.faceted-browse-page #section-sidebar button.close-button:where(:disabled, [disabled], .disabled),
+.block-facetedBrowsePreview #section-sidebar button.close-button:where(:disabled, [disabled], .disabled) {
+  background-color: var(--muted);
+  color: var(--surface);
+  cursor: default;
+  box-shadow: none;
+  transform: none;
+}
+.faceted-browse-page #section-sidebar button.close-button:where(:visited),
+.block-facetedBrowsePreview #section-sidebar button.close-button:where(:visited) {
+  color: var(--primary-contrast);
 }
 .faceted-browse-page #section-content,
 .block-facetedBrowsePreview #section-content {

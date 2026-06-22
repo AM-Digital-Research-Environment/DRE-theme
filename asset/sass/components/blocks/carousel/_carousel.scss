@@ -3,6 +3,11 @@
     padding-right: 45px;
 
     .slick-arrow {
+        // Keep the filled-primary disc the bare-button base used to give these:
+        // the chevron mask flips to white on hover (below), which only reads on
+        // the green fill. The declarations after the include restore the round
+        // 40px outline shape.
+        @include primary-button;
         border: 1px solid $color__hr;
         border-radius: 50%;
         height: 40px;

@@ -297,16 +297,15 @@
                     transform var(--transition-fast),
                     visibility 0s linear var(--transition-fast);
 
-                // Bridge above the panel (live only while open, via its
-                // pointer-events) to seal the gap from the header.
-                &::before {
-                    content: "";
-                    position: absolute;
-                    left: 0;
-                    right: 0;
-                    bottom: 100%;
-                    height: 1.4rem;
-                }
+                // NOTE: no full-width bridge here. The panel spans the whole nav
+                // row, so a `::before` reaching up into the row (bottom: 100%)
+                // would sit — at `pointer-events: auto` while open — over the
+                // lower half of EVERY sibling label, swallowing their hover and
+                // making each button feel smaller than it looks (you could only
+                // open a neighbour by grazing its top few pixels). The seam from
+                // the label down into the panel is already sealed by the
+                // label-width `> a::before` bridge above, which is the path the
+                // pointer actually travels — so this one is removed.
             }
 
             // Left rail — spans every grid row in column 1 (the row span is set

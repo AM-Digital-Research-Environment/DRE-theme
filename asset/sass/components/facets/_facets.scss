@@ -31,8 +31,10 @@
             background-color: $color__gray-95;
         }
 
+        // Filled primary close — was the bare-button base; now opt in explicitly
+        // since the base no longer styles every `<button>`.
         button.close-button {
-            background-color: $color__primary;
+            @include primary-button;
         }
     }
 

@@ -1,41 +1,110 @@
-button,
+// ==========================================================================
+// Filled "primary" button — now opt-in via the `.button` class (plus the core
+// form contexts the theme can't add a class to).
+//
+// This rule used to target the BARE `button` element, so the green fill, drop
+// shadow and hover lift/glow leaked into every embedded module (DRESearch,
+// ResourceVisualizations, …). Each module then had to claw the look back with
+// `!important` resets — e.g. DRESearch's ResultItem/ResultsList force
+// `box-shadow:none;transform:none` on chips and on every pager button, plus a
+// special case so the host's `button:hover` doesn't fill an inactive pager
+// green — and any change to this rule silently broke them.
+//
+// Scoped to `.button`, a bare module `<button>` inherits only the neutral
+// resets (normalize + typography): modules style their own controls, and the
+// theme asks for the primary look explicitly. See DESIGN.md ("Buttons, links,
+// fields") and the "DRE Theme Improvements" §4 issue.
+// ==========================================================================
 .button,
+button.button,
 input[type="button"],
 input[type="reset"],
-input[type="submit"] {
+input[type="submit"],
+// Core Omeka forms the theme doesn't template — keep a usable primary submit.
+.search button[type="submit"],          // search-results / sidebar search form
+#search-form button,                    // core search form
+#advanced-search button[type="submit"], // resource advanced-search form
+// Theme primary buttons a core partial renders as a bare <button> (no class
+// hook of our own), so they're scoped here instead.
+.main-header-search button,             // header search-form submit
+.browse-controls .sorting button {      // sort-selector submit
     @include primary-button;
+}
 
-    &.btn--secondary {
-        @include secondary-button;
+// Anchor buttons — `<a class="button">` (e.g. the home hero CTA, pagination).
+// The primary/secondary mixins set their label colour through `:where()` (0,1,0,
+// zero added specificity), but base/_links.scss styles `a:visited` and `a:hover`
+// at 0,1,1 — so a VISITED or HOVERED button-anchor was repainted with the green
+// link colour, which is invisible on the filled primary fill (bad contrast) and
+// makes the label shift colour on hover. Pin the colour with an `a`-qualified
+// selector that out-ranks those link rules. Plain `<button>` primaries never hit
+// the `a:hover/:visited` rules, so they don't need this.
+a.button {
+    &,
+    &:link,
+    &:visited,
+    &:hover,
+    &:active {
+        color: var(--primary-contrast);
+    }
+}
+
+a.btn--secondary {
+    &,
+    &:link,
+    &:visited,
+    &:hover,
+    &:active {
+        color: var(--primary-text);
+    }
+}
+
+// Modifier utilities — usable on any `.button` / `<button>` (and a few links).
+// Kept as their OWN selectors, NOT nested under the primary rule above, so a
+// bare control that only wants the secondary / link / icon look gets it without
+// inheriting the filled-primary base.
+//
+// They're element-qualified (`button.x`, `input.x`) as well as plain (`.x`) so
+// they out-rank the primary list's `button.button` / `input[type=…]` selectors
+// (specificity 0,1,1) when both land on the same control — e.g. the advanced
+// search `<input type="reset" class="btn--secondary">`, or an `<a class="button
+// btn--secondary">`. The qualified selectors tie those 0,1,1 rules and win on
+// source order; the plain class covers links/spans.
+.btn--secondary,
+button.btn--secondary,
+input.btn--secondary {
+    @include secondary-button;
+}
+
+.link-style,
+button.link-style,
+input.link-style {
+    background-color: transparent !important;
+    color: $color__link;
+    padding-left: 0;
+    padding-right: 0;
+    text-transform: none;
+    text-decoration: underline;
+}
+
+.icon-btn,
+button.icon-btn {
+    padding: 0;
+    background-color: transparent !important;
+    color: $color__buttons;
+    font-size: 1.7rem;
+    line-height: 1;
+
+    &:hover,
+    &:active,
+    &:focus {
+        color: $color__secondary;
     }
 
-    &.link-style {
-        background-color: transparent !important;
-        color: $color__link;
-        padding-left: 0;
-        padding-right: 0;
-        text-transform: none;
-        text-decoration: underline;
-    }
-
-    &.icon-btn {
-        padding: 0;
-        background-color: transparent !important;
-        color: $color__buttons;
-        font-size: 1.7rem;
-        line-height: 1;
-
-        &:hover,
-        &:active,
-        &:focus {
-            color: $color__secondary;
-        }
-
-        &:disabled,
-        &[disabled]
-        &.disabled {
-            color: $color__disabled;
-        }
+    &:disabled,
+    &[disabled]
+    &.disabled {
+        color: $color__disabled;
     }
 }
 
