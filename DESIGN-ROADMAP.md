@@ -67,7 +67,7 @@ opportunity, not a defect.
 | T8 | P3 | OpenType is under-used: global `kern/liga/calt` plus two `tabular-nums` call-sites. Numbers in metadata values, pagination, counts and year facets should be tabular; Spectral's display tier could take `case`-sensitive punctuation. Small, quiet wins. | `base/typography/_typography.scss:13` | ✅ done (v2.9.0) — `tabular-nums` on pagination ×2, tables and metadata `dd`; `text-wrap: balance` was already on h1–h4 |
 | T9 | P2 | The `container` mixin pads with raw `15px`/`30px` and the masonry vertical rhythm is a literal `24px`. | `abstracts/mixins/_mixins.scss:14` | ✅ done (v2.9.0) — `--space-4`/`--space-8` (16/32px, ≤2px deltas). Remaining px sweep: the pagination partials (30px margins, 40px buttons, 15px radii) |
 | T10 | P2 | The global `button, .button, input[type=…]` element selector applies the full primary-button treatment to *every* `<button>` on the page. Both modules already pay for this: DRE-Search ships `!important` shields and the Mirador block needs an insulation layer. | `base/elements/_buttons.scss:1` · DESIGN.md §8 "Chrome insulation" | ✅ done (v2.9.0), narrower than first sketched: the BASE element rule keeps (0,0,1) — flattening it to `:where()` would have let normalize.scss's `button` resets win — and only the **state** tails (`:hover`/`:active`/`:focus-visible`/`:disabled`/`:visited`, formerly up to (0,2,1)) are wrapped in `:where()`, so any single-class module rule now beats them. Verified on the dev instance: theme buttons unchanged, DRE-Search tabs show no glow/lift leak. Follow-up ◻: drop DRE-Search's now-redundant `!important` shields and the Mirador insulation in their next releases |
-| T11 | P2 | Sass partials still use `@import` (deprecated, non-breaking). Mechanical migration to `@use`/`@forward` already sketched in DESIGN.md §10. | all partials | ◻ Phase 5 — scope assessed (v2.10.0): not as mechanical as sketched. Watch for: leaf partials consuming Sass vars defined in *other* leaves, namespace collisions across aggregator `@use`s, and CSS-emission order shifts from `@use`'s load-once semantics. Do it in a dedicated pass with a byte-diff of the compiled CSS as the acceptance gate; the deprecation stays non-breaking until Dart Sass 3. |
+| T11 | P2 | Sass partials still use `@import` (deprecated, non-breaking). Mechanical migration to `@use`/`@forward` already sketched in DESIGN.md §10. | all partials | ✅ done (v2.14.0) — full `@use`/`@forward` migration, byte-diff gated (compiled CSS identical bar 8 cosmetic section-divider comments; zero rule changes). Every Sass var turned out to live in `abstracts` (no cross-leaf deps); `_abstracts.scss` → `_index.scss` so `@use "…/abstracts"` resolves; `_mixins.scss` `@use`s breakpoints + typography; the two hybrid aggregators (`typography`, `layout`) had their trailing partial `@import`s lifted into `_base.scss`. **Gotcha banked:** a loud `/* */` comment immediately before `@use "abstracts"` is re-emitted by Dart Sass at every one of the ~50 consumer files, so the CSS file header was moved out of `style.scss` into a gulp post-compile prepend (`gulpfile.js` `prependHeader()`). |
 | T12 | P1 | At in-between widths (half-screen windows, long menus, large font settings) the desktop menu **wrapped onto a second row** instead of collapsing — the $xl media query alone can't know the menu's rendered width. | `_navigation.scss` · `navigation.js` | ✅ done (v2.10.0) — collapse-on-overflow: navigation.js measures the menu's one-line width (invisible off-screen measurement, re-run on resize + fonts.ready) against the lockup→utilities envelope and sets `data-nav="inline|drawer"` on `.main-header`; every desktop-menu rule is gated on `:not([data-nav="drawer"])`, `flex-wrap: nowrap` while the script is in charge, and the old wrap remains the no-JS fallback. Verified on the dev instance at 1280px (collapses; drawer opens at desktop width) and with a short menu (inline, one row). |
 | T13 | P1 | The v2.10.0 measure cap left prose **left-anchored against a blank right half** (user feedback), and the drawer — now the menu on half-screen desktops — opened as a **full-viewport sheet** with 1250px-wide rows. | `_menu-drawer.scss` | The drawer half ✅ (v2.11.0): a **right-anchored panel** (`min(24rem, 100%)`, hairline + `--shadow-xl`, `--z-drawer`, slides from under the hamburger; full-bleed sheet kept below `$sm`). The prose half went through two iterations (left-capped v2.10.0, centred column v2.11.0) and was **reverted entirely in v2.11.1 by owner decision** — HTML-block prose and the page title render at the container's full width, as before. **Do not reintroduce a measure cap on page blocks without an explicit request.** If long-line readability comes up again, the direction to explore is page-grid layouts in the page editor (author-chosen column widths), not theme-imposed caps. (Engineering note kept for posterity: in page-grid layouts blocks are grid items, where auto inline margins shrink the box to fit-content — a centred block needs `width: min(100%, …)`, not `max-width`.) |
 
@@ -160,7 +160,10 @@ Finish the job DESIGN.md describes: every component speaks the scales.
   `_carousel`/`_accordion` (10 each), then a long tail. Much of it is icon
   geometry and logo sizing (legitimate); convert opportunistically when a
   file is touched — `_fields.scss` first (every form), then
-  `_advanced-search.scss`.
+  `_advanced-search.scss`. **Progress (v2.14.0):** `_fields.scss` and
+  `_advanced-search.scss` swept — spacing/control px → `--space-*` /
+  `--size-control-*` (exact or ≤1px), leaving borders, flex-basis, gutter
+  math, negative magic offsets and between-scale values (6/10/12.5px).
 
 *Acceptance:* `grep -E '\b\d+px' components/` returns only intentional
 hairlines (1px borders), icon geometry, and documented exceptions.
@@ -212,13 +215,18 @@ Not visual, but it protects the visual system:
   plain class rules opportunistically. The `.block-mirador` layer also
   stays: its `isolation: isolate` is z-index containment for the sticky
   header, unrelated to buttons.
-- **T11 ◻ — `@use`/`@forward` migration.** Deferred with a scope note —
-  see the findings row. Dedicated pass, byte-diff acceptance.
+- **T11 ✅ (v2.14.0) — `@use`/`@forward` migration.** Done, byte-diff gated —
+  see the findings row for the method and the loud-comment-header gotcha.
 - **Token-contract lint ✅ (v2.10.0).** `scripts/check-design-tokens.mjs`
   (no deps), gating `npm run build`: raw hex outside `var(…, fallback)`
   position, coloured side-stripe borders, `background-clip: text`, px
   font-sizes — with the false-positive allowlist on record in the script.
-  ◻ Port the same check to the two module repos.
+  **✅ Ported (v2.14.0)** to both modules: DRE-Search
+  (`scripts/check-design-tokens.mjs`, scans `.svelte` `<style>` blocks +
+  `asset/css`, wired into `npm run lint`) — clean; and DREVisualizations
+  (module v2.9.0, scans `asset/css`, `npm run lint:tokens`) — clean after
+  carve-outs for the CSS chevron caret and the audit-sanctioned achromatic
+  `#000/#fff` anchors (V3 lightbox / V4 map labels).
 
 ---
 
@@ -238,3 +246,28 @@ Not visual, but it protects the visual system:
    contract note intact.
 6. **Modules never redefine a theme token** — alias into `--rv-*`-style
    namespaces on `body`, never overwrite `--primary` et al. (DESIGN.md §9).
+
+---
+
+## 4. Design-review follow-up — v2.14.0
+
+An independent design review (June 2026) surfaced a handful of fresh findings on
+top of the register above. All are now resolved:
+
+| Sev | Finding | Repo | Resolution |
+|---|---|---|---|
+| **P0** | `browserslist` promised Safari/iOS 14, but the single-seed engine needs `color-mix()` (Safari 16.2+) and `oklch()` (15.4+), which autoprefixer cannot polyfill — every derived token silently failed on the declared-supported floor. | theme | Floor raised to `safari >= 16.2` / `ios >= 16.2` (the honest fix; sRGB fallbacks are infeasible because the brand seed is injected at runtime). |
+| P1 | Dashboards showed a bare "Loading…" line and charts popped in. | visualizations | `.rv-loading` is now a token-driven skeleton — a `--rv-bg-sunken` block at the chart's reserved height with a shimmer sweep, one grammar across all 14 loading views; empty/error states get the same quiet sunken panel. Shimmer + spin both suppressed under `prefers-reduced-motion`. (module v2.9.0) |
+| P1 | Core search `<mark>` and DRE-Search highlighted from two near-identical-but-separate recipes. | theme ↔ search | One shared `--dre-hl-bg` token defined in `_colors.scss` (accent wash, both modes); `mark/ins` and DRE-Search's `Highlight.svelte` now resolve the same value. |
+| P2 | Dead `GetSVG` helper (vestigial; `$this->getSVG()` would throw). | theme | Deleted `helper/GetSVG.php` + its `theme.ini` registration + the stale doc/comment references. The `svg-icon()` mask mixin is the icon system. |
+| P2 | Home-stats band cached to `sys_get_temp_dir()` — per-container and ephemeral across the org's multiple Omeka instances. | theme | Cache moved to Omeka's DB-backed settings service (site-scoped key + 1h TTL), shared across containers and deploy-surviving; reached via `getServiceLocator()` wrapped in `catch(\Throwable)` so the home page renders no matter what. |
+| P3 | The resource grid ships `masonry.pkgd.min.js` (~24 KiB) for a layout CSS now does natively. | theme | Native CSS masonry added behind `@supports (grid-template-rows: masonry)` with the JS as fallback; `browse.js` gates on the same feature query. Progressive enhancement — most engines still take the JS path today. |
+| P3 | The Bunny font request pulled weights the compiled CSS never uses. | theme | Trimmed Spectral 500 (upright) and Spectral italic 600 — both provably unused. Spectral 600 stays (footer, header lockup, nav/drawer headings, search-results title). |
+
+Structural items from §1/§2 also landed in v2.14.0: the **T11 `@use`/`@forward`
+migration**, the **px sweep** of `_fields`/`_advanced-search`, and the
+**token-lint port** to both module repos (see the rows/phases above).
+
+The one review item requiring no code change: the knowledge-graph community
+**halos (V1)** were confirmed still brand-anchored (`ns.HALO`, warm pigment
+tones rebuilt in `readTheme()`, no Material residue).

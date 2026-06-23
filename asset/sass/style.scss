@@ -1,49 +1,22 @@
-/*
-Theme Name: Africa Multiple — DRE
-Theme URI: https://github.com/AM-Digital-Research-Environment/DRE-theme
-Author: Frédérick Madore
-Author URI: https://www.frederickmadore.com/
-Description: Digital Research Environment theme for the Africa Multiple Cluster of Excellence (University of Bayreuth). Scholarly Modernism on an OKLCH design-token foundation, with light and dark modes.
-Version: @@VERSION@@
-Omeka Version Constraint: ^4.2.0
-Requires PHP: 8.1
-License: GNU General Public License v3 or later
-License URI: LICENSE
-Text Domain: dre-theme
-*/
-
-/*--------------------------------------------------------------
-# Variables and mixins
---------------------------------------------------------------*/
-@import "abstracts/abstracts";
-
-/*--------------------------------------------------------------
-# Generic
---------------------------------------------------------------*/
-
-/* Normalize
---------------------------------------------- */
-@import "generic/normalize";
-
-/* Box sizing
---------------------------------------------- */
-@import "generic/box-sizing";
-
-/* Collapse
---------------------------------------------- */
-@import "generic/collapse";
-
-/*--------------------------------------------------------------
-# Base
---------------------------------------------------------------*/
-@import "base/base";
-
-/*--------------------------------------------------------------
-# Components
---------------------------------------------------------------*/
-@import "components/components";
-
-/*--------------------------------------------------------------
-# Utilities
---------------------------------------------------------------*/
-@import "utilities/utilities";
+// Africa Multiple — DRE — compiled entry point.
+//
+// The CSS file header (Theme Name / Version / license) is prepended AFTER
+// compilation by gulpfile.js, not emitted from here: under the Dart Sass module
+// system a loud `/* */` comment that precedes `@use "abstracts"` is re-emitted
+// at every one of the ~50 files that load the abstracts module, so the header is
+// kept out of the Sass graph entirely.
+//
+// Load order mirrors the former @import cascade:
+//   abstracts  — design tokens + mixins; emits the :root custom-property base
+//   generic    — normalize, box-sizing, collapse
+//   base       — theme infrastructure, typography, elements, layout
+//   components — header, navigation, blocks, facets, footer, …
+//   utilities  — accessibility, alignments, visibility, print
+// Each aggregator @forwards its leaf partials; every leaf @use "…/abstracts".
+@use "abstracts";
+@use "generic/normalize";
+@use "generic/box-sizing";
+@use "generic/collapse";
+@use "base/base";
+@use "components/components";
+@use "utilities/utilities";

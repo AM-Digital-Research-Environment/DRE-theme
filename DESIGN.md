@@ -180,11 +180,6 @@ glyph: drop a URL-encoded Lucide data-URI into `_mixins.scss` and apply
 `svg-icon()`. With the webfont gone, any unstyled `o-icon-*` renders nothing
 (an empty `::before`) rather than a “tofu” box.
 
-> Note: the `GetSVG` view helper declared in `theme.ini` is **vestigial** —
-> nothing calls it and it is not actually registered (calling `$this->getSVG()`
-> throws). The CSS `background-image` / `svg-icon()` mask paths above are the
-> icon system; don't reach for `GetSVG`.
-
 ---
 
 ## 8. Components
@@ -490,8 +485,11 @@ on a regression; its allowlist records the sanctioned exceptions.
 
 Toolchain (latest as of build): **gulp 5**, **dart-sass 1.100**, **gulp-sass 6**,
 **gulp-postcss 10**, **autoprefixer 10.5**. Browser targets in
-`package.json › browserslist` (modern evergreen + Safari/iOS ≥ 14, which gives us
-`oklch()`, `color-mix()` and WebP).
+`package.json › browserslist`: modern evergreen + **Safari/iOS ≥ 16.2**. That
+floor is deliberate, not conservative — the single-seed engine is built on
+`color-mix()` (Safari 16.2+) and `oklch()` (15.4+), neither of which autoprefixer
+can polyfill, so the support promise must match what the CSS actually needs
+(raised from ≥ 14 in v2.14.0).
 
 ### SCSS architecture
 
@@ -503,13 +501,15 @@ abstracts/mixins/_mixins.scss         ← buttons, container, clearfix
 base/ … components/ … utilities/      ← consume the tokens above
 ```
 
-> **Note on `@import`:** the partials still use Sass `@import` (fully supported by
-> Dart Sass 1.x; the deprecation is non-breaking and there is no Dart Sass 3 yet).
-> The *real* modernization here is the CSS-custom-property token system, which is
-> what makes the theme maintainable. Migrating the partials to the `@use`/`@forward`
-> module system is a clean, mechanical future step:
-> add `loadPaths: ['asset/sass']` to the gulp task and a single
-> `@use "abstracts/abstracts" as *;` to each leaf partial.
+> **Module system:** the partials use Dart Sass `@use`/`@forward` (migrated from
+> the deprecated `@import` in v2.14.0). `abstracts/_index.scss` `@forward`s the
+> variables + mixins; each leaf partial starts with `@use "…/abstracts" as *;` for
+> the token + mixin contract; the section aggregators (`base/_base.scss`,
+> `components/_components.scss`, …) `@forward` their leaves. The CSS file header is
+> prepended **post-compile** by gulp (`prependHeader()` in `gulpfile.js`), not
+> emitted from `style.scss`: a loud `/* */` comment immediately before
+> `@use "abstracts"` is re-emitted by Dart Sass at every one of the ~50 files that
+> load the abstracts module, so the header is kept out of the Sass graph.
 
 ---
 

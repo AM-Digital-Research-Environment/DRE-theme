@@ -1,3 +1,5 @@
+@use "../../abstracts" as *;
+
 .tooltip {
     display: inline-block;
     color: $color__secondary;

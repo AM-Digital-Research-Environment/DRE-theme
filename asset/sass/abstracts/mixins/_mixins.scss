@@ -1,3 +1,6 @@
+@use "../variables/breakpoints" as *;
+@use "../variables/typography" as *;
+
 // Center block
 @mixin center-block {
     display: block;
@@ -36,7 +39,7 @@
 // Inline-SVG icon masks — replaces the former `font-awesome` webfont glyphs.
 //
 // The theme draws all of its own iconography as Lucide-style inline SVG
-// (stroke-based, currentColor; see asset/img/*.svg and the GetSVG helper), so
+// (stroke-based, currentColor; see asset/img/*.svg), so
 // the chrome had no reason to keep pulling in Omeka's FontAwesome webfont just
 // for a handful of CSS ::before / ::after decorations (checkbox tick, menu
 // chevrons, carousel arrows, ToC markers). Each is now painted by masking a

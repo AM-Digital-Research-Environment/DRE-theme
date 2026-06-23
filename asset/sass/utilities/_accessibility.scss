@@ -1,3 +1,5 @@
+@use "../abstracts" as *;
+
 #skipnav {
     position: fixed;
     top: $font__base-line-height;

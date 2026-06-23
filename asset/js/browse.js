@@ -1,11 +1,22 @@
 const browseScripts = () => {
     const resources = document.querySelectorAll('.resources');
 
+    // Where the browser lays out masonry natively (grid-template-rows: masonry,
+    // matched by the @supports block in _resource-grid.scss), skip the JS engine
+    // entirely — the grid reveals and positions the cards itself, so we never
+    // load-fight masonry.pkgd over CSS. Falls back to the JS masonry below.
+    const nativeMasonry = typeof CSS !== 'undefined'
+        && typeof CSS.supports === 'function'
+        && CSS.supports('grid-template-rows', 'masonry');
+
     resources.forEach((resourcesSet, index) => {
         const resourceItems = resourcesSet.querySelectorAll('.resource');
         const layoutToggles = resourcesSet.parentElement.querySelectorAll('.layout-toggle button');
 
         const initMasonryGrid = () => {
+            if (nativeMasonry) {
+                return; // CSS handles grid layout + reveal; see _resource-grid.scss
+            }
             if (resourcesSet.classList.contains('resource-grid')) {
                 // Masonry
                 const createMasonryInstance = () => {

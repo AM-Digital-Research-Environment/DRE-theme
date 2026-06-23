@@ -1,3 +1,5 @@
+@use "../../abstracts" as *;
+
 #local-contexts-content {
     @include container;
     margin-bottom: 40px;

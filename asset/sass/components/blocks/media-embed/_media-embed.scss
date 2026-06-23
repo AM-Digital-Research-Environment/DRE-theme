@@ -1,3 +1,5 @@
+@use "../../../abstracts" as *;
+
 .media-embed {
     // Native video embed (e.g. a YouTube iframe) rendered in the item-page
     // media region by the mirador block override, for items whose media can't

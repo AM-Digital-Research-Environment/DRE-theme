@@ -1,3 +1,5 @@
+@use "../../abstracts" as *;
+
 // A right-anchored panel sliding out from under the hamburger — not a
 // full-viewport sheet. Since v2.10.0's collapse-on-overflow the drawer is
 // also the menu on half-screen desktop windows, where a 1280px-wide sheet of

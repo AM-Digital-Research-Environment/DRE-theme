@@ -43,6 +43,12 @@
   --accent-muted:  color-mix(in oklab, var(--accent-base) 14%, var(--surface));
   --accent-text:   color-mix(in oklab, var(--accent-base), black 22%);
 
+  // --- Found-term highlight — the <mark>/<ins> wash, shared verbatim with
+  //     DRE-Search's result highlighting so a matched term reads identically in
+  //     core search, faceted browse and the Svelte client. One token, one tint;
+  //     translucent over the active surface so it carries through both modes. ---
+  --dre-hl-bg: color-mix(in oklab, var(--accent) 28%, transparent);
+
   // --- Secondary & complementary (legacy hooks, mapped to brand) ---
   --secondary:      var(--primary);          // strong chips / active states → green
   --complementary:  oklch(74% 0.13 78);      // warm gold — decorative shapes only
@@ -129,6 +135,10 @@
   --accent-hover:  color-mix(in oklab, var(--accent-base), white 24%);
   --accent-muted:  color-mix(in oklab, var(--accent-base) 22%, var(--surface));
   --accent-text:   color-mix(in oklab, var(--accent-base), white 28%);
+
+  // Shared found-term highlight (see light theme); identical formula, resolves
+  // against the lifted dark --accent so the wash stays legible on dark surfaces.
+  --dre-hl-bg: color-mix(in oklab, var(--accent) 28%, transparent);
 
   --secondary:      var(--primary);
   --complementary:  oklch(78% 0.13 80);

@@ -5,16 +5,13 @@ Theme URI: https://github.com/AM-Digital-Research-Environment/DRE-theme
 Author: Frédérick Madore
 Author URI: https://www.frederickmadore.com/
 Description: Digital Research Environment theme for the Africa Multiple Cluster of Excellence (University of Bayreuth). Scholarly Modernism on an OKLCH design-token foundation, with light and dark modes.
-Version: 2.12.4
+Version: 2.14.0
 Omeka Version Constraint: ^4.2.0
 Requires PHP: 8.1
 License: GNU General Public License v3 or later
 License URI: LICENSE
 Text Domain: dre-theme
 */
-/*--------------------------------------------------------------
-# Variables and mixins
---------------------------------------------------------------*/
 :root {
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -149,6 +146,7 @@ body[data-theme=light] {
   --accent-hover: color-mix(in oklab, var(--accent-base), black 16%);
   --accent-muted: color-mix(in oklab, var(--accent-base) 14%, var(--surface));
   --accent-text: color-mix(in oklab, var(--accent-base), black 22%);
+  --dre-hl-bg: color-mix(in oklab, var(--accent) 28%, transparent);
   --secondary: var(--primary);
   --complementary: oklch(74% 0.13 78);
   --ink-strong: oklch(24% 0.020 66);
@@ -205,6 +203,7 @@ body[data-theme=light] {
     --accent-hover: color-mix(in oklab, var(--accent-base), white 24%);
     --accent-muted: color-mix(in oklab, var(--accent-base) 22%, var(--surface));
     --accent-text: color-mix(in oklab, var(--accent-base), white 28%);
+    --dre-hl-bg: color-mix(in oklab, var(--accent) 28%, transparent);
     --secondary: var(--primary);
     --complementary: oklch(78% 0.13 80);
     --ink-strong: oklch(97% 0.006 95);
@@ -258,6 +257,7 @@ body[data-theme=dark] {
   --accent-hover: color-mix(in oklab, var(--accent-base), white 24%);
   --accent-muted: color-mix(in oklab, var(--accent-base) 22%, var(--surface));
   --accent-text: color-mix(in oklab, var(--accent-base), white 28%);
+  --dre-hl-bg: color-mix(in oklab, var(--accent) 28%, transparent);
   --secondary: var(--primary);
   --complementary: oklch(78% 0.13 80);
   --ink-strong: oklch(97% 0.006 95);
@@ -311,6 +311,7 @@ body[data-theme=light] {
   --accent-hover: color-mix(in oklab, var(--accent-base), black 16%);
   --accent-muted: color-mix(in oklab, var(--accent-base) 14%, var(--surface));
   --accent-text: color-mix(in oklab, var(--accent-base), black 22%);
+  --dre-hl-bg: color-mix(in oklab, var(--accent) 28%, transparent);
   --secondary: var(--primary);
   --complementary: oklch(74% 0.13 78);
   --ink-strong: oklch(24% 0.020 66);
@@ -383,11 +384,6 @@ body[data-theme=light] {
   --text-4xl: clamp(2.5rem, 2.1rem + 2vw, 3.5rem);
 }
 
-/*--------------------------------------------------------------
-# Generic
---------------------------------------------------------------*/
-/* Normalize
---------------------------------------------- */
 /*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
 /* Document
      ========================================================================== */
@@ -698,8 +694,6 @@ template {
   display: none;
 }
 
-/* Box sizing
---------------------------------------------- */
 /* Inherit box-sizing to more easily change it's value on a component level.
 @link http://css-tricks.com/inheriting-box-sizing-probably-slightly-better-best-practice/ */
 *,
@@ -712,8 +706,6 @@ html {
   box-sizing: border-box;
 }
 
-/* Collapse
---------------------------------------------- */
 .expand:after {
   content: "";
   display: inline-block;
@@ -749,9 +741,6 @@ html {
   width: 100%;
 }
 
-/*--------------------------------------------------------------
-# Base
---------------------------------------------------------------*/
 /* Theme infrastructure (resets, focus, selection, motion)
 --------------------------------------------- */
 html {
@@ -991,7 +980,7 @@ acronym {
 
 mark,
 ins {
-  background: color-mix(in oklab, var(--accent) 28%, transparent);
+  background: var(--dre-hl-bg);
   color: inherit;
   border-radius: 0.125rem;
   padding-inline: 0.05em;
@@ -1672,7 +1661,7 @@ select {
   display: block;
   background-color: var(--surface);
   border: 1px solid var(--border-strong);
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
   padding: 0.6rem 0.9rem;
   border-radius: var(--radius-md);
   line-height: 1.4;
@@ -1799,7 +1788,7 @@ select {
   background-position: calc(100% - 15px) center;
   background-size: 18px;
   background-repeat: no-repeat;
-  height: 44px;
+  height: var(--size-control-lg);
   padding-right: 45px;
 }
 
@@ -1824,8 +1813,8 @@ label.sub-label select {
 fieldset {
   border: 1px dashed var(--border);
   border-radius: 20px 0;
-  padding: 20px 25px;
-  margin-bottom: 25px;
+  padding: var(--space-5) var(--space-6);
+  margin-bottom: var(--space-6);
 }
 
 fieldset {
@@ -1842,7 +1831,7 @@ fieldset .field {
   flex: 1 1 100px;
   box-shadow: none;
   margin-bottom: 0;
-  margin-right: 15px;
+  margin-right: var(--space-4);
   max-width: 100%;
   min-width: 100px;
   padding: 0;
@@ -1964,9 +1953,6 @@ html {
   }
 }
 
-/*--------------------------------------------------------------
-# Components
---------------------------------------------------------------*/
 /* Header
 --------------------------------------------- */
 .main-header {
@@ -2830,7 +2816,7 @@ body.menu-drawer-toggled {
   max-width: 840px;
   margin-left: auto;
   margin-right: auto;
-  margin-top: 25px;
+  margin-top: var(--space-6);
   overflow: auto;
 }
 #advanced-search::after {
@@ -2840,7 +2826,7 @@ body.menu-drawer-toggled {
 }
 #advanced-search input,
 #advanced-search select {
-  margin-bottom: 8px !important;
+  margin-bottom: var(--space-2) !important;
 }
 #advanced-search .field-meta {
   margin: 0.25rem 0;
@@ -2852,8 +2838,8 @@ body.menu-drawer-toggled {
   display: flex;
   align-items: flex-start;
   flex-wrap: wrap;
-  gap: 25px;
-  margin-bottom: 25px;
+  gap: var(--space-6);
+  margin-bottom: var(--space-6);
 }
 @media (min-width: 1024px) {
   #advanced-search .advanced-search-content {
@@ -2890,7 +2876,7 @@ body.menu-drawer-toggled {
 #advanced-search .field.multi-value .value {
   align-items: center;
   flex-wrap: wrap !important;
-  gap: 15px;
+  gap: var(--space-4);
 }
 #advanced-search .field.multi-value .value:first-child .logical-operator:first-child {
   display: none;
@@ -2941,7 +2927,7 @@ body.menu-drawer-toggled {
 @media (min-width: 768px) {
   #advanced-search .field:not(.multi-value) .inputs > * {
     flex: 1 1 100px;
-    margin-right: 15px;
+    margin-right: var(--space-4);
     max-width: 100%;
     min-width: 100px;
   }
@@ -2978,14 +2964,14 @@ body.menu-drawer-toggled {
 }
 #advanced-search .field .numeric-date-inputs,
 #advanced-search .field .numeric-time-inputs {
-  gap: 4px;
+  gap: var(--space-1);
 }
 #advanced-search .field .numeric-toggle-time {
   align-self: center;
   background-color: var(--surface);
   color: var(--primary);
   cursor: pointer;
-  height: 35px;
+  height: var(--size-control-sm);
   margin: 0.5rem 0 0 0.3rem;
   padding: 5px 9px;
 }
@@ -3009,7 +2995,7 @@ body.menu-drawer-toggled {
   position: relative;
 }
 #advanced-search #property-queries .input-group > * {
-  margin-right: 15px;
+  margin-right: var(--space-4);
 }
 #advanced-search #property-queries .input-group > *:last-child {
   margin-right: 0;
@@ -3023,7 +3009,7 @@ body.menu-drawer-toggled {
   height: 0;
 }
 #advanced-search #property-queries .input-group .sub-field {
-  margin-top: 20px;
+  margin-top: var(--space-5);
 }
 #advanced-search #property-queries .input-group .sub-label {
   opacity: 0;
@@ -3034,10 +3020,10 @@ body.menu-drawer-toggled {
   display: flex;
   background-color: var(--secondary);
   bottom: 0;
-  gap: 20px;
+  gap: var(--space-5);
   justify-content: center;
   margin-left: calc((100vw - 100%) / -2);
-  padding: 25px;
+  padding: var(--space-6);
   position: sticky;
   width: 100vw;
 }
@@ -3045,9 +3031,9 @@ body.menu-drawer-toggled {
   #advanced-search #page-actions {
     align-items: flex-end;
     background-color: transparent;
-    bottom: 15px;
+    bottom: var(--space-4);
     flex-direction: column;
-    gap: 15px;
+    gap: var(--space-4);
     justify-content: initial;
     margin-left: 0;
     margin-right: -140px;
@@ -5127,6 +5113,31 @@ body[data-theme=dark] .site-banner__art {
   padding: var(--space-1) var(--space-2);
 }
 
+@supports (grid-template-rows: masonry) {
+  .resource-grid {
+    opacity: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+  @media (min-width: 768px) {
+    .resource-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: masonry;
+      gap: var(--space-6) 2%;
+    }
+  }
+  .resource-grid .grid-sizer,
+  .resource-grid .gutter-sizer {
+    display: none;
+  }
+  .resource-grid .resource {
+    position: static;
+    width: auto;
+    margin: 0;
+  }
+}
 .resource-list {
   height: auto !important;
   list-style: none;
@@ -5614,9 +5625,6 @@ body.search .results .resource__content {
   }
 }
 
-/*--------------------------------------------------------------
-# Utilities
---------------------------------------------------------------*/
 /* Accessibility
 --------------------------------------------- */
 #skipnav {
@@ -5907,6 +5915,7 @@ body.search .results .resource__content {
     --accent-hover: color-mix(in oklab, var(--accent-base), black 16%);
     --accent-muted: color-mix(in oklab, var(--accent-base) 14%, var(--surface));
     --accent-text: color-mix(in oklab, var(--accent-base), black 22%);
+    --dre-hl-bg: color-mix(in oklab, var(--accent) 28%, transparent);
     --secondary: var(--primary);
     --complementary: oklch(74% 0.13 78);
     --ink-strong: oklch(24% 0.020 66);

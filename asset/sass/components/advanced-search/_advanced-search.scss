@@ -1,8 +1,10 @@
+@use "../../abstracts" as *;
+
 #advanced-search {
     max-width: 840px;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 25px;
+    margin-top: var(--space-6);
     overflow: auto;
 
     &::after {
@@ -13,7 +15,7 @@
 
     input,
     select {
-        margin-bottom: 8px !important;
+        margin-bottom: var(--space-2) !important;
     }
 
     .field-meta {
@@ -28,8 +30,8 @@
         display: flex;
         align-items: flex-start;
         flex-wrap: wrap;
-        gap: 25px;
-        margin-bottom: 25px;
+        gap: var(--space-6);
+        margin-bottom: var(--space-6);
 
         @media (min-width: $lg) {
             position: relative;
@@ -74,7 +76,7 @@
             .value {
                 align-items: center;
                 flex-wrap: wrap !important;
-                gap: 15px;
+                gap: var(--space-4);
     
                 &:first-child .logical-operator:first-child {
                     display: none;
@@ -134,7 +136,7 @@
         
                     @media (min-width: $md) {
                         flex: 1 1 100px;
-                        margin-right: 15px;
+                        margin-right: var(--space-4);
                         max-width: 100%;
                         min-width: 100px;
                     }
@@ -182,7 +184,7 @@
 
         .numeric-date-inputs,
         .numeric-time-inputs {
-            gap: 4px;
+            gap: var(--space-1);
         }
 
         .numeric-toggle-time {
@@ -190,7 +192,7 @@
             background-color: $color__white;
             color: $color__buttons;
             cursor: pointer;
-            height: 35px;
+            height: var(--size-control-sm);
             margin: 0.5rem 0 0 0.3rem;
             padding: 5px 9px;
 
@@ -223,7 +225,7 @@
             position: relative;
 
             > * {
-                margin-right: 15px;
+                margin-right: var(--space-4);
             }
 
             > *:last-child {
@@ -241,7 +243,7 @@
             }
 
             .sub-field {
-                margin-top: 20px;
+                margin-top: var(--space-5);
             }
 
             .sub-label {
@@ -256,10 +258,10 @@
         display: flex;
         background-color: $color__secondary;
         bottom: 0;
-        gap: 20px;
+        gap: var(--space-5);
         justify-content: center;
         margin-left: calc((100vw - 100%) / -2);
-        padding: 25px;
+        padding: var(--space-6);
         position: -webkit-sticky;
         position: sticky;
         width: 100vw;
@@ -267,9 +269,9 @@
         @media (min-width: $lg) {
             align-items: flex-end;
             background-color: transparent;
-            bottom: 15px;
+            bottom: var(--space-4);
             flex-direction: column;
-            gap: 15px;
+            gap: var(--space-4);
             justify-content: initial;
             margin-left: 0;
             margin-right: -140px;

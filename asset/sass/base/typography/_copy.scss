@@ -1,3 +1,5 @@
+@use "../../abstracts" as *;
+
 p {
     margin-bottom: 1.5rem;
     margin-top: 0;
@@ -80,13 +82,14 @@ acronym {
     cursor: help;
 }
 
-// Found-term highlight — the same accent-tinted wash DRE-Search paints on
-// result matches (--dre-hl-bg), so "your term" looks identical in core
-// search, faceted browse and the Svelte client. Translucent over the active
-// surface, so it carries through light and dark without a per-mode value.
+// Found-term highlight — paints the shared --dre-hl-bg token (defined once in
+// _colors.scss as an accent-tinted wash), so "your term" looks identical in
+// core search, faceted browse and DRE-Search's Svelte client: one token, one
+// tint. Translucent over the active surface, so it carries through light and
+// dark without a per-mode value.
 mark,
 ins {
-    background: color-mix(in oklab, var(--accent) 28%, transparent);
+    background: var(--dre-hl-bg);
     color: inherit;
     border-radius: 0.125rem;
     padding-inline: 0.05em;

@@ -1,3 +1,5 @@
+@use "../abstracts" as *;
+
 .expand:after {
 	@include svg-icon($icon-caret-right, 0.75em);
 	vertical-align: -0.05em;

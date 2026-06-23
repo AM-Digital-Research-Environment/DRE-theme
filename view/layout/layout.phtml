@@ -38,8 +38,8 @@ $this->headTitle()->append($this->setting('installation_title', 'Omeka S'));
 $this->headLink()->prependStylesheet($this->assetUrl('css/style.css'));
 // NOTE: Omeka core's FontAwesome webfont (css/iconfonts.css + fa-solid-900.woff2,
 // ~91 KiB/page) is intentionally NOT loaded. The theme draws all of its icons as
-// inline Lucide-style SVG (see asset/img/*.svg, the GetSVG helper, and the
-// svg-icon mask mixin in _mixins.scss); the few former FA ::before/::after
+// inline Lucide-style SVG (see asset/img/*.svg and the svg-icon mask mixin
+// in _mixins.scss); the few former FA ::before/::after
 // glyphs (checkbox tick, menu chevrons, carousel arrows, ToC markers) are now
 // painted with that mask. Omeka's public user bar uses its own user-bar.css and
 // no icon font. If a future module needs FA glyphs, re-add the line below.
@@ -49,8 +49,13 @@ $this->headLink()->prependStylesheet($this->assetUrl('css/style.css'));
 // Spectral (display serif) + Hanken Grotesk (body/UI sans). Requested as two
 // single-family stylesheets: Bunny serves Hanken Grotesk as static instances
 // (discrete weights, not a variable range), and one family per request avoids
-// the CSS2 multi-family ordering pitfalls.
-$this->headLink()->prependStylesheet('https://fonts.bunny.net/css?family=spectral:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap');
+// the CSS2 multi-family ordering pitfalls. Only the weights/styles the compiled
+// CSS actually paints are requested: Spectral upright 400 (blockquote mark) /
+// 600 (footer, header lockup, nav & drawer section heads, search-results title)
+// / 700 (h3–h4, banner) / 800 (h1–h2) + italic 400 (blockquote); Hanken
+// 400/500/600/700 + italic 400. (Spectral 500 and Spectral italic 600 are
+// unused — re-add here if a future component needs them.)
+$this->headLink()->prependStylesheet('https://fonts.bunny.net/css?family=spectral:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap');
 $this->headLink()->prependStylesheet('https://fonts.bunny.net/css?family=hanken-grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 $this->headScript()->prependFile($this->assetUrl('js/global.js', 'Omeka'));
 $this->headScript()->prependFile($this->assetUrl('vendor/jquery/jquery.min.js', 'Omeka'));

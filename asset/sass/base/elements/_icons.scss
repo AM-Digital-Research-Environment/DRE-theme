@@ -1,3 +1,5 @@
+@use "../../abstracts" as *;
+
 // Omeka core uses `.o-icon-chevron-down` (an iconfonts.css class) in a few
 // widgets; the theme no longer loads that webfont, so paint the chevron with
 // the same inline-SVG mask the rest of the chrome uses.

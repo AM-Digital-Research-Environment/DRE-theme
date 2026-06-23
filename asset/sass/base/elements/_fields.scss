@@ -1,3 +1,5 @@
+@use "../../abstracts" as *;
+
 input[type="text"],
 input[type="email"],
 input[type="url"],
@@ -18,7 +20,7 @@ select {
     display: block;
     background-color: $color__white;
     border: 1px solid $color__field-border;
-    margin-bottom: 8px;
+    margin-bottom: var(--space-2);
     padding: 0.6rem 0.9rem;
     border-radius: var(--radius-md);
     line-height: 1.4;
@@ -114,7 +116,7 @@ select {
     background-position: calc(100% - 15px) center;
     background-size: 18px;
     background-repeat: no-repeat;
-    height: 44px;
+    height: var(--size-control-lg);
     padding-right: 45px;
 }
 
@@ -140,8 +142,8 @@ label.sub-label {
 fieldset {
     border: 1px dashed $color__gray-80;
     border-radius: 20px 0;
-    padding: 20px 25px;
-    margin-bottom: 25px;
+    padding: var(--space-5) var(--space-6);
+    margin-bottom: var(--space-6);
 }
 
 fieldset {
@@ -159,7 +161,7 @@ fieldset {
         flex: 1 1 100px;
         box-shadow: none;
         margin-bottom: 0;
-        margin-right: 15px;
+        margin-right: var(--space-4);
         max-width: 100%;
         min-width: 100px;
         padding: 0;

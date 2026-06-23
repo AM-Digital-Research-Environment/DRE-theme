@@ -1,2 +1,2 @@
-@import "resources-pagination";
-@import "page-pagination";
+@forward "resources-pagination";
+@forward "page-pagination";

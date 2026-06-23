@@ -59,12 +59,39 @@ $showStats = $isHome
     && !in_array((string) $this->themeSetting('banner_show_stats', '1'), ['0', ''], true);
 if ($showStats) {
     $siteId = $site ? $site->id() : null;
-    // The cache key carries a schema version (v2) so a change to the metric set
-    // ignores a stale cache of the old shape instead of serving its missing keys.
-    $cacheFile = sys_get_temp_dir() . '/dre-stats-v3-' . ($siteId ?: 'x') . '.json';
-    $nums = (is_readable($cacheFile) && (time() - (int) filemtime($cacheFile)) < 3600)
-        ? json_decode((string) file_get_contents($cacheFile), true)
-        : null;
+
+    // Counts are cached in Omeka's DB-backed settings, not a per-container /tmp
+    // file. The org runs several containerised Omeka instances, so a filesystem
+    // cache in sys_get_temp_dir() meant each node recomputed and they could
+    // disagree, and an ephemeral tmpfs dropped the cache on every deploy. A
+    // setting is shared by every container and survives deploys. The key carries
+    // a schema version (v3) so a change to the metric set ignores a stale cache
+    // of the old shape (the value is {t: <unix-time>, nums: {...}}). Reaching the
+    // settings service is wrapped in catch(\Throwable) so nothing about it — an
+    // unavailable service, a deprecation-as-exception dev config, even an
+    // undefined-method Error — can take the home page down: it just recomputes
+    // without caching.
+    $settings = null;
+    try {
+        $settings = $this->getHelperPluginManager()->getServiceLocator()->get('Omeka\Settings');
+    } catch (\Throwable $e) {
+        $settings = null;
+    }
+    $cacheKey = 'dre_stats_v3_' . ($siteId ?: 'x');
+
+    $nums = null;
+    if ($settings) {
+        try {
+            $cached = json_decode((string) $settings->get($cacheKey, ''), true);
+            if (is_array($cached) && isset($cached['t'], $cached['nums']) && is_array($cached['nums'])
+                && (time() - (int) $cached['t']) < 3600
+            ) {
+                $nums = $cached['nums'];
+            }
+        } catch (\Throwable $e) {
+            $nums = null;
+        }
+    }
     if (!is_array($nums)) {
         try {
             $api = $this->api();
@@ -111,7 +138,9 @@ if ($showStats) {
                 'subjects'       => $bySet('Subjects'),
                 'resource_types' => $bySet('Type of Resource'),
             ];
-            @file_put_contents($cacheFile, json_encode($nums));
+            if ($settings) {
+                $settings->set($cacheKey, json_encode(['t' => time(), 'nums' => $nums]));
+            }
         } catch (\Throwable $e) {
             $nums = null;
         }

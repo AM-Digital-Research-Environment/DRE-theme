@@ -1,3 +1,5 @@
+@use "../../abstracts" as *;
+
 .resource-grid {
     opacity: 0;
     list-style: none;
@@ -70,6 +72,41 @@
 
         &__meta {
             padding: var(--space-1) var(--space-2);
+        }
+    }
+}
+
+// --------------------------------------------------------------------------
+// Native CSS masonry — progressive enhancement. Where the engine supports
+// `grid-template-rows: masonry`, the grid lays the cards out itself and the
+// ~24 KiB masonry.pkgd.min.js is never initialised (browse.js gates on the same
+// feature query). Most engines still take the JS fallback above today; this is
+// the no-dependency path that takes over as support lands. The .grid-sizer /
+// .gutter-sizer percentages stay the JS inputs and are simply hidden here.
+// --------------------------------------------------------------------------
+@supports (grid-template-rows: masonry) {
+    .resource-grid {
+        opacity: 1;                      // CSS reveals it; no JS opacity flip
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-6);
+
+        @media (min-width: $md) {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: masonry;
+            gap: var(--space-6) 2%;      // row rhythm · 2% gutter → 49% columns
+        }
+
+        .grid-sizer,
+        .gutter-sizer {
+            display: none;               // masonry.js sizers — unused natively
+        }
+
+        .resource {
+            position: static;            // the grid places it, no absolute offsets
+            width: auto;
+            margin: 0;                   // the grid/flex gap owns the spacing now
         }
     }
 }

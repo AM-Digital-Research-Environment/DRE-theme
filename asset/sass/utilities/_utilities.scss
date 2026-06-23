@@ -1,19 +1,19 @@
 /* Accessibility
 --------------------------------------------- */
-@import "accessibility";
+@forward "accessibility";
 
 /* Alignments
 --------------------------------------------- */
-@import "alignments";
+@forward "alignments";
 
 /* Clearfix
 --------------------------------------------- */
-@import "clearfix";
+@forward "clearfix";
 
 /* Visibility
 --------------------------------------------- */
-@import "visibility";
+@forward "visibility";
 
 /* Print
 --------------------------------------------- */
-@import "print";
+@forward "print";
