@@ -376,7 +376,7 @@ indistinguishable from the theme itself:
 | Module | Role | How it attaches | Where it is styled |
 |---|---|---|---|
 | **[DRE-Search](https://github.com/AM-Digital-Research-Environment/DRESearch)** | Typesense-backed faceted search (a Svelte 5 client) | site block layouts (`Research*SearchBlock`), a header search-bar view helper, and a federated results route (`/s/{slug}/dre-search`) | server shell in `asset/css/dre-search.css`; component styles compiled into `asset/dist/dre-search.css` |
-| **[ResourceVisualizations](https://github.com/fmadore/ResourceVisualizations)** | ECharts + MapLibre dashboards, charts, maps and a knowledge graph | block layouts (collection / compare / explorer / photo-browse / what's-new…) and resource-page blocks (knowledge graph, item-set dashboard, sibling sparkline…) | one stylesheet, `asset/css/resource-visualizations.css`, plus per-chart JS under `asset/js/` |
+| **[ResourceVisualizations](https://github.com/fmadore/ResourceVisualizations)** | ECharts + MapLibre dashboards, charts, maps and a knowledge graph | block layouts (collection / compare / explorer / photo-browse / what's-new…) and resource-page blocks (knowledge graph, item-set dashboard, sibling sparkline…) | one stylesheet, `asset/css/dre-visualizations.css`, plus per-chart JS under `asset/js/` |
 
 **The design tokens are the contract between them.** The custom properties this
 theme defines on `:root` (and re-defines per mode) are a *de-facto public API*:
@@ -421,12 +421,14 @@ contract — distinct from the UI tokens above:
   route it through that bridge (or through a `--rv-*` alias it has already
   resolved). This is why the modules can follow the live toggle even though the
   tokens are in a colour space the chart libraries reject.
-- **Keep the palette and the tokens identical.** The palette needs twelve stops
-  and a dark-lifted variant the tokens don't carry, so the module hard-codes the
-  hex values — meaning the brand-anchored stops **duplicate** `--brand-*`. They
-  are one brand: when a `--brand-*` value changes, change the module palette in
-  the same commit (and vice-versa). A drift between them is the data-side of the
-  "competing design variables" failure.
+- **Keep the palette and the tokens identical.** **Stops 1–6 are the `--brand-*`
+  pigments and must stay in sync; stops 7–12 are an independent harmonious
+  extension.** The palette needs those twelve stops and a dark-lifted variant the
+  tokens don't carry, so the module hard-codes the hex values — meaning stops 1–6
+  **duplicate** `--brand-*`. They are one brand: when a `--brand-*` value changes,
+  change the module palette in the same commit (and vice-versa). A drift between
+  them is the data-side of the "competing design variables" failure. (The module
+  README states this same split verbatim.)
 - **Community halos have their own family.** In the knowledge graph a ring
   encodes *community* while the fill encodes *entity type*, so the halo palette
   (`ns.HALO`, beside the categorical palette in `dashboard-core.js`) is
