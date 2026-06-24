@@ -3,6 +3,7 @@ $translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
 $this->inlineScript()->appendFile($this->assetUrl('js/masonry.pkgd.min.js'));
 $this->inlineScript()->appendFile($this->assetUrl('js/browse.js'));
+$this->inlineScript()->appendFile($this->assetUrl('js/reveal.js'));
 $this->htmlElement('body')->appendAttribute('class', 'item resource browse');
 
 $filterLocale = (bool) $this->siteSetting('filter_locale_values');
@@ -156,14 +157,21 @@ $bodyTruncate = $this->themeSetting('truncate_body_property');
     <div class="grid-sizer"></div>
     <div class="gutter-sizer"></div>
     <?php
+    $revealIndex = 0;
     foreach ($items as $item):
         $heading = $headingTerm ? $item->value($headingTerm, ['default' => $translate('[Untitled]')]) : $item->displayTitle(null, $valueLang);
         $body = $bodyTerm ? $item->value($bodyTerm, ['lang' => ($valueLang)]) : $item->displayDescription(null, ($valueLang));
         $media = $item->primaryMedia();
         $altText = $media ? ($media->altText() ?: $item->displayTitle()) : $item->displayTitle();
         $thumbnail = $this->thumbnail($item, 'large', ['alt' => $altText]);
+        // The first row of cards rises in on entry — the DRE's shared reveal
+        // grammar (F11, asset/js/reveal.js + utilities/_reveal.scss), a gentle
+        // stagger echoing the home hero's arrival. Only the first few are tagged
+        // so a long list doesn't animate end to end.
+        $revealAttr = $revealIndex < 6 ? ' data-rv-reveal="' . ($revealIndex * 70) . '"' : '';
+        $revealIndex++;
         ?>
-        <div class="item resource <?php echo ($isGrid) ? '' : 'media-object'; ?>">
+        <div class="item resource <?php echo ($isGrid) ? '' : 'media-object'; ?>"<?php echo $revealAttr; ?>>
             <!-- Thumbnail -->
             <?php if ($thumbnail): ?>
                 <div class="resource__thumbnail">

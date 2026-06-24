@@ -1,0 +1,36 @@
+@use "../abstracts" as *;
+
+// ==========================================================================
+// Reveal-on-scroll — the DRE's single shared "arrival" grammar.
+//
+// Byte-for-byte the same treatment as ResourceVisualizations' `[data-reveal]`
+// rule (asset/css/dre-visualizations.css), so resource cards (theme) and
+// dashboard charts (module) rise into view with ONE motion vocabulary instead of
+// many ad-hoc transitions (design-review F11). Driven by asset/js/reveal.js — a
+// tiny IntersectionObserver mirroring the module's `ns.revealOnScroll`. A target
+// only gets `data-reveal` once the observer fires, so with JS off (or no
+// IntersectionObserver) nothing is ever hidden. Fully suppressed for
+// reduced-motion visitors.
+// ==========================================================================
+
+[data-reveal="hidden"] {
+    opacity: 0;
+    transform: translateY(0.75rem);   // 12px — matches the module's translateY(12px)
+    transition:
+        opacity 0.5s cubic-bezier(0.19, 1, 0.22, 1),
+        transform 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+    will-change: opacity, transform;
+}
+
+[data-reveal="shown"] {
+    opacity: 1;
+    transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    [data-reveal] {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+}
