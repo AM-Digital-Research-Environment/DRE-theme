@@ -110,25 +110,36 @@ button.icon-btn {
     }
 }
 
+// Advanced-search add / remove-value controls. These carry `.button`, so the
+// filled-primary look would apply; the rules below override it. Routed through
+// the control-size + colour tokens (no raw 35px, no !important) — the last
+// pre-token pocket in the button system. Sized to --size-control-md (40px), the
+// touch-target floor (DESIGN.md notes the 44px --size-control-lg ambition); the
+// glyph is centred with flex so no asymmetric padding is needed.
 button.add-value,
 button.remove-value {
-    background-color: $color__white;
-    border: 1px solid $color__hr;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--size-control-md);
+    height: var(--size-control-md);
+    padding: 0;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
     border-radius: 50%;
+    color: var(--primary);
     cursor: pointer;
-    color: $color__primary;
-    width: 35px;
-    height: 35px;
-    padding: 5px 9px;
-    text-transform: uppercase;
     -webkit-appearance: none;
     -moz-appearance: none;
     flex-shrink: 0;
 
+    // button.add-value:hover (0,2,1) already beats the :where()-wrapped primary
+    // hover these inherit via `.button`, so the old !important is unnecessary.
+    // --primary-contrast keeps the glyph legible on the filled hover in both modes.
     &:hover,
     &:focus {
-        background-color: $color__primary !important;
-        color: $color__white;
+        background-color: var(--primary);
+        color: var(--primary-contrast);
     }
 }
 
