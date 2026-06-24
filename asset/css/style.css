@@ -5,7 +5,7 @@ Theme URI: https://github.com/AM-Digital-Research-Environment/DRE-theme
 Author: Frédérick Madore
 Author URI: https://www.frederickmadore.com/
 Description: Digital Research Environment theme for the Africa Multiple Cluster of Excellence (University of Bayreuth). Scholarly Modernism on an OKLCH design-token foundation, with light and dark modes.
-Version: 2.19.2
+Version: 2.19.3
 Omeka Version Constraint: ^4.2.0
 Requires PHP: 8.1
 License: GNU General Public License v3 or later
@@ -3437,13 +3437,13 @@ body.menu-drawer-toggled {
   z-index: 1;
   background-color: var(--surface);
   border-top: var(--accent-line-md) solid var(--primary);
-  padding-block: var(--space-6);
+  padding-block: var(--space-5);
 }
 
 .site-banner__stats-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-4);
+  gap: var(--space-3);
+  grid-template-columns: repeat(3, 1fr);
 }
 @media (min-width: 768px) {
   .site-banner__stats-grid {
@@ -3453,15 +3453,23 @@ body.menu-drawer-toggled {
 
 .site-banner__stat {
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-3);
-  padding: var(--space-4) var(--space-5);
+  gap: var(--space-2);
+  padding: var(--space-3);
   background-color: var(--surface);
   border: var(--panel-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   transition: border-color var(--transition-fast), box-shadow var(--transition-base), transform var(--transition-base);
+}
+@media (min-width: 600px) {
+  .site-banner__stat {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: var(--space-3) var(--space-4);
+  }
 }
 
 @media (hover: hover) {
@@ -3485,7 +3493,7 @@ body.menu-drawer-toggled {
   display: block;
   margin-top: var(--space-1);
   font-family: var(--font-body);
-  font-size: var(--text-2xl);
+  font-size: var(--text-xl);
   font-weight: 700;
   line-height: 1.1;
   color: var(--ink-strong);
@@ -3501,19 +3509,25 @@ body.menu-drawer-toggled {
 
 .site-banner__stat-badge {
   flex: none;
+  order: -1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--size-control-md);
-  height: var(--size-control-md);
+  width: var(--size-control-sm);
+  height: var(--size-control-sm);
   border-radius: var(--radius-sm);
   background: var(--surface-sunken);
   color: var(--primary);
 }
+@media (min-width: 600px) {
+  .site-banner__stat-badge {
+    order: 0;
+  }
+}
 
 .site-banner__stat-icon {
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.125rem;
+  height: 1.125rem;
 }
 
 .site-banner--page {

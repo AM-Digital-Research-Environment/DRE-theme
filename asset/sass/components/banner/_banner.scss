@@ -147,28 +147,30 @@
     z-index: 1;
     background-color: var(--surface);
     border-top: var(--accent-line-md) solid var(--primary);
-    padding-block: var(--space-6);
+    padding-block: var(--space-5);
 }
 
 .site-banner__stats-grid {
     display: grid;
-    // Capped column count (2-up phone, 4-up desktop) so the module-driven set
-    // (~11 cards) wraps to tidy rows (4+4+3) rather than auto-fit leaving a lonely
-    // card on a wide row (e.g. 5+5+1).
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-4);
+    gap: var(--space-3);
+    // The set is module-driven (~11 cards). Phones get 3-up COMPACT TILES (4 rows,
+    // not the 6 a 2-up stack ran to); 4-up on desktop wraps to a tidy 4+4+3.
+    grid-template-columns: repeat(3, 1fr);
 
     @media (min-width: $md) {
         grid-template-columns: repeat(4, 1fr);
     }
 }
 
+// Phones: a compact VERTICAL tile (icon → label → value), so three fit per row
+// without cramming the value beside the badge. From $sm up it becomes the
+// horizontal card (label/value left, icon badge right) — the .rv-stat-card look.
 .site-banner__stat {
     display: flex;
+    flex-direction: column;
     align-items: flex-start;
-    justify-content: space-between;
-    gap: var(--space-3);
-    padding: var(--space-4) var(--space-5);
+    gap: var(--space-2);
+    padding: var(--space-3);
     background-color: var(--surface);
     border: var(--panel-border);
     border-radius: var(--radius-lg);
@@ -177,6 +179,13 @@
         border-color var(--transition-fast),
         box-shadow var(--transition-base),
         transform var(--transition-base);
+
+    @media (min-width: $sm) {
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: var(--space-3) var(--space-4);
+    }
 }
 
 // Hover lift, mouse only — mirrors .rv-stat-card.
@@ -202,7 +211,7 @@
     display: block;
     margin-top: var(--space-1);
     font-family: var(--font-body);
-    font-size: var(--text-2xl);
+    font-size: var(--text-xl);   // 24px — a touch smaller than the dashboard card
     font-weight: 700;
     line-height: 1.1;
     color: var(--ink-strong);
@@ -219,19 +228,24 @@
 
 .site-banner__stat-badge {
     flex: none;
+    order: -1;   // phones: icon sits on top of the vertical tile…
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: var(--size-control-md);
-    height: var(--size-control-md);
+    width: var(--size-control-sm);
+    height: var(--size-control-sm);
     border-radius: var(--radius-sm);
     background: var(--surface-sunken);
     color: var(--primary);
+
+    @media (min-width: $sm) {
+        order: 0;   // …and back on the right in the horizontal card
+    }
 }
 
 .site-banner__stat-icon {
-    width: 1.25rem;
-    height: 1.25rem;
+    width: 1.125rem;
+    height: 1.125rem;
 }
 
 // --------------------------------------------------------------------------
