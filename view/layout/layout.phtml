@@ -57,6 +57,24 @@ $this->headLink()->prependStylesheet($this->assetUrl('css/style.css'));
 // unused — re-add here if a future component needs them.)
 $this->headLink()->prependStylesheet('https://fonts.bunny.net/css?family=spectral:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap');
 $this->headLink()->prependStylesheet('https://fonts.bunny.net/css?family=hanken-grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+// jQuery + Omeka core global.js, in the head on every public page.
+//
+// AUDIT (design-review F9, "drop jQuery if nothing public calls $"): the
+// precondition is NOT met — public pages call `$` SYNCHRONOUSLY, so jQuery must
+// stay loaded (and in <head>, before those inline scripts). The dependencies:
+//   • Omeka core `global.js` — the advanced-search form: add/remove-value
+//     (`.value.clone()`), query-type input disabling, and the pre-submit
+//     `cleanSearchQuery()` (search-correctness critical), plus expand/collapse.
+//   • Omeka core `common/advanced-search.phtml` — an inline
+//     `<script>Omeka.prepareSearchForm($('#advanced-search'));</script>` that
+//     runs during parse, so deferring jQuery would throw `$ is not defined`.
+//   • This theme's `common/advanced-search/item-sets.phtml` — an inline
+//     `$('#content').on('change', …)` handler.
+// Our OWN public scripts (navigation.js, theme-toggle.js, back-to-top.js, …) are
+// all vanilla, and the sibling modules (DRE-Search/Svelte, ResourceVisualizations)
+// are jQuery-free. So the only blocker is the core advanced-search form. Dropping
+// (or deferring) jQuery therefore requires first reimplementing that form's JS in
+// vanilla — out of scope for a P3 perf item; re-run this audit before retrying.
 $this->headScript()->prependFile($this->assetUrl('js/global.js', 'Omeka'));
 $this->headScript()->prependFile($this->assetUrl('vendor/jquery/jquery.min.js', 'Omeka'));
 $this->jsTranslate();
