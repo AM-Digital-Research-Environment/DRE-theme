@@ -44,19 +44,16 @@ $this->headLink()->prependStylesheet($this->assetUrl('css/style.css'));
 // painted with that mask. Omeka's public user bar uses its own user-bar.css and
 // no icon font. If a future module needs FA glyphs, re-add the line below.
 // $this->headLink()->prependStylesheet($this->assetUrl('css/iconfonts.css', 'Omeka'));
-// Bunny Fonts — a privacy-first, GDPR-compliant mirror of Google Fonts (no IP
-// logging), appropriate for a University of Bayreuth (EU) deployment.
-// Spectral (display serif) + Hanken Grotesk (body/UI sans). Requested as two
-// single-family stylesheets: Bunny serves Hanken Grotesk as static instances
-// (discrete weights, not a variable range), and one family per request avoids
-// the CSS2 multi-family ordering pitfalls. Only the weights/styles the compiled
-// CSS actually paints are requested: Spectral upright 400 (blockquote mark) /
-// 600 (footer, header lockup, nav & drawer section heads, search-results title)
-// / 700 (h3–h4, banner) / 800 (h1–h2) + italic 400 (blockquote); Hanken
-// 400/500/600/700 + italic 400. (Spectral 500 and Spectral italic 600 are
-// unused — re-add here if a future component needs them.)
-$this->headLink()->prependStylesheet('https://fonts.bunny.net/css?family=spectral:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap');
-$this->headLink()->prependStylesheet('https://fonts.bunny.net/css?family=hanken-grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+// Webfonts are SELF-HOSTED (design-review F10). The @font-face rules live in the
+// compiled style.css (asset/sass/base/_fonts.scss) and point at asset/fonts/*.woff2,
+// so there is NO render-blocking third-party stylesheet and no extra DNS+TLS hop /
+// single point of failure on the LCP path. The woff2 are the byte-identical Bunny
+// Fonts files (a GDPR-compliant mirror of Google Fonts); serving them from our own
+// origin removes the third-party font origin entirely — a stronger privacy story
+// for an EU (Bayreuth) deployment. Shipped: Spectral (display serif) upright
+// 400/600/700/800 + italic 400, and Hanken Grotesk (body/UI sans) 400/500/600/700 +
+// italic 400, latin + latin-ext subsets. To add a weight/style: drop its woff2 in
+// asset/fonts/ and add a @font-face to _fonts.scss (then rebuild).
 // jQuery + Omeka core global.js, in the head on every public page.
 //
 // AUDIT (design-review F9, "drop jQuery if nothing public calls $"): the
@@ -96,16 +93,17 @@ if ($userBar) {
 <?php echo $this->doctype(); ?>
 <?php echo $this->htmlElement('html')->setAttribute('lang', $this->lang()); ?>
 	<head>
-		<link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
-		<?php // Preload the two above-the-fold webfont files (Hanken Grotesk 400
+		<?php // Preload the two above-the-fold webfont faces (Hanken Grotesk 400
 		      // body/UI + Spectral 600 display) so they fetch in parallel with the
-		      // Bunny stylesheets instead of waiting for the CSS to download and
-		      // parse first — shortens the FCP/LCP font chain. Both are in the
-		      // critical request chain on every page. ?>
+		      // CSS instead of waiting for it to download and parse first — shortens
+		      // the FCP/LCP font chain. Same-origin now (self-hosted), so no font-CDN
+		      // preconnect is needed; `crossorigin` is still required so the preload
+		      // matches the @font-face's anonymous CORS fetch (else it double-fetches).
+		      // assetUrl() is emitted UN-versioned to match the bare url() in style.css. ?>
 		<link rel="preload" as="font" type="font/woff2" crossorigin
-			href="https://fonts.bunny.net/hanken-grotesk/files/hanken-grotesk-latin-400-normal.woff2">
+			href="<?php echo $this->escapeHtmlAttr($this->assetUrl('fonts/hanken-grotesk-latin-400-normal.woff2', null, false, false)); ?>">
 		<link rel="preload" as="font" type="font/woff2" crossorigin
-			href="https://fonts.bunny.net/spectral/files/spectral-latin-600-normal.woff2">
+			href="<?php echo $this->escapeHtmlAttr($this->assetUrl('fonts/spectral-latin-600-normal.woff2', null, false, false)); ?>">
 		<?php echo $this->headMeta(); ?>
 		<?php echo $this->headTitle(); ?>
 		<?php echo $this->headLink(); ?>

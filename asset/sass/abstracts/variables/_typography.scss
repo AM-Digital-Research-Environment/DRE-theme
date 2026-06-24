@@ -7,8 +7,11 @@
 // Body/UI:  Hanken Grotesk — a humanist grotesque with generous legibility and
 //           full Latin Extended (FR + transliteration), distinct from the
 //           Inter / DM Sans monoculture.
-// Both are served via Bunny Fonts (a privacy-first, GDPR-compliant mirror of
-// Google Fonts) — relevant for a University of Bayreuth (EU) deployment.
+// Both are SELF-HOSTED (asset/fonts/, @font-face in base/_fonts.scss) — the
+// byte-identical Bunny Fonts files (a GDPR-compliant mirror of Google Fonts),
+// served from the theme's own origin (no third-party font request, no
+// render-blocking CDN stylesheet). Relevant for a University of Bayreuth (EU)
+// deployment.
 //
 // Sizing: fixed rem scale for product UI (browse, metadata, controls) so a
 // label doesn't drift between breakpoints; fluid clamp() reserved for the

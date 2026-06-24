@@ -119,9 +119,11 @@ Files: `asset/js/theme-toggle.js` (toggle + persistence), `asset/js/utils.js`
 | **Body / UI** (everything else, h5–h6) | **Hanken Grotesk** | Humanist grotesque, highly legible, full Latin-Extended for FR + transliteration. |
 | **Mono** | system mono stack | Code, technical values. |
 
-Deliberately **not** the Inter / DM Sans / Fraunces monoculture. Served via
-**Bunny Fonts** — a GDPR-compliant, no-IP-logging mirror of Google Fonts —
-appropriate for an EU (Bayreuth) deployment.
+Deliberately **not** the Inter / DM Sans / Fraunces monoculture. **Self-hosted**
+woff2 (`asset/fonts/`, `@font-face` in `base/_fonts.scss`) — the byte-identical
+Bunny Fonts files (a GDPR-compliant mirror of Google Fonts), but served from the
+theme's own origin so there is no third-party font request at all and no
+render-blocking CDN stylesheet on the LCP path. latin + latin-ext subsets only.
 
 **Scale** (`_typography.scss`): fixed `rem` steps for product UI so a 13px label
 never drifts between breakpoints; fluid `clamp()` reserved for the display tier
