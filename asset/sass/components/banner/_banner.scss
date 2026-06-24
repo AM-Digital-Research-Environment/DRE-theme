@@ -152,10 +152,15 @@
 
 .site-banner__stats-grid {
     display: grid;
-    // The stat set is module-driven, so the count varies (~11 cards, zero-count
-    // ones dropped) — auto-fit keeps each row full instead of a fixed column count.
-    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    // Capped column count (2-up phone, 4-up desktop) so the module-driven set
+    // (~11 cards) wraps to tidy rows (4+4+3) rather than auto-fit leaving a lonely
+    // card on a wide row (e.g. 5+5+1).
+    grid-template-columns: repeat(2, 1fr);
     gap: var(--space-4);
+
+    @media (min-width: $md) {
+        grid-template-columns: repeat(4, 1fr);
+    }
 }
 
 .site-banner__stat {
