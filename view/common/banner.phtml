@@ -146,15 +146,18 @@ if ($showStats) {
         }
     }
     if (is_array($nums)) {
+        // 'k' selects the Lucide glyph below — the same keys as the module's
+        // ResourceVisualizations STAT_ICONS, so the home band and the dashboards
+        // share one icon set (design-review F2).
         $stats = [
-            ['n' => (int) ($nums['research_items'] ?? 0), 'l' => $translate('Research items')],
-            ['n' => (int) ($nums['projects'] ?? 0),       'l' => $translate('Projects')],
-            ['n' => (int) ($nums['publications'] ?? 0),   'l' => $translate('Publications')],
-            ['n' => (int) ($nums['people'] ?? 0),         'l' => $translate('People')],
-            ['n' => (int) ($nums['organisations'] ?? 0),  'l' => $translate('Organisations')],
-            ['n' => (int) ($nums['locations'] ?? 0),      'l' => $translate('Locations')],
-            ['n' => (int) ($nums['subjects'] ?? 0),       'l' => $translate('Subjects & tags')],
-            ['n' => (int) ($nums['resource_types'] ?? 0), 'l' => $translate('Resource types')],
+            ['n' => (int) ($nums['research_items'] ?? 0), 'l' => $translate('Research items'),  'k' => 'researchItems'],
+            ['n' => (int) ($nums['projects'] ?? 0),       'l' => $translate('Projects'),        'k' => 'projects'],
+            ['n' => (int) ($nums['publications'] ?? 0),   'l' => $translate('Publications'),     'k' => 'publications'],
+            ['n' => (int) ($nums['people'] ?? 0),         'l' => $translate('People'),           'k' => 'people'],
+            ['n' => (int) ($nums['organisations'] ?? 0),  'l' => $translate('Organisations'),    'k' => 'organisations'],
+            ['n' => (int) ($nums['locations'] ?? 0),      'l' => $translate('Locations'),        'k' => 'locations'],
+            ['n' => (int) ($nums['subjects'] ?? 0),       'l' => $translate('Subjects & tags'),  'k' => 'subjectsTags'],
+            ['n' => (int) ($nums['resource_types'] ?? 0), 'l' => $translate('Resource types'),   'k' => 'resourceTypes'],
         ];
     }
 }
@@ -188,15 +191,37 @@ if ($showStats) {
         </div>
     </div>
 
-    <?php // Collection overview — a live stats strip grounding the hero (§1).
-          // Sits over the wash on its own surface, set off by the Uni-Grün rule. ?>
-    <?php if ($stats): ?>
+    <?php // Collection overview — a live stat-card grid grounding the hero (§1).
+          // Sits over the wash on its own surface, set off by the Uni-Grün rule.
+          // Each card mirrors ResourceVisualizations' .rv-stat-card (design-review
+          // F2): label, value, and a Lucide icon badge. The glyphs are the same set
+          // as the module's STAT_ICONS, inlined here because the banner is
+          // server-rendered theme chrome (no dependency on the module's JS). ?>
+    <?php if ($stats):
+        $statIcons = [
+            'researchItems' => '<path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+            'projects' => '<path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/>',
+            'publications' => '<path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/>',
+            'people' => '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/>',
+            'organisations' => '<path d="M10 12h4"/><path d="M10 8h4"/><path d="M14 21v-3a2 2 0 0 0-4 0v3"/><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2"/><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"/>',
+            'locations' => '<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
+            'subjectsTags' => '<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>',
+            'resourceTypes' => '<path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"/><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"/>',
+        ];
+    ?>
     <div class="site-banner__stats">
-        <div class="container site-banner__stats-grid" style="--stat-count:<?php echo count($stats); ?>;">
-            <?php foreach ($stats as $s): ?>
+        <div class="container site-banner__stats-grid">
+            <?php foreach ($stats as $s): $icon = $statIcons[$s['k']] ?? ''; ?>
                 <div class="site-banner__stat">
-                    <span class="site-banner__stat-num"><?php echo $escHtml(number_format((int) $s['n'])); ?></span>
-                    <span class="site-banner__stat-label"><?php echo $escHtml($s['l']); ?></span>
+                    <div class="site-banner__stat-body">
+                        <span class="site-banner__stat-label"><?php echo $escHtml($s['l']); ?></span>
+                        <span class="site-banner__stat-num"><?php echo $escHtml(number_format((int) $s['n'])); ?></span>
+                    </div>
+                    <?php if ($icon): ?>
+                    <span class="site-banner__stat-badge">
+                        <svg class="site-banner__stat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><?php echo $icon; ?></svg>
+                    </span>
+                    <?php endif; ?>
                 </div>
             <?php endforeach; ?>
         </div>
