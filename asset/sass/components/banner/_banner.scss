@@ -133,13 +133,14 @@
 
 // --------------------------------------------------------------------------
 // Home "Collection overview" — a live stat-card grid grounding the hero (§1).
-// Counts come from the Omeka API (banner.phtml). The band sits over the wash on
-// its own opaque surface (z-index above the art), set off by the Uni-Grün flag
-// rule. The cards share ResourceVisualizations' .rv-stat-card treatment — a
-// bordered card + Lucide icon badge + hover lift, the value in Hanken and the
-// label sentence-case — so a visitor meets the SAME stat card on the home band
-// and inside a collection dashboard (design-review F2). Responsive auto-fit grid
-// (the eight KPIs no longer fit one row as cards): ~4-up desktop → 1-up mobile.
+// The set mirrors the ResourceVisualizations "Collection Overview" block exactly
+// (read from its precompute in banner.phtml; that block drops its own cards on
+// the home layout, so this is the one place they appear). The cards share the
+// module's .rv-stat-card treatment — a bordered card + Lucide icon badge + hover
+// lift, the value in Hanken, the label sentence-case, an optional subtitle — so
+// a visitor meets the SAME stat card on the home band and in a collection
+// dashboard (design-review F2). The band sits over the wash on its own opaque
+// surface (z-index above the art), set off by the Uni-Grün flag rule.
 // --------------------------------------------------------------------------
 .site-banner__stats {
     position: relative;
@@ -151,14 +152,10 @@
 
 .site-banner__stats-grid {
     display: grid;
-    // Fixed 8 KPIs → even rows: 2-up phone, 4-up desktop (two tidy rows of four),
-    // rather than auto-fit's ragged tail.
-    grid-template-columns: repeat(2, 1fr);
+    // The stat set is module-driven, so the count varies (~11 cards, zero-count
+    // ones dropped) — auto-fit keeps each row full instead of a fixed column count.
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
     gap: var(--space-4);
-
-    @media (min-width: $md) {
-        grid-template-columns: repeat(4, 1fr);
-    }
 }
 
 .site-banner__stat {
@@ -205,6 +202,14 @@
     line-height: 1.1;
     color: var(--ink-strong);
     font-variant-numeric: tabular-nums;
+}
+
+// Optional subtitle (e.g. "in 39 countries") — mirrors .rv-stat-sub.
+.site-banner__stat-sub {
+    display: block;
+    margin-top: var(--space-1);
+    font-size: var(--text-xs);
+    color: var(--ink-subtle);
 }
 
 .site-banner__stat-badge {

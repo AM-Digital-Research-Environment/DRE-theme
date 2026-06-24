@@ -50,10 +50,13 @@ if (($buttonLink === null || $buttonLink === '') && $site) {
 
 $variant = $isHome ? 'home' : 'page';
 
-// Home-only "Collection overview" stats band (§1). Counts come from the Omeka
-// API — resource-template totals plus the Subjects item set — cached briefly so
-// the home page doesn't re-query on every load. Toggle via a theme setting; any
-// hiccup falls back to no band — the hero still renders.
+// Home-only "Collection overview" stat band (§1). The cards mirror the SAME set
+// the ResourceVisualizations "Collection Overview" block shows — read from its
+// precompute server-side (with an Omeka-API fallback for a module-less host) and
+// cached briefly so the home page doesn't recompute on every load. The block
+// itself drops its stat cards on the home layout, so this band is the single
+// place they appear. Toggle via a theme setting; any hiccup falls back to no
+// band — the hero still renders.
 $stats = [];
 $showStats = $isHome
     && !in_array((string) $this->themeSetting('banner_show_stats', '1'), ['0', ''], true);
@@ -77,88 +80,119 @@ if ($showStats) {
     } catch (\Throwable $e) {
         $settings = null;
     }
-    $cacheKey = 'dre_stats_v3_' . ($siteId ?: 'x');
+    // v4: cache the RENDERED stat list (now sourced from the module precompute),
+    // each entry {k:key, l:label, n:value, s:subtitle}; the bumped key ignores the
+    // old v3 shape ({nums: …}).
+    $cacheKey = 'dre_stats_v4_' . ($siteId ?: 'x');
 
-    $nums = null;
+    $stats = null;
     if ($settings) {
         try {
             $cached = json_decode((string) $settings->get($cacheKey, ''), true);
-            if (is_array($cached) && isset($cached['t'], $cached['nums']) && is_array($cached['nums'])
+            if (is_array($cached) && isset($cached['t'], $cached['stats']) && is_array($cached['stats'])
                 && (time() - (int) $cached['t']) < 3600
             ) {
-                $nums = $cached['nums'];
+                $stats = $cached['stats'];
             }
         } catch (\Throwable $e) {
-            $nums = null;
+            $stats = null;
         }
     }
-    if (!is_array($nums)) {
+    if (!is_array($stats)) {
+        // 1. Prefer the SAME stat set the "Collection Overview" block shows: read
+        //    its precompute (collection-overview.json `stats`) off the filesystem,
+        //    so the home band and that block never disagree and the band is the
+        //    one place those cards live. Each entry is {key,label,value,subtitle?}.
+        //    Fully guarded — a missing module / file / malformed JSON falls through
+        //    to the API fallback.
         try {
-            $api = $this->api();
-            // Resolve template + item-set labels to ids (fetched with limit > 0);
-            // the item counts below use limit=0 + getTotalResults() — count only.
-            $tplId = [];
-            foreach ($api->search('resource_templates', ['limit' => 1000])->getContent() as $t) {
-                $tplId[$t->label()] = $t->id();
-            }
-            $setId = [];
-            foreach ($api->search('item_sets', ['limit' => 1000])->getContent() as $s) {
-                $title = (string) $s->displayTitle();
-                if ($title !== '') {
-                    $setId[$title] = $s->id();
+            if (defined('OMEKA_PATH')) {
+                $ovPath = OMEKA_PATH . '/modules/DreVisualizations/asset/data/item-dashboards/collection-overview.json';
+                if (is_readable($ovPath)) {
+                    $ov = json_decode((string) file_get_contents($ovPath), true);
+                    if (is_array($ov) && !empty($ov['stats']) && is_array($ov['stats'])) {
+                        $built = [];
+                        foreach ($ov['stats'] as $st) {
+                            if (!is_array($st) || !isset($st['label'], $st['value'])) {
+                                continue;
+                            }
+                            $built[] = [
+                                'k' => (string) ($st['key'] ?? ''),
+                                'l' => (string) $st['label'],
+                                'n' => (int) $st['value'],
+                                's' => isset($st['subtitle']) ? (string) $st['subtitle'] : '',
+                            ];
+                        }
+                        if (count($built) >= 3) {
+                            $stats = $built;
+                        }
+                    }
                 }
-            }
-            $total = function (array $query) use ($api, $siteId) {
-                if ($siteId) {
-                    $query['site_id'] = $siteId;
-                }
-                $query['limit'] = 0;
-                return (int) $api->search('items', $query)->getTotalResults();
-            };
-            $byTemplate = function ($label) use ($tplId, $total) {
-                return isset($tplId[$label]) ? $total(['resource_template_id' => $tplId[$label]]) : 0;
-            };
-            $bySet = function ($label) use ($setId, $total) {
-                return isset($setId[$label]) ? $total(['item_set_id' => $setId[$label]]) : 0;
-            };
-            // "Publications" is the sum of the bibliographic templates.
-            $publications = 0;
-            foreach (['Article', 'Working paper', 'Conference paper', 'Book chapter',
-                      'Book', 'Doctoral thesis', 'Journal issue', 'Book review',
-                      'Online post'] as $pubLabel) {
-                $publications += $byTemplate($pubLabel);
-            }
-            $nums = [
-                'research_items' => $byTemplate('Research Items'),
-                'projects'       => $byTemplate('Projects'),
-                'publications'   => $publications,
-                'people'         => $byTemplate('Persons'),
-                'organisations'  => $byTemplate('Organisation'),
-                'locations'      => $byTemplate('Location'),
-                'subjects'       => $bySet('Subjects'),
-                'resource_types' => $bySet('Type of Resource'),
-            ];
-            if ($settings) {
-                $settings->set($cacheKey, json_encode(['t' => time(), 'nums' => $nums]));
             }
         } catch (\Throwable $e) {
-            $nums = null;
+            $stats = null;
+        }
+
+        // 2. Fallback — no module / un-regenerated precompute: the theme's own
+        //    API-computed counts (a smaller set, no subtitles), so a standalone
+        //    DRE theme still grounds the hero. 'k' selects the Lucide glyph below.
+        if (!is_array($stats)) {
+            try {
+                $api = $this->api();
+                // Resolve template + item-set labels to ids (fetched with limit > 0);
+                // the item counts below use limit=0 + getTotalResults() — count only.
+                $tplId = [];
+                foreach ($api->search('resource_templates', ['limit' => 1000])->getContent() as $t) {
+                    $tplId[$t->label()] = $t->id();
+                }
+                $setId = [];
+                foreach ($api->search('item_sets', ['limit' => 1000])->getContent() as $s) {
+                    $title = (string) $s->displayTitle();
+                    if ($title !== '') {
+                        $setId[$title] = $s->id();
+                    }
+                }
+                $total = function (array $query) use ($api, $siteId) {
+                    if ($siteId) {
+                        $query['site_id'] = $siteId;
+                    }
+                    $query['limit'] = 0;
+                    return (int) $api->search('items', $query)->getTotalResults();
+                };
+                $byTemplate = function ($label) use ($tplId, $total) {
+                    return isset($tplId[$label]) ? $total(['resource_template_id' => $tplId[$label]]) : 0;
+                };
+                $bySet = function ($label) use ($setId, $total) {
+                    return isset($setId[$label]) ? $total(['item_set_id' => $setId[$label]]) : 0;
+                };
+                // "Publications" is the sum of the bibliographic templates.
+                $publications = 0;
+                foreach (['Article', 'Working paper', 'Conference paper', 'Book chapter',
+                          'Book', 'Doctoral thesis', 'Journal issue', 'Book review',
+                          'Online post'] as $pubLabel) {
+                    $publications += $byTemplate($pubLabel);
+                }
+                $stats = [
+                    ['k' => 'researchItems', 'l' => $translate('Research items'),  'n' => $byTemplate('Research Items'), 's' => ''],
+                    ['k' => 'projects',      'l' => $translate('Projects'),        'n' => $byTemplate('Projects'),       's' => ''],
+                    ['k' => 'publications',  'l' => $translate('Publications'),     'n' => $publications,                 's' => ''],
+                    ['k' => 'people',        'l' => $translate('People'),          'n' => $byTemplate('Persons'),        's' => ''],
+                    ['k' => 'organisations', 'l' => $translate('Organisations'),   'n' => $byTemplate('Organisation'),   's' => ''],
+                    ['k' => 'locations',     'l' => $translate('Locations'),       'n' => $byTemplate('Location'),       's' => ''],
+                    ['k' => 'subjectsTags',  'l' => $translate('Subjects & tags'), 'n' => $bySet('Subjects'),            's' => ''],
+                    ['k' => 'resourceTypes', 'l' => $translate('Resource types'),  'n' => $bySet('Type of Resource'),    's' => ''],
+                ];
+            } catch (\Throwable $e) {
+                $stats = null;
+            }
+        }
+
+        if ($settings && is_array($stats)) {
+            $settings->set($cacheKey, json_encode(['t' => time(), 'stats' => $stats]));
         }
     }
-    if (is_array($nums)) {
-        // 'k' selects the Lucide glyph below — the same keys as the module's
-        // ResourceVisualizations STAT_ICONS, so the home band and the dashboards
-        // share one icon set (design-review F2).
-        $stats = [
-            ['n' => (int) ($nums['research_items'] ?? 0), 'l' => $translate('Research items'),  'k' => 'researchItems'],
-            ['n' => (int) ($nums['projects'] ?? 0),       'l' => $translate('Projects'),        'k' => 'projects'],
-            ['n' => (int) ($nums['publications'] ?? 0),   'l' => $translate('Publications'),     'k' => 'publications'],
-            ['n' => (int) ($nums['people'] ?? 0),         'l' => $translate('People'),           'k' => 'people'],
-            ['n' => (int) ($nums['organisations'] ?? 0),  'l' => $translate('Organisations'),    'k' => 'organisations'],
-            ['n' => (int) ($nums['locations'] ?? 0),      'l' => $translate('Locations'),        'k' => 'locations'],
-            ['n' => (int) ($nums['subjects'] ?? 0),       'l' => $translate('Subjects & tags'),  'k' => 'subjectsTags'],
-            ['n' => (int) ($nums['resource_types'] ?? 0), 'l' => $translate('Resource types'),   'k' => 'resourceTypes'],
-        ];
+    if (!is_array($stats)) {
+        $stats = [];
     }
 }
 ?>
@@ -207,21 +241,30 @@ if ($showStats) {
             'locations' => '<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
             'subjectsTags' => '<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>',
             'resourceTypes' => '<path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"/><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"/>',
+            'languages' => '<path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/>',
+            'podcasts' => '<path d="M16.85 18.58a9 9 0 1 0-9.7 0"/><path d="M8 14a5 5 0 1 1 8 0"/><circle cx="12" cy="11" r="1"/><path d="M13 17a1 1 0 1 0-2 0l.5 4.5a.5.5 0 0 0 1 0Z"/>',
+            'youtube' => '<path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><path d="m10 15 5-3-5-3z"/>',
         ];
+        // Generic fallback (lucide chart-column), mirroring the module's
+        // DEFAULT_ICON, so a new/unmapped stat key still renders a badge.
+        $statIconDefault = '<path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>';
     ?>
     <div class="site-banner__stats">
         <div class="container site-banner__stats-grid">
-            <?php foreach ($stats as $s): $icon = $statIcons[$s['k']] ?? ''; ?>
+            <?php foreach ($stats as $s):
+                $icon = (!empty($s['k']) && isset($statIcons[$s['k']])) ? $statIcons[$s['k']] : $statIconDefault;
+            ?>
                 <div class="site-banner__stat">
                     <div class="site-banner__stat-body">
                         <span class="site-banner__stat-label"><?php echo $escHtml($s['l']); ?></span>
                         <span class="site-banner__stat-num"><?php echo $escHtml(number_format((int) $s['n'])); ?></span>
+                        <?php if (!empty($s['s'])): ?>
+                            <span class="site-banner__stat-sub"><?php echo $escHtml($s['s']); ?></span>
+                        <?php endif; ?>
                     </div>
-                    <?php if ($icon): ?>
                     <span class="site-banner__stat-badge">
                         <svg class="site-banner__stat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><?php echo $icon; ?></svg>
                     </span>
-                    <?php endif; ?>
                 </div>
             <?php endforeach; ?>
         </div>
