@@ -248,13 +248,34 @@ if ($showStats) {
         // Generic fallback (lucide chart-column), mirroring the module's
         // DEFAULT_ICON, so a new/unmapped stat key still renders a badge.
         $statIconDefault = '<path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>';
+        // Each card links to its authority / overview page on this site
+        // (/s/<slug>/page/<page-slug>), built relative to the current site so it is
+        // correct on every host. Resource Types has no page, so it is omitted here
+        // and renders as a non-link card. Add a key to link a new stat card.
+        $statLinks = [
+            'researchItems' => 'research-items',
+            'projects'      => 'research-projects',
+            'people'        => 'people',
+            'organisations' => 'organisations',
+            'locations'     => 'locations',
+            'languages'     => 'languages',
+            'subjectsTags'  => 'subjects-tags',
+            'publications'  => 'publications',
+            'podcasts'      => 'podcasts',
+            'youtube'       => 'youtube-videos',
+        ];
+        $siteBase = $site ? rtrim((string) $site->url(), '/') : '';
     ?>
     <div class="site-banner__stats">
         <div class="container site-banner__stats-grid">
             <?php foreach ($stats as $s):
                 $icon = (!empty($s['k']) && isset($statIcons[$s['k']])) ? $statIcons[$s['k']] : $statIconDefault;
+                $slug = (!empty($s['k']) && !empty($statLinks[$s['k']])) ? $statLinks[$s['k']] : null;
+                $href = ($slug && $siteBase !== '') ? $siteBase . '/page/' . $slug : null;
+                // A linked card is an <a>; a card without a page (Resource Types) stays a <div>.
+                $tag  = $href ? 'a' : 'div';
             ?>
-                <div class="site-banner__stat">
+                <<?php echo $tag; ?> class="site-banner__stat"<?php echo $href ? ' href="' . $escAttr($href) . '"' : ''; ?>>
                     <div class="site-banner__stat-body">
                         <span class="site-banner__stat-label"><?php echo $escHtml($s['l']); ?></span>
                         <?php // The optional subtitle ("in 39 countries") sits INLINE after
@@ -267,7 +288,7 @@ if ($showStats) {
                     <span class="site-banner__stat-badge">
                         <svg class="site-banner__stat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><?php echo $icon; ?></svg>
                     </span>
-                </div>
+                </<?php echo $tag; ?>>
             <?php endforeach; ?>
         </div>
     </div>
