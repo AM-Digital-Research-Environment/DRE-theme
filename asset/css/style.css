@@ -5,7 +5,7 @@ Theme URI: https://github.com/AM-Digital-Research-Environment/DRE-theme
 Author: Frédérick Madore
 Author URI: https://www.frederickmadore.com/
 Description: Digital Research Environment theme for the Africa Multiple Cluster of Excellence (University of Bayreuth). Scholarly Modernism on an OKLCH design-token foundation, with light and dark modes.
-Version: 2.19.5
+Version: 2.19.7
 Omeka Version Constraint: ^4.2.0
 Requires PHP: 8.1
 License: GNU General Public License v3 or later
@@ -1758,6 +1758,7 @@ input.link-style {
 .icon-btn,
 button.icon-btn {
   padding: 0;
+  border: 0;
   background-color: transparent !important;
   color: var(--primary);
   font-size: 1.7rem;
@@ -2455,6 +2456,7 @@ body[data-theme=dark] .theme-toggle .theme-toggle__icon--moon {
   transition: 0.5s ease-in-out;
   background-color: transparent;
   padding: 0;
+  border: 0;
   border-radius: 0;
 }
 @media (min-width: 1200px) {
@@ -3246,6 +3248,8 @@ body.menu-drawer-toggled {
   display: inline-block;
   padding: 0 var(--space-1);
   position: relative;
+  border: 0;
+  background: none;
 }
 .annotation-btn .has-annotation {
   color: var(--ink-subtle);
@@ -5190,6 +5194,7 @@ body[data-theme=dark] .site-banner__art {
 }
 .browse-controls .layout-toggle button {
   background: none;
+  border: 0;
   padding: 0;
   color: var(--primary);
   text-decoration: underline;

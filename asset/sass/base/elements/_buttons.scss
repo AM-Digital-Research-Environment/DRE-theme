@@ -92,6 +92,7 @@ input.link-style {
 .icon-btn,
 button.icon-btn {
     padding: 0;
+    border: 0;                               // drop the native button bevel (see _navigation.scss toggle note)
     background-color: transparent !important;
     color: $color__buttons;
     font-size: 1.7rem;

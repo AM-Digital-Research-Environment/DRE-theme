@@ -1,6 +1,6 @@
 {
   "name": "dre-theme",
-  "version": "2.19.6",
+  "version": "2.19.7",
   "description": "Africa Multiple — Digital Research Environment. An Omeka S theme for the Africa Multiple Cluster of Excellence (University of Bayreuth), built on a modern OKLCH design-token system with light/dark modes.",
   "main": "gulpfile.js",
   "scripts": {

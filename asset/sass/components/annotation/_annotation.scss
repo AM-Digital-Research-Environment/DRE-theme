@@ -21,6 +21,11 @@
     display: inline-block;
     padding: 0 var(--space-1);
     position: relative;
+    // Inline icon trigger — no native button chrome. Since v2.13.0 scoped the
+    // primary-button mixin to `.button`, this bare <button> would otherwise show
+    // the UA-default bevel + button-face fill around the glyph (see toggle note).
+    border: 0;
+    background: none;
 
     // The trigger glyph (o-icon-annotation, painted by base/elements/_icons.scss):
     // a quiet indicator at rest that picks up the brand accent on interaction.

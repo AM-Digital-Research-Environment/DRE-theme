@@ -51,6 +51,13 @@
         transition: .5s ease-in-out;
         background-color: transparent;
         padding: 0;
+        // Reset the UA-default `2px outset` button border. Until v2.13.0 the
+        // primary-button mixin (which sets `border: 1px solid transparent`)
+        // applied to the bare `button` element and hid it for free; scoping the
+        // mixin to `.button` left this chrome <button> with the native bevel — a
+        // box around the hamburger/X that also shaved the bars to 31px and
+        // nudged them 2px inward. Neutralise it explicitly.
+        border: 0;
         border-radius: 0;
 
         @media (min-width: $xl) {
