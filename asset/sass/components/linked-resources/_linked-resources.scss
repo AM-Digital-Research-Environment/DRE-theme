@@ -47,10 +47,10 @@
 
     &__heading {
         margin: 0;
-        // Inherit the theme's global h3 scale (1.5rem, 1.875rem from ≥md, 700) so
-        // this disclosure sits at the same size as the Resource Visualizations
-        // module's section headings (which also inherit the global h3) and steps
-        // cleanly down from the page h1/h2 instead of looking undersized.
+        // Inherit the theme's global h2 scale (1.875rem, fluid to 2.75rem from ≥md,
+        // 800) so this disclosure sits at the same size as the Resource
+        // Visualizations module's block section headings (which also inherit the
+        // global h2) and reads as a sibling page section under the item <h1>.
         transition: color var(--transition-fast);
     }
 
