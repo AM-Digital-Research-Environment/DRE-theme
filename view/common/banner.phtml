@@ -257,10 +257,12 @@ if ($showStats) {
                 <div class="site-banner__stat">
                     <div class="site-banner__stat-body">
                         <span class="site-banner__stat-label"><?php echo $escHtml($s['l']); ?></span>
-                        <span class="site-banner__stat-num"><?php echo $escHtml(number_format((int) $s['n'])); ?></span>
-                        <?php if (!empty($s['s'])): ?>
-                            <span class="site-banner__stat-sub"><?php echo $escHtml($s['s']); ?></span>
-                        <?php endif; ?>
+                        <?php // The optional subtitle ("in 39 countries") sits INLINE after
+                              // the value, not on a row below it, so a card with a subtitle
+                              // stays the same height as the rest (grid would otherwise
+                              // stretch its whole row, leaving blank space). Hidden on the
+                              // dense phone tiles where it would wrap (see _banner.scss). ?>
+                        <span class="site-banner__stat-num"><?php echo $escHtml(number_format((int) $s['n'])); ?><?php if (!empty($s['s'])): ?> <span class="site-banner__stat-sub"><?php echo $escHtml($s['s']); ?></span><?php endif; ?></span>
                     </div>
                     <span class="site-banner__stat-badge">
                         <svg class="site-banner__stat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><?php echo $icon; ?></svg>

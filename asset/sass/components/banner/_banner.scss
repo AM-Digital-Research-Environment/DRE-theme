@@ -218,12 +218,21 @@
     font-variant-numeric: tabular-nums;
 }
 
-// Optional subtitle (e.g. "in 39 countries") — mirrors .rv-stat-sub.
+// Optional subtitle (e.g. "in 39 countries"), rendered INLINE after the value
+// (inside .site-banner__stat-num) rather than on a row of its own — so a card
+// that has a subtitle stays the same height as the rest and the grid doesn't
+// stretch its whole row. Hidden on the narrow phone tiles, where it would wrap
+// and bring the row-stretch back.
 .site-banner__stat-sub {
-    display: block;
-    margin-top: var(--space-1);
+    margin-left: var(--space-2);
     font-size: var(--text-xs);
+    font-weight: 500;
     color: var(--ink-subtle);
+    white-space: nowrap;
+
+    @media (max-width: #{$sm - 1px}) {
+        display: none;
+    }
 }
 
 .site-banner__stat-badge {
