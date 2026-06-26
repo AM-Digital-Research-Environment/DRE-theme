@@ -59,6 +59,10 @@
         // nudged them 2px inward. Neutralise it explicitly.
         border: 0;
         border-radius: 0;
+        // Bare `<button>` defaults to the arrow cursor; `cursor: pointer` only
+        // lives on the `.button`-scoped rule (since v2.13.0), which this chrome
+        // toggle doesn't carry — so it got no hand on hover. Set it explicitly.
+        cursor: pointer;
 
         @media (min-width: $xl) {
             .main-header:not([data-nav="drawer"]) & {
