@@ -6,6 +6,19 @@
     box-sizing: inherit;
 }
 
+// Chromium's `::details-content` — the anonymous box that wraps the content of
+// every <details> disclosure — is not matched by the universal rule above, so
+// it keeps its initial `content-box` and silently resets box-sizing for every
+// element inside any disclosure. That broke the Linked-resources cards: their
+// equal-height `height: 100%` resolved against the cell but then added padding
+// + border on top, overflowing the cell and forcing a phantom scrollbar that
+// cropped the last card. Restore the inherited border-box. Kept as its own rule
+// (not a member of the list above) so engines that don't yet recognise the
+// selector drop only this line, never the critical universal reset.
+::details-content {
+    box-sizing: inherit;
+}
+
 html {
     box-sizing: border-box;
 }
