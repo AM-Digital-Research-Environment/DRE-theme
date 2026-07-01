@@ -236,8 +236,16 @@ if ($userBar) {
 		<meta name="apple-mobile-web-app-status-bar-style" content="default">
 		<meta name="apple-mobile-web-app-title" content="<?php echo $this->escapeHtmlAttr($pwaShortName); ?>">
 		<link rel="apple-touch-icon" href="<?php echo $this->escapeHtmlAttr($this->assetUrl('img/pwa/apple-touch-icon.png')); ?>">
+		<?php // Tab favicon: a single-colour compass silhouette on a transparent
+		      // ground — NOT the green app tile. The navy mark is the default so it
+		      // reads on light browser chrome, bookmarks and history; dark chrome
+		      // gets the white mark via prefers-color-scheme so it never sinks into
+		      // a dark tab strip. The installed-app icons (manifest + apple-touch)
+		      // keep the green tile. ?>
 		<link rel="icon" type="image/png" sizes="32x32" href="<?php echo $this->escapeHtmlAttr($this->assetUrl('img/pwa/favicon-32.png')); ?>">
 		<link rel="icon" type="image/png" sizes="16x16" href="<?php echo $this->escapeHtmlAttr($this->assetUrl('img/pwa/favicon-16.png')); ?>">
+		<link rel="icon" type="image/png" sizes="32x32" media="(prefers-color-scheme: dark)" href="<?php echo $this->escapeHtmlAttr($this->assetUrl('img/pwa/favicon-dark-32.png')); ?>">
+		<link rel="icon" type="image/png" sizes="16x16" media="(prefers-color-scheme: dark)" href="<?php echo $this->escapeHtmlAttr($this->assetUrl('img/pwa/favicon-dark-16.png')); ?>">
 		<script type="application/json" id="dre-pwa-manifest"><?php echo $pwaManifestJson; ?></script>
 		<?php endif; ?>
 
