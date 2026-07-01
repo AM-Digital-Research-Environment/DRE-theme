@@ -7,6 +7,9 @@ $isHome = isset($isHome) ? (bool) $isHome : false;
 // the header lockup steps down to a plain home link to avoid two competing h1s.
 $titleTag = $isHome ? 'div' : 'h1';
 $hasSearchBar = $this->getHelperPluginManager()->has('dreSearchBar');
+// Installable-PWA install button (layout passes the resolved toggle). Rendered
+// hidden; pwa-install.js reveals it only when the browser can install.
+$pwaEnabled = isset($pwaEnabled) ? (bool) $pwaEnabled : false;
 ?>
 
 <header class="main-header">
@@ -54,6 +57,20 @@ $hasSearchBar = $this->getHelperPluginManager()->has('dreSearchBar');
 		</div>
 
 		<div class="main-header__utilities">
+				<?php if ($pwaEnabled): ?>
+				<?php // Install-app button — ships hidden ([hidden] wins because the
+				      // component scopes `display` to :not([hidden])). pwa-install.js
+				      // reveals it only when the browser fires beforeinstallprompt, or
+				      // on iOS Safari (where the click shows a Share-sheet hint). The
+				      // translated hint copy rides along in the data-* attributes. ?>
+				<button class="pwa-install" data-pwa-install type="button" hidden
+					aria-label="<?php echo $this->escapeHtmlAttr($translate('Install app')); ?>"
+					aria-expanded="false"
+					data-pwa-hint="<?php echo $this->escapeHtmlAttr($translate('To install this app, tap the Share button, then “Add to Home Screen”.')); ?>"
+					data-pwa-hint-dismiss="<?php echo $this->escapeHtmlAttr($translate('Dismiss')); ?>">
+					<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+				</button>
+				<?php endif; ?>
 			<?php // Both icons render; CSS reveals the active one based on body[data-theme],
 			      // which the head-script sets before first paint (no flash of wrong icon). ?>
 			<button class="theme-toggle" data-theme-toggle type="button"

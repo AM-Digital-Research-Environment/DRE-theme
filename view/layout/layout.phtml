@@ -31,6 +31,118 @@ try {
 // "Brand colour" in theme settings re-tints the entire palette automatically.
 $primaryColor = $this->themeSetting('primary_color') ?: '#009260';
 
+// ===== Installable PWA ====================================================
+// Build a per-site Web App Manifest in PHP and emit it as a JSON island in
+// <head>; pwa-install.js reads it, absolutises the URLs, and attaches it as a
+// same-origin blob: URL at runtime (a theme can't register an Omeka route to
+// serve a real .webmanifest, and per-site values rule out a static file). The
+// whole block is wrapped so a hiccup can only drop the PWA — never 500 the page
+// (this layout renders on every request). Opt out via the "Progressive Web App"
+// theme setting; default on.
+$pwaEnabled = (bool) $this->themeSetting('pwa_enable', true);
+$pwaShortName = '';
+$pwaManifestJson = '';
+if ($pwaEnabled) {
+    try {
+        $slug = $site->slug();
+        // Absolute site base with a trailing slash — used verbatim for id /
+        // start_url / scope (scope must be a prefix of start_url).
+        $siteBase = rtrim((string) $this->url('site', ['site-slug' => $slug], ['force_canonical' => true]), '/') . '/';
+
+        $pwaShortName = trim((string) $this->themeSetting('pwa_short_name', ''));
+        if ($pwaShortName === '') {
+            $pwaShortName = $site->title();
+        }
+
+        // Locale → lang/dir. All shipped locales are LTR; derive dir defensively.
+        $lang = $this->lang() ?: 'en';
+        $rtl = ['ar', 'arc', 'dv', 'fa', 'ha', 'he', 'khw', 'ks', 'ku', 'ps', 'sd', 'ug', 'ur', 'yi'];
+        $dir = in_array(strtolower(substr($lang, 0, 3)), $rtl, true)
+            || in_array(strtolower(substr($lang, 0, 2)), $rtl, true) ? 'rtl' : 'ltr';
+
+        $pwaIcon = function ($file, $sizes, $purpose) {
+            return [
+                'src' => $this->assetUrl('img/pwa/' . $file),
+                'sizes' => $sizes,
+                'type' => 'image/png',
+                'purpose' => $purpose,
+            ];
+        };
+
+        // Browse / Search launcher shortcuts (absolute). Nested try/catch so a
+        // routing hiccup drops only the shortcuts, not the whole manifest.
+        $pwaShortcuts = [];
+        try {
+            $shortcutIcon = [[
+                'src' => $this->assetUrl('img/pwa/icon-192.png'),
+                'sizes' => '192x192',
+                'type' => 'image/png',
+            ]];
+            $pwaShortcuts = [
+                [
+                    'name' => $this->translate('Browse the collection'),
+                    'short_name' => $this->translate('Browse'),
+                    'url' => $this->url('site/resource', ['site-slug' => $slug, 'controller' => 'item', 'action' => 'browse'], ['force_canonical' => true]),
+                    'icons' => $shortcutIcon,
+                ],
+                [
+                    'name' => $this->translate('Search'),
+                    'short_name' => $this->translate('Search'),
+                    'url' => $this->url('site/resource', ['site-slug' => $slug, 'controller' => 'item', 'action' => 'search'], ['force_canonical' => true]),
+                    'icons' => $shortcutIcon,
+                ],
+            ];
+        } catch (\Throwable $e) {
+            $pwaShortcuts = [];
+        }
+
+        $pwaManifest = [
+            'id' => $siteBase,
+            'name' => $site->title(),
+            'short_name' => $pwaShortName,
+            'start_url' => $siteBase,
+            'scope' => $siteBase,
+            'display' => 'standalone',
+            'display_override' => ['standalone', 'minimal-ui'],
+            // theme_color / background_color from the light surface tokens
+            // (--surface #fdfcf9 / --background #f8f6f1); the splash reads as the
+            // page ground with a near-white toolbar.
+            'theme_color' => '#fdfcf9',
+            'background_color' => '#f8f6f1',
+            'lang' => $lang,
+            'dir' => $dir,
+            'categories' => ['education', 'reference', 'books'],
+            'icons' => [
+                $pwaIcon('icon-192.png', '192x192', 'any'),
+                $pwaIcon('icon-512.png', '512x512', 'any'),
+                $pwaIcon('maskable-192.png', '192x192', 'maskable'),
+                $pwaIcon('maskable-512.png', '512x512', 'maskable'),
+                $pwaIcon('monochrome-512.png', '512x512', 'monochrome'),
+            ],
+        ];
+        $summary = method_exists($site, 'summary') ? trim((string) $site->summary()) : '';
+        if ($summary !== '') {
+            $pwaManifest['description'] = $summary;
+        }
+        if ($pwaShortcuts) {
+            $pwaManifest['shortcuts'] = $pwaShortcuts;
+        }
+
+        // JSON_HEX_TAG neutralises "<" (so a stray "</script>" can't break out of
+        // the island); slashes/unicode stay literal for a compact, readable blob.
+        $pwaManifestJson = json_encode($pwaManifest, JSON_HEX_TAG | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        // Keep all three gates (head island, header button, body script)
+        // consistent: if encoding somehow fails, disable the feature wholesale.
+        if ($pwaManifestJson === false) {
+            $pwaEnabled = false;
+            $pwaManifestJson = '';
+        }
+    } catch (\Throwable $e) {
+        $pwaEnabled = false;
+        $pwaManifestJson = '';
+    }
+}
+
 $this->headMeta()->setCharset('utf-8');
 $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1');
 $this->headTitle($siteTitle)->setSeparator(' · ');
@@ -110,6 +222,25 @@ if ($userBar) {
 		<?php echo $this->headStyle(); ?>
 		<?php echo $this->headScript(); ?>
 
+		<?php if ($pwaEnabled && $pwaManifestJson): ?>
+		<?php // ===== Installable PWA — theme-color (light/dark), Apple/mobile
+		      // web-app metas, favicon + apple-touch icons, and the manifest
+		      // island. There is deliberately NO <link rel="manifest"> here: the
+		      // manifest is minted as a same-origin blob: URL by pwa-install.js
+		      // (body end), because it must carry absolute per-site URLs and a
+		      // data: manifest's opaque origin would make Chrome reject it. ?>
+		<meta name="theme-color" content="#fdfcf9" media="(prefers-color-scheme: light)">
+		<meta name="theme-color" content="#0e1612" media="(prefers-color-scheme: dark)">
+		<meta name="mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="default">
+		<meta name="apple-mobile-web-app-title" content="<?php echo $this->escapeHtmlAttr($pwaShortName); ?>">
+		<link rel="apple-touch-icon" href="<?php echo $this->escapeHtmlAttr($this->assetUrl('img/pwa/apple-touch-icon.png')); ?>">
+		<link rel="icon" type="image/png" sizes="32x32" href="<?php echo $this->escapeHtmlAttr($this->assetUrl('img/pwa/favicon-32.png')); ?>">
+		<link rel="icon" type="image/png" sizes="16x16" href="<?php echo $this->escapeHtmlAttr($this->assetUrl('img/pwa/favicon-16.png')); ?>">
+		<script type="application/json" id="dre-pwa-manifest"><?php echo $pwaManifestJson; ?></script>
+		<?php endif; ?>
+
 		<style type="text/css" media="screen">
 			:root {
 				/* Single brand seed; SCSS derives every primary variant via color-mix(in oklab, …) */
@@ -143,7 +274,7 @@ if ($userBar) {
 		</script>
 		<a id="skipnav" href="#content"><?php echo $this->translate('Skip to main content'); ?></a>
 
-		<?php echo $this->partial('common/header', ['userBar' => $userBar, 'site' => $site, 'isHome' => $isHome]); ?>
+		<?php echo $this->partial('common/header', ['userBar' => $userBar, 'site' => $site, 'isHome' => $isHome, 'pwaEnabled' => $pwaEnabled]); ?>
 
 		<?php echo $this->partial('common/banner', ['site' => $site, 'isHome' => $isHome]); ?>
 
@@ -170,5 +301,11 @@ if ($userBar) {
 			->prependFile($this->assetUrl('js/script.js'))
 			->prependFile($this->assetUrl('js/utils.js'));
 		?>
+		<?php if ($pwaEnabled): ?>
+		<?php // pwa-install.js — vanilla, deferred; reads the manifest island,
+		      // attaches the blob: manifest, and reveals the header install button
+		      // only when the browser can actually install (or on iOS Safari). ?>
+		<script defer src="<?php echo $this->escapeHtmlAttr($this->assetUrl('js/pwa-install.js')); ?>"></script>
+		<?php endif; ?>
 	</body>
 </html>

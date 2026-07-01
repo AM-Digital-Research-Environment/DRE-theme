@@ -5,7 +5,7 @@ Theme URI: https://github.com/AM-Digital-Research-Environment/DRE-theme
 Author: Frédérick Madore
 Author URI: https://www.frederickmadore.com/
 Description: Digital Research Environment theme for the Africa Multiple Cluster of Excellence (University of Bayreuth). Scholarly Modernism on an OKLCH design-token foundation, with light and dark modes.
-Version: 2.19.9
+Version: 2.20.0
 Omeka Version Constraint: ^4.2.0
 Requires PHP: 8.1
 License: GNU General Public License v3 or later
@@ -2437,6 +2437,120 @@ body[data-theme=dark] .theme-toggle .theme-toggle__icon--moon {
   width: auto;
   top: 100%;
   transform: translateY(calc(var(--space-2) + var(--size-control-md, 2.5rem) + var(--space-2)));
+}
+
+/* PWA install button
+--------------------------------------------- */
+.pwa-install {
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--size-control-md);
+  height: var(--size-control-md);
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: transparent;
+  color: var(--ink-light);
+  cursor: pointer;
+  transition: color var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast);
+}
+.pwa-install:not([hidden]) {
+  display: inline-flex;
+}
+.pwa-install:hover:not(.disabled):not(:disabled) {
+  background-color: var(--surface-sunken);
+  border-color: var(--border-strong);
+  color: var(--primary-text);
+  box-shadow: none;
+  transform: none;
+}
+.pwa-install:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+.pwa-install svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.main-header__utilities {
+  position: relative;
+}
+
+.pwa-install__hint {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  right: 0;
+  z-index: var(--z-tooltip);
+  width: -moz-max-content;
+  width: max-content;
+  max-width: min(20rem, 78vw);
+  padding: var(--space-3) var(--space-4);
+  padding-right: var(--space-8);
+  background-color: var(--surface-raised);
+  color: var(--ink);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  font-size: 0.9375rem;
+  line-height: var(--line-height-normal);
+}
+.pwa-install__hint::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  right: var(--space-4);
+  border: 6px solid transparent;
+  border-bottom-color: var(--border);
+}
+.pwa-install__hint::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  right: calc(var(--space-4) + 1px);
+  border: 5px solid transparent;
+  border-bottom-color: var(--surface-raised);
+}
+.pwa-install__hint-text {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  margin: 0;
+}
+.pwa-install__hint-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  color: var(--primary-text);
+  margin-top: 0.1em;
+}
+.pwa-install__hint-close {
+  position: absolute;
+  top: var(--space-1);
+  right: var(--space-1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-control-sm);
+  height: var(--size-control-sm);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background-color: transparent;
+  color: var(--ink-light);
+  cursor: pointer;
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+.pwa-install__hint-close:hover:not(.disabled):not(:disabled) {
+  background-color: var(--surface-sunken);
+  color: var(--primary-text);
+  box-shadow: none;
+  transform: none;
+}
+.pwa-install__hint-close:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
 }
 
 /* Navigation
