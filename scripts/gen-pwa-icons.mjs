@@ -18,7 +18,8 @@
  *   maskable-192.png / maskable-512.png purpose "maskable" — full bleed, glyph in the 80% safe zone
  *   monochrome-512.png                 purpose "monochrome" — single-colour glyph on transparent
  *   apple-touch-icon.png (180)         opaque, square, no rounding (iOS masks it itself)
- *   favicon-32.png / favicon-16.png    full-colour compass on a white tile (browser tab)
+ *   favicon-16/32/48.png               browser tab — resized from favicon-source.png
+ *                                      (the real colour-compass artwork, NOT redrawn)
  *
  * Re-run after changing the palette or geometry below, then commit the PNGs.
  */
@@ -101,16 +102,6 @@ function compass({ fitRadius, ring, green, navy, hub }) {
     + `</g>`;
 }
 
-/**
- * The full-colour compass on a WHITE favicon tile. Brand pigments throughout,
- * with a green NE needle and a soft slate ring so nothing washes out on the
- * white ground — the mark stays recognisable and visible on any browser tab
- * strip (light or dark), which a one-colour transparent silhouette can't do
- * (it reads as a bare ⊕ on dark chrome).
- */
-const whiteTileCompass = (fitRadius) =>
-  compass({ fitRadius, ring: '#9aa4b2', green: C.green, navy: C.dunkelblau, hub: C.dunkelblau });
-
 /** Compose one icon's SVG. */
 function iconSvg({ size, glyph, tile = C.green, radius = 0, opaque = false }) {
   const bg = tile
@@ -150,13 +141,15 @@ function targets() {
     // `opaque` flattens away the alpha channel so older iOS never composites it
     // onto black.
     { file: 'apple-touch-icon.png', size: 180, opaque: true, svg: iconSvg({ size: 180, radius: 0, glyph: tileCompass(41) }) },
-    // Browser-tab favicons — the full-colour compass on a WHITE tile so the
-    // brand mark stays recognisable and visible on any tab strip (light or
-    // dark). The installed-app icons above keep the green tile.
-    { file: 'favicon-32.png', size: 32, svg: iconSvg({ size: 32, radius: 6, tile: '#ffffff', glyph: whiteTileCompass(39) }) },
-    { file: 'favicon-16.png', size: 16, svg: iconSvg({ size: 16, radius: 3, tile: '#ffffff', glyph: whiteTileCompass(39) }) },
+    // NB: the browser-tab favicons are NOT redrawn here. They are resized
+    // straight from the brand master `favicon-source.png` (the official colour
+    // compass on white) in main(), so the tab uses the real artwork.
   ];
 }
+
+// The browser-tab favicon sizes, downscaled from the shipped master artwork.
+const FAVICON_SRC = 'favicon-source.png';
+const FAVICON_SIZES = [16, 32, 48];
 
 async function main() {
   await mkdir(OUT_DIR, { recursive: true });
@@ -171,6 +164,21 @@ async function main() {
     await writeFile(out, buf);
     console.log(`  ${t.file.padEnd(22)} ${t.size}px  ${(buf.length / 1024).toFixed(1)} KiB`);
   }
+
+  // Browser-tab favicons — resized straight from the master artwork, NOT
+  // redrawn. `favicon-source.png` is the official Africa Multiple colour
+  // compass on white; downscale it to the standard tab sizes.
+  const srcPath = join(OUT_DIR, FAVICON_SRC);
+  for (const size of FAVICON_SIZES) {
+    const buf = await sharp(srcPath)
+      .resize(size, size, { fit: 'contain', kernel: 'lanczos3', background: '#ffffff' })
+      .png({ compressionLevel: 9 })
+      .toBuffer();
+    const file = `favicon-${size}.png`;
+    await writeFile(join(OUT_DIR, file), buf);
+    console.log(`  ${file.padEnd(22)} ${size}px  ${(buf.length / 1024).toFixed(1)} KiB  (from ${FAVICON_SRC})`);
+  }
+
   console.log('PWA icons written to asset/img/pwa/.');
 }
 

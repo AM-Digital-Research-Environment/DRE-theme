@@ -108,12 +108,17 @@ and rasterises it with **sharp**. It writes to `asset/img/pwa/`:
 | `maskable-192.png`, `maskable-512.png` | 192, 512 | `maskable` — full bleed, glyph in the 80% safe zone |
 | `monochrome-512.png` | 512 | `monochrome` — single-colour glyph on transparent |
 | `apple-touch-icon.png` | 180 | opaque, square, no rounding (iOS masks it) |
-| `favicon-32.png`, `favicon-16.png` | 32, 16 | full-colour compass on a white tile — the browser-tab mark (visible on light or dark chrome) |
+| `favicon-source.png` | 48 | master artwork — the official Africa Multiple colour compass on white; favicons are resized from this |
+| `favicon-48.png`, `favicon-32.png`, `favicon-16.png` | 48, 32, 16 | browser-tab mark, resized from `favicon-source.png` (real artwork, not redrawn) |
 
-The compass is redrawn (not cropped from the wordmark) because the wordmark’s
-mark is only ~130px tall and bleeds into the lettering — it can’t be separated or
-upscaled cleanly. Redrawing it also yields a clean single-colour silhouette for
-the `monochrome` purpose. Commit the regenerated PNGs.
+The **installed-app tile** compass (`icon-*`, `maskable-*`, `monochrome-*`,
+`apple-touch-icon`) is redrawn as vector art (not cropped from the wordmark)
+because the wordmark’s mark is only ~130px tall and bleeds into the lettering —
+it can’t be separated or upscaled cleanly. Redrawing it also yields a clean
+single-colour silhouette for the `monochrome` purpose. The **browser-tab
+favicons**, by contrast, are resized straight from `favicon-source.png` (the
+official colour compass on white) so the tab shows the real brand mark. Commit
+the regenerated PNGs.
 
 ## Testing installability
 

@@ -236,10 +236,11 @@ if ($userBar) {
 		<meta name="apple-mobile-web-app-status-bar-style" content="default">
 		<meta name="apple-mobile-web-app-title" content="<?php echo $this->escapeHtmlAttr($pwaShortName); ?>">
 		<link rel="apple-touch-icon" href="<?php echo $this->escapeHtmlAttr($this->assetUrl('img/pwa/apple-touch-icon.png')); ?>">
-		<?php // Browser-tab favicon: the full-colour compass on a white tile, so the
-		      // brand mark stays recognisable and visible on any tab strip (light or
-		      // dark). The installed-app icons (manifest + apple-touch) keep the
-		      // green tile. ?>
+		<?php // Browser-tab favicon: the official Africa Multiple colour compass on
+		      // white (asset/img/pwa/favicon-source.png, resized), so the tab uses the
+		      // real brand mark and stays visible on any tab strip. The installed-app
+		      // icons (manifest + apple-touch) keep the green tile. ?>
+		<link rel="icon" type="image/png" sizes="48x48" href="<?php echo $this->escapeHtmlAttr($this->assetUrl('img/pwa/favicon-48.png')); ?>">
 		<link rel="icon" type="image/png" sizes="32x32" href="<?php echo $this->escapeHtmlAttr($this->assetUrl('img/pwa/favicon-32.png')); ?>">
 		<link rel="icon" type="image/png" sizes="16x16" href="<?php echo $this->escapeHtmlAttr($this->assetUrl('img/pwa/favicon-16.png')); ?>">
 		<script type="application/json" id="dre-pwa-manifest"><?php echo $pwaManifestJson; ?></script>
