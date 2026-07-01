@@ -108,8 +108,7 @@ and rasterises it with **sharp**. It writes to `asset/img/pwa/`:
 | `maskable-192.png`, `maskable-512.png` | 192, 512 | `maskable` — full bleed, glyph in the 80% safe zone |
 | `monochrome-512.png` | 512 | `monochrome` — single-colour glyph on transparent |
 | `apple-touch-icon.png` | 180 | opaque, square, no rounding (iOS masks it) |
-| `favicon-32.png`, `favicon-16.png` | 32, 16 | navy compass silhouette, transparent — browser-tab default (light chrome / bookmarks) |
-| `favicon-dark-32.png`, `favicon-dark-16.png` | 32, 16 | white compass silhouette, transparent — served to dark chrome via `prefers-color-scheme` |
+| `favicon-32.png`, `favicon-16.png` | 32, 16 | full-colour compass on a white tile — the browser-tab mark (visible on light or dark chrome) |
 
 The compass is redrawn (not cropped from the wordmark) because the wordmark’s
 mark is only ~130px tall and bleeds into the lettering — it can’t be separated or

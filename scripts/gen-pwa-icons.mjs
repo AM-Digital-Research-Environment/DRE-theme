@@ -18,8 +18,7 @@
  *   maskable-192.png / maskable-512.png purpose "maskable" — full bleed, glyph in the 80% safe zone
  *   monochrome-512.png                 purpose "monochrome" — single-colour glyph on transparent
  *   apple-touch-icon.png (180)         opaque, square, no rounding (iOS masks it itself)
- *   favicon-32.png / favicon-16.png    navy compass silhouette, transparent (light chrome / default)
- *   favicon-dark-32.png / -16.png      white compass silhouette, transparent (dark browser chrome)
+ *   favicon-32.png / favicon-16.png    full-colour compass on a white tile (browser tab)
  *
  * Re-run after changing the palette or geometry below, then commit the PNGs.
  */
@@ -103,21 +102,14 @@ function compass({ fitRadius, ring, green, navy, hub }) {
 }
 
 /**
- * Simplified, heavier mark for the tab favicons. Thin strokes go sub-pixel and
- * turn to mush at 16px, so this drops to a bold ring + N–S/E–W needles with
- * ≥1px weights (1px ≈ 6.25 units in the 100-space). Painted in ONE colour
- * (`fill`) on a transparent ground so it reads as a clean compass silhouette on
- * any browser-chrome colour — white for dark tab strips, navy for light ones.
+ * The full-colour compass on a WHITE favicon tile. Brand pigments throughout,
+ * with a green NE needle and a soft slate ring so nothing washes out on the
+ * white ground — the mark stays recognisable and visible on any browser tab
+ * strip (light or dark), which a one-colour transparent silhouette can't do
+ * (it reads as a bare ⊕ on dark chrome).
  */
-function faviconGlyph(fill) {
-  const s = 48 / MAX_EXTENT;
-  return `<g transform="translate(${CX},${CY}) scale(${n(s)}) translate(${-CX},${-CY})">`
-    + `<circle cx="50" cy="50" r="33" fill="none" stroke="${fill}" stroke-width="6.5"/>`
-    + spindle(90, 44, 44, 5.0, fill)  // E–W bar
-    + spindle(0, 49, 46, 6.2, fill)   // N–S needle
-    + `<circle cx="50" cy="50" r="6.5" fill="${fill}"/>`
-    + `</g>`;
-}
+const whiteTileCompass = (fitRadius) =>
+  compass({ fitRadius, ring: '#9aa4b2', green: C.green, navy: C.dunkelblau, hub: C.dunkelblau });
 
 /** Compose one icon's SVG. */
 function iconSvg({ size, glyph, tile = C.green, radius = 0, opaque = false }) {
@@ -158,14 +150,11 @@ function targets() {
     // `opaque` flattens away the alpha channel so older iOS never composites it
     // onto black.
     { file: 'apple-touch-icon.png', size: 180, opaque: true, svg: iconSvg({ size: 180, radius: 0, glyph: tileCompass(41) }) },
-    // Tab favicons — single-colour compass silhouette on a TRANSPARENT ground
-    // (no tile). Two themed pairs: navy is the default (reads on light browser
-    // chrome / bookmarks / history), white is served to dark chrome via a
-    // media query in <head>. The installed-app icons above keep the green tile.
-    { file: 'favicon-32.png',      size: 32, svg: iconSvg({ size: 32, tile: null, glyph: faviconGlyph(C.dunkelblau) }) },
-    { file: 'favicon-16.png',      size: 16, svg: iconSvg({ size: 16, tile: null, glyph: faviconGlyph(C.dunkelblau) }) },
-    { file: 'favicon-dark-32.png', size: 32, svg: iconSvg({ size: 32, tile: null, glyph: faviconGlyph('#ffffff') }) },
-    { file: 'favicon-dark-16.png', size: 16, svg: iconSvg({ size: 16, tile: null, glyph: faviconGlyph('#ffffff') }) },
+    // Browser-tab favicons — the full-colour compass on a WHITE tile so the
+    // brand mark stays recognisable and visible on any tab strip (light or
+    // dark). The installed-app icons above keep the green tile.
+    { file: 'favicon-32.png', size: 32, svg: iconSvg({ size: 32, radius: 6, tile: '#ffffff', glyph: whiteTileCompass(39) }) },
+    { file: 'favicon-16.png', size: 16, svg: iconSvg({ size: 16, radius: 3, tile: '#ffffff', glyph: whiteTileCompass(39) }) },
   ];
 }
 
