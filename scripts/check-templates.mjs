@@ -134,6 +134,41 @@ for (const file of walk(VIEW)) {
         if (o !== c) add(rel, null, `unbalanced ${label}s: ${o} "${openCh}" vs ${c} "${closeCh}"`);
     }
 
+    // 2b. A stray closing script tag inside a <script> body.
+    //
+    // The HTML parser does not understand JavaScript comments or strings. Per
+    // the spec's "script data end tag name state" it ends the element at
+    // `</script` when the next character is whitespace, "/" or ">" — so a JS
+    // comment that merely spells the tag out terminates the block early,
+    // dumping the rest of the script onto the page as visible text and leaving
+    // its declarations undefined. That shipped in v2.21.0, in a comment
+    // explaining this very hazard.
+    //
+    // This check is deliberately STRICTER than the spec: it flags any
+    // `</script` in a script body, including spec-safe forms like `</script"`.
+    // "Never write the sequence at all" is a rule you can remember; the
+    // next-character subtlety is not, and minifiers and other parsers vary.
+    //
+    // PHP regions are excluded first — a `</script` inside a PHP comment is
+    // never emitted (view/layout/layout.phtml has two, legitimately).
+    {
+        let html = '';
+        let cursor = 0;
+        while (cursor < src.length) {
+            const open = src.indexOf('<?php', cursor);
+            if (open === -1) { html += src.slice(cursor); break; }
+            html += src.slice(cursor, open);
+            const close = src.indexOf('?>', open);
+            if (close === -1) break;
+            cursor = close + 2;
+        }
+        const opens = (html.match(/<script\b/gi) || []).length;
+        const closes = (html.match(/<\/script\b/gi) || []).length;
+        if (closes > opens) {
+            add(rel, null, `${closes} "</script" vs ${opens} "<script" — a stray closing tag (often inside a JS comment or string) ends the block early; write it as "<\\/script>"`);
+        }
+    }
+
     // 3b. Theme-helper call sites must match the theme.ini casing EXACTLY.
     //
     // Laminas ServiceManager v3 does not canonicalise service names, so a helper
