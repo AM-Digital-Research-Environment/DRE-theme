@@ -202,9 +202,20 @@
                 color: $color__white;
             }
 
+            // The label is the visible control, so it — not the checkbox nested
+            // inside it — carries the focus ring. The colour swap above alone
+            // would signal focus by colour only; the outline makes it a real
+            // indicator for keyboard users.
+            &:focus-within {
+                outline: 2px solid var(--focus-color);
+                outline-offset: 2px;
+            }
+
             input[type="checkbox"] {
                 margin: 0 !important;
 
+                // Suppressed deliberately: the ring lives on the wrapping label
+                // (above), so an inner ring would double up inside the chip.
                 &:focus {
                     outline: none;
                 }

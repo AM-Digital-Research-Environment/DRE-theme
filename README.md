@@ -1,6 +1,6 @@
 # Africa Multiple — DRE · Omeka S theme
 
-[![release v2.20.0](https://img.shields.io/badge/release-v2.20.0-009260?logo=git&logoColor=white)](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases/latest)
+[![latest release](https://img.shields.io/github/v/release/AM-Digital-Research-Environment/DRE-theme?label=release&color=009260&logo=git&logoColor=white)](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases/latest)
 [![Omeka S v4.2.0+](https://img.shields.io/badge/Omeka%20S-v4.2.0+-8a1f1f)](https://omeka.org/s/)
 [![PHP v8.1+](https://img.shields.io/badge/PHP-v8.1+-605F8E?logo=php&logoColor=white)](https://www.php.net/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-009260.svg)](LICENSE)
@@ -28,11 +28,34 @@ For Sass development you’ll need [Node.js](https://nodejs.org/) (≥ 20). From
 
 ```bash
 npm install
-npm run build     # compile asset/sass → asset/css/style.css (compressed, autoprefixed)
+npm run build     # lint, then compile asset/sass → asset/css/style.css (compressed, autoprefixed)
 npm run watch     # recompile on change
 ```
 
 Build toolchain: gulp 5, Dart Sass 1.x, gulp-postcss, autoprefixer.
+
+### Checks
+
+`npm run build` runs `npm run lint` first, so a contract violation fails the build rather than shipping. Each check encodes a bug that actually reached a release:
+
+| Script | Checks |
+| --- | --- |
+| `npm run lint:tokens` | Raw hex outside the palette, accent side-stripes, gradient text, px font sizes |
+| `npm run lint:ini` | `theme.ini` structure, `.info` vs `.options.info`, dead `Zend\…` types, settings declared but never read, helper registration |
+| `npm run lint:templates` | `<?php`/`?>` and bracket balance, unresolved `partial()` paths, helper call sites whose casing doesn't match `theme.ini` |
+| `npm run i18n:check` | `language/template.pot` is up to date (regenerate with `npm run i18n:extract`) |
+
+The template and INI checks exist because this theme is developed without a local PHP binary, so `php -l` isn't available — they are a structural net, not a PHP parser.
+
+### Translations
+
+Theme strings are extracted to [`language/template.pot`](language/template.pot):
+
+```bash
+npm run i18n:extract
+```
+
+To add a locale, copy it to `<locale>.po`, translate the `msgstr` values, compile to `<locale>.mo`, and drop both in `language/`.
 
 ## Theme settings
 
@@ -40,10 +63,10 @@ Build toolchain: gulp 5, Dart Sass 1.x, gulp-postcss, autoprefixer.
 - **Contact info** — location, phone, email; show in top header and/or footer.
 - **Header** — top-navigation depth; optional custom *Logo* (overrides the bundled Africa Multiple lockup).
 - **Banner** — copy for the abstract earth-tone wash masthead: eyebrow, title (defaults to the site title), tagline, optional call-to-action button, and a toggle to show the slim banner on interior pages.
-- **Footer** — a single forest band: a brand-identity masthead (title + description, overridable via *Footer site description*) with social links on the left and the fixed institutional marks (University of Bayreuth + Africa Multiple Cluster) on the right, over a quiet legal row (copyright + a discreet designer credit).
+- **Footer** — a single forest band: a brand-identity masthead (title + description, overridable via *Footer site description*) with social links on the left and the fixed institutional marks (University of Bayreuth + Africa Multiple Cluster) on the right, over a quiet legal row (copyright + a discreet designer credit). The footer logo / menu / content fields inherited from the Lively fork were removed in v2.21.0 — no template read them.
 - **Social media** — Facebook, X/Twitter, LinkedIn, Instagram, YouTube, Mastodon. The Cluster's Facebook, Instagram and YouTube show by default; any setting entered here overrides its default.
 - **Footer bottom** — copyright, terms and privacy links.
-- **Media** — decorative borders; media caption in the viewer.
+- **Media** — decorative borders. (*Media caption in viewer* was removed in v2.21.0: nothing read it, and Mirador supplies its own caption chrome.)
 - **Resource tags** — show tags by resource type and/or class.
 - **Browse** — layout (grid / list / toggle) and body-property truncation.
 - **Progressive Web App** — enable/disable the installable app (default on) and an optional short *installed app name* (the label under the home-screen icon).

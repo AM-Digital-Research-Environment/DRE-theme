@@ -57,32 +57,34 @@ $valueLang = $filterLocale ? [$lang, ''] : null;
         <div class="<?php echo $resourceName; ?> results">
             <h2><?php echo $translate($resourceLabels[$resourceName]); ?></h2>
             <ul class="resources resource-list">
-                <?php foreach ($result['resources'] as $resource):
-                    $primaryMedia = $resource->primaryMedia();
-                    ?>
-                    <li class="item resource">
-                        <!-- Thumbnail -->
-                        <?php if ($primaryMedia): ?>
-                            <div class="resource__thumbnail">
-                                <?php $altText = $primaryMedia->altText() ?: $primaryMedia->displayTitle() ?: ''; ?>
-                                <?php echo $resource->linkRaw($this->thumbnail($primaryMedia, 'large', ['alt' => $altText])); ?>
+                <?php foreach ($result['resources'] as $resource): ?>
+                    <?php if ('site_pages' === $resourceName): ?>
+                        <?php // Site pages are not resource representations — no
+                              // thumbnail, tags or resource class — so they keep
+                              // their own minimal row rather than the shared card. ?>
+                        <li class="site-page resource">
+                            <div class="resource__content">
+                                <div class="resource__meta">
+                                    <?php echo $resource->link($resource->title()); ?>
+                                </div>
                             </div>
-                        <?php endif; ?>
-
-                        <!-- Content -->
-                        <div class="resource__content">
-                            <!-- Metadata -->
-                            <div class="resource__meta">
-                                <?php
-                                if ($resourceName === 'site_pages') {
-                                    echo $resource->link($resource->title());
-                                } else {
-                                    echo $resource->link($resource->displayTitle(null, $valueLang)); 
-                                }
-                                ?>
-                            </div>
-                        </div>
-                    </li>
+                        </li>
+                    <?php else:
+                        $primaryMedia = $resource->primaryMedia();
+                        $thumbnail = '';
+                        if ($primaryMedia) {
+                            $altText = $primaryMedia->altText() ?: $primaryMedia->displayTitle() ?: '';
+                            $thumbnail = $this->thumbnail($primaryMedia, 'large', ['alt' => $altText]);
+                        }
+                        echo $this->partial('common/resource-card', [
+                            'resource' => $resource,
+                            'heading' => $resource->displayTitle(null, $valueLang),
+                            'thumbnail' => $thumbnail,
+                            'tag' => 'li',
+                            // Search results are a compact title list — no tag chips.
+                            'showTags' => false,
+                        ]);
+                    endif; ?>
                 <?php endforeach; ?>
             </ul>
                 <?php echo $hyperlink(

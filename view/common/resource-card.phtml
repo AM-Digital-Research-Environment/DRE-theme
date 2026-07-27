@@ -1,0 +1,81 @@
+<?php
+/**
+ * One resource card — the single source of truth for browse-surface cards.
+ *
+ * This markup was previously duplicated across seven templates (item,
+ * item-set and media browse; the browse-preview block; site search; faceted
+ * browse; and the hierarchy page) and had already started to drift between
+ * copies. asset/js/browse.js toggles `.resource__meta` / `.resource__thumbnail`
+ * on these nodes, so those class names are a contract — keep them in step.
+ *
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+ * @var mixed       $heading          Link text. Defaults to the display title.
+ * @var string|null $body             Card description; omitted when empty.
+ * @var string      $bodyTruncate     '' | 'full' | 'fadeout' | 'ellipsis'
+ * @var string      $thumbnail        Pre-rendered thumbnail HTML; '' for none.
+ * @var bool        $isGrid           Grid (masonry) vs list presentation.
+ * @var string      $tag              Wrapper element: 'div' (default) or 'li'.
+ * @var string|null $typeClass        'item' | 'item-set' | 'media'; derived if null.
+ * @var string      $decorationClass  Extra classes for the thumbnail wrapper.
+ * @var bool        $showTags         Render the ResourceTags chip row.
+ * @var bool        $showHeading      Render the title link (browse-preview can hide it).
+ * @var int|null    $reveal           Stagger delay in ms for the entry animation.
+ */
+
+$escape = $this->plugin('escapeHtml');
+$escapeAttr = $this->plugin('escapeHtmlAttr');
+
+$isGrid = isset($isGrid) ? (bool) $isGrid : true;
+$tag = (isset($tag) && 'li' === $tag) ? 'li' : 'div';
+$thumbnail = isset($thumbnail) ? (string) $thumbnail : '';
+$body = $body ?? null;
+$bodyTruncate = (string) ($bodyTruncate ?? '');
+$decorationClass = trim((string) ($decorationClass ?? ''));
+$showTags = isset($showTags) ? (bool) $showTags : true;
+$showHeading = isset($showHeading) ? (bool) $showHeading : true;
+$reveal = $reveal ?? null;
+$heading = $heading ?? $resource->displayTitle();
+
+// Derive the type class from the resource itself. media/browse.phtml used to
+// hardcode "item-set" here (a copy-paste from the item-set template), so every
+// media card carried the wrong type class.
+if (!isset($typeClass) || null === $typeClass) {
+    $typeClass = [
+        'items' => 'item',
+        'item_sets' => 'item-set',
+        'media' => 'media',
+    ][$resource->resourceName()] ?? 'resource';
+}
+
+$classes = array_filter([
+    $typeClass,
+    'resource',
+    $isGrid ? '' : 'media-object',
+]);
+?>
+<<?php echo $tag; ?> class="<?php echo $escapeAttr(implode(' ', $classes)); ?>"<?php
+    echo (null !== $reveal) ? ' data-rv-reveal="' . (int) $reveal . '"' : ''; ?>>
+
+    <?php if ('' !== $thumbnail): ?>
+        <div class="resource__thumbnail<?php echo $decorationClass ? ' ' . $escapeAttr($decorationClass) : ''; ?>">
+            <?php echo $resource->linkRaw($thumbnail); ?>
+        </div>
+    <?php endif; ?>
+
+    <div class="resource__content">
+        <?php if ($showTags): ?>
+            <?php echo $this->ResourceTags($resource); ?>
+        <?php endif; ?>
+
+        <div class="resource__meta<?php echo $isGrid ? '' : ' media-object-section'; ?>">
+            <?php if ($showHeading): ?>
+                <?php echo $resource->link($heading); ?>
+            <?php endif; ?>
+            <?php if ($body): ?>
+                <div class="description<?php echo $bodyTruncate ? ' ' . $escapeAttr($bodyTruncate) : ''; ?>"><?php
+                    echo $escape($body); ?></div>
+            <?php endif; ?>
+        </div>
+    </div>
+</<?php echo $tag; ?>>

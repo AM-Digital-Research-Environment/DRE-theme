@@ -29,42 +29,45 @@ $escapeHtml = $this->plugin('escapeHtml');
 $escapeAttr = $this->plugin('escapeHtmlAttr');
 
 // One framing sentence per section (keyed by the parent page slug).
+// The `// @translate` markers let scripts/extract-translations.mjs pick these up
+// for language/template.pot; they are passed through $translate() at the point
+// of use below, so a translated site gets translated panel copy.
 $introMap = [
-    'research'       => "Projects, sections and the primary materials they produce.",
-    'index'          => "The named entities that link every record together.",
-    'public-outreach'=> "Public-facing media from the Cluster.",
-    'visualisations' => "Read the metadata at a glance.",
-    'collections'    => "Explore the Cluster's featured collections through timelines, image galleries and maps.",
+    'research'       => "Projects, sections and the primary materials they produce.", // @translate
+    'index'          => "The named entities that link every record together.", // @translate
+    'public-outreach'=> "Public-facing media from the Cluster.", // @translate
+    'visualisations' => "Read the metadata at a glance.", // @translate
+    'collections'    => "Explore the Cluster's featured collections through timelines, image galleries and maps.", // @translate
 ];
 
 // One short description per child (keyed by the child page slug).
 $descMap = [
     // Research
-    'research-sections' => "The Cluster's thematic areas",
-    'research-projects' => "Projects across the AMRCs",
-    'research-items'    => "Sources, media & datasets",
+    'research-sections' => "The Cluster's thematic areas", // @translate
+    'research-projects' => "Projects across the AMRCs", // @translate
+    'research-items'    => "Sources, media & datasets", // @translate
     // Index
-    'people'        => "Authors & named persons",
-    'organisations' => "Institutions & bodies",
-    'genres'        => "Document & media types",
-    'languages'     => "Languages represented",
-    'locations'     => "Places & georeferences",
-    'subjects-tags' => "Topics & keywords",
+    'people'        => "Authors & named persons", // @translate
+    'organisations' => "Institutions & bodies", // @translate
+    'genres'        => "Document & media types", // @translate
+    'languages'     => "Languages represented", // @translate
+    'locations'     => "Places & georeferences", // @translate
+    'subjects-tags' => "Topics & keywords", // @translate
     // Outreach
-    'podcasts'       => "Audio series",
-    'youtube-videos' => "Talks & recordings",
+    'podcasts'       => "Audio series", // @translate
+    'youtube-videos' => "Talks & recordings", // @translate
     // Visualisations
-    'project-explorer'           => "Browse projects interactively",
-    'compare'                    => "Projects side by side",
-    'spatial-exploration'        => "Places mapped & georeferenced",
-    'publications-visualisations'=> "Publication trends & networks",
-    'podcasts-visualisations'    => "Episode trends & transcripts",
-    'networks'                   => "Knowledge-graph links",
+    'project-explorer'           => "Browse projects interactively", // @translate
+    'compare'                    => "Projects side by side", // @translate
+    'spatial-exploration'        => "Places mapped & georeferenced", // @translate
+    'publications-visualisations'=> "Publication trends & networks", // @translate
+    'podcasts-visualisations'    => "Episode trends & transcripts", // @translate
+    'networks'                   => "Knowledge-graph links", // @translate
     // Collections
-    'international-library-of-african-music-ilam' => "Africa's foremost music archive",
-    'memorias-perifericas-capoeira-angola-salvador' => "Peripheral memories of Capoeira Angola in Salvador",
-    'orixas-fundacao-gregorio-de-mattos' => "Orishas — Gregório de Mattos Foundation",
-    'trabalhadores-na-da-bahia'  => "Workers in/from Bahia",
+    'international-library-of-african-music-ilam' => "Africa's foremost music archive", // @translate
+    'memorias-perifericas-capoeira-angola-salvador' => "Peripheral memories of Capoeira Angola in Salvador", // @translate
+    'orixas-fundacao-gregorio-de-mattos' => "Orishas — Gregório de Mattos Foundation", // @translate
+    'trabalhadores-na-da-bahia'  => "Workers in/from Bahia", // @translate
 ];
 
 // The last path segment of a page link's href is its slug
@@ -76,6 +79,12 @@ $slugOf = function ($page) {
 
 $container = $site->publicNav()->getContainer();
 $topPages = $container->getPages();
+
+// "Top Navigation Depth" theme setting, passed in by common/header.phtml.
+// 0 (or absent) means "all levels"; this renderer walks two levels, so a depth
+// of 1 renders top-level links only and suppresses the mega-panels.
+$navDepth = isset($navDepth) ? max(0, (int) $navDepth) : 0;
+$showChildren = (0 === $navDepth || $navDepth >= 2);
 
 // "View all" arrow + the parent caret share the theme's Lucide line style.
 $arrowSvg = '<svg class="nav-panel__viewall-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>';
@@ -90,12 +99,14 @@ $arrowSvg = '<svg class="nav-panel__viewall-arrow" width="15" height="15" viewBo
         $isActive  = $page->isActive(true);
         $label     = (string) $page->getLabel();
         $href      = (string) $page->getHref();
-        $intro     = $hasPages ? ($introMap[$slugOf($page)] ?? null) : null;
+        $introRaw  = $hasPages ? ($introMap[$slugOf($page)] ?? null) : null;
+        $intro     = $introRaw ? $translate($introRaw) : null;
 
         // Visible children only; the panel is a 3-column grid on desktop, so the
-        // rail spans one grid row per (up to) three children.
+        // rail spans one grid row per (up to) three children. Suppressed entirely
+        // when the depth setting limits the menu to one level.
         $children = [];
-        if ($hasPages) {
+        if ($hasPages && $showChildren) {
             foreach ($page->getPages() as $child) {
                 if ($child->isVisible()) {
                     $children[] = $child;
@@ -104,7 +115,11 @@ $arrowSvg = '<svg class="nav-panel__viewall-arrow" width="15" height="15" viewBo
         }
         $railRows = max(1, (int) ceil(count($children) / 3));
         ?>
-        <li class="nav-item<?php echo $hasPages ? ' menu-item-has-children' : ''; ?><?php echo $isActive ? ' active' : ''; ?>">
+        <?php // Keyed off $children, not $hasPages: when the depth setting
+              // suppresses the panel there is no submenu, so the class must not
+              // be set — navigation.js injects its caret <button> on the strength
+              // of it, and the CSS opens a panel that would not exist. ?>
+        <li class="nav-item<?php echo $children ? ' menu-item-has-children' : ''; ?><?php echo $isActive ? ' active' : ''; ?>">
             <a class="nav-item__link" href="<?php echo $escapeAttr($href); ?>"><?php echo $escapeHtml($label); ?></a>
 
             <?php if ($children): ?>
@@ -119,7 +134,10 @@ $arrowSvg = '<svg class="nav-panel__viewall-arrow" width="15" height="15" viewBo
                     </a>
                 </li>
                 <?php foreach ($children as $child): ?>
-                    <?php $desc = $descMap[$slugOf($child)] ?? null; ?>
+                    <?php
+                    $descRaw = $descMap[$slugOf($child)] ?? null;
+                    $desc = $descRaw ? $translate($descRaw) : null;
+                    ?>
                     <li class="nav-panel__cell<?php echo $child->isActive(true) ? ' active' : ''; ?>">
                         <a href="<?php echo $escapeAttr((string) $child->getHref()); ?>">
                             <span class="nav-panel__cell-title"><?php echo $escapeHtml((string) $child->getLabel()); ?></span>

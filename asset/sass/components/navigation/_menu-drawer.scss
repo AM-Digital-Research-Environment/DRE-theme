@@ -64,14 +64,25 @@
         text-transform: uppercase;
         text-align: left;
 
-        a {
+        // #menu-backer is a <button> (it closes / steps back, it never navigates).
+        // As an <a> it needed `color: inherit !important` to beat base/_links.scss;
+        // a button never hits those rules, so the !important is gone. The bare
+        // resets below drop the native chrome — there is no global bare-button
+        // reset in this theme (see the note atop _buttons.scss).
+        button {
             position: relative;
             display: flex;
             align-items: center;
+            width: 100%;
             padding: 0.95rem 1rem 0.95rem 2.6rem;
-            // Force navigation anchors to inherit color
-            color: inherit !important;
-            text-decoration: none;
+            border: 0;
+            background: none;
+            font: inherit;
+            letter-spacing: inherit;
+            text-transform: inherit;
+            text-align: inherit;
+            color: inherit;
+            cursor: pointer;
 
             &::before {
                 @include svg-icon($icon-chevron-left, 1.05rem, currentColor);

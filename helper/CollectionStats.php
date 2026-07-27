@@ -1,0 +1,220 @@
+<?php
+namespace OmekaTheme\Helper;
+
+use Laminas\View\Helper\AbstractHelper;
+
+/**
+ * Collection-overview statistics for the home hero's stat band.
+ *
+ * This logic used to sit inline in view/common/banner.phtml — roughly 140 lines
+ * of caching, cross-module filesystem reads and API fall-back inside a view
+ * template. It is data access, not presentation, so it lives here; the template
+ * now just renders whatever array this returns.
+ *
+ * Resolution order:
+ *   1. Cache — Omeka's DB-backed settings, not a per-container temp file. The
+ *      org runs several containerised Omeka instances, so a filesystem cache in
+ *      sys_get_temp_dir() meant each node recomputed and they could disagree,
+ *      and an ephemeral tmpfs dropped it on every deploy. The key carries a
+ *      schema version so a change to the metric set ignores a stale shape.
+ *   2. The ResourceVisualizations "Collection Overview" precompute, so the home
+ *      band and that block never disagree (the block drops its own stat cards
+ *      on the home layout — this is the one place they appear).
+ *   3. The theme's own API-computed counts, so a standalone DRE theme with no
+ *      visualizations module still grounds the hero.
+ *
+ * Every stage is wrapped in catch(\Throwable): this renders on the home page of
+ * every site, and no stat band is always better than a 500. A failure returns
+ * an empty array and the hero renders without the band.
+ *
+ * Returns a list of ['k' => key, 'l' => label, 'n' => value, 's' => subtitle].
+ */
+class CollectionStats extends AbstractHelper
+{
+    /** Cache lifetime in seconds. */
+    private const TTL = 3600;
+
+    /** Bump when the shape or metric set changes, to invalidate old caches. */
+    private const CACHE_VERSION = 'v4';
+
+    /** Path of the visualizations module's precompute, relative to OMEKA_PATH. */
+    private const PRECOMPUTE = '/modules/DreVisualizations/asset/data/item-dashboards/collection-overview.json';
+
+    /** Templates summed into the "Publications" figure in the API fallback. */
+    private const PUBLICATION_TEMPLATES = [
+        'Article', 'Working paper', 'Conference paper', 'Book chapter',
+        'Book', 'Doctoral thesis', 'Journal issue', 'Book review', 'Online post',
+    ];
+
+    public function __invoke(?int $siteId = null): array
+    {
+        $cacheKey = sprintf('dre_stats_%s_%s', self::CACHE_VERSION, $siteId ?: 'x');
+
+        $cached = $this->readCache($cacheKey);
+        if (null !== $cached) {
+            return $cached;
+        }
+
+        $stats = $this->fromPrecompute();
+        if (null === $stats) {
+            $stats = $this->fromApi($siteId);
+        }
+        if (null === $stats) {
+            return [];
+        }
+
+        $this->writeCache($cacheKey, $stats);
+
+        return $stats;
+    }
+
+    // ------------------------------------------------------------------ cache
+
+    private function settings()
+    {
+        try {
+            return $this->getView()->getHelperPluginManager()->getServiceLocator()->get('Omeka\Settings');
+        } catch (\Throwable $e) {
+            // An unavailable service, a deprecation-as-exception dev config, even
+            // an undefined-method Error — none of it may take the home page down.
+            return null;
+        }
+    }
+
+    private function readCache(string $key): ?array
+    {
+        $settings = $this->settings();
+        if (!$settings) {
+            return null;
+        }
+        try {
+            $cached = json_decode((string) $settings->get($key, ''), true);
+            if (is_array($cached)
+                && isset($cached['t'], $cached['stats'])
+                && is_array($cached['stats'])
+                && (time() - (int) $cached['t']) < self::TTL
+            ) {
+                return $cached['stats'];
+            }
+        } catch (\Throwable $e) {
+            return null;
+        }
+        return null;
+    }
+
+    private function writeCache(string $key, array $stats): void
+    {
+        $settings = $this->settings();
+        if (!$settings) {
+            return;
+        }
+        try {
+            $settings->set($key, json_encode(['t' => time(), 'stats' => $stats]));
+        } catch (\Throwable $e) {
+            // A cache write failure is not worth a page error; recompute next time.
+        }
+    }
+
+    // ------------------------------------------------------- source 1: module
+
+    /**
+     * Read the visualizations module's precompute. Returns null when the module,
+     * the file or a usable `stats` array is absent.
+     */
+    private function fromPrecompute(): ?array
+    {
+        try {
+            if (!defined('OMEKA_PATH')) {
+                return null;
+            }
+            $path = OMEKA_PATH . self::PRECOMPUTE;
+            if (!is_readable($path)) {
+                return null;
+            }
+            $data = json_decode((string) file_get_contents($path), true);
+            if (!is_array($data) || empty($data['stats']) || !is_array($data['stats'])) {
+                return null;
+            }
+
+            $built = [];
+            foreach ($data['stats'] as $stat) {
+                if (!is_array($stat) || !isset($stat['label'], $stat['value'])) {
+                    continue;
+                }
+                $built[] = [
+                    'k' => (string) ($stat['key'] ?? ''),
+                    'l' => (string) $stat['label'],
+                    'n' => (int) $stat['value'],
+                    's' => isset($stat['subtitle']) ? (string) $stat['subtitle'] : '',
+                ];
+            }
+
+            // A precompute with only a card or two is a half-written file; fall
+            // through to the API rather than render a thin band.
+            return count($built) >= 3 ? $built : null;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    // ---------------------------------------------------------- source 2: API
+
+    /**
+     * The theme's own counts — a smaller set, no subtitles. 'k' selects the
+     * Lucide glyph in the banner template.
+     */
+    private function fromApi(?int $siteId): ?array
+    {
+        try {
+            $view = $this->getView();
+            $api = $view->api();
+            $translate = $view->plugin('translate');
+
+            // Resolve template + item-set labels to ids (these need real content);
+            // the counts below use limit=0 + getTotalResults() — count only.
+            $templateId = [];
+            foreach ($api->search('resource_templates', ['limit' => 1000])->getContent() as $template) {
+                $templateId[$template->label()] = $template->id();
+            }
+            $setId = [];
+            foreach ($api->search('item_sets', ['limit' => 1000])->getContent() as $set) {
+                $title = (string) $set->displayTitle();
+                if ('' !== $title) {
+                    $setId[$title] = $set->id();
+                }
+            }
+
+            $total = function (array $query) use ($api, $siteId) {
+                if ($siteId) {
+                    $query['site_id'] = $siteId;
+                }
+                $query['limit'] = 0;
+                return (int) $api->search('items', $query)->getTotalResults();
+            };
+            $byTemplate = function (string $label) use ($templateId, $total) {
+                return isset($templateId[$label]) ? $total(['resource_template_id' => $templateId[$label]]) : 0;
+            };
+            $bySet = function (string $label) use ($setId, $total) {
+                return isset($setId[$label]) ? $total(['item_set_id' => $setId[$label]]) : 0;
+            };
+
+            $publications = 0;
+            foreach (self::PUBLICATION_TEMPLATES as $label) {
+                $publications += $byTemplate($label);
+            }
+
+            return [
+                ['k' => 'researchItems', 'l' => $translate('Research items'),  'n' => $byTemplate('Research Items'), 's' => ''],
+                ['k' => 'projects',      'l' => $translate('Projects'),        'n' => $byTemplate('Projects'),       's' => ''],
+                ['k' => 'publications',  'l' => $translate('Publications'),    'n' => $publications,                 's' => ''],
+                ['k' => 'people',        'l' => $translate('People'),          'n' => $byTemplate('Persons'),        's' => ''],
+                ['k' => 'organisations', 'l' => $translate('Organisations'),   'n' => $byTemplate('Organisation'),   's' => ''],
+                ['k' => 'locations',     'l' => $translate('Locations'),       'n' => $byTemplate('Location'),       's' => ''],
+                ['k' => 'subjectsTags',  'l' => $translate('Subjects & tags'), 'n' => $bySet('Subjects'),            's' => ''],
+                ['k' => 'resourceTypes', 'l' => $translate('Resource types'),  'n' => $bySet('Type of Resource'),    's' => ''],
+            ];
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+}

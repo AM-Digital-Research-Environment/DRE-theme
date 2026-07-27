@@ -1,90 +1,127 @@
-const browseScripts = () => {
-    const resources = document.querySelectorAll('.resources');
+/**
+ * Browse layout — masonry grid and the grid/list toggle.
+ *
+ * The card markup this drives is emitted by common/resource-card.phtml, so the
+ * class names below must stay in step with that partial. (They previously did
+ * not: this file queried `.resource-meta` and `.resource-image`, neither of
+ * which any template has ever rendered — the real names are `.resource__meta`
+ * and `.resource__thumbnail` — so two branches of the toggle silently did
+ * nothing.)
+ */
+(function () {
+    'use strict';
 
-    // Where the browser lays out masonry natively (grid-template-rows: masonry,
-    // matched by the @supports block in _resource-grid.scss), skip the JS engine
-    // entirely — the grid reveals and positions the cards itself, so we never
-    // load-fight masonry.pkgd over CSS. Falls back to the JS masonry below.
-    const nativeMasonry = typeof CSS !== 'undefined'
-        && typeof CSS.supports === 'function'
-        && CSS.supports('grid-template-rows', 'masonry');
+    const browseScripts = () => {
+        const resources = document.querySelectorAll('.resources');
 
-    resources.forEach((resourcesSet, index) => {
-        const resourceItems = resourcesSet.querySelectorAll('.resource');
-        const layoutToggles = resourcesSet.parentElement.querySelectorAll('.layout-toggle button');
+        // Where the browser lays out masonry natively (grid-template-rows: masonry,
+        // matched by the @supports block in _resource-grid.scss), skip the JS engine
+        // entirely — the grid reveals and positions the cards itself, so we never
+        // load-fight masonry.pkgd over CSS. Falls back to the JS masonry below.
+        const nativeMasonry = typeof CSS !== 'undefined'
+            && typeof CSS.supports === 'function'
+            && CSS.supports('grid-template-rows', 'masonry');
 
-        const initMasonryGrid = () => {
-            if (nativeMasonry) {
-                return; // CSS handles grid layout + reveal; see _resource-grid.scss
-            }
-            if (resourcesSet.classList.contains('resource-grid')) {
-                // Masonry
+        resources.forEach((resourcesSet) => {
+            const resourceItems = resourcesSet.querySelectorAll('.resource');
+            const toggleContainer = resourcesSet.parentElement;
+            const layoutToggles = toggleContainer
+                ? toggleContainer.querySelectorAll('.layout-toggle button')
+                : [];
+
+            const initMasonryGrid = () => {
+                if (nativeMasonry) {
+                    return; // CSS handles grid layout + reveal; see _resource-grid.scss
+                }
+                if (!resourcesSet.classList.contains('resource-grid')) {
+                    return;
+                }
+                // masonry.pkgd is loaded alongside this file by the browse
+                // templates; guard anyway so a load failure degrades to a plain
+                // grid instead of throwing.
+                if (typeof Masonry !== 'function') {
+                    resourcesSet.style.opacity = 1;
+                    return;
+                }
+
                 const createMasonryInstance = () => {
-                    var msnry = new Masonry(resourcesSet, {
+                    new Masonry(resourcesSet, {
                         itemSelector: '.resource',
                         columnWidth: '.grid-sizer',
                         gutter: '.gutter-sizer',
                         percentPosition: true,
                     });
-
                     resourcesSet.style.opacity = 1;
-                }
+                };
 
                 if (document.readyState === 'complete') {
                     createMasonryInstance();
                 } else {
-                    window.addEventListener('load', createMasonryInstance);
+                    window.addEventListener('load', createMasonryInstance, { once: true });
                 }
-            }
-        }
+            };
 
-        initMasonryGrid();
+            initMasonryGrid();
 
-        layoutToggles.forEach((layoutToggle) => {
-            layoutToggle.addEventListener('click', (e) => {
-                const layoutToggleDisabled = e.currentTarget.parentElement.querySelector('.layout-toggle button:disabled');
-                layoutToggleDisabled.removeAttribute('disabled');
+            layoutToggles.forEach((layoutToggle) => {
+                layoutToggle.addEventListener('click', (e) => {
+                    const button = e.currentTarget;
+                    // Read the target view from the button's own identity. This
+                    // used to pass `button.classList` (a DOMTokenList) straight
+                    // into searchParams.set(), which stringifies to the WHOLE
+                    // class list — it only produced "grid"/"list" because these
+                    // buttons happened to carry exactly one class.
+                    const view = button.classList.contains('list') ? 'list' : 'grid';
 
-                const url = new URL(window.location.href);
-                url.searchParams.set('view', e.currentTarget.classList);
-                window.history.pushState({}, '', url);
-                const navLinks = document.querySelectorAll('.pager-wrapper a.previous, .pager-wrapper a.next');
-                navLinks.forEach((navLink) => {
-                    let navLinkUrl = new URL(navLink.href);
-                    navLinkUrl.searchParams.set('view', e.currentTarget.classList);
-                    navLink.href = navLinkUrl.toString();
+                    const currentlyDisabled = toggleContainer
+                        && toggleContainer.querySelector('.layout-toggle button:disabled');
+                    if (currentlyDisabled) {
+                        currentlyDisabled.removeAttribute('disabled');
+                    }
+
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('view', view);
+                    window.history.pushState({}, '', url);
+
+                    document
+                        .querySelectorAll('.pager-wrapper a.previous, .pager-wrapper a.next')
+                        .forEach((navLink) => {
+                            const navLinkUrl = new URL(navLink.href);
+                            navLinkUrl.searchParams.set('view', view);
+                            navLink.href = navLinkUrl.toString();
+                        });
+
+                    button.setAttribute('disabled', 'disabled');
+                    resourcesSet.classList.toggle('resource-list');
+                    resourcesSet.classList.toggle('resource-grid');
+
+                    resourceItems.forEach((resource) => {
+                        resource.classList.toggle('media-object');
+
+                        const thumbnail = resource.querySelector('.resource__thumbnail');
+                        if (thumbnail && thumbnail.classList.contains('decoration')) {
+                            thumbnail.classList.toggle('decoration--thumbnail');
+                        }
+
+                        // Mirrors the server-side `$isGrid ? '' : 'media-object-section'`
+                        // in common/resource-card.phtml.
+                        const resourceMeta = resource.querySelector('.resource__meta');
+                        if (resourceMeta) {
+                            resourceMeta.classList.toggle('media-object-section');
+                        }
+                    });
+
+                    initMasonryGrid();
                 });
-
-                e.currentTarget.setAttribute('disabled', true);
-                resourcesSet.classList.toggle('resource-list');
-                resourcesSet.classList.toggle('resource-grid');
-
-                resourceItems.forEach((resource) => {
-                    resource.classList.toggle('media-object');
-                    const thumbnailWithDecoration = resource.querySelector('.resource__thumbnail.decoration');
-                    if (thumbnailWithDecoration) {
-                        thumbnailWithDecoration.classList.toggle('decoration--thumbnail');
-                    }
-                        
-                    const resourceMeta = resource.querySelector('.resource-meta');
-                    if (resourceMeta) {
-                        resourceMeta.classList.toggle('media-object-section');
-                    }
-
-                    const resourceImage = resource.querySelector('.resource-image');
-                    if (resourceImage) {
-                        resourceImage.classList.toggle('media-object-section');
-                    }
-                });
-
-                initMasonryGrid();
             });
         });
-    });
-}
+    };
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', browseScripts);
-} else {
-    browseScripts();
-}
+    if (window.DREUtils && typeof window.DREUtils.onReady === 'function') {
+        window.DREUtils.onReady(browseScripts);
+    } else if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', browseScripts, { once: true });
+    } else {
+        browseScripts();
+    }
+})();

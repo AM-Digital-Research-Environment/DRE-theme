@@ -81,11 +81,13 @@ foreach ($values as $term => $propertyData):
                     endif;
                 ?></span>
                 <?php if(!$value->isPublic()) : ?>
-                    <span class="o-icon-private" aria-role="tooltip" title="<?php echo $this->escapeHtml($translate('Private')); ?>" aria-label="<?php echo $this->escapeHtml($translate('Private')); ?>"></span>
+<?php // role="img" + aria-label so the icon has an accessible name. The attribute
+      // here was `aria-role`, which is not a real attribute and did nothing. ?>
+                    <span class="o-icon-private" role="img" title="<?php echo $this->escapeHtmlAttr($translate('Private')); ?>" aria-label="<?php echo $this->escapeHtmlAttr($translate('Private')); ?>"></span>
                 <?php endif; ?>
                 <?php if ($valueAnnotation && $showValueAnnotations) : ?>
                     <div class="annotation-btn">
-                        <span class="has-annotation o-icon-annotation" aria-role="tooltip" title="<?php echo $this->escapeHtml($translate('Has annotation')); ?>" aria-label="<?php echo $this->escapeHtml($translate('Has annotation')); ?>"></span>
+                        <span class="has-annotation o-icon-annotation" role="img" title="<?php echo $this->escapeHtmlAttr($translate('Has annotation')); ?>" aria-label="<?php echo $this->escapeHtmlAttr($translate('Has annotation')); ?>"></span>
                         <div class="annotation-tooltip">
                             <div class="annotation-tooltip__wrapper">
                                 <h6 class="annotation-tooltip__heading"><?php echo $this->escapeHtml($translate('Value Annotations')); ?></h6>

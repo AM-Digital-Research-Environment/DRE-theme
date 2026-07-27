@@ -68,11 +68,11 @@ if ($this->status()->isSiteRequest()) {
                     'options' => $selectOptions,
                 ]); ?>
             </label>
-            <button type="button" class="o-icon-delete remove-value button" aria-label="<?php echo $translate('Remove value'); ?>" title="<?php echo $translate('Remove value'); ?>"></button>
+            <button type="button" class="o-icon-delete remove-value button" aria-label="<?php echo $this->escapeHtmlAttr($translate('Remove value')); ?>" title="<?php echo $this->escapeHtmlAttr($translate('Remove value')); ?>"></button>
         </div>
         <?php endforeach; ?>
     </div>
-    <button type="button" class="add-value o-icon-add button" aria-label="<?php echo $translate('Add new item set'); ?>" title="<?php echo $translate('Add new item set'); ?>"></button>
+    <button type="button" class="add-value o-icon-add button" aria-label="<?php echo $this->escapeHtmlAttr($translate('Add new item set')); ?>" title="<?php echo $this->escapeHtmlAttr($translate('Add new item set')); ?>"></button>
 </div>
 <script>
 $('#content').on('change', '.item-set-select-type', function() {

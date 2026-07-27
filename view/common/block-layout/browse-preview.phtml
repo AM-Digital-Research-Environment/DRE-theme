@@ -9,12 +9,11 @@ $filterLocale = (bool) $this->siteSetting('filter_locale_values');
 $lang = $this->lang();
 $valueLang = $filterLocale ? [$lang, ''] : null;
 
-$layoutSetting = $this->themeSetting('browse_layout', 'grid');
-$bodyTruncate = $this->themeSetting('truncate_body_property');
-$gridState = ($layoutSetting == 'togglegrid') ? 'disabled' : '';
-$listState = ($layoutSetting == 'togglelist') ? 'disabled': '';
-$currentLayout = (strpos($layoutSetting, 'grid') !== false) ? 'grid' : 'list';
-$isGrid = ($currentLayout == 'grid') ? true : false;
+// See helper/BrowseLayout.php — resolves grid/list, the ?view= override, and
+// the body-property settings that used to be duplicated in every browse template.
+$layout = $this->BrowseLayout();
+$isGrid = $layout['isGrid'];
+$bodyTruncate = $layout['truncate'];
 $queryUrl = $this->url(
     'site/resource', ['controller' => $this->resourceType, 'action' => 'browse'], ['query' => $this->query], true
 );
@@ -35,13 +34,9 @@ $bodyTerm = $this->siteSetting('browse_body_property_term');
         </div>
     <?php endif; ?>
 
-    <?php if (strpos($layoutSetting, 'toggle') !== false) : ?>
+    <?php if ($layout['hasToggle']) : ?>
         <div class="browse-controls">
-            <div class="layout-toggle">
-                <button type="button" aria-label="<?php echo $translate('Grid'); ?>" class="grid" <?php echo $gridState; ?>><?php echo $translate('Grid'); ?></button>
-                <span class="layout-toggle-separator"></span>
-                <button type="button" aria-label="<?php echo $translate('List'); ?>" class="list" <?php echo $listState; ?>><?php echo $translate('List'); ?></button>        
-            </div>
+            <?php echo $this->partial('common/browse-layout-toggle', ['layout' => $layout]); ?>
         </div>
     <?php endif; ?>
 
@@ -56,29 +51,21 @@ $bodyTerm = $this->siteSetting('browse_body_property_term');
             $media = ($resource instanceof \Omeka\Api\Representation\ItemRepresentation) ? ($resource->media()[0] ?? null) : null;
             $altText = $media ? ($media->altText() ?: $resource->displayTitle()) : $resource->displayTitle();
             $thumbnail = $this->thumbnail($resource, 'large', ['alt' => $altText]);
-            ?>
-            <div class="<?php echo $this->resourceType; ?> resource <?php echo ($isGrid) ? '' : 'media-object'; ?>">
-                <!-- Thumbnail -->
-                <?php if ($thumbnail && $showThumbnail) : ?>
-                    <div class="resource__thumbnail">
-                        <?php echo $resource->linkRaw($thumbnail); ?>
-                    </div>
-                <?php endif; ?>
-
-                <!-- Content -->
-                <div class="resource__content">
-                    <?php if ($showHeading) : ?>
-                        <?php echo $this->ResourceTags($resource); ?>
-                        <?php echo $resource->link($heading); ?>
-                    <?php endif; ?>
-
-                    <?php if ($showBody && $body) : ?>
-                        <div class="description <?php echo ($bodyTruncate) ? $bodyTruncate : ''; ?>"><?php echo $escape($body); ?></div>
-                    <?php endif; ?>
-                </div>
-            </div>
-
-        <?php endforeach; ?>
+            echo $this->partial('common/resource-card', [
+                'resource' => $resource,
+                'heading' => $heading,
+                'body' => $showBody ? $body : null,
+                'bodyTruncate' => $bodyTruncate,
+                'thumbnail' => $showThumbnail ? $thumbnail : '',
+                'isGrid' => $isGrid,
+                'showHeading' => $showHeading,
+                'showTags' => $showHeading,
+                // The block's own resourceType ("items"/"item_sets"/"media") is
+                // the plural API name; let the partial derive the class from the
+                // resource so it matches every other browse surface.
+                'typeClass' => null,
+            ]);
+        endforeach; ?>
     </div>
 
     <?php

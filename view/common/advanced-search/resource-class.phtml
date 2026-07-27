@@ -44,9 +44,9 @@ if ($this->status()->isSiteRequest()) {
                     ]
                 ]); ?>
             </label>
-            <button type="button" class="o-icon-delete remove-value button" aria-label="<?php echo $translate('Remove value'); ?>" title="<?php echo $translate('Remove value'); ?>"></button>
+            <button type="button" class="o-icon-delete remove-value button" aria-label="<?php echo $this->escapeHtmlAttr($translate('Remove value')); ?>" title="<?php echo $this->escapeHtmlAttr($translate('Remove value')); ?>"></button>
         </div>
         <?php endforeach; ?>
     </div>
-    <button type="button" class="add-value o-icon-add button" aria-label="<?php echo $translate('Add new class'); ?>" title="<?php echo $translate('Add new class'); ?>"></button>
+    <button type="button" class="add-value o-icon-add button" aria-label="<?php echo $this->escapeHtmlAttr($translate('Add new class')); ?>" title="<?php echo $this->escapeHtmlAttr($translate('Add new class')); ?>"></button>
 </div>

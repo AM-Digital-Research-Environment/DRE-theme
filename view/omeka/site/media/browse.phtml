@@ -9,24 +9,12 @@ $filterLocale = (bool) $this->siteSetting('filter_locale_values');
 $lang = $this->lang();
 $valueLang = $filterLocale ? [$lang, ''] : null;
 
-$layoutSetting = $this->themeSetting('browse_layout', 'grid');
-$gridState = ($layoutSetting == 'togglegrid') ? 'disabled' : '';
-$listState = ($layoutSetting == 'togglelist') ? 'disabled': '';
-$isGrid = (strpos($layoutSetting, 'grid') !== false) ? true : false;
-$bodyTerm = $this->siteSetting('browse_body_property_term');
-$bodyTruncate = $this->themeSetting('truncate_body_property');
-
-if (isset($_GET['view'])) {
-    if ('list' === $_GET['view']) {
-        $gridState = '';
-        $listState = 'disabled';
-        $isGrid = false;
-    } else {
-        $gridState = 'disabled';
-        $listState = '';
-        $isGrid = true;
-    }
-}
+// See helper/BrowseLayout.php — resolves grid/list, the ?view= override, and
+// the body-property settings that used to be duplicated in every browse template.
+$layout = $this->BrowseLayout();
+$isGrid = $layout['isGrid'];
+$bodyTerm = $layout['bodyTerm'];
+$bodyTruncate = $layout['truncate'];
 
 $decoration = $this->themeSetting('image_decoration');
 $decorationClass = '';
@@ -43,12 +31,7 @@ if (is_array($decoration) && in_array('media', $decoration)) {
 <?php echo $this->pagination(); ?>
 
 <div class="browse-controls">
-    <?php if (strpos($layoutSetting, 'toggle') !== false): ?>
-        <div class="layout-toggle">
-            <button type="button" aria-label="<?php echo $translate('Grid'); ?>" class="grid icon-btn o-icon-grid" <?php echo $gridState; ?>></button>
-            <button type="button" aria-label="<?php echo $translate('List'); ?>" class="list icon-btn o-icon-list" <?php echo $listState; ?>></button>
-        </div>
-    <?php endif; ?>
+    <?php echo $this->partial('common/browse-layout-toggle', ['layout' => $layout, 'icons' => true]); ?>
     <?php echo $this->browse()->renderSortSelector('medias'); ?>
     <div class="advanced-search-container">
         <?php echo $this->hyperlink($translate('Advanced search'), $this->url(null, ['action' => 'search'], true), ['class' => 'advanced-search']); ?>
@@ -64,29 +47,21 @@ if (is_array($decoration) && in_array('media', $decoration)) {
     foreach ($medias as $media):
         $body = $bodyTerm ? $media->value($bodyTerm, ['lang' => ($valueLang)]) : $media->displayDescription(null, ($valueLang));
         $primaryMedia = $media->primaryMedia();
-        ?>
-        <div class="item-set resource <?php echo ($isGrid) ? '' : 'media-object'; ?>">
-            <!-- Thumbnail -->
-            <?php if ($primaryMedia): ?>
-                <div class="resource__thumbnail <?php echo $decorationClass; ?>">
-                    <?php $altText = $primaryMedia->altText() ?: $primaryMedia->displayTitle() ?: ''; ?>
-                    <?php echo $media->linkRaw($this->thumbnail($primaryMedia, 'large', ['alt' => $altText])); ?>
-                </div>
-            <?php endif; ?>
-
-            <!-- Content -->
-            <div class="resource__content">
-                <?php echo $this->ResourceTags($media); ?>
-                <!-- Metadata -->
-                <div class="resource__meta <?php echo ($isGrid) ? '' : 'media-object-section'; ?>">
-                    <?php echo $media->link($media->displayTitle(null, $valueLang)); ?>
-                    <?php if ($body): ?>
-                        <div class="description <?php echo ($bodyTruncate) ? $bodyTruncate : ''; ?>"><?php echo $escape($body); ?></div>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </div>
-    <?php endforeach; ?>
+        $thumbnail = '';
+        if ($primaryMedia) {
+            $altText = $primaryMedia->altText() ?: $primaryMedia->displayTitle() ?: '';
+            $thumbnail = $this->thumbnail($primaryMedia, 'large', ['alt' => $altText]);
+        }
+        echo $this->partial('common/resource-card', [
+            'resource' => $media,
+            'heading' => $media->displayTitle(null, $valueLang),
+            'body' => $body,
+            'bodyTruncate' => $bodyTruncate,
+            'thumbnail' => $thumbnail,
+            'decorationClass' => $decorationClass,
+            'isGrid' => $isGrid,
+        ]);
+    endforeach; ?>
 
 </div>
 

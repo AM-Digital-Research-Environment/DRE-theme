@@ -1,20 +1,26 @@
 <?php
 $closeText = $this->translate('Close');
 $previousText = $this->translate('All sections');
+$escAttr = $this->plugin('escapeHtmlAttr');
+$escHtml = $this->plugin('escapeHtml');
 ?>
 <nav id="menu-drawer" class="menu-drawer" aria-hidden="true" inert style="display: none;">
 	<div class="wrap">
 
 		<div class="navigation-controls">
-			<a href="."
+			<?php // A real <button>: this control closes the drawer or steps back a
+			      // level, it never navigates. It was an `<a href=".">`, which meant
+			      // that without JS it reloaded the site root, and it needed a manual
+			      // Enter/Space keydown shim in navigation.js that a button gets free.
+			      // navigation.js swaps the label/aria between "Close" and
+			      // "All sections" via backerContext(). ?>
+			<button type="button"
 				id="menu-backer"
 				class="menu-backer is-empty"
 				aria-hidden="true"
 				tabindex="-1"
-				title="<?php echo $closeText; ?>"
-			>
-				<?php echo $closeText; ?>
-			</a>
+				title="<?php echo $escAttr($closeText); ?>"
+			><?php echo $escHtml($closeText); ?></button>
 		</div><!-- .navigation-controls -->
 
 		<div id="menu-clones" class="menu-container">
@@ -29,6 +35,9 @@ $previousText = $this->translate('All sections');
 </nav><!-- menu-drawer -->
 
 <script>
-	const closeText = <?php echo json_encode($closeText); ?>;
-	const previousText = <?php echo json_encode($previousText); ?>;
+	// Consumed by asset/js/navigation.js (backerContext). JSON_HEX_TAG neutralises
+	// "<" so a translated string containing "</script>" can't break out of the
+	// block — same guard the PWA manifest island uses in view/layout/layout.phtml.
+	const closeText = <?php echo json_encode($closeText, JSON_HEX_TAG | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>;
+	const previousText = <?php echo json_encode($previousText, JSON_HEX_TAG | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>;
 </script>

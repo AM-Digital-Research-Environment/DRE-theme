@@ -1,7 +1,14 @@
 .tl-timeline {
-    .tl-slidenav-next:focus,
-    .tl-slidenav-previous:focus {
-        outline: none;
+    // TimelineJS ships its own focus styling that clashes with the theme ring.
+    // Replace it rather than remove it — this used to be a bare `outline: none`,
+    // which left the slide-navigation arrows with no keyboard focus indicator
+    // at all. TimelineJS renders on a permanently-light surface, so the ring is
+    // drawn in the brand green at a fixed value rather than a flipping token.
+    .tl-slidenav-next:focus-visible,
+    .tl-slidenav-previous:focus-visible {
+        outline: 2px solid var(--brand-green);
+        outline-offset: 2px;
+        border-radius: var(--radius-sm);
     }
 
     // TimelineJS renders on its own permanently-light widget surface, so these

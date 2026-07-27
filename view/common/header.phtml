@@ -1,6 +1,11 @@
 <?php
 $translate = $this->plugin('translate');
-$navDepth = (int) $this->themeSetting('nav_depth') ? (int) $this->themeSetting('nav_depth') - 1 : -1;
+// "Top Navigation Depth": how many levels the menu shows. 0 / empty = all.
+// This was computed here and then never used — the setting appeared in the
+// admin with help text and did nothing. It is now passed to nav-menu.phtml,
+// which honours it (and the drawer inherits it, since navigation.js clones the
+// rendered menu).
+$navDepth = max(0, (int) $this->themeSetting('nav_depth'));
 $logo = $this->themeSetting('logo');
 $isHome = isset($isHome) ? (bool) $isHome : false;
 // On the home page the hero banner carries the site title as the page <h1>, so
@@ -81,13 +86,21 @@ $pwaEnabled = isset($pwaEnabled) ? (bool) $pwaEnabled : false;
 
 			<?php // Drawer toggle — shown on mobile/tablet, and as the desktop safety net
 			      // when an over-wide menu collapses (data-nav="drawer"). Lives in tier 1
-			      // so it stays beside the search even when the nav row is on tier 2. ?>
+			      // so it stays beside the search even when the nav row is on tier 2.
+			      //
+			      // The open/close labels ride along as data-* attributes: navigation.js
+			      // swaps the .sr-only text on every toggle, and used to hardcode English
+			      // there — so on a translated site the label reverted to "Open menu"
+			      // after the first click. Translate once, here, on the server. ?>
 			<button
+				type="button"
 				class="main-navigation__toggle"
 				aria-expanded="false"
 				aria-controls="menu-drawer"
+				data-label-open="<?php echo $this->escapeHtmlAttr($translate('Open menu')); ?>"
+				data-label-close="<?php echo $this->escapeHtmlAttr($translate('Close menu')); ?>"
 			>
-				<span class="sr-only"><?php echo $translate('Open menu'); ?></span>
+				<span class="sr-only"><?php echo $this->escapeHtml($translate('Open menu')); ?></span>
 				<span aria-hidden="true"></span>
 				<span aria-hidden="true"></span>
 				<span aria-hidden="true"></span>
@@ -100,13 +113,19 @@ $pwaEnabled = isset($pwaEnabled) ? (bool) $pwaEnabled : false;
 
 	<?php // ===== Tier 2 — primary navigation on its own full-width row ===== ?>
 	<div class="main-header__nav-row">
-		<nav class="main-navigation container" aria-label="<?php echo $this->escapeHtmlAttr($translate('Primary navigation')); ?>">
+		<?php // data-submenu-label carries the translated caret label for
+		      // navigation.js (%s is the parent item's own text). It lived as a
+		      // hardcoded English string concatenated into an insertAdjacentHTML
+		      // call, which also interpolated the label unescaped. ?>
+		<nav class="main-navigation container"
+			aria-label="<?php echo $this->escapeHtmlAttr($translate('Primary navigation')); ?>"
+			data-submenu-label="<?php echo $this->escapeHtmlAttr($translate('Show submenu for “%s”')); ?>">
 			<div class="main-navigation__container">
 				<?php // Designed mega-dropdown: a custom walk of the same nav container
 				      // (see common/nav-menu.phtml). Replaces renderMenu() so each parent
 				      // emits a described two-region panel; navigation.js + the drawer
 				      // still bind to .navigation / .menu-item-has-children. ?>
-				<?php echo $this->partial('common/nav-menu', ['site' => $site]); ?>
+				<?php echo $this->partial('common/nav-menu', ['site' => $site, 'navDepth' => $navDepth]); ?>
 			</div>
 		</nav>
 	</div>

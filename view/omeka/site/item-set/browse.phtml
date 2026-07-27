@@ -9,24 +9,12 @@ $filterLocale = (bool) $this->siteSetting('filter_locale_values');
 $lang = $this->lang();
 $valueLang = $filterLocale ? [$lang, ''] : null;
 
-$layoutSetting = $this->themeSetting('browse_layout', 'grid');
-$gridState = ($layoutSetting == 'togglegrid') ? 'disabled' : '';
-$listState = ($layoutSetting == 'togglelist') ? 'disabled': '';
-$isGrid = (strpos($layoutSetting, 'grid') !== false) ? true : false;
-$bodyTerm = $this->siteSetting('browse_body_property_term');
-$bodyTruncate = $this->themeSetting('truncate_body_property');
-
-if (isset($_GET['view'])) {
-    if ('list' === $_GET['view']) {
-        $gridState = '';
-        $listState = 'disabled';
-        $isGrid = false;
-    } else {
-        $gridState = 'disabled';
-        $listState = '';
-        $isGrid = true;
-    }
-}
+// See helper/BrowseLayout.php — resolves grid/list, the ?view= override, and
+// the body-property settings that used to be duplicated in every browse template.
+$layout = $this->BrowseLayout();
+$isGrid = $layout['isGrid'];
+$bodyTerm = $layout['bodyTerm'];
+$bodyTruncate = $layout['truncate'];
 
 ?>
 
@@ -37,13 +25,7 @@ if (isset($_GET['view'])) {
 <?php echo $this->pagination(); ?>
 
 <div class="browse-controls">
-    <?php if (strpos($layoutSetting, 'toggle') !== false): ?>
-        <div class="layout-toggle">
-            <button type="button" aria-label="<?php echo $translate('Grid'); ?>" class="grid" <?php echo $gridState; ?>><?php echo $translate('Grid'); ?></button>
-            <span class="layout-toggle-separator"></span>
-            <button type="button" aria-label="<?php echo $translate('List'); ?>" class="list" <?php echo $listState; ?>><?php echo $translate('List'); ?></button>        
-        </div>
-    <?php endif; ?>
+    <?php echo $this->partial('common/browse-layout-toggle', ['layout' => $layout]); ?>
     <?php echo $this->browse()->renderSortSelector('item_sets'); ?>
     <div class="advanced-search-container">
         <?php echo $this->hyperlink($translate('Advanced search'), $this->url(null, ['action' => 'search'], true), ['class' => 'advanced-search']); ?>
@@ -59,29 +41,15 @@ if (isset($_GET['view'])) {
     foreach ($itemSets as $itemSet):
         $body = $bodyTerm ? $itemSet->value($bodyTerm, ['lang' => ($valueLang)]) : $itemSet->displayDescription(null, ($valueLang));
         $altText = $itemSet->displayTitle() ?: '';
-        $thumbnail = $this->thumbnail($itemSet, 'large', ['alt' => $altText]);
-        ?>
-        <div class="item-set resource <?php echo ($isGrid) ? '' : 'media-object'; ?>">
-            <!-- Thumbnail -->
-            <?php if ($thumbnail): ?>
-                <div class="resource__thumbnail">
-                    <?php echo $itemSet->linkRaw($thumbnail); ?>
-                </div>
-            <?php endif; ?>
-
-            <!-- Content -->
-            <div class="resource__content">
-                <?php echo $this->ResourceTags($itemSet); ?>
-                <!-- Metadata -->
-                <div class="resource__meta <?php echo ($isGrid) ? '' : 'media-object-section'; ?>">
-                    <?php echo $itemSet->link($itemSet->displayTitle(null, $valueLang)); ?>
-                    <?php if ($body): ?>
-                        <div class="description <?php echo ($bodyTruncate) ? $bodyTruncate : ''; ?>"><?php echo $escape($body); ?></div>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </div>
-    <?php endforeach; ?>
+        echo $this->partial('common/resource-card', [
+            'resource' => $itemSet,
+            'heading' => $itemSet->displayTitle(null, $valueLang),
+            'body' => $body,
+            'bodyTruncate' => $bodyTruncate,
+            'thumbnail' => $this->thumbnail($itemSet, 'large', ['alt' => $altText]),
+            'isGrid' => $isGrid,
+        ]);
+    endforeach; ?>
 
 </div>
 

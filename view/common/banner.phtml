@@ -51,150 +51,31 @@ if (($buttonLink === null || $buttonLink === '') && $site) {
 $variant = $isHome ? 'home' : 'page';
 
 // Home-only "Collection overview" stat band (§1). The cards mirror the SAME set
-// the ResourceVisualizations "Collection Overview" block shows — read from its
-// precompute server-side (with an Omeka-API fallback for a module-less host) and
-// cached briefly so the home page doesn't recompute on every load. The block
-// itself drops its stat cards on the home layout, so this band is the single
-// place they appear. Toggle via a theme setting; any hiccup falls back to no
-// band — the hero still renders.
+// the ResourceVisualizations "Collection Overview" block shows; that block drops
+// its own stat cards on the home layout, so this band is the single place they
+// appear. All the sourcing (cache → module precompute → Omeka API fallback) and
+// its error handling live in helper/CollectionStats.php — it returns [] on any
+// hiccup, so the hero still renders. Toggle via the banner_show_stats setting.
 $stats = [];
 $showStats = $isHome
     && !in_array((string) $this->themeSetting('banner_show_stats', '1'), ['0', ''], true);
 if ($showStats) {
-    $siteId = $site ? $site->id() : null;
-
-    // Counts are cached in Omeka's DB-backed settings, not a per-container /tmp
-    // file. The org runs several containerised Omeka instances, so a filesystem
-    // cache in sys_get_temp_dir() meant each node recomputed and they could
-    // disagree, and an ephemeral tmpfs dropped the cache on every deploy. A
-    // setting is shared by every container and survives deploys. The key carries
-    // a schema version (v3) so a change to the metric set ignores a stale cache
-    // of the old shape (the value is {t: <unix-time>, nums: {...}}). Reaching the
-    // settings service is wrapped in catch(\Throwable) so nothing about it — an
-    // unavailable service, a deprecation-as-exception dev config, even an
-    // undefined-method Error — can take the home page down: it just recomputes
-    // without caching.
-    $settings = null;
-    try {
-        $settings = $this->getHelperPluginManager()->getServiceLocator()->get('Omeka\Settings');
-    } catch (\Throwable $e) {
-        $settings = null;
-    }
-    // v4: cache the RENDERED stat list (now sourced from the module precompute),
-    // each entry {k:key, l:label, n:value, s:subtitle}; the bumped key ignores the
-    // old v3 shape ({nums: …}).
-    $cacheKey = 'dre_stats_v4_' . ($siteId ?: 'x');
-
-    $stats = null;
-    if ($settings) {
-        try {
-            $cached = json_decode((string) $settings->get($cacheKey, ''), true);
-            if (is_array($cached) && isset($cached['t'], $cached['stats']) && is_array($cached['stats'])
-                && (time() - (int) $cached['t']) < 3600
-            ) {
-                $stats = $cached['stats'];
-            }
-        } catch (\Throwable $e) {
-            $stats = null;
-        }
-    }
-    if (!is_array($stats)) {
-        // 1. Prefer the SAME stat set the "Collection Overview" block shows: read
-        //    its precompute (collection-overview.json `stats`) off the filesystem,
-        //    so the home band and that block never disagree and the band is the
-        //    one place those cards live. Each entry is {key,label,value,subtitle?}.
-        //    Fully guarded — a missing module / file / malformed JSON falls through
-        //    to the API fallback.
-        try {
-            if (defined('OMEKA_PATH')) {
-                $ovPath = OMEKA_PATH . '/modules/DreVisualizations/asset/data/item-dashboards/collection-overview.json';
-                if (is_readable($ovPath)) {
-                    $ov = json_decode((string) file_get_contents($ovPath), true);
-                    if (is_array($ov) && !empty($ov['stats']) && is_array($ov['stats'])) {
-                        $built = [];
-                        foreach ($ov['stats'] as $st) {
-                            if (!is_array($st) || !isset($st['label'], $st['value'])) {
-                                continue;
-                            }
-                            $built[] = [
-                                'k' => (string) ($st['key'] ?? ''),
-                                'l' => (string) $st['label'],
-                                'n' => (int) $st['value'],
-                                's' => isset($st['subtitle']) ? (string) $st['subtitle'] : '',
-                            ];
-                        }
-                        if (count($built) >= 3) {
-                            $stats = $built;
-                        }
-                    }
-                }
-            }
-        } catch (\Throwable $e) {
-            $stats = null;
-        }
-
-        // 2. Fallback — no module / un-regenerated precompute: the theme's own
-        //    API-computed counts (a smaller set, no subtitles), so a standalone
-        //    DRE theme still grounds the hero. 'k' selects the Lucide glyph below.
-        if (!is_array($stats)) {
-            try {
-                $api = $this->api();
-                // Resolve template + item-set labels to ids (fetched with limit > 0);
-                // the item counts below use limit=0 + getTotalResults() — count only.
-                $tplId = [];
-                foreach ($api->search('resource_templates', ['limit' => 1000])->getContent() as $t) {
-                    $tplId[$t->label()] = $t->id();
-                }
-                $setId = [];
-                foreach ($api->search('item_sets', ['limit' => 1000])->getContent() as $s) {
-                    $title = (string) $s->displayTitle();
-                    if ($title !== '') {
-                        $setId[$title] = $s->id();
-                    }
-                }
-                $total = function (array $query) use ($api, $siteId) {
-                    if ($siteId) {
-                        $query['site_id'] = $siteId;
-                    }
-                    $query['limit'] = 0;
-                    return (int) $api->search('items', $query)->getTotalResults();
-                };
-                $byTemplate = function ($label) use ($tplId, $total) {
-                    return isset($tplId[$label]) ? $total(['resource_template_id' => $tplId[$label]]) : 0;
-                };
-                $bySet = function ($label) use ($setId, $total) {
-                    return isset($setId[$label]) ? $total(['item_set_id' => $setId[$label]]) : 0;
-                };
-                // "Publications" is the sum of the bibliographic templates.
-                $publications = 0;
-                foreach (['Article', 'Working paper', 'Conference paper', 'Book chapter',
-                          'Book', 'Doctoral thesis', 'Journal issue', 'Book review',
-                          'Online post'] as $pubLabel) {
-                    $publications += $byTemplate($pubLabel);
-                }
-                $stats = [
-                    ['k' => 'researchItems', 'l' => $translate('Research items'),  'n' => $byTemplate('Research Items'), 's' => ''],
-                    ['k' => 'projects',      'l' => $translate('Projects'),        'n' => $byTemplate('Projects'),       's' => ''],
-                    ['k' => 'publications',  'l' => $translate('Publications'),     'n' => $publications,                 's' => ''],
-                    ['k' => 'people',        'l' => $translate('People'),          'n' => $byTemplate('Persons'),        's' => ''],
-                    ['k' => 'organisations', 'l' => $translate('Organisations'),   'n' => $byTemplate('Organisation'),   's' => ''],
-                    ['k' => 'locations',     'l' => $translate('Locations'),       'n' => $byTemplate('Location'),       's' => ''],
-                    ['k' => 'subjectsTags',  'l' => $translate('Subjects & tags'), 'n' => $bySet('Subjects'),            's' => ''],
-                    ['k' => 'resourceTypes', 'l' => $translate('Resource types'),  'n' => $bySet('Type of Resource'),    's' => ''],
-                ];
-            } catch (\Throwable $e) {
-                $stats = null;
-            }
-        }
-
-        if ($settings && is_array($stats)) {
-            $settings->set($cacheKey, json_encode(['t' => time(), 'stats' => $stats]));
-        }
-    }
-    if (!is_array($stats)) {
-        $stats = [];
-    }
+    $stats = $this->CollectionStats($site ? $site->id() : null);
 }
+
+// Locale-aware thousands separators. number_format() is locale-blind — it always
+// renders 1,234 in the US convention, which is wrong for a German deployment
+// (1.234) and for the theme's other locales.
+$formatNumber = static function ($value): string {
+    if (class_exists(\NumberFormatter::class)) {
+        $formatter = new \NumberFormatter(\Locale::getDefault(), \NumberFormatter::DECIMAL);
+        $formatted = $formatter->format((int) $value);
+        if (false !== $formatted) {
+            return (string) $formatted;
+        }
+    }
+    return number_format((int) $value);
+};
 ?>
 <div class="site-banner site-banner--<?php echo $variant; ?>">
     <?php // Decorative earth-tone wash (green → gold → braun); styled in CSS. ?>
@@ -283,7 +164,7 @@ if ($showStats) {
                               // stays the same height as the rest (grid would otherwise
                               // stretch its whole row, leaving blank space). Hidden on the
                               // dense phone tiles where it would wrap (see _banner.scss). ?>
-                        <span class="site-banner__stat-num"><?php echo $escHtml(number_format((int) $s['n'])); ?><?php if (!empty($s['s'])): ?> <span class="site-banner__stat-sub"><?php echo $escHtml($s['s']); ?></span><?php endif; ?></span>
+                        <span class="site-banner__stat-num"><?php echo $escHtml($formatNumber($s['n'])); ?><?php if (!empty($s['s'])): ?> <span class="site-banner__stat-sub"><?php echo $escHtml($s['s']); ?></span><?php endif; ?></span>
                     </div>
                     <span class="site-banner__stat-badge">
                         <svg class="site-banner__stat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><?php echo $icon; ?></svg>

@@ -242,29 +242,20 @@ if ($hierarchyGrouping->getLabel()) {
                     $heading = $headingTerm ? $item->value($headingTerm, ['default' => $translate('[Untitled]'), 'lang' => $valueLang]) : $item->displayTitle(null, $valueLang);
                     $body = $bodyTerm ? $item->value($bodyTerm, ['lang' => $valueLang]) : $item->displayDescription(null, $valueLang);
                     $primaryMedia = $item->primaryMedia();
-                    ?>
-                    <li class="item resource">
-                        <!-- Thumbnail -->
-                        <?php if ($primaryMedia): ?>
-                            <div class="resource__thumbnail">
-                                <?php $altText = $primaryMedia->altText() ?: $primaryMedia->displayTitle() ?: ''; ?>
-                                <?php echo $item->linkRaw($this->thumbnail($primaryMedia, 'square', ['alt' => $altText])); ?>
-                            </div>
-                        <?php endif; ?>
-
-                        <!-- Content -->
-                        <div class="resource__content">
-                            <?php echo $this->ResourceTags($item); ?>
-                            <!-- Metadata -->
-                            <div class="resource__meta">
-                                <?php echo $item->link($heading); ?>
-                                <?php if ($body): ?>
-                                    <div class="description <?php echo ($bodyTruncate) ? $bodyTruncate : ''; ?>"><?php echo $escape($body); ?></div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    </li>
-                <?php endforeach; ?>
+                    $thumbnail = '';
+                    if ($primaryMedia) {
+                        $altText = $primaryMedia->altText() ?: $primaryMedia->displayTitle() ?: '';
+                        $thumbnail = $this->thumbnail($primaryMedia, 'square', ['alt' => $altText]);
+                    }
+                    echo $this->partial('common/resource-card', [
+                        'resource' => $item,
+                        'heading' => $heading,
+                        'body' => $body,
+                        'bodyTruncate' => $bodyTruncate,
+                        'thumbnail' => $thumbnail,
+                        'tag' => 'li',
+                    ]);
+                endforeach; ?>
             </ul>
             <div class="browse-controls">
                 <?php echo $this->pagination(); ?>

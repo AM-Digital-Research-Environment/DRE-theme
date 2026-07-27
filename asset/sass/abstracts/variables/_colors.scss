@@ -237,14 +237,16 @@ body[data-theme="light"] { @include am-light-theme; }
 // rewritten to CSS-variable gradients.
 // ==========================================================================
 
+// Only the aliases still referenced by a component partial are kept. The set
+// below was pruned once the unused ones were confirmed dead by grep — prefer
+// the semantic var(--token) directly in new code rather than growing this list.
+
 // Brand
 $color__primary:        var(--primary);
 $color__primary-dark:   var(--primary-hover);
 $color__secondary:      var(--secondary);
-$color__secondary-dark: var(--primary-active);
 $color__accent:         var(--accent);
 $color__complementary:  var(--complementary);
-$color__on-primary:     var(--primary-contrast);
 
 // Status
 $color__success: var(--success);
@@ -258,14 +260,8 @@ $color__black:   var(--ink-strong);   // theme-aware "strong ink"
 
 // Stone scale → nearest semantic token (theme-aware)
 $color__gray-33: var(--ink-light);
-$color__gray-40: var(--ink-light);
-$color__gray-46: var(--ink-subtle);
-$color__gray-47: var(--ink-subtle);
-$color__gray-58: var(--muted);
-$color__gray-60: var(--muted);
 $color__gray-67: var(--border-strong);
 $color__gray-80: var(--border);
-$color__gray-87: var(--border-light);
 $color__gray-93: var(--surface-sunken);
 $color__gray-95: var(--surface-sunken);
 

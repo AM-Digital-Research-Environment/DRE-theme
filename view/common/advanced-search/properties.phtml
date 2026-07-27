@@ -83,7 +83,7 @@ if ($this->status()->isSiteRequest()) {
                 ]
             ); ?>
             <label class="sub-label" for="<?php echo $this->escapeHtml($stem . '[type]'); ?>"><?php echo $translate('Query type'); ?></label>
-            <select class="query-type sub-field" name="<?php echo $this->escapeHtml($stem . '[type]'); ?>" aria-label="<?php echo $translate('Query type'); ?>">
+            <select class="query-type sub-field" name="<?php echo $this->escapeHtml($stem . '[type]'); ?>" aria-label="<?php echo $this->escapeHtmlAttr($translate('Query type')); ?>">
                 <?php echo $queryOption('eq', $property, 'type', $translate('is exactly')); ?>
                 <?php echo $queryOption('neq', $property, 'type', $translate('is not exactly')); ?>
                 <?php echo $queryOption('in', $property, 'type', $translate('contains')); ?>
@@ -99,7 +99,7 @@ if ($this->status()->isSiteRequest()) {
             </select>
             <label class="sub-label" for="<?php echo $this->escapeHtml("property[$index][text]"); ?>"><?php echo $translate('Query text'); ?></label>
             <?php echo $queryText($property, $index); ?>
-            <button type="button" class="o-icon-delete remove-value button" aria-label="<?php echo $translate('Remove value'); ?>" title="<?php echo $translate('Remove value'); ?>"></button>
+            <button type="button" class="o-icon-delete remove-value button" aria-label="<?php echo $this->escapeHtmlAttr($translate('Remove value')); ?>" title="<?php echo $this->escapeHtmlAttr($translate('Remove value')); ?>"></button>
         </div>
             <?php
             $index++;
@@ -107,5 +107,5 @@ if ($this->status()->isSiteRequest()) {
         ?>
 
     </div>
-    <button type="button" class="add-value o-icon-add button" aria-label="<?php echo $translate('Add new value'); ?>" title="<?php echo $translate('Add new value'); ?>"></button>
+    <button type="button" class="add-value o-icon-add button" aria-label="<?php echo $this->escapeHtmlAttr($translate('Add new value')); ?>" title="<?php echo $this->escapeHtmlAttr($translate('Add new value')); ?>"></button>
 </div>

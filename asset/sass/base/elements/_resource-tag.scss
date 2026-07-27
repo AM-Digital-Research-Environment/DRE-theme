@@ -17,12 +17,42 @@
         font-weight: 600;
         padding: 5px 10px;
 
+        // Category swatch. helper/ResourceTags.php supplies only a hue angle as
+        // `--tag-hue`; lightness and chroma come from the theme, so the dot
+        // adapts to dark mode. It used to be an inline
+        // `hsl(<crc32>, 100%, 75.5%)` written from PHP — a fixed light-mode
+        // pastel that stayed pale-on-pale once the surface flipped, and which
+        // bypassed the token system entirely.
         .resource-tag-color {
             display: block;
             width: 14px;
             height: 14px;
             border-radius: 50%;
             margin-right: 5px;
+            background-color: oklch(var(--tag-l) var(--tag-c) var(--tag-hue, 0));
         }
     }
+}
+
+:root {
+    --tag-l: 72%;
+    --tag-c: 0.13;
+}
+
+@mixin am-dark-tags {
+    // Lifted and slightly desaturated so the dot reads on the forest-dark chip
+    // without glowing.
+    --tag-l: 68%;
+    --tag-c: 0.12;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { @include am-dark-tags; }
+}
+
+body[data-theme="dark"] { @include am-dark-tags; }
+
+body[data-theme="light"] {
+    --tag-l: 72%;
+    --tag-c: 0.13;
 }

@@ -1,0 +1,41 @@
+<?php
+/**
+ * Grid / list toggle for browse surfaces.
+ *
+ * Renders nothing unless the "Layout for Browse Pages" theme setting is one of
+ * the toggle variants. The ACTIVE button is the disabled one — that is the
+ * convention asset/js/browse.js and the stylesheet already rely on.
+ *
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var array $layout  The array returned by the browseLayout() view helper.
+ * @var bool  $icons   Render icon-only buttons (media browse) rather than labels.
+ */
+
+if (empty($layout['hasToggle'])) {
+    return;
+}
+
+$translate = $this->plugin('translate');
+$escapeAttr = $this->plugin('escapeHtmlAttr');
+$escape = $this->plugin('escapeHtml');
+$icons = isset($icons) ? (bool) $icons : false;
+
+$gridLabel = $translate('Grid');
+$listLabel = $translate('List');
+?>
+<div class="layout-toggle">
+    <?php // Icon buttons have no visible text, so they keep an aria-label. The
+          // labelled variant does not: its text content already names it, and a
+          // duplicate aria-label just overrides the (translatable) content. ?>
+    <button type="button" class="grid<?php echo $icons ? ' icon-btn o-icon-grid' : ''; ?>"
+        <?php echo $icons ? 'aria-label="' . $escapeAttr($gridLabel) . '"' : ''; ?>
+        <?php echo $layout['gridState'] ? 'disabled' : ''; ?>><?php
+        echo $icons ? '' : $escape($gridLabel); ?></button>
+
+    <?php if (!$icons): ?><span class="layout-toggle-separator"></span><?php endif; ?>
+
+    <button type="button" class="list<?php echo $icons ? ' icon-btn o-icon-list' : ''; ?>"
+        <?php echo $icons ? 'aria-label="' . $escapeAttr($listLabel) . '"' : ''; ?>
+        <?php echo $layout['listState'] ? 'disabled' : ''; ?>><?php
+        echo $icons ? '' : $escape($listLabel); ?></button>
+</div>

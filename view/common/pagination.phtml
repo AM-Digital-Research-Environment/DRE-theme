@@ -1,7 +1,7 @@
 <?php
 $translate = $this->plugin('translate');
 ?>
-<nav class="pagination" aria-label="<?php echo $translate('Pagination'); ?>">
+<nav class="pagination" aria-label="<?php echo $this->escapeHtmlAttr($translate('Pagination')); ?>">
     <?php if ($totalCount): ?>
 
         <?php
@@ -25,10 +25,10 @@ $translate = $this->plugin('translate');
                     <?php echo $this->queryToHiddenInputs(['page']); ?>
                     <label>
                         <?php echo $translate('Page'); ?>
-                        <input type="text" id="" name="page" class="page-input-top" value="<?php echo $currentPage; ?>" size="4" <?php echo ($pageCount == 1) ? 'readonly' : ''; ?> aria-label="<?php echo $translate('Page'); ?>">
+                        <input type="text" name="page" class="page-input-top" value="<?php echo (int) $currentPage; ?>" size="4" <?php echo ($pageCount == 1) ? 'readonly' : ''; ?> aria-label="<?php echo $this->escapeHtmlAttr($translate('Page')); ?>">
                     </label>
                     <span class="page-count"><?php echo sprintf($translate('of %s'), $pageCount); ?></span>
-                    <input type="submit" class="gotopage-btn" value="<?php echo $translate('Go'); ?>">
+                    <input type="submit" class="gotopage-btn" value="<?php echo $this->escapeHtmlAttr($translate('Go')); ?>">
                 </form>
 
                 <!-- Next Button -->

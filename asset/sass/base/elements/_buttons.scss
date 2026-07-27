@@ -106,7 +106,7 @@ button.icon-btn {
     }
 
     &:disabled,
-    &[disabled]
+    &[disabled],
     &.disabled {
         color: $color__disabled;
     }

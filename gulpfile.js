@@ -68,9 +68,15 @@ function prependHeader() {
 // Compile asset/sass/*.scss -> asset/css/*.css (compressed, autoprefixed).
 // Uses the Dart Sass module system (@use / @forward); leaf partials are
 // prefixed with "_" and are never compiled directly.
+//
+// NOTE: the option is `style`, NOT the legacy node-sass `outputStyle`.
+// gulp-sass 6 forwards options straight to Dart Sass's MODERN compile API,
+// which silently ignores unknown keys — so `outputStyle: 'compressed'` did
+// nothing and the theme shipped 168.5 KiB of expanded CSS instead of 141.0 KiB
+// on every page load. Don't "restore" the old key.
 function css() {
     return gulp.src('./asset/sass/*.scss')
-        .pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
+        .pipe(sass({ style: 'compressed' }).on('error', sass.logError))
         .pipe(postcss([autoprefixer()]))
         .pipe(prependHeader())
         .pipe(gulp.dest('./asset/css'));

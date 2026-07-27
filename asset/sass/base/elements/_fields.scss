@@ -175,3 +175,25 @@ fieldset {
         }
     }
 }
+
+// Checkbox fields, re-ordered by asset/js/script.js.
+//
+// Omeka emits `.field-meta` (label) then `.inputs` (control), which reads
+// backwards for a checkbox — so the script moves the label into `.inputs`,
+// after the box, and tags the container with this class. The presentation lives
+// here rather than as `style.float` / `style.marginRight` written from JS.
+.inputs--checkbox-inline {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+
+    input[type="checkbox"] {
+        flex: 0 0 auto;
+        margin: 0;
+    }
+
+    .field-meta {
+        flex: 1 1 auto;
+        margin: 0;
+    }
+}

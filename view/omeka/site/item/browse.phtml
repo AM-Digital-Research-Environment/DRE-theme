@@ -27,26 +27,14 @@ if ($itemSetShow) {
     $query['item_set_id'] = $itemSet->id();
 }
 
-$layoutSetting = $this->themeSetting('browse_layout', 'grid');
-$gridState = ($layoutSetting == 'togglegrid') ? 'disabled' : '';
-$listState = ($layoutSetting == 'togglelist') ? 'disabled': '';
-$isGrid = (strpos($layoutSetting, 'grid') !== false) ? true : false;
-
-if (isset($_GET['view'])) {
-    if ('list' === $_GET['view']) {
-        $gridState = '';
-        $listState = 'disabled';
-        $isGrid = false;
-    } else {
-        $gridState = 'disabled';
-        $listState = '';
-        $isGrid = true;
-    }
-}
+// Layout state (grid vs list, the ?view= override, body term and truncation)
+// comes from the BrowseLayout view helper — see helper/BrowseLayout.php.
+$layout = $this->BrowseLayout();
+$isGrid = $layout['isGrid'];
 
 $headingTerm = $this->siteSetting('browse_heading_property_term');
-$bodyTerm = $this->siteSetting('browse_body_property_term');
-$bodyTruncate = $this->themeSetting('truncate_body_property');
+$bodyTerm = $layout['bodyTerm'];
+$bodyTruncate = $layout['truncate'];
 
 ?>
 
@@ -102,13 +90,7 @@ $bodyTruncate = $this->themeSetting('truncate_body_property');
 <?php echo $this->pagination(); ?>
 
 <div class="browse-controls">
-    <?php if (strpos($layoutSetting, 'toggle') !== false): ?>
-        <div class="layout-toggle">
-            <button type="button" aria-label="<?php echo $translate('Grid'); ?>" class="grid" <?php echo $gridState; ?>><?php echo $translate('Grid'); ?></button>
-            <span class="layout-toggle-separator"></span>
-            <button type="button" aria-label="<?php echo $translate('List'); ?>" class="list" <?php echo $listState; ?>><?php echo $translate('List'); ?></button>        
-        </div>
-    <?php endif; ?>
+    <?php echo $this->partial('common/browse-layout-toggle', ['layout' => $layout]); ?>
     <?php echo $this->browse()->renderSortSelector('items'); ?>
     <div class="advanced-search-container">
         <?php echo $this->hyperlink($translate('Advanced search'), $this->url('site/resource', ['controller' => 'item', 'action' => 'search'], ['query' => $query], true), ['class' => 'advanced-search']); ?>
@@ -163,35 +145,21 @@ $bodyTruncate = $this->themeSetting('truncate_body_property');
         $body = $bodyTerm ? $item->value($bodyTerm, ['lang' => ($valueLang)]) : $item->displayDescription(null, ($valueLang));
         $media = $item->primaryMedia();
         $altText = $media ? ($media->altText() ?: $item->displayTitle()) : $item->displayTitle();
-        $thumbnail = $this->thumbnail($item, 'large', ['alt' => $altText]);
         // The first row of cards rises in on entry — the DRE's shared reveal
         // grammar (F11, asset/js/reveal.js + utilities/_reveal.scss), a gentle
         // stagger echoing the home hero's arrival. Only the first few are tagged
         // so a long list doesn't animate end to end.
-        $revealAttr = $revealIndex < 6 ? ' data-rv-reveal="' . ($revealIndex * 70) . '"' : '';
+        echo $this->partial('common/resource-card', [
+            'resource' => $item,
+            'heading' => $heading,
+            'body' => $body,
+            'bodyTruncate' => $bodyTruncate,
+            'thumbnail' => $this->thumbnail($item, 'large', ['alt' => $altText]),
+            'isGrid' => $isGrid,
+            'reveal' => $revealIndex < 6 ? $revealIndex * 70 : null,
+        ]);
         $revealIndex++;
-        ?>
-        <div class="item resource <?php echo ($isGrid) ? '' : 'media-object'; ?>"<?php echo $revealAttr; ?>>
-            <!-- Thumbnail -->
-            <?php if ($thumbnail): ?>
-                <div class="resource__thumbnail">
-                    <?php echo $item->linkRaw($thumbnail); ?>
-                </div>
-            <?php endif; ?>
-
-            <!-- Content -->
-            <div class="resource__content">
-                <?php echo $this->ResourceTags($item); ?>
-                <!-- Metadata -->
-                <div class="resource__meta <?php echo ($isGrid) ? '' : 'media-object-section'; ?>">
-                    <?php echo $item->link($heading); ?>
-                    <?php if ($body): ?>
-                        <div class="description <?php echo ($bodyTruncate) ? $bodyTruncate : ''; ?>"><?php echo $escape($body); ?></div>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </div>
-    <?php endforeach; ?>
+    endforeach; ?>
 
 </div>
 

@@ -1,10 +1,20 @@
+/**
+ * script.js — assorted layout chrome: sticky-header auto-hide, anchor
+ * scroll-padding, annotation tooltips, the collapsible header search, and the
+ * generic tooltip component.
+ *
+ * NOTE: this file used to also position a `.main-banner` image wrapper. That
+ * banner component no longer exists — the masthead is the CSS-drawn
+ * `.site-banner` (view/common/banner.phtml) — so ~25 lines of dead code and
+ * three selectors that matched nothing have been removed.
+ */
+(function () {
+    'use strict';
+
 const dreScripts = () => {
 
     const mainHeader = document.querySelector('.main-header');
     const mainHeaderMainBar = document.querySelector('.main-header__main-bar');
-    const mainBanner = document.querySelector('.main-banner');
-    const mainBannerImgWrapper = document.querySelector('.main-banner__image-wrapper');
-    const mainBannerImgShape = document.querySelector('.main-banner__image-shape');
     const menuDrawer = document.getElementById('menu-drawer');
     const menuToggle = document.querySelector( '.main-navigation__toggle' );
     let mainHeaderSearch = null;
@@ -113,48 +123,28 @@ const dreScripts = () => {
 
     // Resize Events
 
-    let timeout = false;
-    const delay = 150;
-
-    onResize();
+    const RESIZE_DELAY = 150;
 
     function onResize() {
         refreshScrollPadding();
         onScroll(lastKnownScrollPosition);
-        setBannerImagePosition();
 
         if (menuToggle && window.innerWidth >= DESKTOP_MENU_MIN_WIDTH && menuToggle.getAttribute('aria-expanded') === 'true') {
             menuToggle.click();
         }
     }
 
-    window.addEventListener('resize', function() {
-        clearTimeout(timeout);
-        timeout = setTimeout(onResize, delay);
-    });
+    onResize();
 
-    function setBannerImagePosition() {
-        if (mainBanner === null || mainBannerImgWrapper === null) {
-            return;
-        }
-
-        if ((mainBanner.offsetHeight + 35) > (mainBannerImgWrapper.offsetHeight / 2)) {
-            mainBannerImgWrapper.style.transform = 'translateY(-50%)';
-            mainBannerImgWrapper.style.bottom = 'auto';
-            if (mainBannerImgShape !== null) {
-                mainBannerImgShape.style.top = 0;
-                mainBannerImgShape.style.bottom = 'auto';
-            }
-
-        } else {
-            mainBannerImgWrapper.style.transform = 'none';
-            mainBannerImgWrapper.style.bottom = '-35px';
-            if (mainBannerImgShape !== null) {
-                mainBannerImgShape.style.top = 'auto';
-                mainBannerImgShape.style.bottom = '-28px';
-            }
-        }
-    }
+    const debounce = (window.DREUtils && window.DREUtils.debounce)
+        || ((fn, wait) => {
+            let t = null;
+            return (...args) => {
+                clearTimeout(t);
+                t = setTimeout(() => fn(...args), wait);
+            };
+        });
+    window.addEventListener('resize', debounce(onResize, RESIZE_DELAY));
 
     // Annotations tooltip position
 
@@ -162,7 +152,16 @@ const dreScripts = () => {
 
     annotationBtns.forEach((annotationBtn) => {
         const annotationTooltip = annotationBtn.querySelector('.annotation-tooltip');
+        // Guarded: an .annotation-btn without its tooltip markup used to throw
+        // here, and because everything in this file shares one function scope,
+        // that took out the header search, the form fixes and the tooltips below.
+        if (!annotationTooltip) {
+            return;
+        }
         const annotationTooltipWrapper = annotationTooltip.querySelector('.annotation-tooltip__wrapper');
+        if (!annotationTooltipWrapper || !mainHeader) {
+            return;
+        }
 
         const eventList = ['click', 'mouseover'];
         eventList.forEach((event) => {
@@ -227,17 +226,23 @@ const dreScripts = () => {
     }
 
     // Forms
-    const forms = document.querySelectorAll('form');
-    forms.forEach(form => {
-        const checkboxes = form.querySelectorAll('input[type="checkbox"]');
-        checkboxes.forEach(checkbox => {
-            if (checkbox.parentElement.classList.contains('inputs')) {
-                const previousElementSibling = checkbox.parentElement.previousElementSibling;
-                if (previousElementSibling && previousElementSibling.classList.contains('field-meta')) {
-                    checkbox.parentElement.append(previousElementSibling);
-                    checkbox.style.float = 'left';
-                    checkbox.style.marginRight = '10px';
-                }
+    //
+    // Omeka renders a checkbox field as `.field-meta` (the label) followed by
+    // `.inputs` (the control). For checkboxes that reads backwards, so the label
+    // is moved after the box. Only the DOM move happens here — the presentation
+    // is a class the stylesheet owns (`.inputs--checkbox-inline` in
+    // base/elements/_fields.scss); this used to set `float` and `marginRight` as
+    // inline styles from JS.
+    document.querySelectorAll('form').forEach(form => {
+        form.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            const inputs = checkbox.parentElement;
+            if (!inputs || !inputs.classList.contains('inputs')) {
+                return;
+            }
+            const fieldMeta = inputs.previousElementSibling;
+            if (fieldMeta && fieldMeta.classList.contains('field-meta')) {
+                inputs.append(fieldMeta);
+                inputs.classList.add('inputs--checkbox-inline');
             }
         });
     });
@@ -274,8 +279,12 @@ const dreScripts = () => {
     });
 }
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', dreScripts);
+if (window.DREUtils && typeof window.DREUtils.onReady === 'function') {
+    window.DREUtils.onReady(dreScripts);
+} else if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', dreScripts, { once: true });
 } else {
     dreScripts();
 }
+
+})();

@@ -33,14 +33,16 @@
             cursor: pointer;                 // bare <button> defaults to the arrow (see toggle note)
             text-decoration: underline;
 
-            &:hover,
-            &:active,
-            &:focus {
-                outline: none;
-            }
+            // NB: there was a `&:hover, &:active, &:focus { outline: none }`
+            // block here. It set nothing but the outline, and beat the global
+            // :focus-visible rule on specificity — so these toggles had no
+            // keyboard focus indicator. Removed entirely; base/_theme.scss owns
+            // the ring. Don't reintroduce an `outline: none` without a
+            // replacement indicator (see the pattern in _linked-resources.scss,
+            // which swaps in `box-shadow: var(--ring-focus)`).
 
             &:disabled,
-            &[disabled]
+            &[disabled],
             &.disabled {
                 color: $color__disabled;
                 text-decoration: none;
