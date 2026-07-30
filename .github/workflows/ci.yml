@@ -1,0 +1,85 @@
+name: CI
+
+# The theme is developed on a machine with no PHP binary, so `npm run lint:php`
+# SKIPS locally when it cannot find one. This workflow is where that asymmetry is
+# paid for: PHP is always present here, so the check runs with `--require` and a
+# syntax error or a broken metadata grouping cannot reach a release.
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  css-and-contracts:
+    name: CSS build + design contracts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # lint:tokens (incl. computed WCAG contrast), lint:ini, lint:templates,
+      # lint:groups, lint:php — then the Sass build.
+      - name: Build
+        run: npm run build
+
+      - name: Translations are up to date
+        run: npm run i18n:check
+
+      # A stale asset/css/style.css is a real failure mode: the compiled CSS is
+      # committed, so a Sass change that was never rebuilt ships the old styles.
+      - name: Compiled CSS matches the Sass sources
+        run: |
+          if ! git diff --quiet -- asset/css/style.css; then
+            echo "::error::asset/css/style.css is out of date — run 'npm run build' and commit the result."
+            git diff --stat -- asset/css/style.css
+            exit 1
+          fi
+
+  php:
+    name: PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Both ends of the supported range, because local development happens at
+        # ONE version and the theme is published for any of them:
+        #   8.1 — the floor. theme.ini allows Omeka S ^4.2.0, and 4.2.0 runs on
+        #         PHP 8.1+, so a GPL theme installed from GitHub can land on an
+        #         8.1 host. 8.2+ syntax parses happily on a newer local PHP and
+        #         fatals there.
+        #   8.5 — the ceiling, and what the Cluster's own instance runs (Omeka S
+        #         4.2.1 supports up to 8.5). Catches the deprecations that would
+        #         actually show up in production.
+        # 8.3 covers the middle.
+        php: ['8.1', '8.3', '8.5']
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # --require turns the local "skip if no PHP" into a hard gate. Runs
+      # `php -l` over every .php/.phtml under view/, helper/ and tests/, then
+      # executes the theme's PHP tests.
+      - name: PHP syntax + behaviour
+        run: npm run lint:php:require
+
+      - name: Deprecation notices are failures, not warnings
+        run: php -d error_reporting=E_ALL -d display_errors=1 tests/ResourceGroupsTest.php

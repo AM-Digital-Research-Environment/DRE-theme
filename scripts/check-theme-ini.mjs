@@ -25,9 +25,8 @@
  *
  * Exit code 1 on any finding; prints the offending line where it has one.
  */
-import { readFileSync, readdirSync, existsSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { execSync } from 'node:child_process';
 
 const ROOT = join(import.meta.dirname, '..');
 const INI = join(ROOT, 'config', 'theme.ini');
@@ -93,20 +92,32 @@ text.split(/\r?\n/).forEach((raw, i) => {
 });
 
 // --- 4. Declared-but-never-read elements ---------------------------------
-const grep = (cmd) => {
-    try {
-        return execSync(cmd, { cwd: ROOT, encoding: 'utf8' });
-    } catch {
-        return ''; // grep exits 1 on no match
+//
+// Scanned in Node rather than shelled out to grep. The previous
+// `execSync('grep -rhoE …')` silently returned an empty string on any platform
+// without grep — Windows/cmd.exe, i.e. `npm run build` — and an empty result
+// means "no element is read anywhere", so the check reported EVERY field as
+// dead. A lint that fails open on one OS and closed on another is worse than no
+// lint; this walks the tree itself.
+function* filesUnder(dir, exts) {
+    if (!existsSync(dir)) return;
+    for (const name of readdirSync(dir)) {
+        const p = join(dir, name);
+        if (statSync(p).isDirectory()) yield* filesUnder(p, exts);
+        else if (exts.some((e) => name.endsWith(e))) yield p;
     }
-};
+}
+
 // Allow whitespace inside the parens: themeSetting( 'x' ) is used too.
-const readNames = new Set(
-    grep(`grep -rhoE "themeSetting\\( *['\\"][a-z_]+" view helper`)
-        .split('\n')
-        .map((l) => l.replace(/.*themeSetting\(\s*['"]/, '').trim())
-        .filter(Boolean)
-);
+const readNames = new Set();
+for (const dir of ['view', 'helper']) {
+    for (const file of filesUnder(join(ROOT, dir), ['.phtml', '.php'])) {
+        const src = readFileSync(file, 'utf8');
+        for (const m of src.matchAll(/themeSetting\(\s*['"]([a-z_]+)['"]/g)) {
+            readNames.add(m[1]);
+        }
+    }
+}
 for (const [name, line] of elements) {
     if (readNames.has(name)) continue;
     if (DYNAMIC_READS.some((re) => re.test(name))) continue;

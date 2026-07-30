@@ -1,7 +1,9 @@
+// variables/_layout.scss is gone: $header-min-height / $wrap-max-width were the
+// last two pieces of page geometry that CSS could not read. They are now
+// --header-height / --container-max in variables/_tokens.scss.
 @forward "variables/breakpoints";
 @forward "variables/tokens";
 @forward "variables/colors";
-@forward "variables/layout";
 @forward "variables/typography";
 
 @forward "mixins/mixins";

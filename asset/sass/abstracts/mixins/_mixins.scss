@@ -13,18 +13,18 @@
     width: map-get($columns, $numberColumns) - ( ( $columns__margin * ( $numberColumns - 1 ) ) / $numberColumns );
 }
 
-// Container mixin
+// Container mixin — page geometry from the layout tokens. The width used to be
+// a bare 1440px here while $wrap-max-width said 1300px and the search page
+// hard-coded 1160px: three container widths, none of them readable from CSS.
+// --container-max is now the single answer, and --container-gutter is itself
+// responsive (see _tokens.scss), so this needs no breakpoint of its own.
 @mixin container {
     width: 100%;
-    max-width: 1440px;
+    max-width: var(--container-max);
     margin-left: auto;
     margin-right: auto;
-    padding: 0 var(--space-4);
+    padding: 0 var(--container-gutter);
     position: relative;
-
-    @media (min-width: $md) {
-        padding: 0 var(--space-8);
-    }
 }
 
 @mixin clearfix {

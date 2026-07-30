@@ -1,4 +1,20 @@
 <?php
+/**
+ * Item record — a reading column beside a sticky apparatus rail.
+ *
+ * The page used to be a single flat column of resource-page blocks inside
+ * `.regions-container`, which meant home, browse, item and static pages all had
+ * the same silhouette — the thing that makes a collection read like an admin
+ * back-end. The record now gets a layout of its own: the intellectual content
+ * at a real reading measure, and the apparatus (citation, DOI, licence, access
+ * rights, the record's own identifier) in a rail the reader meets without
+ * scrolling past it.
+ *
+ * The rail is theme-provided but does not take the right region over: whatever
+ * blocks an admin has configured for "Right sidebar" render below the
+ * apparatus. With neither present the rail is dropped entirely and the record
+ * takes the full width.
+ */
 $translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
 
@@ -16,6 +32,12 @@ $leftSidebarBlockContent = $this->resourcePageBlocks($item, 'left');
 $leftSidebarHasBlocks = $leftSidebarBlockContent->hasBlocks();
 $rightSidebarBlockContent = $this->resourcePageBlocks($item, 'right');
 $rightSidebarHasBlocks = $rightSidebarBlockContent->hasBlocks();
+
+// The apparatus renders nothing when the record carries no citation, DOI,
+// licence, access rights or identifier — capture it so an empty one does not
+// leave an empty rail behind.
+$apparatus = trim((string) $this->partial('common/record-apparatus', ['resource' => $item]));
+$hasRail = ($apparatus !== '') || $rightSidebarHasBlocks;
 ?>
 
 <?php echo $this->ResourceTags($item); ?>
@@ -23,40 +45,33 @@ $rightSidebarHasBlocks = $rightSidebarBlockContent->hasBlocks();
 
 <?php $this->trigger('view.show.before'); ?>
 
-<?php if ($mainHasBlocks || $leftSidebarHasBlocks || $rightSidebarHasBlocks): ?>
+<?php if ($mainHasBlocks || $leftSidebarHasBlocks || $hasRail): ?>
 
-    <?php
-    $additionalContainerClasses = '';
-    if ($mainHasBlocks && $leftSidebarHasBlocks && $rightSidebarHasBlocks) {
-        $additionalContainerClasses = 'regions-container--all';
-    } elseif ($mainHasBlocks && !$leftSidebarHasBlocks && !$rightSidebarHasBlocks) {
-        $additionalContainerClasses = 'regions-container--main';
-    }
-    ?>
+    <div class="item-record<?php echo $hasRail ? ' item-record--railed' : ''; ?>">
+        <div class="item-record__main">
+            <?php if ($leftSidebarHasBlocks && $blockContent = $leftSidebarBlockContent->getBlocks()): ?>
+                <div class="metadata item-record__aside-blocks">
+                    <?php echo $blockContent; ?>
+                </div>
+            <?php endif; ?>
 
-    <div class="regions-container <?php echo $additionalContainerClasses; ?>">
-        <?php if ($leftSidebarHasBlocks && $blockContent = $leftSidebarBlockContent->getBlocks()): ?>
-            <div class="sidebar-region sidebar-region--left">
+            <?php if ($mainHasBlocks && $blockContent = $mainBlockContent->getBlocks()): ?>
                 <div class="metadata">
                     <?php echo $blockContent; ?>
                 </div>
-            </div>
-        <?php endif; ?>
+            <?php endif; ?>
+        </div>
 
-        <?php if ($mainHasBlocks && $blockContent = $mainBlockContent->getBlocks()): ?>
-            <div class="main-region">
-                <div class="metadata">
-                    <?php echo $blockContent; ?>
-                </div>
-            </div>
-        <?php endif; ?>
+        <?php if ($hasRail): ?>
+            <aside class="item-record__rail">
+                <?php echo $apparatus; ?>
 
-        <?php if ($rightSidebarHasBlocks && $blockContent = $rightSidebarBlockContent->getBlocks()): ?>
-            <div class="sidebar-region sidebar-region--right">
-                <div class="metadata">
-                    <?php echo $blockContent; ?>
-                </div>
-            </div>
+                <?php if ($rightSidebarHasBlocks && $blockContent = $rightSidebarBlockContent->getBlocks()): ?>
+                    <div class="metadata item-record__rail-blocks">
+                        <?php echo $blockContent; ?>
+                    </div>
+                <?php endif; ?>
+            </aside>
         <?php endif; ?>
     </div>
 

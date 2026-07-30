@@ -1,0 +1,143 @@
+<?php
+/**
+ * Record apparatus — the citation / identifier / licence rail.
+ *
+ * A reader arriving at a journal article with a DOI used to find no citation,
+ * licence or download affordance anywhere near the top: the DOI was one row of
+ * ~25 in a flat metadata dump, indistinguishable from `Format`. The apparatus
+ * now sits in a sticky rail beside the record, so it is met without scrolling
+ * past it, and the metadata groups below stay about the *content*.
+ *
+ * Everything here is optional and self-suppressing: with no citation, DOI,
+ * licence or identifier the partial renders nothing and item/show.phtml drops
+ * the rail, giving the record the full measure.
+ *
+ * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+ */
+
+$escHtml = $this->plugin('escapeHtml');
+$escAttr = $this->plugin('escapeHtmlAttr');
+$translate = $this->plugin('translate');
+
+if (!isset($resource) || !$resource) {
+    return;
+}
+
+/** First plain-text value for a term, or '' — never throws on an unknown term. */
+$text = function (string $term) use ($resource): string {
+    try {
+        $value = $resource->value($term);
+        return $value ? trim((string) $value) : '';
+    } catch (\Throwable $e) {
+        return '';
+    }
+};
+
+/** First value for a term as [label, href] where it carries a URI. */
+$linked = function (string $term) use ($resource): array {
+    try {
+        $value = $resource->value($term);
+        if (!$value) {
+            return ['', ''];
+        }
+        $label = trim((string) $value);
+        $href = '';
+        if ('uri' === $value->type()) {
+            $href = (string) $value->uri();
+        }
+        return [$label, $href];
+    } catch (\Throwable $e) {
+        return ['', ''];
+    }
+};
+
+$citation = $text('dcterms:bibliographicCitation');
+[$doi, $doiHref] = $linked('bibo:doi');
+[$licence, $licenceHref] = $linked('dcterms:license');
+$accessRights = $text('dcterms:accessRights');
+$dreId = $text('dre:id');
+
+// A bare DOI string is still a resolvable link.
+if ($doi !== '' && $doiHref === '' && preg_match('~^10\.\d{4,9}/\S+$~', $doi)) {
+    $doiHref = 'https://doi.org/' . $doi;
+}
+
+try {
+    $permalink = (string) $resource->url();
+} catch (\Throwable $e) {
+    $permalink = '';
+}
+
+if ($citation === '' && $doi === '' && $licence === '' && $accessRights === '' && $dreId === '' && $permalink === '') {
+    return;
+}
+
+// Prefer a real citation; otherwise give the copy button something honest —
+// the record's title and its permalink.
+$copyText = $citation;
+if ($copyText === '') {
+    try {
+        $copyText = trim($resource->displayTitle() . ($permalink !== '' ? '. ' . $permalink : ''));
+    } catch (\Throwable $e) {
+        $copyText = $permalink;
+    }
+}
+
+$this->inlineScript()->appendFile($this->assetUrl('js/record.js'));
+?>
+<section class="record-apparatus" aria-labelledby="record-apparatus-title">
+    <h2 class="record-apparatus__title" id="record-apparatus-title"><?php echo $escHtml($translate('Cite this record')); ?></h2>
+
+    <?php if ($citation !== ''): ?>
+        <p class="record-apparatus__citation"><?php echo $escHtml($citation); ?></p>
+    <?php endif; ?>
+
+    <?php if ($doi !== '' || $permalink !== '' || $licence !== '' || $accessRights !== '' || $dreId !== ''): ?>
+        <dl class="record-apparatus__rows">
+            <?php if ($doi !== ''): ?>
+                <div class="record-apparatus__row">
+                    <dt><?php echo $escHtml($translate('DOI')); ?></dt>
+                    <dd><?php if ($doiHref !== ''): ?><a href="<?php echo $escAttr($doiHref); ?>"><?php echo $escHtml($doi); ?></a><?php else: ?><?php echo $escHtml($doi); ?><?php endif; ?></dd>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($permalink !== ''): ?>
+                <div class="record-apparatus__row">
+                    <dt><?php echo $escHtml($translate('Permalink')); ?></dt>
+                    <dd><a href="<?php echo $escAttr($permalink); ?>"><?php echo $escHtml($permalink); ?></a></dd>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($licence !== ''): ?>
+                <div class="record-apparatus__row">
+                    <dt><?php echo $escHtml($translate('Licence')); ?></dt>
+                    <dd><?php if ($licenceHref !== ''): ?><a href="<?php echo $escAttr($licenceHref); ?>"><?php echo $escHtml($licence); ?></a><?php else: ?><?php echo $escHtml($licence); ?><?php endif; ?></dd>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($accessRights !== ''): ?>
+                <div class="record-apparatus__row">
+                    <dt><?php echo $escHtml($translate('Access rights')); ?></dt>
+                    <dd><?php echo $escHtml($accessRights); ?></dd>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($dreId !== ''): ?>
+                <div class="record-apparatus__row">
+                    <dt><?php echo $escHtml($translate('DRE ID')); ?></dt>
+                    <dd><?php echo $escHtml($dreId); ?></dd>
+                </div>
+            <?php endif; ?>
+        </dl>
+    <?php endif; ?>
+
+    <?php // Progressive enhancement: record.js reveals this only where the
+          // async clipboard API is available, so it is never a dead control. ?>
+    <div class="record-apparatus__actions" data-record-copy hidden>
+        <button type="button" class="button btn--secondary record-apparatus__copy"
+            data-copy-text="<?php echo $escAttr($copyText); ?>"
+            data-copied-label="<?php echo $escAttr($translate('Copied')); ?>">
+            <?php echo $escHtml($translate('Copy citation')); ?>
+        </button>
+    </div>
+</section>

@@ -1,18 +1,349 @@
 @use "../../abstracts" as *;
 
 // ==========================================================================
-// Metadata — the record itself, the most-read surface in the archive.
+// The record — the most-read surface in the archive.
 //
-// Two-column layout on a CSS grid: a quiet uppercase label rail in the UI
-// grotesque names each property; the values column carries the content.
-// Labels and first values share a baseline; dates and identifiers align
-// across rows (tabular figures). Sidebar regions keep the stacked flow.
+// Three layers:
+//   .item-record   — the page: reading column + sticky apparatus rail
+//   .record        — the grouped property sets inside it
+//   .metadata      — the long-standing wrapper Omeka's resource-page blocks
+//                    render into (kept, so every block keeps its styling)
+//
+// Content before apparatus: title, abstract and subjects lead at a real reading
+// measure; identifiers, IDs and URIs are grouped last; citation, DOI and licence
+// live in the rail. Never in database order.
 // ==========================================================================
-.metadata {
-    // Label-rail width for the two-column dt/dd layout below — one named
-    // constant instead of a magic number repeated on both sides.
-    --metadata-label-col: 10.625rem;
 
+// --------------------------------------------------------------------------
+// Page layout
+// --------------------------------------------------------------------------
+.item-record {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-12);
+    margin-bottom: var(--space-12);
+
+    &--railed {
+        @media (min-width: $lg) {
+            grid-template-columns: minmax(0, 1fr) var(--rail-width);
+            gap: var(--space-16);
+            align-items: start;
+        }
+    }
+}
+
+.item-record__main {
+    min-width: 0;
+}
+
+// The "left sidebar" region. It is rare, and at the record's new proportions a
+// third column would crush the reading measure, so its blocks lead the main
+// column — separated by a hairline so they read as their own band rather than
+// merging into the record below.
+.item-record__aside-blocks {
+    margin-bottom: var(--space-10);
+    padding-bottom: var(--space-8);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.item-record__rail {
+    min-width: 0;
+
+    @media (min-width: $lg) {
+        position: sticky;
+        // Clear the sticky header, then breathe. Derived, so a header height
+        // change moves the rail with it.
+        top: var(--scroll-offset);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-6);
+    }
+}
+
+// --------------------------------------------------------------------------
+// Grouped property sets
+// --------------------------------------------------------------------------
+.record__group {
+    margin-bottom: var(--space-12);
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+// A quiet section rule, not a heading that competes with the record title.
+.record__group-title {
+    margin: 0 0 var(--space-4);
+    padding-bottom: var(--space-3);
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--ink-light);
+    line-height: var(--leading-snug);
+    border-bottom: 1px solid var(--border);
+}
+
+.record__list {
+    margin: 0;
+}
+
+// --- Rows: the label rail --------------------------------------------------
+//
+// 12rem, a 14px SENTENCE-CASE label in the UI grotesque. The rail used to be
+// 10.625rem of 13px uppercase at --ink-subtle with wide tracking — too narrow
+// for the real vocabulary ("Copyright Date", "Parent project", "Access Rights"
+// all wrapped to two lines while the value sat on the first baseline), and the
+// theme's worst contrast case in the bargain.
+//
+// A mixin, because `.property` rows are emitted from three places: the grouped
+// record (common/resource-values.phtml) and the standalone "Item sets" / "Media"
+// lists in the item-with-metadata block and the media-list resource block. All
+// three are the same component and must not drift apart.
+@mixin record-row {
+    margin-bottom: 0;
+    padding-block: var(--space-4);
+    border-bottom: 1px solid var(--border-light);
+
+    &:last-child {
+        border-bottom: 0;
+    }
+
+    @media (min-width: $md) {
+        display: grid;
+        grid-template-columns: var(--label-col) minmax(0, 1fr);
+        column-gap: var(--space-6);
+        align-items: baseline;
+    }
+
+    dt {
+        grid-column: 1;
+        font-family: var(--font-body);
+        font-size: var(--text-sm);
+        font-weight: 500;
+        letter-spacing: var(--tracking-normal);
+        text-transform: none;
+        color: var(--ink-light);
+        line-height: var(--leading-snug);
+        margin-bottom: var(--space-1);
+        word-wrap: break-word;
+
+        @media (min-width: $md) {
+            margin-bottom: 0;
+        }
+
+        // The optional "(dcterms:…)" term annotation stays quiet beside the label.
+        .field-term {
+            font-size: inherit;
+            font-weight: 400;
+            color: var(--ink-subtle);
+        }
+    }
+
+    dd {
+        grid-column: 2;
+        margin: 0 0 var(--space-2);
+        font-size: var(--text-base);
+        word-break: break-word;
+        overflow-wrap: anywhere;
+        white-space: normal;
+        font-variant-numeric: tabular-nums;   // dates/ids align across rows
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    .language {
+        margin-right: var(--space-1);
+    }
+}
+
+.record__group--rows .record__list > .property,
+.metadata dl.item-sets > .property,
+.metadata dl.media-list > .property {
+    @include record-row;
+}
+
+// --- Prose: abstract and description --------------------------------------
+//
+// The reading tier. Long-form prose is set in the display serif at a real
+// measure — the split from operational text (labels, chips, values in Hanken)
+// is deliberate and is most visible right here.
+.record__group--prose {
+    max-width: var(--measure-narrow);
+
+    .record__list > .property {
+        margin-bottom: 0;
+    }
+
+    // Where the section heading already names the property, the label is carried
+    // for assistive technology only and the template marks it `.sr-only`;
+    // :not() keeps these rules from re-introducing box metrics on it. Where a
+    // prose group holds several properties the label shows, as a label.
+    dt:not(.sr-only) {
+        display: block;
+        margin-bottom: var(--space-2);
+        font-family: var(--font-body);
+        font-size: var(--text-sm);
+        font-weight: 600;
+        color: var(--ink-light);
+    }
+
+    dd {
+        margin: 0 0 var(--space-5);
+        font-family: var(--font-display);
+        font-size: var(--text-lg);
+        line-height: var(--leading-relaxed);
+        color: var(--ink);
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+
+        p:last-child {
+            margin-bottom: 0;
+        }
+    }
+}
+
+// --- Chips: subjects -------------------------------------------------------
+//
+// Twelve subject links in a row of running text read as a wall. As chips they
+// read as a set — and each is a real target at 32px minimum.
+.record__group--chips {
+    .record__list > .property {
+        margin-bottom: var(--space-4);
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    dt:not(.sr-only) {
+        display: block;
+        margin-bottom: var(--space-3);
+        font-family: var(--font-body);
+        font-size: var(--text-sm);
+        font-weight: 600;
+        color: var(--ink-light);
+    }
+
+    // The dd set becomes an inline run of chips.
+    dd {
+        display: inline-flex;
+        margin: 0 var(--space-2) var(--space-2) 0;
+    }
+
+    .value-content {
+        display: inline-flex;
+    }
+
+    // Style the anchor itself, so the chip IS the target (a chip-shaped <dd>
+    // with a small link inside would be a 15px hit area in a 32px box).
+    .value-content a,
+    dd > a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 2rem;
+        padding: var(--space-1) var(--space-3);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-full);
+        background-color: var(--surface);
+        color: var(--ink);
+        font-size: var(--text-sm);
+        line-height: var(--leading-snug);
+        text-decoration: none;
+        transition:
+            border-color var(--transition-fast),
+            background-color var(--transition-fast),
+            color var(--transition-fast);
+
+        &:hover {
+            border-color: var(--primary);
+            background-color: var(--primary-muted);
+            color: var(--primary-text);
+        }
+    }
+}
+
+// --------------------------------------------------------------------------
+// The apparatus rail
+// --------------------------------------------------------------------------
+.record-apparatus {
+    padding: var(--space-5);
+    background-color: var(--panel-bg);
+    border: var(--panel-border);
+    border-radius: var(--panel-radius);
+}
+
+.record-apparatus__title {
+    margin: 0 0 var(--space-4);
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--ink-light);
+}
+
+.record-apparatus__citation {
+    margin: 0 0 var(--space-4);
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    line-height: var(--leading-normal);
+    color: var(--ink);
+}
+
+.record-apparatus__rows {
+    margin: 0;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border-light);
+}
+
+.record-apparatus__row {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-bottom: var(--space-3);
+    font-size: var(--text-sm);
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+
+    dt {
+        flex: none;
+        margin: 0;
+        font-size: inherit;
+        font-weight: 400;
+        color: var(--ink-light);
+    }
+
+    dd {
+        margin: 0;
+        min-width: 0;
+        text-align: right;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+}
+
+.record-apparatus__actions {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+}
+
+.record-apparatus__copy {
+    flex: 1;
+}
+
+// --------------------------------------------------------------------------
+// .metadata — the wrapper Omeka's resource-page blocks render into.
+// --------------------------------------------------------------------------
+.metadata {
     width: 100%;
 
     @media (min-width: $md) {
@@ -38,62 +369,6 @@
 
         &:last-child {
             margin-bottom: 0;
-        }
-
-        > .property {
-            margin-bottom: var(--space-5);
-
-            @media (min-width: $md) {
-                display: grid;
-                grid-template-columns: var(--metadata-label-col) 1fr;
-                column-gap: var(--space-6);
-                align-items: baseline;
-            }
-
-            // Label — an eyebrow in the UI grotesque; the rail names the
-            // property, the values carry the content.
-            dt {
-                grid-column: 1;
-                font-family: var(--font-body);
-                font-size: var(--text-xs);
-                font-weight: 600;
-                letter-spacing: var(--tracking-wide);
-                text-transform: uppercase;
-                color: var(--ink-subtle);
-                line-height: 1.4;
-                margin-bottom: var(--space-1);
-                word-wrap: break-word;
-
-                @media (min-width: $md) {
-                    margin-bottom: 0;
-                }
-
-                // The optional "(dcterms:…)" term annotation stays lowercase
-                // and quiet beside the caps label.
-                .field-term {
-                    font-size: inherit;
-                    font-weight: 400;
-                    letter-spacing: var(--tracking-normal);
-                    text-transform: none;
-                }
-            }
-
-            dd {
-                grid-column: 2;
-                margin: 0 0 var(--space-3);
-                word-break: break-word;
-                overflow-wrap: anywhere;
-                white-space: normal;
-                font-variant-numeric: tabular-nums;   // dates/ids align across rows
-
-                &:last-child {
-                    margin-bottom: 0;
-                }
-            }
-
-            .language {
-                margin-right: var(--space-1);
-            }
         }
     }
 
@@ -144,13 +419,39 @@
     }
 }
 
-// Narrow sidebar regions keep the stacked flow — a label rail would crush
-// the values at sidebar widths — and recover the label/value gap the grid
-// context zeroes out.
-.sidebar-region .metadata dl > .property {
-    display: block;
+// A subject chip must not inherit the resource-value thumbnail treatment.
+.record__group--chips .value.resource .resource-link img {
+    display: none;
+}
 
-    dt {
-        margin-bottom: var(--space-1);
+// ==========================================================================
+// Narrow contexts — the rail's own blocks, the legacy sidebar regions, and any
+// grouped record rendered inside them. A label rail would crush the values at
+// these widths, so rows stack and prose drops back to the UI measure.
+// ==========================================================================
+.item-record__rail,
+.sidebar-region {
+    .record__group {
+        margin-bottom: var(--space-8);
+    }
+
+    .record__group--rows .record__list > .property,
+    .metadata dl.item-sets > .property,
+    .metadata dl.media-list > .property {
+        display: block;
+
+        dt {
+            margin-bottom: var(--space-1);
+        }
+    }
+
+    .record__group--prose {
+        max-width: none;
+
+        dd {
+            font-family: var(--font-body);
+            font-size: var(--text-sm);
+            line-height: var(--leading-normal);
+        }
     }
 }

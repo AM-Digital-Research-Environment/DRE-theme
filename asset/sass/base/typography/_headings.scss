@@ -1,87 +1,81 @@
 @use "../../abstracts" as *;
 
+// ==========================================================================
+// Heading ramp — one scale, authored from --text-* and --leading-*.
+//
+// The ramp is differentiated by WEIGHT as well as size (h1 800 / h2 700 /
+// h3 600 in Spectral), so the hierarchy survives at small viewports where the
+// display clamps bottom out. The previous ramp put h1 and h2 both at 800 and
+// let h2's small size (30px) land exactly on h3's base size (30px) — below $md
+// the two were indistinguishable, and on a record page h1 vs h2 read as
+// weight-only.
+//
+// No breakpoint media queries: the display tier (h1/h2) is fluid via clamp(),
+// the rest is fixed by design so a section heading doesn't drift between
+// viewports. Margins come from --space-*; the old 1.875rem / 3.125rem / 1.75rem
+// / 1.4rem values were off the 4pt grid.
+// ==========================================================================
+
 h1,
 h2,
 h3,
 h4 {
-    color: $color__headings;
+    color: var(--ink-strong);
     font-family: $font__headings;
     letter-spacing: var(--tracking-tight);
     text-wrap: balance;
     margin-top: 0;
 }
 
+// h5/h6 are operational labels rather than display type — the UI grotesque, and
+// no negative tracking (it hurts legibility at these sizes).
 h5,
 h6 {
-    color: $color__headings;
+    color: var(--ink-strong);
     font-family: $font__body;
+    letter-spacing: var(--tracking-normal);
     margin-top: 0;
 }
 
 h1 {
     clear: both;
-    font-size: $font__h1-sm-size; //40px
+    font-size: var(--text-4xl);          // 44–68px, fluid
     font-weight: 800;
-    line-height: $font__headings-line-height;
-    margin-bottom: 1.875rem;;
-
-    @media (min-width: $md) {
-        font-size: $font__h1-base-size; //50px
-        margin-bottom: 3.125rem;
-    }
+    line-height: var(--leading-tight);
+    margin-bottom: var(--space-8);
 }
 
 h2 {
-    font-size: $font__h2-sm-size; //35px
-    font-weight: 800;
-    line-height: $font__headings-line-height;
-    margin-bottom: 1.875rem;
-
-    @media (min-width: $md) {
-        font-size: $font__h2-base-size; //40px
-    }
+    font-size: var(--text-3xl);          // 36–46px, fluid
+    font-weight: 700;
+    line-height: var(--leading-tight);
+    margin-bottom: var(--space-6);
 }
 
 h3 {
-    font-size: $font__h3-sm-size; //30px
-    font-weight: 700;
-    line-height: $font__headings-line-height;
-    margin-bottom: 1.875rem;
-
-    @media (min-width: $md) {
-        font-size: $font__h3-base-size; //35px
-    }
+    font-size: var(--text-2xl);          // 30px
+    font-weight: 600;
+    line-height: var(--leading-snug);
+    margin-bottom: var(--space-5);
 }
 
 h4 {
-    font-size: $font__h4-sm-size; //25px
-    font-weight: 700;
-    line-height: $font__headings-line-height;
-    margin-bottom: 1.75rem;
-
-    @media (min-width: $md) {
-        font-size: $font__h4-base-size; //30px
-    }
+    font-size: var(--text-xl);           // 24px
+    font-weight: 600;
+    line-height: var(--leading-snug);
+    margin-bottom: var(--space-4);
 }
 
 h5 {
-    font-size: $font__h5-sm-size; //22px
-    font-weight: 700;
-    line-height: $font__headings-line-height;
-    margin-bottom: 1.4rem;
-
-    @media (min-width: $md) {
-        font-size: $font__h5-base-size; //30px
-    }
+    font-size: var(--text-lg);           // 19px
+    font-weight: 600;
+    line-height: var(--leading-snug);
+    margin-bottom: var(--space-3);
 }
 
 h6 {
-    font-size: $font__h6-sm-size; //18px
-    font-weight: 700;
-    line-height: $font__headings-line-height;
-    margin-bottom: 1rem;
-
-    @media (min-width: $md) {
-        font-size: $font__h6-base-size; //30px
-    }
+    font-size: var(--text-base);         // 17px
+    font-weight: 600;
+    line-height: var(--leading-snug);
+    margin-bottom: var(--space-3);
 }

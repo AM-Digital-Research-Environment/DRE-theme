@@ -1,17 +1,22 @@
 <?php
 /**
- * Site banner — an earth-tone colour wash.
+ * Site masthead — typographic.
  *
- * A photography-free masthead: a soft diagonal sweep through the brand's earth
- * tones (Uni-Grün → Gold → Braun), drawn purely in CSS (see the component
- * stylesheet). It needs no image and is theme-aware — a pale wash under dark
- * type in light mode, a deep wash under light type in dark mode.
+ * Photography-free, and carried by type and rule rather than a colour fill:
+ * eyebrow → display title → 3px brand flag → lede → SEARCH FIELD, over a
+ * hairline strip of corpus counts in tabular numerals. The old earth-tone wash
+ * is still available (the "Banner wash" setting) but is no longer the page's
+ * only visual idea.
  *
- *  • Home  → a tall hero that carries the site title as the page <h1>.
- *  • Other → a slim masthead that keeps the title visible across the site.
+ *  • Home  → the full masthead; carries the page <h1> and the search field.
+ *  • Other → a slim strip that keeps the site title visible across the site.
+ *
+ * Brand presence (quiet / balanced / bold) is a token switch handled entirely
+ * in CSS via data-brand on <body> — see abstracts/variables/_colors.scss. This
+ * template does not know which treatment is active.
  *
  * Copy is overridable from the theme's "Banner" settings; with nothing set it
- * falls back to the site title so the banner is meaningful out of the box.
+ * falls back to the site title so the masthead is meaningful out of the box.
  */
 
 $escHtml   = $this->plugin('escapeHtml');
@@ -40,22 +45,47 @@ if ($eyebrow === null) {
 $tagline     = $this->themeSetting('banner_description');
 $buttonLabel = $this->themeSetting('banner_button_label');
 $buttonLink  = $this->themeSetting('banner_button_link');
-// Default the hero CTA to the federated search (DRE-Search module's /dre-search
-// route) so "Explore the collection" is present out of the box; an admin can
-// repoint or clear it via the Banner settings. Resolved from the site URL so it
-// is correct on every site/host.
-if (($buttonLink === null || $buttonLink === '') && $site) {
-    $buttonLink = rtrim((string) $site->url(), '/') . '/dre-search';
-}
+
+// The optional pre-2.22 wash. Off by default: the masthead is typographic now.
+$showWash = in_array((string) $this->themeSetting('banner_wash', '0'), ['1'], true);
 
 $variant = $isHome ? 'home' : 'page';
 
-// Home-only "Collection overview" stat band (§1). The cards mirror the SAME set
-// the ResourceVisualizations "Collection Overview" block shows; that block drops
-// its own stat cards on the home layout, so this band is the single place they
-// appear. All the sourcing (cache → module precompute → Omeka API fallback) and
-// its error handling live in helper/CollectionStats.php — it returns [] on any
-// hiccup, so the hero still renders. Toggle via the banner_show_stats setting.
+// ===== Search =============================================================
+// The first screen has to offer a field. Target the federated search when the
+// DRE-Search module is installed (its Svelte client reads ?q=), and core item
+// browse otherwise (?fulltext_search=), so the masthead works on a bare theme.
+$searchAction = null;
+$searchParam  = 'fulltext_search';
+$hasDreSearch = $this->getHelperPluginManager()->has('dreSearchAssets');
+if ($isHome) {
+    try {
+        if ($hasDreSearch && $site) {
+            $searchAction = rtrim((string) $site->url(), '/') . '/dre-search';
+            $searchParam  = 'q';
+        } elseif ($site) {
+            $searchAction = $this->url(
+                'site/resource',
+                ['site-slug' => $site->slug(), 'controller' => 'item', 'action' => 'browse']
+            );
+        }
+    } catch (\Throwable $e) {
+        // A routing hiccup drops the field, never the masthead.
+        $searchAction = null;
+    }
+}
+
+// The CTA is now secondary to the search field, so it only renders when an
+// admin has explicitly set a link — no auto-default to /dre-search any more
+// (that is what the field itself does).
+
+// Optional standing note beside the headline ("Open access", licensing, …).
+$asideTitle = trim((string) $this->themeSetting('banner_aside_title', ''));
+$asideText  = trim((string) $this->themeSetting('banner_aside_text', ''));
+
+// Home-only corpus-count strip. All the sourcing (cache → module precompute →
+// Omeka API fallback) and its error handling live in helper/CollectionStats.php
+// — it returns [] on any hiccup, so the masthead still renders.
 $stats = [];
 $showStats = $isHome
     && !in_array((string) $this->themeSetting('banner_show_stats', '1'), ['0', ''], true);
@@ -78,61 +108,70 @@ $formatNumber = static function ($value): string {
 };
 ?>
 <div class="site-banner site-banner--<?php echo $variant; ?>">
-    <?php // Decorative earth-tone wash (green → gold → braun); styled in CSS. ?>
-    <div class="site-banner__art" aria-hidden="true"></div>
+    <?php if ($showWash): ?>
+        <?php // Optional decorative earth-tone wash (green → gold → braun). ?>
+        <div class="site-banner__art" aria-hidden="true"></div>
+    <?php endif; ?>
 
+    <?php if ($isHome): ?>
     <div class="container site-banner__inner">
-        <div class="site-banner__content">
-            <?php if ($isHome && $eyebrow): ?>
-                <p class="site-banner__eyebrow"><?php echo $escHtml($eyebrow); ?></p>
-            <?php endif; ?>
+        <div class="site-banner__lead">
+            <div class="site-banner__headline">
+                <?php if ($eyebrow): ?>
+                    <p class="site-banner__eyebrow"><?php echo $escHtml($eyebrow); ?></p>
+                <?php endif; ?>
 
-            <?php if ($isHome): ?>
+                <?php // The one <h1> on the home page. The page-title block
+                      // stands down here (see common/block-layout/page-title). ?>
                 <h1 class="site-banner__title"><?php echo $escHtml($heading); ?></h1>
-            <?php else: ?>
-                <p class="site-banner__title"><?php echo $escHtml($heading); ?></p>
-            <?php endif; ?>
 
-            <?php if ($isHome && $tagline): ?>
-                <p class="site-banner__tagline"><?php echo nl2br($escHtml($tagline)); ?></p>
-            <?php endif; ?>
+                <div class="site-banner__flag" aria-hidden="true"></div>
 
-            <?php if ($isHome && $buttonLink): ?>
+                <?php if ($tagline): ?>
+                    <p class="site-banner__lede"><?php echo nl2br($escHtml($tagline)); ?></p>
+                <?php endif; ?>
+            </div>
+
+            <?php if ($asideTitle || $asideText): ?>
+                <aside class="site-banner__aside">
+                    <?php if ($asideTitle): ?>
+                        <p class="site-banner__aside-title"><?php echo $escHtml($asideTitle); ?></p>
+                    <?php endif; ?>
+                    <?php if ($asideText): ?>
+                        <p class="site-banner__aside-text"><?php echo nl2br($escHtml($asideText)); ?></p>
+                    <?php endif; ?>
+                </aside>
+            <?php endif; ?>
+        </div>
+
+        <?php if ($searchAction): ?>
+            <form class="site-banner__search" role="search" method="GET" action="<?php echo $escAttr($searchAction); ?>">
+                <label class="sr-only" for="site-banner-search"><?php echo $escHtml($translate('Search the collection')); ?></label>
+                <input class="site-banner__search-input" type="search" id="site-banner-search"
+                    name="<?php echo $escAttr($searchParam); ?>"
+                    placeholder="<?php echo $escAttr($translate('Search records, people, places, subjects…')); ?>">
+                <button class="site-banner__search-submit" type="submit"><?php echo $escHtml($translate('Search')); ?></button>
+            </form>
+            <?php if ($stats): ?>
+                <p class="site-banner__search-note"><?php echo $escHtml($translate('Or browse a corpus below — each has its own filters.')); ?></p>
+            <?php endif; ?>
+        <?php endif; ?>
+
+        <?php if ($buttonLink): ?>
+            <p class="site-banner__cta-row">
                 <a class="button site-banner__cta" href="<?php echo $escAttr($buttonLink); ?>">
                     <?php echo $escHtml($buttonLabel ?: $translate('Explore the collection')); ?>
                     <svg class="site-banner__cta-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                 </a>
-            <?php endif; ?>
-        </div>
+            </p>
+        <?php endif; ?>
     </div>
 
-    <?php // Collection overview — a live stat-card grid grounding the hero (§1).
-          // Sits over the wash on its own surface, set off by the Uni-Grün rule.
-          // Each card mirrors ResourceVisualizations' .rv-stat-card (design-review
-          // F2): label, value, and a Lucide icon badge. The glyphs are the same set
-          // as the module's STAT_ICONS, inlined here because the banner is
-          // server-rendered theme chrome (no dependency on the module's JS). ?>
+    <?php // Corpus counts — a hairline strip, not eleven bordered cards. The
+          // hairlines are the grid's 1px gaps (see _banner.scss), so they never
+          // dangle whatever the set size or wrap. Each cell links to its
+          // authority page; Resource Types has none and stays a <div>. ?>
     <?php if ($stats):
-        $statIcons = [
-            'researchItems' => '<path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
-            'projects' => '<path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/>',
-            'publications' => '<path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/>',
-            'people' => '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/>',
-            'organisations' => '<path d="M10 12h4"/><path d="M10 8h4"/><path d="M14 21v-3a2 2 0 0 0-4 0v3"/><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2"/><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"/>',
-            'locations' => '<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
-            'subjectsTags' => '<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>',
-            'resourceTypes' => '<path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"/><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"/>',
-            'languages' => '<path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/>',
-            'podcasts' => '<path d="M16.85 18.58a9 9 0 1 0-9.7 0"/><path d="M8 14a5 5 0 1 1 8 0"/><circle cx="12" cy="11" r="1"/><path d="M13 17a1 1 0 1 0-2 0l.5 4.5a.5.5 0 0 0 1 0Z"/>',
-            'youtube' => '<path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><path d="m10 15 5-3-5-3z"/>',
-        ];
-        // Generic fallback (lucide chart-column), mirroring the module's
-        // DEFAULT_ICON, so a new/unmapped stat key still renders a badge.
-        $statIconDefault = '<path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>';
-        // Each card links to its authority / overview page on this site
-        // (/s/<slug>/page/<page-slug>), built relative to the current site so it is
-        // correct on every host. Resource Types has no page, so it is omitted here
-        // and renders as a non-link card. Add a key to link a new stat card.
         $statLinks = [
             'researchItems' => 'research-items',
             'projects'      => 'research-projects',
@@ -150,28 +189,25 @@ $formatNumber = static function ($value): string {
     <div class="site-banner__stats">
         <div class="container site-banner__stats-grid">
             <?php foreach ($stats as $s):
-                $icon = (!empty($s['k']) && isset($statIcons[$s['k']])) ? $statIcons[$s['k']] : $statIconDefault;
                 $slug = (!empty($s['k']) && !empty($statLinks[$s['k']])) ? $statLinks[$s['k']] : null;
                 $href = ($slug && $siteBase !== '') ? $siteBase . '/page/' . $slug : null;
-                // A linked card is an <a>; a card without a page (Resource Types) stays a <div>.
                 $tag  = $href ? 'a' : 'div';
             ?>
                 <<?php echo $tag; ?> class="site-banner__stat"<?php echo $href ? ' href="' . $escAttr($href) . '"' : ''; ?>>
-                    <div class="site-banner__stat-body">
-                        <span class="site-banner__stat-label"><?php echo $escHtml($s['l']); ?></span>
-                        <?php // The optional subtitle ("in 39 countries") sits INLINE after
-                              // the value, not on a row below it, so a card with a subtitle
-                              // stays the same height as the rest (grid would otherwise
-                              // stretch its whole row, leaving blank space). Hidden on the
-                              // dense phone tiles where it would wrap (see _banner.scss). ?>
-                        <span class="site-banner__stat-num"><?php echo $escHtml($formatNumber($s['n'])); ?><?php if (!empty($s['s'])): ?> <span class="site-banner__stat-sub"><?php echo $escHtml($s['s']); ?></span><?php endif; ?></span>
-                    </div>
-                    <span class="site-banner__stat-badge">
-                        <svg class="site-banner__stat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><?php echo $icon; ?></svg>
-                    </span>
+                    <span class="site-banner__stat-num"><?php echo $escHtml($formatNumber($s['n'])); ?><?php if (!empty($s['s'])): ?> <span class="site-banner__stat-sub"><?php echo $escHtml($s['s']); ?></span><?php endif; ?></span>
+                    <span class="site-banner__stat-label"><?php echo $escHtml($s['l']); ?></span>
                 </<?php echo $tag; ?>>
             <?php endforeach; ?>
         </div>
+    </div>
+    <?php endif; ?>
+
+    <?php else: ?>
+    <?php // Interior: a slim strip. The title is a <p>, never a second <h1> —
+          // the page's own title owns that. ?>
+    <div class="container site-banner__inner">
+        <div class="site-banner__flag" aria-hidden="true"></div>
+        <p class="site-banner__title"><?php echo $escHtml($heading); ?></p>
     </div>
     <?php endif; ?>
 </div>

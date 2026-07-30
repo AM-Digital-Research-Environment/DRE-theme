@@ -42,6 +42,14 @@ msgstr ""
 msgid "0 results"
 msgstr ""
 
+#: helper/ResourceGroups.php:59
+msgid "Abstract"
+msgstr ""
+
+#: view/common/record-apparatus.phtml:120
+msgid "Access rights"
+msgstr ""
+
 #: view/common/advanced-search/resource-class.phtml:51
 msgid "Add new class"
 msgstr ""
@@ -97,11 +105,11 @@ msgstr ""
 msgid "Authors & named persons"
 msgstr ""
 
-#: view/layout/layout.phtml:293
+#: view/layout/layout.phtml:288
 msgid "Back to top"
 msgstr ""
 
-#: view/layout/layout.phtml:84
+#: view/layout/layout.phtml:79
 msgid "Browse"
 msgstr ""
 
@@ -114,13 +122,17 @@ msgstr ""
 msgid "Browse projects interactively"
 msgstr ""
 
-#: view/layout/layout.phtml:83
+#: view/layout/layout.phtml:78
 msgid "Browse the collection"
 msgstr ""
 
 #: view/omeka/site/index/search.phtml:22
 #: view/omeka/site/item/browse.phtml:114
 msgid "Check the spelling, or try another form of the word."
+msgstr ""
+
+#: view/common/record-apparatus.phtml:89
+msgid "Cite this record"
 msgstr ""
 
 #: view/common/advanced-search/resource-class.phtml:35
@@ -151,6 +163,14 @@ msgstr ""
 msgid "contains"
 msgstr ""
 
+#: view/common/record-apparatus.phtml:139
+msgid "Copied"
+msgstr ""
+
+#: view/common/record-apparatus.phtml:140
+msgid "Copy citation"
+msgstr ""
+
 #: view/common/numeric-data-types-advanced-search.phtml:100
 msgid "Date comes on or after"
 msgstr ""
@@ -175,6 +195,10 @@ msgstr ""
 msgid "Descending"
 msgstr ""
 
+#: helper/ResourceGroups.php:65
+msgid "Description"
+msgstr ""
+
 #: view/common/footer/footer-bottom.phtml:28
 msgid "Designed & developed by %s"
 msgstr ""
@@ -183,7 +207,7 @@ msgstr ""
 msgid "Digital collections and research data of the Africa Multiple Cluster of Excellence, University of Bayreuth."
 msgstr ""
 
-#: view/common/banner.phtml:38
+#: view/common/banner.phtml:43
 #: view/common/footer/footer-masthead.phtml:11
 msgid "Digital Research Environment"
 msgstr ""
@@ -212,6 +236,14 @@ msgstr ""
 msgid "does not start with"
 msgstr ""
 
+#: view/common/record-apparatus.phtml:99
+msgid "DOI"
+msgstr ""
+
+#: view/common/record-apparatus.phtml:127
+msgid "DRE ID"
+msgstr ""
+
 #: view/common/numeric-data-types-advanced-search.phtml:136
 msgid "Duration is greater than"
 msgstr ""
@@ -232,7 +264,7 @@ msgstr ""
 msgid "Explore the Cluster's featured collections through timelines, image galleries and maps."
 msgstr ""
 
-#: view/common/banner.phtml:102
+#: view/common/banner.phtml:163
 msgid "Explore the collection"
 msgstr ""
 
@@ -245,6 +277,10 @@ msgstr ""
 msgid "Filter connections by relationship"
 msgstr ""
 
+#: helper/ResourceGroups.php:148
+msgid "Further details"
+msgstr ""
+
 #: view/common/pagination.phtml:31
 msgid "Go"
 msgstr ""
@@ -253,7 +289,7 @@ msgstr ""
 msgid "Grid"
 msgstr ""
 
-#: view/common/resource-values.phtml:90
+#: view/common/resource-values.phtml:132
 msgid "Has annotation"
 msgstr ""
 
@@ -279,6 +315,10 @@ msgstr ""
 
 #: view/common/numeric-duration.phtml:25
 msgid "Hours"
+msgstr ""
+
+#: helper/ResourceGroups.php:132
+msgid "Identifiers & sources"
 msgstr ""
 
 #: view/common/advanced-search/item-sets.phtml:56
@@ -344,6 +384,10 @@ msgstr ""
 
 #: view/common/nav-menu.phtml:53
 msgid "Languages represented"
+msgstr ""
+
+#: view/common/record-apparatus.phtml:113
+msgid "Licence"
 msgstr ""
 
 #: view/common/linked-resources.phtml:171
@@ -445,8 +489,16 @@ msgstr ""
 msgid "OR"
 msgstr ""
 
+#: view/common/banner.phtml:156
+msgid "Or browse a corpus below — each has its own filters."
+msgstr ""
+
 #: helper/CollectionStats.php:211
 msgid "Organisations"
+msgstr ""
+
+#: helper/ResourceGroups.php:96
+msgid "Origins & context"
 msgstr ""
 
 #: view/common/nav-menu.phtml:69
@@ -474,8 +526,16 @@ msgstr ""
 msgid "People"
 msgstr ""
 
+#: helper/ResourceGroups.php:81
+msgid "People & roles"
+msgstr ""
+
 #: view/common/nav-menu.phtml:68
 msgid "Peripheral memories of Capoeira Angola in Salvador"
+msgstr ""
+
+#: view/common/record-apparatus.phtml:106
+msgid "Permalink"
 msgstr ""
 
 #: view/common/nav-menu.phtml:54
@@ -494,7 +554,7 @@ msgstr ""
 msgid "Primary navigation"
 msgstr ""
 
-#: view/common/resource-values.phtml:86
+#: view/common/resource-values.phtml:128
 msgid "Private"
 msgstr ""
 
@@ -586,8 +646,13 @@ msgstr ""
 msgid "Resource types"
 msgstr ""
 
-#: view/layout/layout.phtml:89
-#: view/layout/layout.phtml:90
+#: helper/ResourceGroups.php:121
+msgid "Rights & access"
+msgstr ""
+
+#: view/common/banner.phtml:153
+#: view/layout/layout.phtml:84
+#: view/layout/layout.phtml:85
 #: view/omeka/site/item/search.phtml:14
 msgid "Search"
 msgstr ""
@@ -620,8 +685,16 @@ msgstr ""
 msgid "Search connections…"
 msgstr ""
 
+#: view/common/banner.phtml:152
+msgid "Search records, people, places, subjects…"
+msgstr ""
+
 #: view/omeka/site/index/search.phtml:13
 msgid "Search results for “%s”"
+msgstr ""
+
+#: view/common/banner.phtml:149
+msgid "Search the collection"
 msgstr ""
 
 #: view/common/advanced-search/item-sets.phtml:47
@@ -664,7 +737,7 @@ msgstr ""
 msgid "Site pages"
 msgstr ""
 
-#: view/layout/layout.phtml:280
+#: view/layout/layout.phtml:275
 msgid "Skip to main content"
 msgstr ""
 
@@ -691,6 +764,10 @@ msgstr ""
 
 #: view/common/advanced-search/properties.phtml:91
 msgid "starts with"
+msgstr ""
+
+#: helper/ResourceGroups.php:71
+msgid "Subjects"
 msgstr ""
 
 #: helper/CollectionStats.php:213
@@ -738,7 +815,7 @@ msgstr ""
 msgid "Value"
 msgstr ""
 
-#: view/common/resource-values.phtml:93
+#: view/common/resource-values.phtml:135
 msgid "Value Annotations"
 msgstr ""
 

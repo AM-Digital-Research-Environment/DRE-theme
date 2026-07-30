@@ -8,11 +8,11 @@
 .menu-drawer {
     display: block !important;
     position: fixed;
-    height: calc( 100% - #{$header-min-height} );
+    height: calc(100% - var(--header-height));
     width: min(24rem, 100%);
     transform: translateX( 100% );          // parked off the right edge
     z-index: var(--z-drawer);
-    top: $header-min-height;
+    top: var(--header-height);
     right: 0;
     left: auto;
     background-color: $color__menu-drawer;
@@ -40,7 +40,7 @@
     > .wrap {
         margin-left: auto;
         margin-right: auto;
-        max-width: $wrap-max-width;
+        max-width: var(--container-max);
 
         display: block;
         padding: 0;

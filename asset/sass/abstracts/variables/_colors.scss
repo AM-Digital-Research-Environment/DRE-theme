@@ -15,7 +15,14 @@
 // OKLCH is used for hand-authored tones because equal lightness steps look
 // equal — no perceptual magic numbers, unlike HSL.
 //
-// Every text/surface pairing meets WCAG AA (≥4.5:1) in both light and dark.
+// ACCESSIBILITY. Body and UI text meets WCAG AA (≥4.5:1) against its surface in
+// both modes. --muted and --ink-subtle are the quiet tiers: they clear 4.5:1
+// against the WORST surface in their mode (--surface-sunken in light,
+// --surface-raised in dark) and are reserved for 15px+ non-essential text.
+// These pairings are ASSERTED by `npm run lint:tokens`, which parses the OKLCH
+// literals below and computes the ratios — the claim is measured on every
+// build, not restated here by hand. (The previous 60% L --muted was 3.9:1 in
+// light and 4.4:1 on a raised dark surface, i.e. the claim was untrue.)
 // ==========================================================================
 
 // ==========================================================================
@@ -34,7 +41,6 @@
   --primary-muted:   color-mix(in oklab, var(--primary-base) 12%, var(--surface));
   --primary-text:    color-mix(in oklab, var(--primary-base), black 24%);
   --primary-contrast: oklch(99% 0.004 95);   // near-white text on the green fill
-  --primary-dark:    var(--primary-hover);    // legacy alias
 
   // --- Accent (Braun — earth warmth) ---
   --accent-base: #d57912;
@@ -46,23 +52,21 @@
   // --- Found-term highlight — the <mark>/<ins> wash, shared verbatim with
   //     DRE-Search's result highlighting so a matched term reads identically in
   //     core search, faceted browse and the Svelte client. One token, one tint;
-  //     translucent over the active surface so it carries through both modes. ---
-  --dre-hl-bg: color-mix(in oklab, var(--accent) 28%, transparent);
-
-  // --- Secondary & complementary (legacy hooks, mapped to brand) ---
-  --secondary:      var(--primary);          // strong chips / active states → green
-  --complementary:  oklch(74% 0.13 78);      // warm gold — decorative shapes only
+  //     translucent over the active surface so it carries through both modes.
+  //     --dre-hl-bg is the DEPRECATED former name (the only token that ever
+  //     carried a product prefix and an abbreviation, on the one token whose
+  //     whole purpose is to be shared). Kept as an alias for one minor while
+  //     DRE-Search ships the rename — see AUDIT.md §4. ---
+  --highlight-bg: color-mix(in oklab, var(--accent) 28%, transparent);
+  --dre-hl-bg:    var(--highlight-bg);
 
   // --- Inks — warm near-neutrals (a faint earth cast, never cold grey) ---
   --ink-strong:  oklch(24% 0.020 66);        // display headings, page titles
   --ink:         oklch(33% 0.017 62);        // body copy
   --ink-light:   oklch(46% 0.015 60);        // secondary text, eyebrow
-  --ink-subtle:  oklch(55% 0.012 58);        // tertiary
-  --muted:       oklch(60% 0.010 58);        // captions, labels, disabled
+  --ink-subtle:  oklch(50% 0.014 58);        // tertiary — 5.3:1 on --surface-sunken
+  --muted:       oklch(53% 0.011 58);        // captions, labels, disabled — 4.7:1 on --surface-sunken
   --ink-on-pastel: oklch(28% 0.030 66);      // dark text on tinted chips
-
-  --white: #fff;
-  --black: #000;
 
   // --- Surfaces — warm stone; cream page, near-white cards ---
   --surface:         oklch(99.2% 0.004 95);  // cards, header, popovers
@@ -100,19 +104,50 @@
   --blockquote-border: color-mix(in oklab, var(--primary) 60%, var(--border) 40%);
   --blockquote-quote:  color-mix(in oklab, var(--primary) 80%, var(--ink) 20%);
 
-  // --- Footer — deep forest ink band ---
+  // --- Footer — deep forest ink band. Authored as literals in BOTH modes: a
+  //     footer token's independence should not depend on which mode you are in
+  //     (dark used to alias var(--ink) while light spelled out a value). ---
   --footer-surface:     oklch(22% 0.022 165);
   --footer-surface-alt: oklch(17% 0.020 165);
   --footer-divider:     oklch(34% 0.018 165);
   --footer-text:        oklch(94% 0.006 90);
   --footer-text-muted:  oklch(74% 0.010 90);
+
+  @include am-masthead-balanced;
 }
 
-// Apply light theme by default. The brand seed lives here too so PHP's
-// :root override (layout.phtml) cascades cleanly into every derived tone.
-:root {
-  --primary-base: #009260;   // Uni-Grün — Africa Multiple signature green
-  @include am-light-theme;
+// ==========================================================================
+// Masthead role tokens — the brand-presence layer.
+//
+// The masthead is carried by TYPE AND RULE, not by a colour fill (see
+// components/banner/_banner.scss). How much Uni-Grün it shows is expressed
+// entirely through these role tokens, so the three treatments are a token
+// switch rather than three components:
+//
+//   A quiet     — stone ground, green only on interactive elements
+//   B balanced  — green flags, rules and CTA (the default, closest to v2.21)
+//   C bold      — deep Uni-Grün ground with cream type
+//
+// Selected by the "Masthead brand presence" theme setting, which writes
+// data-brand on <body> (see view/layout/layout.phtml).
+//
+// These MUST be emitted inside the theme mixins rather than once in :root: a
+// custom property inherits its *computed* value, so `--masthead-bg:
+// var(--surface)` declared at :root would freeze the LIGHT surface and never
+// follow the dark cascade — the same freeze documented for --panel-border.
+// ==========================================================================
+@mixin am-masthead-balanced {
+  --masthead-bg:           var(--surface);
+  --masthead-ink:          var(--ink-strong);
+  --masthead-ink-soft:     var(--ink-light);
+  --masthead-rule:         color-mix(in oklab, var(--primary) 55%, var(--border));
+  --masthead-hair:         var(--border);
+  --masthead-field-bg:     var(--surface);
+  --masthead-field-border: var(--border-strong);
+  --flag:    var(--primary);
+  --numeral: var(--ink-strong);
+  --cta-bg:  var(--primary);
+  --cta-ink: var(--primary-contrast);
 }
 
 // ==========================================================================
@@ -128,7 +163,6 @@
   --primary-muted:   color-mix(in oklab, var(--primary-base) 24%, var(--surface));
   --primary-text:    color-mix(in oklab, var(--primary-base), white 34%);
   --primary-contrast: oklch(16% 0.022 165);  // dark text on the lifted green fill
-  --primary-dark:    var(--primary-hover);
 
   --accent-base: #d57912;
   --accent:        color-mix(in oklab, var(--accent-base), white 12%);
@@ -138,16 +172,14 @@
 
   // Shared found-term highlight (see light theme); identical formula, resolves
   // against the lifted dark --accent so the wash stays legible on dark surfaces.
-  --dre-hl-bg: color-mix(in oklab, var(--accent) 28%, transparent);
-
-  --secondary:      var(--primary);
-  --complementary:  oklch(78% 0.13 80);
+  --highlight-bg: color-mix(in oklab, var(--accent) 28%, transparent);
+  --dre-hl-bg:    var(--highlight-bg);
 
   --ink-strong:  oklch(97% 0.006 95);
   --ink:         oklch(91% 0.008 92);
   --ink-light:   oklch(75% 0.010 88);
-  --ink-subtle:  oklch(66% 0.011 80);
-  --muted:       oklch(60% 0.011 78);
+  --ink-subtle:  oklch(72% 0.011 80);        // 7.0:1 on --surface-raised
+  --muted:       oklch(68% 0.011 80);        // 6.0:1 on --surface-raised
   --ink-on-pastel: oklch(92% 0.010 95);
 
   // Forest-dark surfaces — imperceptible Uni-Grün undertone at low chroma
@@ -184,11 +216,25 @@
   // A distinctly lifted forest band. The previous "ride the surface scale"
   // value sat at ~--background, so the footer vanished into the page in dark
   // mode; lifting it (and a brighter divider) reads as its own grounding panel.
+  // Literal values, matching how light authors them (see B6 in AUDIT.md).
   --footer-surface:     oklch(24% 0.024 165);
   --footer-surface-alt: oklch(20% 0.022 165);
   --footer-divider:     oklch(40% 0.020 165);
-  --footer-text:        var(--ink);
-  --footer-text-muted:  var(--ink-light);
+  --footer-text:        oklch(91% 0.008 92);
+  --footer-text-muted:  oklch(75% 0.010 88);
+
+  @include am-masthead-balanced;
+
+  // Dark's masthead field sits a step below the surface so the search input
+  // reads as an inset well rather than another panel.
+  --masthead-field-bg: var(--surface-sunken);
+}
+
+// Apply light theme by default. The brand seed lives here too so PHP's
+// :root override (layout.phtml) cascades cleanly into every derived tone.
+:root {
+  --primary-base: #009260;   // Uni-Grün — Africa Multiple signature green
+  @include am-light-theme;
 }
 
 // System preference: dark unless the visitor explicitly chose light.
@@ -211,11 +257,68 @@ body[data-theme="light"] { @include am-light-theme; }
 :root[data-theme="light"] { color-scheme: light; }
 
 // ==========================================================================
+// Brand presence A / C — overrides of the balanced default above.
+//
+// Source order matters: these come AFTER the theme mixins, and
+// `body[data-brand="…"]` (0,2,0) ties `body[data-theme="…"]` (0,2,0), so the
+// later rule wins. The bold treatment needs a dark-mode counterpart, which
+// raises specificity to (0,3,0) and therefore also comes later.
+// ==========================================================================
+
+// A · Quiet — the masthead keeps the stone ground and drops brand colour from
+// the structural rules; Uni-Grün survives only where something is interactive.
+body[data-brand="quiet"] {
+  --masthead-rule: var(--border-strong);
+  --flag:          var(--border-strong);
+  --numeral:       var(--ink-light);
+}
+
+// C · Bold — a deep Uni-Grün masthead ground carrying cream type. Values are
+// literals (not derived from --primary-base): this is a *ground*, and it has to
+// stay legible under the cream ink whatever seed an admin picks.
+body[data-brand="bold"] {
+  --masthead-bg:           oklch(34% 0.075 165);
+  --masthead-ink:          oklch(98% 0.008 120);   // 10.7:1 on the ground
+  --masthead-ink-soft:     oklch(86% 0.030 150);   // 7.5:1
+  --masthead-rule:         oklch(72% 0.10 150);
+  --masthead-hair:         oklch(44% 0.055 165);
+  --masthead-field-bg:     oklch(99% 0.004 95);
+  --masthead-field-border: oklch(46% 0.070 165);
+  --numeral:               oklch(96% 0.010 130);
+  --cta-bg:                oklch(98% 0.008 120);
+  --cta-ink:               oklch(28% 0.060 165);
+}
+
+@mixin am-masthead-bold-dark {
+  --masthead-bg:           oklch(27% 0.055 165);
+  --masthead-ink:          oklch(97% 0.008 120);   // 13.5:1 on the ground
+  --masthead-ink-soft:     oklch(82% 0.026 150);   // 8.5:1
+  --masthead-field-bg:     oklch(17% 0.016 165);
+  --masthead-field-border: oklch(40% 0.045 165);
+  --masthead-hair:         oklch(36% 0.040 165);
+  --cta-bg:                oklch(72% 0.13 158);
+  --cta-ink:               oklch(18% 0.030 165);
+}
+
+body[data-theme="dark"][data-brand="bold"] { @include am-masthead-bold-dark; }
+
+@media (prefers-color-scheme: dark) {
+  body:not([data-theme="light"])[data-brand="bold"] { @include am-masthead-bold-dark; }
+}
+
+// ==========================================================================
 // Brand accent family — the Cluster's canonical brand-book pigments (exact
 // values). Fixed reference tokens for tags, categories and decorative use; not
 // flipped per theme. For legibility on a given ground, mix toward the active
 // --surface (as the banner wash does) instead of painting them raw on a
 // low-contrast surface — e.g. --brand-dunkelblau is near-black on forest dark.
+//
+// --plaque-bg is the one *fixed light* ground in the system: the footer's
+// institutional marks are third-party artwork drawn in dark ink, so their tile
+// must not follow the theme. It replaces the former --white/--black escape
+// hatches, which were literal colours in a system whose first principle is
+// "tokens, not hexes" — and the exact tool a future contributor would reach for
+// to break dark mode.
 // ==========================================================================
 :root {
   --brand-green:       #009260;  // Uni-Grün
@@ -224,6 +327,8 @@ body[data-theme="light"] { @include am-light-theme; }
   --brand-dunkelblau:  #00268a;  // Dunkelblau
   --brand-hellblau:    #44b8f2;  // Hellblau
   --brand-gold:        #cca352;  // Gold
+
+  --plaque-bg: oklch(99% 0.004 95);
 }
 
 // ==========================================================================
@@ -235,23 +340,17 @@ body[data-theme="light"] { @include am-light-theme; }
 // "white text on a coloured fill" cases are routed to --primary-contrast in
 // their own components, and the two rgba($color__white) call-sites have been
 // rewritten to CSS-variable gradients.
-// ==========================================================================
-
+//
 // Only the aliases still referenced by a component partial are kept. The set
-// below was pruned once the unused ones were confirmed dead by grep — prefer
-// the semantic var(--token) directly in new code rather than growing this list.
+// below is pruned whenever one goes dead by grep — prefer the semantic
+// var(--token) directly in new code rather than growing this list.
+// ==========================================================================
 
 // Brand
 $color__primary:        var(--primary);
-$color__primary-dark:   var(--primary-hover);
-$color__secondary:      var(--secondary);
-$color__accent:         var(--accent);
-$color__complementary:  var(--complementary);
-
-// Status
-$color__success: var(--success);
-$color__warning: var(--warning);
-$color__error:   var(--error);
+// Was var(--secondary), a token that only ever aliased --primary. The token is
+// gone; every call site here meant "primary".
+$color__secondary:      var(--primary);
 
 // Surfaces
 $color__bg-body: var(--background);
@@ -270,11 +369,9 @@ $color__headings:       var(--ink-strong);
 $color__main-text:      var(--ink);
 $color__secondary-text: var(--ink-light);
 $color__buttons:        var(--primary);
-$color__icons:          var(--primary);
 $color__link:           var(--link);
 $color__menu-drawer:    var(--surface);
 $color__hr:             var(--border);
-$color__light-bg:       var(--surface-sunken);
 $color__disabled:       var(--muted);
 $color__placeholder:    var(--ink-subtle);
 $color__field-border:   var(--border-strong);

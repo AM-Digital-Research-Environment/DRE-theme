@@ -89,7 +89,7 @@
         }
 
         legend {
-            font-size: $font__h5-base-size;
+            font-size: var(--text-lg);
         }
     }
 
@@ -162,20 +162,20 @@
         padding: 1rem 1.2rem 0;
 
         legend {
-            color: $color__headings;
+            color: var(--ink-strong);
             font-weight: 400;
-            line-height: $font__headings-line-height;
+            line-height: var(--leading-snug);
         }
     }
 
     .categories-container legend {
-        font-size: $font__h3-sm-size;
-        margin-bottom: 1.1rem;
+        font-size: var(--text-xl);
+        margin-bottom: var(--space-4);
     }
 
     .facets-container legend {
-        font-size: $font__h4-sm-size;
-        margin-bottom: 1rem;
+        font-size: var(--text-lg);
+        margin-bottom: var(--space-4);
     }
 
     label input {

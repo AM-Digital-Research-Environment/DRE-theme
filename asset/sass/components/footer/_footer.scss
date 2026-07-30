@@ -207,13 +207,15 @@
 
         a {
             // Light plaque so the dark-ink institutional marks stay legible on
-            // the forest band in both light and dark mode. Deliberately fixed
-            // white (var(--white) stays #fff in dark mode) — NOT --surface,
-            // which would flip to forest-dark and swallow the dark-ink logos.
+            // the forest band in both light and dark mode. --plaque-bg is the
+            // system's one deliberately mode-INDEPENDENT ground, for exactly
+            // this case — NOT --surface, which would flip to forest-dark and
+            // swallow the dark-ink logos. (It replaces the former --white
+            // escape hatch; see _colors.scss.)
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            background-color: var(--white);
+            background-color: var(--plaque-bg);
             border: 1px solid var(--border-light);
             border-radius: var(--radius-md);
             padding: var(--space-4) var(--space-5);

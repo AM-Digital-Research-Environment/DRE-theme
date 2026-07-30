@@ -1,4 +1,24 @@
 <?php
+/**
+ * Resource property values — GROUPED, never a database-order dump.
+ *
+ * Omeka hands this partial one flat map of properties in the order the database
+ * returned them, and the theme used to render exactly that: a single <dl> of
+ * ~25 rows in which the Abstract sat below a twelve-link Subject run, and
+ * `DRE ID` / `WissKI URL` / `Format` carried the same weight as `Author`.
+ *
+ * helper/ResourceGroups.php partitions the same map into reading-order sets —
+ * Abstract · Description · Subjects · Origins & context · Rights & access ·
+ * Identifiers & sources · Further details — each with a layout hint. Any term
+ * the map does not name falls through to "Further details" in its original
+ * order, so nothing is ever hidden.
+ *
+ * The INNER markup of each value is deliberately unchanged: the same
+ * `.property` / `<dt>` / `<dd class="value …">` / `.annotation-btn` structure,
+ * because the uri-dereferencer, the annotation tooltips, the language tags and
+ * the sibling modules all select against it.
+ */
+
 $translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
 $decoration = $this->themeSetting('image_decoration');
@@ -20,85 +40,110 @@ $filterLocaleCallback = function ($value) use ($lang) {
     $valueLang = $value->lang();
     return $valueLang == '' || strcasecmp($valueLang, $lang) === 0;
 };
+
+$groups = $this->ResourceGroups($values);
 ?>
 
-<dl>
-<?php
-foreach ($values as $term => $propertyData):
-    $propertyValues = $propertyData['values'];
-    if ($filterLocale) {
-        $propertyValues = array_filter($propertyValues, $filterLocaleCallback);
+<div class="record">
+<?php foreach ($groups as $group):
+    // Resolve each group's real content first: a group whose only properties
+    // are locale-filtered away must not leave a heading behind.
+    $rendered = [];
+    foreach ($group['values'] as $term => $propertyData) {
+        $propertyValues = $propertyData['values'];
+        if ($filterLocale) {
+            $propertyValues = array_filter($propertyValues, $filterLocaleCallback);
+        }
+        if (!$propertyValues) {
+            continue;
+        }
+        $rendered[$term] = [$propertyData, $propertyValues];
     }
-    if (!$propertyValues) {
+    if (!$rendered) {
         continue;
     }
-    $property = $propertyData['property'];
-    $propertyLabel = $propertyData['alternate_label'] ?: $translate($property->label());
-    if ('term' === $labelInfo) {
-        $propertyTerm = $property->term();
-    } elseif ('vocab' === $labelInfo) {
-        $propertyTerm = $property->vocabulary()->label();
-    } else {
-        $propertyTerm = null;
-    }
+
+    // In the prose and chip groups the section heading already names the
+    // property ("Abstract", "Subjects"), so the <dt> would repeat it. Keep it in
+    // the DOM for assistive technology and hide it visually — unless the group
+    // holds more than one property, where the labels do distinguish.
+    $hideLabels = in_array($group['layout'], ['prose', 'chips'], true) && count($rendered) === 1;
     ?>
-    <div class="property <?php echo $escape(str_replace(':', '-', $term)); ?>">
-        <dt>
-        <?php echo $escape($propertyLabel); ?>
-        <?php if ($propertyTerm !== null) : ?>
-        <span class="field-term">(<?php echo $escape($propertyTerm); ?>)</span>
-        <?php endif; ?>
-        </dt>
-        <?php foreach ($propertyValues as $value): ?>
-            <?php
-            $valueType = $value->type();
-            $valueLang = $value->lang();
-            $valueAnnotation = $value->valueAnnotation();
-            $class = ['value'];
-            $isResource = ('resource' == $valueType || strpos($valueType, 'resource') !== false);
-            if ($isResource) {
-                $class[] = 'resource';
-                $class[] = $escape($value->valueResource()->resourceName());
-            } elseif ('uri' == $valueType) {
-                $class[] = 'uri';
+    <section class="record__group record__group--<?php echo $escape($group['layout']); ?>" data-group="<?php echo $escape($group['key']); ?>">
+        <h2 class="record__group-title"><?php echo $escape($group['title']); ?></h2>
+
+        <dl class="record__list">
+        <?php foreach ($rendered as $term => [$propertyData, $propertyValues]):
+            $property = $propertyData['property'];
+            $propertyLabel = $propertyData['alternate_label'] ?: $translate($property->label());
+            if ('term' === $labelInfo) {
+                $propertyTerm = $property->term();
+            } elseif ('vocab' === $labelInfo) {
+                $propertyTerm = $property->vocabulary()->label();
+            } else {
+                $propertyTerm = null;
             }
             ?>
-            <dd class="<?php echo implode(' ', $class); ?>" lang="<?php echo $escape($valueLang); ?>">
-                <?php if ($showLocale && $valueLang) : ?>
-                    <span class="language"><?php echo $valueLang; ?></span>
+            <div class="property <?php echo $escape(str_replace(':', '-', $term)); ?>">
+                <dt<?php echo $hideLabels ? ' class="sr-only"' : ''; ?>>
+                <?php echo $escape($propertyLabel); ?>
+                <?php if ($propertyTerm !== null) : ?>
+                <span class="field-term">(<?php echo $escape($propertyTerm); ?>)</span>
                 <?php endif; ?>
-                <span class="value-content"><?php
-                    // Resource values: render the link ourselves with an aspect-
-                    // preserving ('medium') thumbnail. The core resource data type
-                    // hard-codes linkPretty('square'), which centre-crops wide
-                    // logos/wordmarks to a square; 'medium' keeps the full image.
-                    // (_metadata.scss caps the height and frees the width.)
-                    // Everything else still goes through asHtml() unchanged.
-                    if ($isResource && $value->valueResource()):
-                        echo $value->valueResource()->linkPretty('medium', null, null, null, $filterLocale ? $lang : []);
-                    else:
-                        echo $filterLocale ? $value->asHtml($lang) : $value->asHtml();
-                    endif;
-                ?></span>
-                <?php if(!$value->isPublic()) : ?>
+                </dt>
+                <?php foreach ($propertyValues as $value): ?>
+                    <?php
+                    $valueType = $value->type();
+                    $valueLang = $value->lang();
+                    $valueAnnotation = $value->valueAnnotation();
+                    $class = ['value'];
+                    $isResource = ('resource' == $valueType || strpos($valueType, 'resource') !== false);
+                    if ($isResource) {
+                        $class[] = 'resource';
+                        $class[] = $escape($value->valueResource()->resourceName());
+                    } elseif ('uri' == $valueType) {
+                        $class[] = 'uri';
+                    }
+                    ?>
+                    <dd class="<?php echo implode(' ', $class); ?>" lang="<?php echo $escape($valueLang); ?>">
+                        <?php if ($showLocale && $valueLang) : ?>
+                            <span class="language"><?php echo $valueLang; ?></span>
+                        <?php endif; ?>
+                        <span class="value-content"><?php
+                            // Resource values: render the link ourselves with an aspect-
+                            // preserving ('medium') thumbnail. The core resource data type
+                            // hard-codes linkPretty('square'), which centre-crops wide
+                            // logos/wordmarks to a square; 'medium' keeps the full image.
+                            // (_metadata.scss caps the height and frees the width.)
+                            // Everything else still goes through asHtml() unchanged.
+                            if ($isResource && $value->valueResource()):
+                                echo $value->valueResource()->linkPretty('medium', null, null, null, $filterLocale ? $lang : []);
+                            else:
+                                echo $filterLocale ? $value->asHtml($lang) : $value->asHtml();
+                            endif;
+                        ?></span>
+                        <?php if(!$value->isPublic()) : ?>
 <?php // role="img" + aria-label so the icon has an accessible name. The attribute
       // here was `aria-role`, which is not a real attribute and did nothing. ?>
-                    <span class="o-icon-private" role="img" title="<?php echo $this->escapeHtmlAttr($translate('Private')); ?>" aria-label="<?php echo $this->escapeHtmlAttr($translate('Private')); ?>"></span>
-                <?php endif; ?>
-                <?php if ($valueAnnotation && $showValueAnnotations) : ?>
-                    <div class="annotation-btn">
-                        <span class="has-annotation o-icon-annotation" role="img" title="<?php echo $this->escapeHtmlAttr($translate('Has annotation')); ?>" aria-label="<?php echo $this->escapeHtmlAttr($translate('Has annotation')); ?>"></span>
-                        <div class="annotation-tooltip">
-                            <div class="annotation-tooltip__wrapper">
-                                <h6 class="annotation-tooltip__heading"><?php echo $this->escapeHtml($translate('Value Annotations')); ?></h6>
-                                <?php echo $valueAnnotation->displayValues(); ?>
+                            <span class="o-icon-private" role="img" title="<?php echo $this->escapeHtmlAttr($translate('Private')); ?>" aria-label="<?php echo $this->escapeHtmlAttr($translate('Private')); ?>"></span>
+                        <?php endif; ?>
+                        <?php if ($valueAnnotation && $showValueAnnotations) : ?>
+                            <div class="annotation-btn">
+                                <span class="has-annotation o-icon-annotation" role="img" title="<?php echo $this->escapeHtmlAttr($translate('Has annotation')); ?>" aria-label="<?php echo $this->escapeHtmlAttr($translate('Has annotation')); ?>"></span>
+                                <div class="annotation-tooltip">
+                                    <div class="annotation-tooltip__wrapper">
+                                        <h6 class="annotation-tooltip__heading"><?php echo $this->escapeHtml($translate('Value Annotations')); ?></h6>
+                                        <?php echo $valueAnnotation->displayValues(); ?>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                <?php endif; ?>
-                <?php $this->trigger('view.show.value', ['value' => $value]); ?>
-            </dd>
+                        <?php endif; ?>
+                        <?php $this->trigger('view.show.value', ['value' => $value]); ?>
+                    </dd>
+                <?php endforeach; ?>
+            </div>
         <?php endforeach; ?>
-    </div>
+        </dl>
+    </section>
 <?php endforeach; ?>
-</dl>
+</div>

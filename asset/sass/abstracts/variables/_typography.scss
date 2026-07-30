@@ -15,7 +15,14 @@
 //
 // Sizing: fixed rem scale for product UI (browse, metadata, controls) so a
 // label doesn't drift between breakpoints; fluid clamp() reserved for the
-// display tier (h1/h2, banner) where the gain at large viewports is real.
+// display tier (h1/h2, masthead) where the gain at large viewports is real.
+//
+// ONE SCALE. --text-* is the single source of truth for every size in the
+// theme, headings included. The parallel $font__h1-sm-size … $font__h6-base-size
+// Sass set that base/typography/_headings.scss used to consume is GONE: it was a
+// second source of truth for the same decision, it had already drifted from its
+// own comments, and nothing outside the theme ever read it. Sizes are now
+// visible in devtools as tokens.
 // ==========================================================================
 
 :root {
@@ -25,14 +32,26 @@
   --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", monaco, consolas, monospace;
 
   // --- Modular type scale ---
-  --text-xs:   0.8125rem;  // 13px — eyebrow labels, metadata dt
+  //
+  // The display tier's floors are deliberately far apart. The previous clamps
+  // bottomed out at 32px (h2) against a fixed 30px h3, so below the $md
+  // breakpoint the h2/h3 distinction disappeared — the ramp collided with
+  // itself. h2 now floors at 36px against h3's 30px, and the ramp is further
+  // separated by weight (h1 800 / h2 700 / h3 600) rather than by size alone.
+  // One step below --text-xs, for legends and micro-captions. Added because
+  // ResourceVisualizations was already reaching for it — its bridge reads
+  // `var(--text-2xs, 0.6875rem)` with a note that it would "adopt a theme token
+  // automatically if one is ever added". A shared scale with a hole in it is a
+  // scale two projects can disagree about.
+  --text-2xs:  0.6875rem;  // 11px — legends, micro-captions
+  --text-xs:   0.8125rem;  // 13px — eyebrow labels, chips
   --text-sm:   0.9375rem;  // 15px — secondary UI, captions
-  --text-base: 1.0625rem;  // 17px — body copy
-  --text-lg:   1.1875rem;  // 19px — lede, large list items
+  --text-base: 1.0625rem;  // 17px — body copy, metadata values
+  --text-lg:   1.1875rem;  // 19px — lede, large list items, h5
   --text-xl:   1.5rem;     // 24px — h4, card titles
   --text-2xl:  1.875rem;   // 30px — h3, section headings
-  --text-3xl:  clamp(2rem, 1.7rem + 1.5vw, 2.75rem);     // 32–44px — h2
-  --text-4xl:  clamp(2.5rem, 2.1rem + 2vw, 3.5rem);      // 40–56px — h1, banner display
+  --text-3xl:  clamp(2.25rem, 1.85rem + 1.7vw, 2.875rem);  // 36–46px — h2, record title
+  --text-4xl:  clamp(2.75rem, 2rem + 3.1vw, 4.25rem);      // 44–68px — h1, masthead display
 }
 
 // ==========================================================================
@@ -44,33 +63,15 @@ $font__code: var(--font-mono);
 $font__pre: $font__code;
 
 // ==========================================================================
-// Font sizes (Sass — names preserved from the base theme so component
-// partials keep compiling; values retuned to the scale above)
+// Font sizes (Sass) — the small end only, kept because component partials
+// inherited from the base theme reference these names. They are aliases of the
+// CSS tokens, not independent values. There is deliberately NO $font__h*-size
+// set: headings are authored from --text-* in base/typography/_headings.scss.
 // ==========================================================================
-$font__xxs-size:  0.6875rem;  // 11px
-$font__xs-size:   0.8125rem;  // 13px
-$font__sm-size:   0.9375rem;  // 15px
-$font__base-size: 1.0625rem;  // 17px
+$font__xxs-size:  var(--text-2xs);
+$font__xs-size:   var(--text-xs);
+$font__sm-size:   var(--text-sm);
+$font__base-size: var(--text-base);
 
-$font__base-line-height: 1.6;
-
-$font__h1-sm-size:   2.25rem;
-$font__h1-base-size: clamp(2.5rem, 2.1rem + 2vw, 3.5rem);
-
-$font__h2-sm-size:   1.875rem;
-$font__h2-base-size: clamp(2rem, 1.7rem + 1.5vw, 2.75rem);
-
-$font__h3-sm-size:   1.5rem;
-$font__h3-base-size: 1.875rem;
-
-$font__h4-sm-size:   1.25rem;
-$font__h4-base-size: 1.5rem;
-
-$font__h5-sm-size:   1.125rem;
-$font__h5-base-size: 1.25rem;
-
-$font__h6-sm-size:   1rem;
-$font__h6-base-size: 1.0625rem;
-
-$font__headings-line-height: 1.2;
-$font__pre-base-line-height: 1.6;
+$font__base-line-height: var(--leading-normal);
+$font__pre-base-line-height: var(--leading-normal);

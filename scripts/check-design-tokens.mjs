@@ -5,7 +5,7 @@
  *
  *   node scripts/check-design-tokens.mjs        (also: npm run lint:tokens)
  *
- * Checks every SCSS source under asset/sass (compiled CSS is exempt):
+ * Syntax checks, over every SCSS source under asset/sass (compiled CSS exempt):
  *   1. Raw hex colours outside the token files and outside var(--x, #hex)
  *      fallback position.
  *   2. Coloured border-left/right wider than 1px (the "accent side-stripe"
@@ -13,11 +13,25 @@
  *      allowlisted by file.
  *   3. Gradient text (background-clip: text).
  *   4. px-valued font-size (the type scale is rem-only).
+ *   5. Any surviving $font__h1-sm-size … $font__h6-base-size reference — the
+ *      parallel Sass heading scale is deleted; --text-* is the only scale.
+ *   6. Off-grid px page geometry in the layout partials — that layer reads the
+ *      --container-* / --header-height / --space-* tokens now.
+ *
+ * PROPERTY check — the one the design system actually promises:
+ *   7. Computed WCAG contrast for every ink/surface pair, per mode, parsed
+ *      straight out of the OKLCH literals in _colors.scss. DESIGN.md used to
+ *      *assert* AA by hand and was wrong about --muted; this measures it.
+ *      Limitation, stated rather than hidden: only hand-authored oklch()
+ *      literals can be evaluated. Tones derived with color-mix() from the admin
+ *      --primary-base seed (links, --primary-*) are not statically knowable and
+ *      are out of scope.
  *
  * Exit code 1 on any finding; prints file:line for each.
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
+import { parseOklch, contrastRatio } from './lib/contrast.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
 const SASS = join(ROOT, 'asset', 'sass');
@@ -39,6 +53,15 @@ const STRIPE_ALLOW = [
   'components/linked-resources/_linked-resources.scss', // CSS chevron caret
   'components/navigation/_navigation.scss',             // CSS chevron caret
 ];
+
+// Partials that own page geometry and must express it in tokens.
+const LAYOUT_PARTIALS = [
+  'base/layout/_layout.scss',
+  'base/layout/_regions.scss',
+  'abstracts/variables/_layout.scss',
+];
+// Hairlines, rules and outlines are legitimately sub-grid.
+const PX_GEOMETRY_OK = new Set(['0px', '1px', '2px', '3px']);
 
 const findings = [];
 
@@ -87,13 +110,104 @@ for (const file of scssFiles(SASS)) {
     if (/font-size\s*:\s*\d+px/.test(line)) {
       findings.push(`${loc}  px font-size (the type scale is rem-only): ${line.trim()}`);
     }
+
+    // 5. The deleted parallel heading scale.
+    const legacyHeading = line.match(/\$font__h[1-6]-(sm|base)-size/);
+    if (legacyHeading) {
+      findings.push(`${loc}  ${legacyHeading[0]} — the Sass heading scale is deleted; author from --text-*`);
+    }
+
+    // 6. Off-grid px geometry in the layout layer (@media breakpoints exempt:
+    //    those are viewport queries, not page geometry).
+    if (LAYOUT_PARTIALS.includes(relSass) && !/@media|@include|@use/.test(line)) {
+      for (const px of line.match(/-?\d+(\.\d+)?px/g) ?? []) {
+        if (!PX_GEOMETRY_OK.has(px)) {
+          findings.push(`${loc}  px page geometry in a layout partial (use --container-*/--space-*): ${px}`);
+        }
+      }
+    }
   });
 }
+
+// ==========================================================================
+// 7. Contrast assertion.
+// ==========================================================================
+
+const colorsSrc = readFileSync(join(SASS, 'abstracts', 'variables', '_colors.scss'), 'utf8');
+
+/** Extract the body of `@mixin <name> { … }` / `<selector> { … }` by brace matching. */
+function blockBody(src, opener) {
+  const start = src.indexOf(opener);
+  if (start === -1) return null;
+  let i = src.indexOf('{', start);
+  if (i === -1) return null;
+  let depth = 0;
+  const from = i + 1;
+  for (; i < src.length; i++) {
+    if (src[i] === '{') depth++;
+    else if (src[i] === '}' && --depth === 0) return src.slice(from, i);
+  }
+  return null;
+}
+
+/** name → `oklch(…)` literal, for the hand-authored declarations in a block. */
+function oklchTokens(body) {
+  const out = new Map();
+  if (!body) return out;
+  for (const m of body.matchAll(/(--[\w-]+)\s*:\s*(oklch\([^)]*\))\s*;/g)) {
+    out.set(m[1], m[2]);
+  }
+  return out;
+}
+
+const AA = 4.5;
+
+const light = oklchTokens(blockBody(colorsSrc, '@mixin am-light-theme'));
+const dark = oklchTokens(blockBody(colorsSrc, '@mixin am-dark-theme'));
+const boldLight = oklchTokens(blockBody(colorsSrc, 'body[data-brand="bold"]'));
+const boldDark = oklchTokens(blockBody(colorsSrc, '@mixin am-masthead-bold-dark'));
+
+// Every ink is checked against every surface it can legitimately land on. The
+// quiet tiers are held to the same 4.5:1 — the point of the audit fix.
+const INKS = ['--ink-strong', '--ink', '--ink-light', '--ink-subtle', '--muted'];
+const SURFACES = ['--surface', '--surface-raised', '--surface-sunken', '--background'];
+
+function checkPairs(modeName, tokens, inks, surfaces) {
+  for (const inkName of inks) {
+    const ink = tokens.get(inkName);
+    if (!ink) {
+      findings.push(`_colors.scss  ${modeName}: ${inkName} is not a hand-authored oklch() literal — contrast cannot be asserted`);
+      continue;
+    }
+    for (const surfName of surfaces) {
+      const surf = tokens.get(surfName);
+      if (!surf) continue;
+      const ratio = contrastRatio(parseOklch(ink), parseOklch(surf));
+      if (ratio < AA) {
+        findings.push(
+          `_colors.scss  ${modeName}: ${inkName} on ${surfName} is ${ratio.toFixed(2)}:1 — below AA (${AA}:1)`
+        );
+      }
+    }
+  }
+}
+
+checkPairs('light', light, INKS, SURFACES);
+checkPairs('dark', dark, INKS, SURFACES);
+
+// The footer band is its own ground in both modes.
+checkPairs('light footer', light, ['--footer-text', '--footer-text-muted'], ['--footer-surface', '--footer-surface-alt']);
+checkPairs('dark footer', dark, ['--footer-text', '--footer-text-muted'], ['--footer-surface', '--footer-surface-alt']);
+
+// Brand presence C paints a masthead ground of its own; its type must clear AA
+// on it, or "bold" would be the one treatment that fails the contract.
+checkPairs('brand=bold light', boldLight, ['--masthead-ink', '--masthead-ink-soft'], ['--masthead-bg']);
+checkPairs('brand=bold dark', boldDark, ['--masthead-ink', '--masthead-ink-soft'], ['--masthead-bg']);
 
 if (findings.length) {
   console.error(`Design-token contract: ${findings.length} finding(s)\n`);
   for (const f of findings) console.error('  ' + f);
   process.exit(1);
 } else {
-  console.log('Design-token contract: clean.');
+  console.log('Design-token contract: clean (incl. computed WCAG contrast, both modes).');
 }

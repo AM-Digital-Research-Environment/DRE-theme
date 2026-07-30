@@ -1,16 +1,20 @@
 {
   "name": "dre-theme",
-  "version": "2.21.1",
+  "version": "2.22.0",
   "description": "Africa Multiple — Digital Research Environment. An Omeka S theme for the Africa Multiple Cluster of Excellence (University of Bayreuth), built on a modern OKLCH design-token system with light/dark modes.",
   "main": "gulpfile.js",
   "scripts": {
     "start": "gulp",
     "build": "npm run lint && gulp css",
     "watch": "gulp css:watch",
-    "lint": "npm run lint:tokens && npm run lint:ini && npm run lint:templates",
+    "lint": "npm run lint:tokens && npm run lint:ini && npm run lint:templates && npm run lint:groups && npm run lint:php",
     "lint:tokens": "node scripts/check-design-tokens.mjs",
     "lint:ini": "node scripts/check-theme-ini.mjs",
     "lint:templates": "node scripts/check-templates.mjs",
+    "lint:groups": "node scripts/check-resource-groups.mjs",
+    "lint:php": "node scripts/check-php.mjs",
+    "lint:php:require": "node scripts/check-php.mjs --require",
+    "fixtures:refresh": "node scripts/fetch-template-fixture.mjs",
     "i18n:extract": "node scripts/extract-translations.mjs",
     "i18n:check": "node scripts/extract-translations.mjs --check",
     "build:icons": "node scripts/gen-pwa-icons.mjs"

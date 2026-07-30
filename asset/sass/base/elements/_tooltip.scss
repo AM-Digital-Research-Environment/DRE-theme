@@ -18,7 +18,7 @@
         height: 20px;
         line-height: 1;
         padding: 0;
-        background-color: var(--secondary);
+        background-color: var(--primary);
         // The "?" used to inherit its light colour from the bare-button primary
         // base; now that the base is `.button`-only, set it here explicitly.
         color: var(--primary-contrast);
@@ -26,7 +26,7 @@
 
         &:hover,
         &:focus {
-            background-color: var(--secondary);
+            background-color: var(--primary);
         }
     }
 

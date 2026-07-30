@@ -1,13 +1,24 @@
 // ==========================================================================
 // Design Tokens
-// Spacing, radii, shadows, focus rings, motion, z-index.
-// Shadow / glow tokens derive from --primary or a warm neutral ink via
-// color-mix(in oklab, …) so admin colour overrides cascade automatically.
+// Spacing, layout, radii, rhythm, shadows, focus rings, motion, z-index.
+//
+// One scale per decision, in CSS. The numeric spacing steps are the source of
+// truth and the semantic names are aliases of them; page geometry lives in the
+// layout family rather than in component px; heading rhythm comes from
+// --leading-*. Shadow / glow tokens derive from --primary or a warm neutral ink
+// via color-mix(in oklab, …) so admin colour overrides cascade automatically.
+//
+// Mode-dependent tokens (shadow ink, panel helpers) are emitted from the
+// am-light-tokens / am-dark-tokens mixins at the bottom and applied exactly the
+// way _colors.scss applies its theme mixins — one definition, four call sites,
+// no hand-synced copies.
 // ==========================================================================
+
+@use "breakpoints" as *;
 
 :root {
   // ========================================================================
-  // Spacing scale (4pt grid)
+  // Spacing scale (4pt grid) — the source of truth.
   // ========================================================================
   --space-1: 0.25rem;   // 4px
   --space-2: 0.5rem;    // 8px
@@ -21,16 +32,35 @@
   --space-16: 4rem;     // 64px
   --space-20: 5rem;     // 80px
   --space-24: 6rem;     // 96px
-  --space-40: 10rem;    // 160px
 
-  // Semantic aliases
-  --space-xs: 0.25rem;
-  --space-sm: 0.5rem;
-  --space-md: 1rem;
-  --space-lg: 1.5rem;
-  --space-xl: 2rem;
-  --space-2xl: 3rem;
-  --space-3xl: 4rem;
+  // Semantic aliases — ALIASES, never independent literals. DRE-Search and
+  // ResourceVisualizations author against these names; pointing them at the
+  // numeric steps means a change to the grid can no longer silently diverge
+  // between the two vocabularies.
+  --space-xs:  var(--space-1);
+  --space-sm:  var(--space-2);
+  --space-md:  var(--space-4);
+  --space-lg:  var(--space-6);
+  --space-xl:  var(--space-8);
+  --space-2xl: var(--space-12);
+  --space-3xl: var(--space-16);
+
+  // ========================================================================
+  // Layout — page geometry. Components read these instead of hard-coding px,
+  // so the container width, the header height and the offsets derived from it
+  // are stated once and stay in agreement.
+  // ========================================================================
+  --container-max:    81.25rem;   // 1300px — the page container
+  --container-gutter: var(--space-4);
+  --header-height:    4.625rem;   // 74px — the sticky header's fixed height
+  // Anchor-jump offset. Derived, not guessed: the old 6rem (96px) matched no
+  // real measurement and was declared twice, in base/_theme.scss AND
+  // base/layout/_layout.scss. Declared once now, here.
+  --scroll-offset:    calc(var(--header-height) + var(--space-6));
+  --rail-width:       21.25rem;   // 340px — the item-record apparatus rail
+  --label-col:        12rem;      // metadata label rail (was a component-local
+                                  // --metadata-label-col at 10.625rem, too
+                                  // narrow for "Copyright Date" / "Access Rights")
 
   // ========================================================================
   // Border radius — tightened toward an institutional, instrument-like feel
@@ -39,17 +69,13 @@
   --radius-md: 0.5rem;    // 8px — component default
   --radius-lg: 0.75rem;   // 12px — cards
   --radius-xl: 1rem;      // 16px
-  --radius-2xl: 1.5rem;   // 24px
   --radius-full: 9999px;
 
   // ========================================================================
   // Accent lines & hover lift
   // ========================================================================
-  --accent-line-sm: 2px;
-  --accent-line-md: 3px;
-
+  --accent-line-md: 3px;   // the brand flag rule
   --lift-xs: -0.125rem;
-  --lift-sm: -0.25rem;
 
   // ========================================================================
   // Control sizes
@@ -62,56 +88,42 @@
   // ========================================================================
   // Reading measures
   // ========================================================================
-  --measure-narrow: 44rem;     // ~704px — body prose
+  --measure-narrow: 44rem;     // ~704px — body prose, the record's reading column
   --measure-base:   52.5rem;   // ~840px — forms, metadata rows
   --measure-wide:   72.5rem;   // ~1160px — wide lists, search results
 
   // ========================================================================
   // Letter spacing
   // ========================================================================
-  --tracking-tighter: -0.04em;
   --tracking-tight:   -0.02em;
   --tracking-normal:  0;
   --tracking-wide:    0.04em;
   --tracking-widest:  0.12em;   // eyebrow / caps labels
 
   // ========================================================================
+  // Rhythm — the line-height family. Headings take -tight/-snug, body -normal,
+  // long-form prose -relaxed. Base typography used to hard-code a single 1.2 at
+  // every heading size and rem margins that were off the 4pt grid.
+  // ========================================================================
+  --leading-tight:   1.1;    // display headings
+  --leading-snug:    1.25;   // section headings, card titles
+  --leading-normal:  1.6;    // body / UI
+  --leading-relaxed: 1.75;   // long-form reading
+
+  // Deprecated aliases of the two originals; kept one minor so a module that
+  // authored against them keeps its rhythm. Prefer --leading-*.
+  --line-height-normal:  var(--leading-normal);
+  --line-height-relaxed: var(--leading-relaxed);
+
+  // ========================================================================
   // Focus rings
   // ========================================================================
-  --ring-focus:    0 0 0 3px var(--focus-ring);
-  --ring-focus-sm: 0 0 0 2px color-mix(in oklab, var(--primary) 22%, transparent);
+  --ring-focus: 0 0 0 3px var(--focus-ring);
 
   // ========================================================================
-  // Glow effects (primary-tinted) — derived from --primary
+  // Glow (primary-tinted) — derived from --primary
   // ========================================================================
   --glow-sm: 0 2px 6px -1px color-mix(in oklab, var(--primary) 24%, transparent);
-  --glow-md: 0 4px 12px -2px color-mix(in oklab, var(--primary) 30%, transparent);
-
-  // ========================================================================
-  // Shadow ink — warm neutral (matches the stone palette, no cold cast)
-  // ========================================================================
-  --shadow-color:        color-mix(in oklab, oklch(24% 0.03 60) 14%, transparent);
-  --shadow-color-strong: color-mix(in oklab, oklch(24% 0.03 60) 20%, transparent);
-  --shadow-color-subtle: color-mix(in oklab, oklch(28% 0.03 60) 7%,  transparent);
-
-  --shadow-xs: 0 1px 2px 0  var(--shadow-color-subtle);
-  --shadow-sm: 0 1px 3px 0  var(--shadow-color), 0 1px 2px -1px var(--shadow-color-subtle);
-  --shadow-md: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -2px var(--shadow-color-subtle);
-  --shadow-lg: 0 10px 15px -3px var(--shadow-color), 0 4px 6px -4px var(--shadow-color-subtle);
-  --shadow-xl: 0 20px 25px -5px var(--shadow-color), 0 10px 10px -5px var(--shadow-color-subtle);
-
-  // ========================================================================
-  // Panel / card elevation helpers.
-  // --panel-border must be re-declared in each theme block: custom props
-  // inherit their *computed* value, so the inner var(--border) is frozen at
-  // the block where --panel-border is declared. Re-declaring lets it pick up
-  // the active --border per theme.
-  // ========================================================================
-  --panel-bg: var(--surface);
-  --panel-border-color: var(--border);
-  --panel-border: 1px solid var(--border);
-  --panel-radius: var(--radius-lg);
-  --panel-shadow: var(--shadow-sm);
 
   // ========================================================================
   // Easing & transitions
@@ -132,17 +144,52 @@
   --z-drawer:   280;
   --z-modal:    300;
   --z-tooltip:  500;
+}
 
-  // ========================================================================
-  // Typography helpers
-  // ========================================================================
-  --line-height-normal:  1.6;
-  --line-height-relaxed: 1.75;
+// Wider gutter once there is room for one. A single responsive token beats a
+// media query inside every component that needs the page's side padding.
+@media (min-width: $md) {
+  :root { --container-gutter: var(--space-8); }
 }
 
 // ==========================================================================
-// Dark theme — deeper shadows + panel re-declaration.
-// (Glow tokens already derive from --primary, so they auto-update.)
+// Panel / card elevation helpers.
+//
+// --panel-border MUST be re-emitted in every theme block: a custom property
+// inherits its *computed* value, so the inner var(--border) is resolved — and
+// frozen — where --panel-border is declared. Re-declaring per mode lets it pick
+// up that mode's --border. This mixin states the workaround once instead of
+// repeating the comment in three places.
+// ==========================================================================
+@mixin am-panel-tokens($bg) {
+  --panel-bg: #{$bg};
+  --panel-border-color: var(--border);
+  --panel-border: 1px solid var(--border);
+  --panel-radius: var(--radius-lg);
+  --panel-shadow: var(--shadow-sm);
+}
+
+// ==========================================================================
+// Light tokens — warm-tinted shadow ink (matches the stone palette, no cold
+// cast) and the light panel resolution.
+// ==========================================================================
+@mixin am-light-tokens {
+  --shadow-color:        color-mix(in oklab, oklch(24% 0.03 60) 14%, transparent);
+  --shadow-color-strong: color-mix(in oklab, oklch(24% 0.03 60) 20%, transparent);
+  --shadow-color-subtle: color-mix(in oklab, oklch(28% 0.03 60) 7%,  transparent);
+
+  --shadow-xs: 0 1px 2px 0  var(--shadow-color-subtle);
+  --shadow-sm: 0 1px 3px 0  var(--shadow-color), 0 1px 2px -1px var(--shadow-color-subtle);
+  --shadow-md: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -2px var(--shadow-color-subtle);
+  --shadow-lg: 0 10px 15px -3px var(--shadow-color), 0 4px 6px -4px var(--shadow-color-subtle);
+  --shadow-xl: 0 20px 25px -5px var(--shadow-color), 0 10px 10px -5px var(--shadow-color-subtle);
+
+  @include am-panel-tokens(var(--surface));
+}
+
+// ==========================================================================
+// Dark tokens — deeper shadows on a darker ground, panels ride --surface-raised.
+// (Glow derives from --primary, so it auto-updates.)
 // ==========================================================================
 @mixin am-dark-tokens {
   --shadow-color:        color-mix(in oklab, black 22%, transparent);
@@ -155,33 +202,18 @@
   --shadow-lg: 0 12px 28px -8px color-mix(in oklab, black 40%, transparent), 0 8px 16px -8px color-mix(in oklab, black 24%, transparent);
   --shadow-xl: 0 20px 40px -12px color-mix(in oklab, black 50%, transparent), 0 12px 24px -8px var(--shadow-color-strong);
 
-  --panel-bg: var(--surface-raised);
-  --panel-border-color: var(--border);
-  --panel-border: 1px solid var(--border);  // re-declare for the dark cascade
+  @include am-panel-tokens(var(--surface-raised));
 }
+
+// Applied exactly the way _colors.scss applies its theme mixins.
+:root { @include am-light-tokens; }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) { @include am-dark-tokens; }
 }
 
-body[data-theme="dark"] { @include am-dark-tokens; }
-
-// Manual light wins back the light panel/shadow values.
-body[data-theme="light"] {
-  --shadow-color:        color-mix(in oklab, oklch(24% 0.03 60) 14%, transparent);
-  --shadow-color-strong: color-mix(in oklab, oklch(24% 0.03 60) 20%, transparent);
-  --shadow-color-subtle: color-mix(in oklab, oklch(28% 0.03 60) 7%,  transparent);
-
-  --shadow-xs: 0 1px 2px 0  var(--shadow-color-subtle);
-  --shadow-sm: 0 1px 3px 0  var(--shadow-color), 0 1px 2px -1px var(--shadow-color-subtle);
-  --shadow-md: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -2px var(--shadow-color-subtle);
-  --shadow-lg: 0 10px 15px -3px var(--shadow-color), 0 4px 6px -4px var(--shadow-color-subtle);
-  --shadow-xl: 0 20px 25px -5px var(--shadow-color), 0 10px 10px -5px var(--shadow-color-subtle);
-
-  --panel-bg: var(--surface);
-  --panel-border-color: var(--border);
-  --panel-border: 1px solid var(--border);
-}
+body[data-theme="dark"]  { @include am-dark-tokens; }
+body[data-theme="light"] { @include am-light-tokens; }
 
 // ==========================================================================
 // Sass aliases — for use where var() can't reach (e.g. @media composition).

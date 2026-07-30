@@ -6,7 +6,11 @@
 
 html {
     scroll-behavior: smooth;
-    scroll-padding-top: 6rem; // offset for the sticky header on anchor jumps
+    // Offset for the sticky header on anchor jumps. DERIVED from the header
+    // height rather than guessed, and declared HERE ONLY — this used to be a
+    // hard-coded 6rem (96px) that matched neither the 74px header nor its
+    // duplicate in base/layout/_layout.scss.
+    scroll-padding-top: var(--scroll-offset);
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
 }

@@ -40,13 +40,9 @@ li > ol {
 }
 
 dt {
-    color: $color__black;
-    font-size: $font__h6-sm-size; //18px
+    color: var(--ink-strong);
+    font-size: var(--text-base);
     font-weight: 600;
-
-    @media (min-width: $md) {
-        font-size: $font__h6-base-size; //30px
-    }
 }
 
 dd {

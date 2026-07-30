@@ -34,7 +34,10 @@ figure {
         position: absolute;
         left: 0;
         top: 0;
-        border: 1px dashed $color__complementary;
+        // Was --complementary, a decorative-only token that carried an
+        // unexplained hue difference between modes. Promoted to the brand-book
+        // pigment it was approximating.
+        border: 1px dashed var(--brand-gold);
         z-index: 2;
         pointer-events: none;
     } 

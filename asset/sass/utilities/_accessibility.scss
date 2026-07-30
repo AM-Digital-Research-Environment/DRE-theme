@@ -2,7 +2,10 @@
 
 #skipnav {
     position: fixed;
-    top: $font__base-line-height;
+    // A length, not a line-height. This was `top: $font__base-line-height`
+    // (the unitless 1.6), which is not a valid <length> — the declaration was
+    // simply dropped, leaving the skip link at `top: auto`.
+    top: var(--space-4);
     left: 50%;
     border: 1px solid $color__gray-67;
     transform: translateX(-50%);

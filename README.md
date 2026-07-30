@@ -7,17 +7,18 @@
 
 The **Digital Research Environment** theme for the [Africa Multiple Cluster of Excellence](https://www.africamultiple.uni-bayreuth.de/) (University of Bayreuth) — a *“Scholarly Modernism”* design system for the Cluster’s Omeka S archive. Warm and scholarly, built on a modern **OKLCH design-token** foundation with first-class **light and dark modes** and the Cluster’s Uni-Grün brand identity.
 
-> 📐 Full design-system reference: **[`DESIGN.md`](DESIGN.md)** · design context: [`.impeccable.md`](.impeccable.md)
+> 📐 Full design-system reference: **[`DESIGN.md`](DESIGN.md)** · design context: [`.impeccable.md`](.impeccable.md) · current design/token audit and its breaking-change register: [`AUDIT.md`](AUDIT.md)
 
 ## Features
 
 - **Single-seed brand engine** — one Uni-Grün seed (`#009260`) drives every accent, hover, focus ring and tint via `color-mix(in oklab, …)`. Change the **Brand colour** setting and the whole theme re-tints, AA-legible in both modes.
 - **Light & dark modes** — respects the visitor’s system preference, with a manual sun/moon toggle that persists; a synchronous head-script prevents any flash of the wrong theme.
 - **Distinctive typography** — Spectral (display serif) + Hanken Grotesk (body/UI) served via **Bunny Fonts**, a privacy-first, GDPR-compliant mirror of Google Fonts (no IP logging) — relevant for an EU deployment.
-- **Earth-tone banner** — a photography-free masthead: a soft diagonal colour wash through the brand earth tones (green → gold → braun), pure CSS and theme-aware (pale under dark type in light mode, deep under light type in dark mode). A tall hero on the home page carrying the site title, a slim title strip elsewhere. No image required.
+- **Typographic masthead** — a photography-free masthead carried by *type and rule*, not a colour fill: eyebrow → display title → 3 px brand flag → lede → **search field**, over a hairline strip of corpus counts in tabular numerals. A researcher arrives with a question, so the first screen offers a field. Three **brand-presence** treatments — *quiet*, *balanced* (default), *bold* — are a token switch, not a rebuild. The earlier earth-tone wash is still available as an optional treatment. A slim title strip on interior pages. No image required.
+- **Records that read like records** — item metadata is rendered in named groups (Abstract · Description · Subjects · Origins & context · Rights & access · Identifiers & sources), never in database order, with subjects as chips and a sticky rail carrying citation, DOI, permalink and licence. Any property the theme hasn't been taught about lands in *Further details*, so nothing is ever hidden.
 - **Brand assets** — the Africa Multiple lockup (with an auto-generated dark-mode variant), institutional footer marks (University of Bayreuth + the Cluster), and [Lucide](https://lucide.dev/) icons.
-- **OKLCH design tokens** — colour, spacing, radius, shadow, motion and z-index, all as CSS custom properties for easy maintenance.
-- **Accessible** — WCAG AA text/surface pairings in both modes, always-visible focus, and `prefers-reduced-motion` support.
+- **OKLCH design tokens, all the way down** — colour, *type, rhythm, spacing, layout*, radius, shadow, motion and z-index, all as CSS custom properties. One scale per decision: page geometry reads `--container-max` / `--header-height` / `--label-col`, headings read `--text-*` and `--leading-*`, and there is no parallel Sass number set.
+- **Accessible — and measured** — WCAG AA text/surface pairings in both modes, always-visible focus, and `prefers-reduced-motion` support. The contrast claim is *asserted by the build*: `npm run lint:tokens` computes the ratio for every ink/surface pair in both modes from the OKLCH literals and fails on a regression.
 - **Installable (PWA)** — visitors can install the site as an app (desktop *Install* / mobile *Add to Home Screen*) with a brand-mark compass icon. A quiet header button appears **only when the browser can actually install** — no auto-popup, and no service worker (the per-site manifest alone is enough in current Chrome/Edge). Ships light/dark `theme-color`, an Apple touch icon and favicons; toggle it under *Progressive Web App* settings. See **[Installable PWA](#installable-pwa)** below and [`docs/PWA.md`](docs/PWA.md).
 
 ## Installation
@@ -40,12 +41,38 @@ Build toolchain: gulp 5, Dart Sass 1.x, gulp-postcss, autoprefixer.
 
 | Script | Checks |
 | --- | --- |
-| `npm run lint:tokens` | Raw hex outside the palette, accent side-stripes, gradient text, px font sizes |
+| `npm run lint:tokens` | Raw hex outside the palette, accent side-stripes, gradient text, px font sizes, surviving `$font__h*-size` references, off-grid px page geometry — **and computed WCAG contrast** for every ink/surface pair in both modes |
 | `npm run lint:ini` | `theme.ini` structure, `.info` vs `.options.info`, dead `Zend\…` types, settings declared but never read, helper registration |
 | `npm run lint:templates` | `<?php`/`?>` and bracket balance, unresolved `partial()` paths, helper call sites whose casing doesn't match `theme.ini` |
+| `npm run lint:groups` | Every property of the live *Research Items* template lands in a named metadata group, and the ones the record design depends on (Author, Abstract, Subject, DOI…) land in the *right* one |
+| `npm run lint:php` | **Real `php -l`** over every `.php`/`.phtml`, then the theme's PHP tests |
 | `npm run i18n:check` | `language/template.pot` is up to date (regenerate with `npm run i18n:extract`) |
 
-The template and INI checks exist because this theme is developed without a local PHP binary, so `php -l` isn't available — they are a structural net, not a PHP parser.
+### PHP verification
+
+`lint:php` uses whatever PHP it can find — a `php` on `PATH` first, then a
+pulled `php:8.3-cli` Docker image. **With neither it prints how to get one and
+exits 0**, so a contributor without PHP is not blocked; CI runs
+`npm run lint:php:require`, which makes the same check a hard gate. That
+asymmetry is deliberate and documented — unlike the accidental version this repo
+used to have, where `lint:ini` shelled out to `grep`, silently got nothing on
+Windows, and reported every admin field as dead.
+
+Getting a PHP, cheapest first:
+
+```bash
+winget install PHP.PHP.8.3
+```
+
+`lint:templates` remains the no-PHP structural net (it catches a truncated file,
+not a mistyped `::`). It is a fallback for `lint:php`, not a substitute.
+
+**Syntax is not correctness.** A template can parse perfectly and still render
+the Author under “Further details”. That half is covered by `lint:groups` (data,
+runs anywhere) and `tests/ResourceGroupsTest.php` (logic, needs PHP) — both
+asserted against `tests/fixtures/research-items-template.json`, the real property
+list of the live template. Refresh it with `npm run fixtures:refresh` when the
+template changes.
 
 ### Translations
 
@@ -62,7 +89,7 @@ To add a locale, copy it to `<locale>.po`, translate the `msgstr` values, compil
 - **General** — *Brand colour* (single seed; default Uni-Grün `#009260`).
 - **Contact info** — location, phone, email; show in top header and/or footer.
 - **Header** — top-navigation depth; optional custom *Logo* (overrides the bundled Africa Multiple lockup).
-- **Banner** — copy for the abstract earth-tone wash masthead: eyebrow, title (defaults to the site title), tagline, optional call-to-action button, and a toggle to show the slim banner on interior pages.
+- **Banner** — the masthead: *brand presence* (quiet / balanced / bold), eyebrow, title (defaults to the site title), tagline, an optional standing note beside the headline, an optional call-to-action button, the optional earth-tone wash, the corpus-count strip, and a toggle to show the slim strip on interior pages.
 - **Footer** — a single forest band: a brand-identity masthead (title + description, overridable via *Footer site description*) with social links on the left and the fixed institutional marks (University of Bayreuth + Africa Multiple Cluster) on the right, over a quiet legal row (copyright + a discreet designer credit). The footer logo / menu / content fields inherited from the Lively fork were removed in v2.21.0 — no template read them.
 - **Social media** — Facebook, X/Twitter, LinkedIn, Instagram, YouTube, Mastodon. The Cluster's Facebook, Instagram and YouTube show by default; any setting entered here overrides its default.
 - **Footer bottom** — copyright, terms and privacy links.
@@ -87,6 +114,8 @@ With the **Progressive Web App** setting enabled (the default), the site becomes
 ## Design system
 
 The visual language — palette, the single-seed colour engine, typography, tokens, dark mode, components and maintenance recipes — is documented in **[`DESIGN.md`](DESIGN.md)**. The theme’s design tokens are also the shared contract for its sibling modules, **DRE-Search** and **ResourceVisualizations**, which consume them so they follow the brand and the light/dark toggle automatically — see [§9 “The module ecosystem”](DESIGN.md#9-the-module-ecosystem--search--visualizations).
+
+**Upgrading to v2.22** — the token layer grew beyond colour (type, rhythm and layout families) and a handful of tokens were retired or renamed. Only one rename affects the modules: `--dre-hl-bg` → `--highlight-bg`, shipped with a deprecated alias for one minor and already updated in DRE-Search. The full register, with impact and mitigation per change, is in [`AUDIT.md` §4](AUDIT.md).
 
 ## Credits
 

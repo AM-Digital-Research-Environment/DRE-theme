@@ -1,12 +1,22 @@
 @use "../../abstracts" as *;
 
+// ==========================================================================
+// Resource-page regions (main + optional left/right sidebars).
+//
+// Stock-theme furniture removed: this container used to draw a full-width
+// GREEN rule under every region block (`border-bottom: 1px solid
+// $color__secondary`), separate its columns by an off-grid 50px, and push the
+// sidebar ::after markers out by -30px. That was the loudest "vanilla Omeka /
+// Lively" signal left in the CSS, and none of it was a system decision. It is
+// now a hairline in --border with spacing from the scale.
+// ==========================================================================
 .regions-container {
     display: flex;
     flex-direction: column;
-    gap: 50px;
-    margin-bottom: 3rem;
-    padding-bottom: 50px;
-    border-bottom: 1px solid $color__secondary;
+    gap: var(--space-12);
+    margin-bottom: var(--space-12);
+    padding-bottom: var(--space-12);
+    border-bottom: 1px solid var(--border);
 
     @media (min-width: $md) {
         flex-direction: row;
@@ -32,13 +42,13 @@
 
         &--left {
             &::after {
-                right: -30px;
+                right: calc(var(--space-8) * -1);
             }
         }
-    
+
         &--right {
             &::after {
-                left: -30px;
+                left: calc(var(--space-8) * -1);
             }
         }
     }

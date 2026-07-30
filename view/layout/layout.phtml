@@ -2,27 +2,22 @@
 $siteTitle = $site->title();
 $userBar = $this->userBar();
 
-// Is this the site's home page? Used to choose the hero vs. masthead banner and
-// to let the hero own the page <h1> (the header drops to a plain home link there).
-// Detected from the request path — the home page is served at the site root
-// (e.g. /s/amira) or at its own slug (/s/amira/page/<homepage-slug>). This avoids
-// the MVC route match (the `status` view helper does not expose getRouteMatch())
-// and is wrapped so a detection hiccup can never take a page down: it just falls
-// back to the non-home layout (slim masthead + header <h1>).
-$isHome = false;
-try {
-    $currentPath = rtrim((string) parse_url((string) $this->serverUrl(true), PHP_URL_PATH), '/');
-    $sitePath    = rtrim((string) parse_url((string) $site->url(), PHP_URL_PATH), '/');
-    if ($currentPath !== '' && $sitePath !== '') {
-        if ($currentPath === $sitePath) {
-            $isHome = true; // site root
-        } elseif (method_exists($site, 'homepage') && ($homepage = $site->homepage())) {
-            $isHome = ($currentPath === $sitePath . '/page/' . $homepage->slug());
-        }
-    }
-} catch (\Throwable $e) {
-    $isHome = false;
+// Is this the site's home page? Chooses the full masthead vs. the slim strip and
+// lets the masthead own the page <h1> (the header drops to a plain home link
+// there). The detection lives in helper/IsHomePage.php because the page-title
+// block needs the same answer and cannot read a local from this file — Omeka
+// renders the content before the layout.
+$isHome = $this->IsHomePage();
+
+// Masthead brand presence (A quiet / B balanced / C bold). Purely a token
+// switch: abstracts/variables/_colors.scss redefines the --masthead-* / --flag /
+// --numeral / --cta-* roles per value, so nothing else in the theme knows which
+// treatment is active. Balanced is the default (closest to v2.21).
+$brandPresence = (string) $this->themeSetting('masthead_brand', 'balanced');
+if (!in_array($brandPresence, ['quiet', 'balanced', 'bold'], true)) {
+    $brandPresence = 'balanced';
 }
+$this->htmlElement('body')->setAttribute('data-brand', $brandPresence);
 
 // Brand colour: the SCSS derives every primary variant (--primary,
 // --primary-hover, --primary-active, --focus-ring, glows, …) from a single

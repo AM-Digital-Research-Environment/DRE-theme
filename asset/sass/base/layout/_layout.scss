@@ -4,35 +4,33 @@ html, body {
     width: 100%;
 }
 
-html {
-    // The header sits in normal flow (position: sticky), so the page needs no
-    // top offset. This only keeps in-page anchor jumps from landing beneath the
-    // sticky header.
-    scroll-padding-top: 6rem;
-}
+// NOTE: `scroll-padding-top` lives in base/_theme.scss ONLY, derived from
+// --header-height as --scroll-offset. It used to be declared here as well, with
+// a hard-coded 6rem that matched neither the 74px header nor its twin.
 
 .container {
     @include container;
 }
 
 #content {
-    padding-top: 2rem;
-    padding-bottom: 3rem;
+    padding-top: var(--space-8);
+    padding-bottom: var(--space-12);
 
     @media (min-width: $lg) {
-        padding-top: 4rem;
-        padding-bottom: 4rem;
+        padding-top: var(--space-16);
+        padding-bottom: var(--space-16);
     }
+}
 
-    body.items.search & {
-        @media (min-width: $lg) {
-            max-width: 1160px;
-            padding: 3rem 10rem 4rem 4rem;
-        }
+// Search results page — a content column beside the facet rail rather than a
+// container with 160px of asymmetric right padding hacked into it
+// (`padding: 3rem 10rem 4rem 4rem` inside a 1160px box). The measure comes from
+// the reading-measure family; the gutter and rail from the layout tokens.
+body.items.search #content {
+    max-width: var(--measure-wide);
 
-        @media (min-width: $xl) {
-            max-width: 1160px;
-            padding: 3rem 10rem 4rem;
-        }
+    @media (min-width: $lg) {
+        padding-top: var(--space-12);
+        padding-bottom: var(--space-16);
     }
 }

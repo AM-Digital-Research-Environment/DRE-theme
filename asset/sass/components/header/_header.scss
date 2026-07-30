@@ -11,7 +11,10 @@
     top: 0;
     left: 0;
     z-index: var(--z-header);
-    border-top: 3px solid var(--primary);
+    // The brand flag, paired with the masthead's rule below the title. Reads
+    // --flag rather than --primary so brand presence "quiet" desaturates the
+    // header and the masthead together rather than half of each.
+    border-top: var(--accent-line-md) solid var(--flag);
     border-bottom: 1px solid var(--border);
     box-shadow: var(--shadow-sm);
     transition: top 0.3s var(--ease-out-quart), background-color var(--transition-base), border-color var(--transition-base);
@@ -81,6 +84,10 @@
         align-items: center;
         gap: var(--space-4);
         position: relative;
+        // The layout token is the CONTRACT, not a guess about this bar: the
+        // menu drawer parks below it and --scroll-offset is derived from it, so
+        // the bar states its own height instead of leaving both to infer 74px.
+        min-height: var(--header-height);
         padding-top: var(--space-3);
         padding-bottom: var(--space-3);
     }
@@ -102,9 +109,9 @@
             display: inline-flex;
             align-items: center;
             font-family: $font__headings;
-            font-size: $font__h4-sm-size;
+            font-size: var(--text-xl);
             font-weight: 600;
-            line-height: $font__headings-line-height;
+            line-height: var(--leading-snug);
             color: var(--ink-strong);
             text-decoration: none;
         }

@@ -1,2 +1,23 @@
-<?php $escape = $this->plugin('escapeHtml'); ?>
+<?php
+/**
+ * Page-title block.
+ *
+ * Stands down on the home page: the masthead already renders the site title as
+ * that page's <h1>, so this block used to emit a SECOND <h1> — on the live site
+ * it read "Africa Multiple Interactive Research Atlas" followed by "Home". One
+ * <h1> per document; the masthead wins wherever it states the title.
+ *
+ * Everywhere else this is the page's own title and keeps the <h1>, because the
+ * interior masthead only shows the SITE title (as a <p>).
+ */
+$escape = $this->plugin('escapeHtml');
+
+if ($this->IsHomePage()) {
+    $site = $this->currentSite();
+    $mastheadHeading = $this->themeSetting('banner_heading') ?: ($site ? $site->title() : '');
+    if ($mastheadHeading !== '' && $mastheadHeading !== null) {
+        return;
+    }
+}
+?>
 <h1 class="title"><?php echo $escape($pageTitle); ?></h1>

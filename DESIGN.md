@@ -20,6 +20,7 @@ is the single reference for how the system is put together and how to maintain i
 | **Use** | Browsing, searching and reading an Omeka S archive (items, item sets, media, exhibits) — often long reading sessions, sometimes at night. |
 | **Tone** | Scholarly, warm, authoritative, unfussy. Earthy not corporate; precise not flashy. |
 | **Theme** | Light by default, dark on request — the visitor’s OS preference is respected, with a manual toggle that persists. |
+| **Imagery** | None. Photography-free by policy: mastheads are typographic (type + rule + numerals). Item media is content, not decoration. |
 
 ---
 
@@ -79,14 +80,50 @@ without magic numbers.
 | Ink (text) | `--ink-strong` `--ink` `--ink-light` `--ink-subtle` `--muted` |
 | Surfaces | `--surface` `--surface-raised` `--surface-sunken` `--background` |
 | Lines | `--border-light` `--border` `--border-strong` |
-| Brand | `--primary` `--primary-hover` `--primary-active` `--primary-muted` `--primary-text` `--primary-contrast` · `--accent*` `--complementary` |
+| Brand | `--primary` `--primary-hover` `--primary-active` `--primary-muted` `--primary-text` `--primary-contrast` · `--accent*` |
+| Masthead roles | `--masthead-bg/-ink/-ink-soft/-rule/-hair/-field-bg/-field-border` · `--flag` `--numeral` `--cta-bg` `--cta-ink` |
 | State | `--success` `--warning` `--error` `--info` (+ `*-bg`) |
 | Links | `--link` `--link-hover` |
+| Highlight | `--highlight-bg` (found-term wash; `--dre-hl-bg` is a deprecated alias) |
 | Footer | `--footer-surface` `--footer-surface-alt` `--footer-divider` `--footer-text` `--footer-text-muted` |
 | Focus / select | `--focus-color` `--focus-ring` `--selection-bg` |
 
 All are defined in `asset/sass/abstracts/variables/_colors.scss`, once for light
 (`@mixin am-light-theme`) and once for dark (`@mixin am-dark-theme`).
+
+### Why the token layer covers more than colour
+
+Colour was tokenised first and thoroughly; type, spacing and layout followed
+later and partly stayed in Sass. As of v2.22 there is **one scale per decision,
+in CSS**:
+
+| Family | Tokens | Rule |
+|---|---|---|
+| Type size | `--text-2xs … --text-4xl` | the only heading/body sizes; the `$font__h*-size` Sass set is deleted |
+| Rhythm | `--leading-tight/-snug/-normal/-relaxed` | headings `-tight`/`-snug`, body `-normal`, long prose `-relaxed` |
+| Space | `--space-1…24` (source of truth) + `--space-xs…3xl` aliases | aliases are `var(--space-N)`, never independent literals; nothing off the 4 pt grid |
+| Layout | `--container-max` `--container-gutter` `--header-height` `--scroll-offset` `--rail-width` `--label-col` | no px page geometry in components; `--scroll-offset` is derived from `--header-height` and declared once |
+
+`--scroll-offset: calc(var(--header-height) + var(--space-6))` replaces the
+duplicated `scroll-padding-top: 6rem` that used to sit in **both**
+`base/_theme.scss` and `base/layout/_layout.scss` — a magic number that matched
+neither the 74 px header nor its own twin. `abstracts/variables/_layout.scss`
+(the last Sass-only geometry: `$header-min-height`, `$wrap-max-width`) is gone.
+
+### Contrast
+
+> **Body and UI text** meets WCAG AA (≥ 4.5:1) against its surface in both
+> modes; `--muted` and `--ink-subtle` are AA at 15 px+ and are reserved for
+> non-essential text. The pairings are asserted by `npm run lint:tokens`, not by
+> hand — the check parses the OKLCH literals, computes contrast for each
+> ink/surface pair per mode, and fails the build on a regression.
+
+Each quiet tier clears 4.5:1 against the *worst* surface in its mode
+(`--surface-sunken` in light, `--surface-raised` in dark). The previous 60 % L
+values were 3.9:1 and 4.4:1 — i.e. the blanket AA claim this document used to
+make was not true. Tones derived with `color-mix()` from the admin seed are not
+statically knowable and are out of the check's scope; that limitation is stated
+in the lint's header rather than papered over.
 
 ---
 
@@ -125,10 +162,20 @@ Bunny Fonts files (a GDPR-compliant mirror of Google Fonts), but served from the
 theme's own origin so there is no third-party font request at all and no
 render-blocking CDN stylesheet on the LCP path. latin + latin-ext subsets only.
 
-**Scale** (`_typography.scss`): fixed `rem` steps for product UI so a 13px label
-never drifts between breakpoints; fluid `clamp()` reserved for the display tier
-(`--text-3xl`, `--text-4xl`, h1/h2). Body is 17px (`--text-base`) for long-form
-reading; line length is capped (`--measure-*`).
+**Scale.** `--text-*` in `_typography.scss` is the single source of truth: fixed
+`rem` steps for product UI so a 13 px label never drifts between breakpoints,
+fluid `clamp()` for the display tier (`--text-3xl`, `--text-4xl`). Headings
+consume those tokens directly — there is no parallel Sass size set — and their
+weights differentiate the ramp (**h1 800 / h2 700 / h3 600**) so the hierarchy
+survives at small viewports, where the old ramp had h2 and h3 at the same size
+(both 30 px below `$md`) and h1/h2 at the same weight. Heading margins come from
+`--space-*`; line height from `--leading-*`. Body is 17 px for long-form reading,
+capped by `--measure-*`.
+
+**Reading vs UI.** Long-form reading tiers (the record's abstract, exhibit prose)
+are set in Spectral at `--text-lg`/`--leading-relaxed`; everything operational
+(labels, chips, controls, metadata values) stays in Hanken. The split is
+deliberate and is most visible on the item page.
 
 ---
 
@@ -136,12 +183,29 @@ reading; line length is capped (`--measure-*`).
 
 Defined in `asset/sass/abstracts/variables/_tokens.scss`:
 
-- **Spacing** — 4 pt grid, numeric (`--space-1…40`) + semantic (`--space-xs…3xl`).
-- **Radius** — `--radius-sm…2xl` (component default 8 px — institutional, not consumer-round).
-- **Shadow** — warm-tinted, layered `--shadow-xs…xl`; deeper + cooler in dark mode.
-- **Motion** — `--transition-fast/base/slow` on `--ease-out-quart`; emphasis on `--ease-expo-out`. All suppressed under `prefers-reduced-motion`.
+- **Spacing** — 4 pt grid, `--space-1…24` with `--space-xs…3xl` as *aliases of*
+  the numeric steps (not independent values).
+- **Layout** — `--container-max`, `--container-gutter`, `--header-height`,
+  `--scroll-offset`, `--rail-width`, `--label-col`. Page geometry lives here, not
+  in component px.
+- **Radius** — `--radius-sm…xl` (component default 8 px — institutional, not consumer-round).
+- **Shadow / panel** — warm-tinted `--shadow-xs…xl` and the `--panel-*` helpers
+  are emitted from `@mixin am-light-tokens` / `am-dark-tokens`, mirroring how
+  `_colors.scss` applies its theme mixins. The light values are declared **once**
+  (the earlier `:root` + `body[data-theme="light"]` duplication was 14
+  hand-synced declarations). `@mixin am-panel-tokens` states the
+  custom-property-freeze workaround once instead of commenting it in three blocks.
+- **Motion** — `--transition-fast/base/slow` on `--ease-out-quart`; emphasis on `--ease-expo-out`. Suppressed under `prefers-reduced-motion`.
 - **Z-index** — named scale (`--z-header`, `--z-modal`, …).
-- **Panel helpers** — `--panel-bg/-border/-radius/-shadow` (note: `--panel-border` is re-declared per theme because custom properties freeze their inner `var()` at the declaring block).
+- **Retired in v2.22** — `--white`, `--black` (literal colours in a theme-aware
+  system, and the exact tool for breaking dark mode — replaced by the one
+  deliberately mode-independent `--plaque-bg`), `--primary-dark` (alias of
+  `--primary-hover`), `--secondary` (only ever aliased `--primary`),
+  `--complementary` (decorative-only, and differently hued per mode for no stated
+  reason — its single call site now reads `--brand-gold`), `--space-40`,
+  `--radius-2xl`, `--tracking-tighter`, `--glow-md`, `--ring-focus-sm`,
+  `--lift-sm`, `--accent-line-sm`. `--dre-hl-bg` is renamed `--highlight-bg` with
+  the old name kept as a deprecated alias for one minor.
 
 ---
 
@@ -200,19 +264,29 @@ theme-aware in one move. Notable bespoke work:
   one row (half-screen windows, long menus, large fonts) collapses to the
   hamburger/drawer instead of wrapping. Every desktop-menu rule is gated on
   `:not([data-nav="drawer"])`; without JS the old wrap is the fallback.
-- **Banner — earth-tone wash** — a photography-free masthead: a soft diagonal
-  sweep through the brand earth tones (Uni-Grün → Gold → Braun), drawn purely in
-  CSS. Each stop is `color-mix`-ed toward `--surface`, so the wash is a pale tint
-  under dark type in light mode and a deep tint under light type in dark mode
-  (AA+ either way); a surface-based left scrim keeps the type on calm ground
-  while the colour blooms to the right. Two variants from one partial
-  (`common/banner.phtml`): a **tall hero** on the home page (eyebrow + site title
-  `<h1>` + tagline + optional CTA) and a **slim masthead** elsewhere that keeps
-  the title present site-wide (toggle: *Show banner on interior pages*). Home
-  detection lives in `layout.phtml` (route `site`, or `site/page` matching
-  `homepage()`), passed to both the header and the banner. Copy comes from the
-  **Banner** theme settings and falls back to the site title, so it is meaningful
-  out of the box.
+- **Masthead — typographic** — photography-free, and carried by type and rule
+  rather than a colour fill: eyebrow → display title (Spectral, `--text-4xl`) →
+  3 px brand flag → lede at `--measure-narrow` → **search field**, over a
+  hairline strip of corpus counts in tabular numerals. A researcher arrives with
+  a question, so the first screen has to offer a field; before v2.22 the home
+  page had none above the fold. Two variants from one partial
+  (`common/banner.phtml`): the full masthead on the home page, and a **slim
+  strip** elsewhere that keeps the site title present site-wide (toggle: *Show
+  banner on interior pages*). The old three-stop earth-tone wash remains
+  available as an optional treatment (*Show the earth-tone wash*, off by
+  default) but is no longer the page's only visual idea — it had to work behind
+  both a tall hero and a slim strip, so it settled into a generic coloured header
+  that carried no information.
+
+  Three **brand-presence** treatments are expressed purely through the
+  `--masthead-*` / `--flag` / `--numeral` / `--cta-*` role tokens — *quiet*
+  (stone ground, green on interactive only), *balanced* (flags, rules and CTA in
+  Uni-Grün — the default), *bold* (deep Uni-Grün ground, cream type) — so the
+  choice is a token switch, not a rebuild. `lint:tokens` checks all three for AA.
+  Home detection lives in `helper/IsHomePage.php` (route `site`, or `site/page`
+  matching `homepage()`) because the page-title block needs the same answer.
+  Copy comes from the **Banner** theme settings and falls back to the site title,
+  so the masthead is meaningful out of the box.
 - **Footer** — one deep-forest band (`--footer-*`): an asymmetric masthead
   pairing a brand-identity block (title in Spectral + description, with inline
   `currentColor` social icons that recolour on the dark band) against the
@@ -244,10 +318,33 @@ theme-aware in one move. Notable bespoke work:
   `10px/0` radius). Its width is now intrinsic and viewport-capped
   (`min(22rem, calc(100vw − 2·--space-4))`) and the inner property list stacks
   and wraps, so a long URI or resource link no longer overflows on mobile.
-- **Metadata record** — the item page's `<dl>` on a CSS grid: an uppercase
-  Hanken eyebrow rail (`--metadata-label-col`) names each property, the
-  values column carries the content with tabular figures, label and first
-  value share a baseline. Sidebar regions keep the stacked flow.
+- **Metadata record — grouped, not dumped** — properties are rendered in named
+  groups, never in database order: **Abstract · Description · Subjects · People &
+  roles · Origins & context · Rights & access · Identifiers & sources**, with a
+  *Further details* bucket that catches any term the map does not name, so
+  nothing is ever hidden (`helper/ResourceGroups.php`,
+  `common/resource-values.phtml`). *People & roles* is its own group because the
+  Research Items template can express **54 `marcrel:*` contributor roles**;
+  folded into context they would swamp it, and the group is claimed by a
+  vocabulary **prefix** rather than 54 enumerated terms so a role added upstream
+  cannot silently demote an Author to "Further details". The intellectual
+  content leads at a real reading measure; identifiers, IDs and URIs come last;
+  `Subject` values are chips rather than a run of links. The label rail
+  (`--label-col`, 12 rem) uses a 14 px sentence-case Hanken label — the previous
+  10.625 rem rail of 13 px uppercase at `--ink-subtle` wrapped "Copyright Date" /
+  "Access Rights" to two lines *and* was the theme's worst contrast case.
+
+  Citation (with DOI, permalink, licence, access rights and a feature-detected
+  *Copy citation*) lives in a sticky rail (`--rail-width`,
+  `common/record-apparatus.phtml`), so a reader meets the apparatus without
+  scrolling past it — a journal article with a DOI used to have no citation,
+  licence or download affordance anywhere near the top. The rail is
+  theme-provided but does not take the right region over: an admin's *Right
+  sidebar* blocks render below it, and with neither present the rail is dropped
+  and the record takes the full measure. The inner value markup is byte-identical
+  to before (`.property` / `<dt>` / `<dd class="value …">`), because the
+  uri-dereferencer, the annotation tooltips and the sibling modules select
+  against it. Sidebar regions and the rail itself keep the stacked flow.
 - **Buttons, links, fields** — token-driven, with proper `:focus-visible`
   rings. The filled-primary look is **opt-in via the `.button` class** (plus a
   few core form contexts the theme can't add a class to: search/login submits,
@@ -366,6 +463,21 @@ matched to the theme's warm-stone (light) and forest-dark (dark) surfaces:
 - **FontAwesome icon webfont** (Omeka core `iconfonts.css` + the `fa-solid`
   woff2, ~91 KiB/page) → removed; glyphs are painted from `currentColor`-tinted
   Lucide SVG masks (`svg-icon()`), so there is no icon-font request.
+- **Stock-theme furniture inherited from Lively** — the green `border-bottom`
+  under every `.regions-container`, its 50 px gaps and `-30px` sidebar offsets,
+  and the asymmetric `#content` search padding (`3rem 10rem 4rem 4rem` inside a
+  1160 px box) → hairline `--border`, spacing from the scale, geometry from
+  `--container-*` / `--measure-*`.
+- **The flat metadata dump** — one `<dl>` of every property in database order,
+  with administrative identifiers weighted like authorship → grouped record
+  (Components above).
+- **Duplicate `<h1>`s** — the live home page rendered the banner title *and* the
+  page title ("Home") as two `<h1>`s. The page-title block now stands down
+  wherever the masthead already states the page's title.
+- **Eleven bordered, shadowed, hover-lifting stat cards** under the hero — a lot
+  of chrome for eleven numbers, competing with the hero it was meant to ground →
+  a hairline strip of tabular numerals. (The shared `.rv-stat-card` look is still
+  right *inside* a dashboard.)
 
 ---
 
@@ -400,8 +512,9 @@ breaking change for the modules.
 | Surfaces | `--surface` `--surface-raised` `--surface-sunken` `--surface-overlay` |
 | Lines | `--border` `--border-light` `--border-strong` |
 | State | `--error` (+ the rest of the `--success/-warning/-info` family) |
-| Type | `--font-display` `--font-body` · `--text-xs … --text-2xl` · `--measure-wide` |
-| Layout | `--space-*` `--radius-sm/-md/-lg/-full` `--size-control-md/-lg` `--z-dropdown` |
+| Type | `--font-display` `--font-body` · `--text-2xs … --text-2xl` · `--leading-tight/-snug/-normal/-relaxed` · `--measure-wide` |
+| Layout | `--space-*` `--radius-sm/-md/-lg/-full` `--size-control-md/-lg` `--z-dropdown` · `--container-max` `--container-gutter` `--header-height` `--scroll-offset` `--rail-width` `--label-col` |
+| Highlight | `--highlight-bg` (was `--dre-hl-bg`; alias retained one minor) |
 | Effect | `--shadow-xs/-sm/-md/-lg` `--ring-focus` `--transition-fast/-base` |
 
 ### The data-colour contract (charts & maps)
@@ -467,6 +580,18 @@ contract — distinct from the UI tokens above:
    `--brand-*` pigments and reaches the tokens through the runtime bridge — see
    *The data-colour contract* above. Don't ship a palette that disagrees with
    `--brand-*`.
+7. **A renamed token ships with an alias.** The theme keeps the old name as
+   `var(--new-name)` for at least one minor release and records the change in the
+   breaking-change register (`AUDIT.md` §4) and the changelog. Modules update at
+   their own pace; nothing silently loses its colour. `--dre-hl-bg` →
+   `--highlight-bg` is the worked example: DRE-Search now reads
+   `var(--highlight-bg, var(--dre-hl-bg, <literal>))`, which is correct against
+   both theme versions.
+8. **If a module reaches for a token the theme lacks, add it to the theme.**
+   ResourceVisualizations' bridge carried `var(--text-2xs, 0.6875rem)` with a note
+   that it would adopt a theme token "if one is ever added" — a hole in a shared
+   scale is something two projects can drift apart in. `--text-2xs` is now a theme
+   token.
 
 > Each module also states this contract at the top of its own stylesheet
 > (ResourceVisualizations’ CSS header; DRE-Search’s `dre-search.css`). This
@@ -485,7 +610,53 @@ npm run lint:tokens  # design-token contract check alone (scripts/check-design-t
 
 `lint:tokens` encodes the §8 anti-patterns (raw hex outside `var()` fallback
 position, coloured side-stripes, gradient text, px type) and fails the build
-on a regression; its allowlist records the sanctioned exceptions.
+on a regression; its allowlist records the sanctioned exceptions. Since v2.22 it
+also asserts the properties this document *claims*, rather than restating them:
+
+| Check | What it enforces |
+|---|---|
+| Contrast | Computed WCAG ratio for every ink/surface pair, per mode, plus the footer band and both brand-presence *bold* grounds — parsed straight out of the OKLCH literals in `_colors.scss` (`scripts/lib/contrast.mjs`) |
+| One type scale | No surviving `$font__h1-sm-size … $font__h6-base-size` reference; headings resolve from `--text-*` |
+| Layout tokens | No off-grid px page geometry in the layout partials (hairlines ≤ 3 px excepted, `@media` breakpoints exempt) |
+
+`lint:ini` walks the tree in Node rather than shelling out to `grep`: the old
+`execSync('grep …')` returned an empty string on any platform without grep — i.e.
+Windows, i.e. `npm run build` — and "nothing is read anywhere" made the check
+report *every* admin field as dead. A lint that fails open on one OS and closed
+on another is worse than no lint.
+
+### Verifying the PHP
+
+The theme is developed without a local PHP binary, which is why
+`lint:templates` counts brackets instead of parsing. That is a net for a
+truncated file; it cannot see a mistyped `::`, and a broken template fails at
+request time, in production, on the one page that renders it. Three layers now
+close that gap:
+
+| Layer | Needs PHP? | Catches |
+|---|---|---|
+| `lint:templates` | no | truncation, tag/bracket imbalance, unresolved `partial()` paths, helper-casing drift |
+| `lint:groups` | no | a metadata property that falls through to “Further details”, or lands in the wrong group |
+| `lint:php` → `php -l` + `tests/*Test.php` | yes | real grammar errors; and the grouping **logic** (exact-beats-prefix, ordering, losslessness) |
+
+`lint:php` finds a PHP on `PATH`, else a pulled `php:8.3-cli` image, else prints
+install instructions and **exits 0** — a contributor without PHP is not blocked.
+CI (`.github/workflows/ci.yml`) runs `lint:php:require` across PHP 8.1 / 8.3 /
+8.4, so the gate is hard exactly where it can always run. 8.1 is the floor Omeka
+S 4.2 declares; 8.4 is where implicit-nullable parameters became a deprecation.
+
+**Syntax is not correctness**, and the metadata map is the proof. It was first
+written from the field names visible in the `MongoDB2OmekaS` mapper source, and
+every file parsed — but the *Research Items* template carries **54 `marcrel:*`
+contributor roles the mapper generates rather than spells out**, so `marcrel:aut`
+(the Author) was unmapped and would have rendered last, under the administrative
+identifiers. That is the precise failure the record redesign exists to fix. No
+syntax check would ever have found it; `lint:groups` finds it in 40 ms, because
+it asserts the map against the **real** template
+(`tests/fixtures/research-items-template.json`, refreshed with
+`npm run fixtures:refresh`) rather than against a second copy of the developer's
+assumptions. Hence the prefix rules in `helper/ResourceGroups.php`: a map that
+enumerates 54 roles is one upstream role away from the same bug.
 
 Toolchain (latest as of build): **gulp 5**, **dart-sass 1.100**, **gulp-sass 6**,
 **gulp-postcss 10**, **autoprefixer 10.5**. Browser targets in
@@ -498,12 +669,18 @@ can polyfill, so the support promise must match what the CSS actually needs
 ### SCSS architecture
 
 ```
-abstracts/variables/_tokens.scss      ← spacing, radii, shadows, motion, z-index
-abstracts/variables/_colors.scss      ← OKLCH brand palette, light/dark, $color__* aliases
-abstracts/variables/_typography.scss  ← Spectral + Hanken, scale, $font__* aliases
+abstracts/variables/_tokens.scss      ← spacing, LAYOUT, radii, rhythm, shadows, motion, z-index
+abstracts/variables/_colors.scss      ← OKLCH brand palette, light/dark, masthead roles, $color__* aliases
+abstracts/variables/_typography.scss  ← Spectral + Hanken, the one type scale, $font__* aliases
 abstracts/mixins/_mixins.scss         ← buttons, container, clearfix
 base/ … components/ … utilities/      ← consume the tokens above
 ```
+
+> `abstracts/variables/_layout.scss` was removed in v2.22. It held the last two
+> pieces of page geometry CSS could not read (`$header-min-height: 74px`,
+> `$wrap-max-width: 1300px`) while the container mixin said 1440 px and the
+> search page hard-coded 1160 px — three container widths, none of them a token.
+> They are now `--header-height` and `--container-max`.
 
 > **Module system:** the partials use Dart Sass `@use`/`@forward` (migrated from
 > the deprecated `@import` in v2.14.0). `abstracts/_index.scss` `@forward`s the
