@@ -4,8 +4,8 @@ $this->headScript()->appendFile($this->assetUrl('js/numeric-data-types.js', 'Num
 ?>
 <div class="numeric-timestamp">
     <div class="error invalid-value"
-        data-invalid-message="<?php echo $this->escapeHtml($this->translate('Invalid value: %s')); ?>"
-        data-custom-validity="<?php echo $this->escapeHtml($this->translate('Value must be a datetime')); ?>">
+        data-invalid-message="<?php echo $this->escapeHtmlAttr($this->translate('Invalid value: %s')); ?>"
+        data-custom-validity="<?php echo $this->escapeHtmlAttr($this->translate('Value must be a datetime')); ?>">
     </div>
     <?php echo $this->formHidden($element->getValueElement()); ?>
     <div class="numeric-datetime-inputs">

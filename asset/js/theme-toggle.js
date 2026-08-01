@@ -14,9 +14,27 @@
     /**
      * Preferred theme: localStorage > system preference > light.
      */
+    function storedTheme() {
+        try {
+            const stored = window.localStorage.getItem(STORAGE_KEY);
+            return stored === 'light' || stored === 'dark' ? stored : null;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    function rememberTheme(theme) {
+        try {
+            window.localStorage.setItem(STORAGE_KEY, theme);
+        } catch (error) {
+            // Storage can be unavailable in private/sandboxed contexts. The
+            // current-page toggle must continue to work without persistence.
+        }
+    }
+
     function getPreferredTheme() {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored === 'light' || stored === 'dark') {
+        const stored = storedTheme();
+        if (stored) {
             return stored;
         }
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -38,14 +56,17 @@
         if (!toggle) return;
 
         const isDark = theme === 'dark';
-        toggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+        const label = isDark ? toggle.dataset.labelLight : toggle.dataset.labelDark;
+        if (label) {
+            toggle.setAttribute('aria-label', label);
+        }
         toggle.setAttribute('aria-pressed', isDark.toString());
     }
 
     function toggleTheme() {
         const currentTheme = document.body.getAttribute(THEME_ATTRIBUTE) || getPreferredTheme();
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        localStorage.setItem(STORAGE_KEY, newTheme);
+        rememberTheme(newTheme);
         applyTheme(newTheme);
     }
 
@@ -64,7 +85,7 @@
         // Follow system changes only while the visitor hasn't chosen manually.
         if (window.matchMedia) {
             window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (event) {
-                if (!localStorage.getItem(STORAGE_KEY)) {
+                if (!storedTheme()) {
                     applyTheme(event.matches ? 'dark' : 'light');
                 }
             });
@@ -83,7 +104,10 @@
         toggle: toggleTheme,
         get: getPreferredTheme,
         set: function (theme) {
-            localStorage.setItem(STORAGE_KEY, theme);
+            if (theme !== 'light' && theme !== 'dark') {
+                return;
+            }
+            rememberTheme(theme);
             applyTheme(theme);
         }
     };

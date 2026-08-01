@@ -18,7 +18,7 @@ $bodyTruncate = $layout['truncate'];
 
 ?>
 
-<?php echo $this->pageTitle($translate('Item sets'), 2); ?>
+<?php echo $this->pageTitle($translate('Item sets'), 1); ?>
 
 <?php echo $this->searchFilters(); ?>
 
@@ -27,8 +27,8 @@ $bodyTruncate = $layout['truncate'];
 <div class="browse-controls">
     <?php echo $this->partial('common/browse-layout-toggle', ['layout' => $layout]); ?>
     <?php echo $this->browse()->renderSortSelector('item_sets'); ?>
-    <div class="advanced-search-container">
-        <?php echo $this->hyperlink($translate('Advanced search'), $this->url(null, ['action' => 'search'], true), ['class' => 'advanced-search']); ?>
+    <div class="collection-search-container">
+        <?php echo $this->hyperlink($translate('Search the collection'), $this->DreSearchUrl(), ['class' => 'collection-search']); ?>
     </div>
 </div>
 

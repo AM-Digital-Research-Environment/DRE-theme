@@ -5,9 +5,9 @@
 // form contexts the theme can't add a class to).
 //
 // This rule used to target the BARE `button` element, so the green fill, drop
-// shadow and hover lift/glow leaked into every embedded module (DRESearch,
-// ResourceVisualizations, …). Each module then had to claw the look back with
-// `!important` resets — e.g. DRESearch's ResultItem/ResultsList force
+// shadow and hover lift/glow leaked into every embedded module (DRE Search,
+// DRE Visualizations, …). Each module then had to claw the look back with
+// `!important` resets — e.g. DRE Search's ResultItem/ResultsList force
 // `box-shadow:none;transform:none` on chips and on every pager button, plus a
 // special case so the host's `button:hover` doesn't fill an inactive pager
 // green — and any change to this rule silently broke them.
@@ -25,7 +25,6 @@ input[type="submit"],
 // Core Omeka forms the theme doesn't template — keep a usable primary submit.
 .search button[type="submit"],          // search-results / sidebar search form
 #search-form button,                    // core search form
-#advanced-search button[type="submit"], // resource advanced-search form
 // Theme primary buttons a core partial renders as a bare <button> (no class
 // hook of our own), so they're scoped here instead.
 .main-header-search button,             // header search-form submit

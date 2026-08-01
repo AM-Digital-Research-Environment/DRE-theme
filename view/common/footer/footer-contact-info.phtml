@@ -7,7 +7,7 @@
             <h6 class="contact_info contact_info_phone"><a href="tel:<?php echo $this->escapeHtmlAttr($contactInfo['phone']); ?>"><?php echo $this->escapeHtml($contactInfo['phone']); ?></a></h6>
         <?php endif; ?>
         <?php if ($contactInfo['email']) : ?>
-            <h6 class="contact_info contact_info_email"><a target="_blank" href="mailto:<?php echo $this->escapeHtmlAttr($contactInfo['email']); ?>"><?php echo $this->escapeHtml($contactInfo['email']); ?></a></h6>
+            <h6 class="contact_info contact_info_email"><a href="mailto:<?php echo $this->escapeHtmlAttr($contactInfo['email']); ?>"><?php echo $this->escapeHtml($contactInfo['email']); ?></a></h6>
         <?php endif; ?>
     </div>
 </div>

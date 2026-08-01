@@ -10,7 +10,7 @@ $valueLang = $filterLocale ? [$lang, ''] : null;
 
 ?>
 
-<?php echo $this->pageTitle(sprintf($translate('Search results for “%s”'), $query)); ?>
+<?php echo $this->pageTitle(sprintf($translate('Search results for “%s”'), $query), 1); ?>
 
 <?php if (empty($results)): ?>
     <?php // Empty state: a quiet pause with a path onward — nothing is wrong,
@@ -24,12 +24,7 @@ $valueLang = $filterLocale ? [$lang, ''] : null;
             <li><?php echo $translate('Names may appear transliterated — try a variant spelling.'); ?></li>
         </ul>
         <div class="search-empty__actions">
-            <a class="button" href="<?php echo $this->escapeHtmlAttr($url(
-                'site/resource',
-                ['controller' => 'item', 'action' => 'search'],
-                ['query' => ['fulltext_search' => $query]],
-                true
-            )); ?>"><?php echo $translate('Refine in advanced search'); ?></a>
+            <a class="button" href="<?php echo $this->escapeHtmlAttr($this->DreSearchUrl()); ?>"><?php echo $this->escapeHtml($translate('Search with filters')); ?></a>
             <a class="button btn--secondary" href="<?php echo $this->escapeHtmlAttr($url(
                 'site/resource',
                 ['controller' => 'item', 'action' => 'browse'],

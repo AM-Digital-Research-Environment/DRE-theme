@@ -39,7 +39,7 @@
   // itself. h2 now floors at 36px against h3's 30px, and the ramp is further
   // separated by weight (h1 800 / h2 700 / h3 600) rather than by size alone.
   // One step below --text-xs, for legends and micro-captions. Added because
-  // ResourceVisualizations was already reaching for it — its bridge reads
+  // DRE Visualizations was already reaching for it — its bridge reads
   // `var(--text-2xs, 0.6875rem)` with a note that it would "adopt a theme token
   // automatically if one is ever added". A shared scale with a hole in it is a
   // scale two projects can disagree about.

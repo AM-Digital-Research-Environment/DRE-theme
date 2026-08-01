@@ -2,7 +2,7 @@
 
 > **Status: implemented in v2.22.0.** Every finding below (A1–A7, B1–B9, C1–C3)
 > is addressed in the theme; §4's breaking-change register is the upgrade note,
-> and DRE-Search has already been updated for the one rename that reaches it.
+> and DRE Search has already been updated for the one rename that reaches it.
 > The document is kept as the rationale for those changes — it is the "before",
 > and `DESIGN.md` is the "after". Two items were deliberately scoped **out**:
 > the home page's *Three ways in* panels and *Featured collections* rows are
@@ -131,8 +131,8 @@ the one token whose *whole purpose* is to be shared, so it is the one that most
 needs an obvious name.
 
 *Fix:* introduce `--highlight-bg` and keep `--dre-hl-bg: var(--highlight-bg)` as
-a deprecated alias until DRE-Search ships the rename. **Breaking if the alias is
-skipped.**
+a deprecated compatibility alias. **Removing the alias requires a coordinated
+breaking release.**
 
 ### B6 · Mode parity is authored two different ways
 Light mode writes `--footer-text: oklch(94% …)`; dark writes
@@ -242,17 +242,17 @@ competing with the hero. (The shared `.rv-stat-card` look is still right
 - **The documented anti-patterns and the lint that enforces them.** Rare and
   valuable; extend it (A3, B1) rather than replacing it.
 - **The §9 module contract.** The idea that tokens are a public API between
-  theme, DRE-Search and ResourceVisualizations is the right architecture.
+  theme, DRE Search and DRE Visualizations is the right architecture.
 - **No icon webfont**, `svg-icon()` masks, `prefers-reduced-motion`, the print
   stylesheet, the FOUC head script.
 
 ---
 
-## 4. Breaking-change register (for DRE-Search & ResourceVisualizations)
+## 4. Breaking-change register (for DRE Search & DRE Visualizations)
 
 | Change | Impact | Mitigation |
 |---|---|---|
-| `--dre-hl-bg` → `--highlight-bg` | **Breaking** — DRE-Search paints match highlights with it | ship `--dre-hl-bg: var(--highlight-bg)` alias; remove one minor after both modules update |
+| `--dre-hl-bg` → `--highlight-bg` | **Breaking** — DRE Search paints match highlights with it | retain `--dre-hl-bg: var(--highlight-bg)` until a coordinated breaking release |
 | Remove `--white` / `--black` / `--primary-dark` | Low — not in the §9 contract; grep both modules first | keep as aliases for one minor if a call site exists |
 | Remove / re-hue `--secondary`, `--complementary` | Low–medium — a chart may use `--complementary` | check `dashboard-core.js`; if used, promote to `--brand-gold` |
 | `--space-md` etc. become `var(--space-4)` | None (same computed value) | — |

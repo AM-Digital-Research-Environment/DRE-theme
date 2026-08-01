@@ -14,25 +14,13 @@
  * prefix, ordering, the fallback bucket — which a regex over the source cannot
  * see.
  *
- * The helper extends Laminas' AbstractHelper, which lives in Omeka's vendor
- * tree and is not present here. The static entry points under test need no view
- * at all, so a minimal stub is enough to load the class; nothing in the stub is
- * exercised.
+ * The shared test bootstrap supplies the minimal AbstractHelper stand-in used
+ * by dependency-free suites and turns PHP warnings/deprecations into failures.
  */
-
-namespace Laminas\View\Helper {
-    if (!class_exists(AbstractHelper::class, false)) {
-        abstract class AbstractHelper
-        {
-            protected $view;
-            public function setView($view) { $this->view = $view; }
-            public function getView() { return $this->view; }
-        }
-    }
-}
 
 namespace {
 
+require_once __DIR__ . '/bootstrap.php';
 require_once __DIR__ . '/../helper/ResourceGroups.php';
 
 use OmekaTheme\Helper\ResourceGroups;

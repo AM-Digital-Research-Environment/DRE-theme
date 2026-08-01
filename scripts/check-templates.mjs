@@ -39,7 +39,6 @@ const HELPER = join(ROOT, 'helper');
  */
 const CORE_PARTIALS = new Set([
     'common/search-form',       // core site search form
-    'common/advanced-search',   // core advanced-search form (we override its sub-partials)
 ]);
 
 const findings = [];
@@ -230,6 +229,30 @@ for (const name of helperFiles) {
     if (!registeredHelpers.includes(name)) {
         add(`helper/${name}.php`, null, 'exists but is not registered in theme.ini [info] helpers[]');
     }
+}
+
+// 5. Page-architecture and retired-integration contracts. These are cheap,
+// deterministic checks for regressions that otherwise surface only in a
+// browser or after reinstalling an obsolete module.
+const headerTemplate = readFileSync(join(VIEW, 'common', 'header.phtml'), 'utf8');
+if (/<h1\b/i.test(headerTemplate) || headerTemplate.includes('$titleTag')) {
+    add('view/common/header.phtml', null, 'the site lockup must never own the document <h1>');
+}
+for (const rel of [
+    'omeka/site/item/browse.phtml',
+    'omeka/site/item-set/browse.phtml',
+    'omeka/site/media/browse.phtml',
+    'omeka/site/page/browse.phtml',
+]) {
+    const src = readFileSync(join(VIEW, ...rel.split('/')), 'utf8');
+    if (!/pageTitle\([^;]+,\s*1\)/s.test(src)) {
+        add(`view/${rel}`, null, 'top-level browse title must render as <h1>');
+    }
+}
+if (existsSync(join(VIEW, 'faceted-browse'))
+    || existsSync(join(ROOT, 'asset', 'js', 'faceted-browse.js'))
+) {
+    add('view/faceted-browse', null, 'obsolete Faceted Browse integration must not return');
 }
 
 if (findings.length) {

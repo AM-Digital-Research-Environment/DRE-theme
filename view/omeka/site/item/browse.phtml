@@ -80,9 +80,9 @@ $bodyTruncate = $layout['truncate'];
     <?php endif; ?>
 
     <div class="item-set-items">
-    <?php echo '<h3>' . $escape($translate('Items')) . '</h3>'; ?>
+    <?php echo '<h2>' . $escape($translate('Items')) . '</h2>'; ?>
 <?php else: ?>
-    <?php echo $this->pageTitle($translate('Items'), 2); ?>
+    <?php echo $this->pageTitle($translate('Items'), 1); ?>
 <?php endif; ?>
 
 <?php echo $this->searchFilters(); ?>
@@ -92,8 +92,8 @@ $bodyTruncate = $layout['truncate'];
 <div class="browse-controls">
     <?php echo $this->partial('common/browse-layout-toggle', ['layout' => $layout]); ?>
     <?php echo $this->browse()->renderSortSelector('items'); ?>
-    <div class="advanced-search-container">
-        <?php echo $this->hyperlink($translate('Advanced search'), $this->url('site/resource', ['controller' => 'item', 'action' => 'search'], ['query' => $query], true), ['class' => 'advanced-search']); ?>
+    <div class="collection-search-container">
+        <?php echo $this->hyperlink($translate('Search the collection'), $this->DreSearchUrl(), ['class' => 'collection-search']); ?>
     </div>
 </div>
 
@@ -119,12 +119,7 @@ $bodyTruncate = $layout['truncate'];
             <p class="search-empty__lead"><?php echo $translate('No items match the current filters.'); ?></p>
         <?php endif; ?>
         <div class="search-empty__actions">
-            <a class="button" href="<?php echo $this->escapeHtmlAttr($this->url(
-                'site/resource',
-                ['controller' => 'item', 'action' => 'search'],
-                ['query' => $query],
-                true
-            )); ?>"><?php echo $translate('Refine in advanced search'); ?></a>
+            <a class="button" href="<?php echo $this->escapeHtmlAttr($this->DreSearchUrl()); ?>"><?php echo $escape($translate('Search with filters')); ?></a>
             <a class="button btn--secondary" href="<?php echo $this->escapeHtmlAttr($this->url(
                 'site/resource',
                 ['controller' => 'item', 'action' => 'browse'],

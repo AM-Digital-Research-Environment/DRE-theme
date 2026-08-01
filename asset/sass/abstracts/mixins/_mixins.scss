@@ -75,7 +75,7 @@ $icon-circle: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20
 $icon-caret-right: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='%23000'%3E%3Cpath%20d='M9%205l8%207-8%207z'/%3E%3C/svg%3E";
 $icon-caret-down: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='%23000'%3E%3Cpath%20d='M5%209l7%208%207-8z'/%3E%3C/svg%3E";
 // Glyphs for the Omeka core o-icon-* classes the theme renders (pagination,
-// media-view toggle, header search, advanced-search rows, resource markers)
+// media-view toggle, header search, resource markers)
 // now that iconfonts.css / FontAwesome is gone. Same Lucide stroke style.
 $icon-search: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%23000'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Ccircle%20cx='11'%20cy='11'%20r='8'/%3E%3Cpath%20d='m21%2021-4.3-4.3'/%3E%3C/svg%3E";
 $icon-grid: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%23000'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Crect%20width='7'%20height='7'%20x='3'%20y='3'%20rx='1'/%3E%3Crect%20width='7'%20height='7'%20x='14'%20y='3'%20rx='1'/%3E%3Crect%20width='7'%20height='7'%20x='14'%20y='14'%20rx='1'/%3E%3Crect%20width='7'%20height='7'%20x='3'%20y='14'%20rx='1'/%3E%3C/svg%3E";
@@ -116,7 +116,7 @@ $icon-comment: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%2
 // State selectors are wrapped in :where() so they add NO specificity beyond
 // the base selector. The old bare tails (e.g. `button:hover:not(…):not(…)`,
 // 0,2,1) outranked any single-class rule a module wrote (0,1,0) and forced
-// DRE-Search / the Mirador block into !important counter-shields; flattened,
+// DRE Search / the Mirador block into !important counter-shields; flattened,
 // a module's own classed styling always wins while the theme's base→state
 // order still resolves by source order. The global :focus-visible rule in
 // base/_theme.scss (0,1,0) keeps the focus ring guaranteed everywhere.

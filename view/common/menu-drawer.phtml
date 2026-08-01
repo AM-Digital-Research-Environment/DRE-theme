@@ -4,7 +4,7 @@ $previousText = $this->translate('All sections');
 $escAttr = $this->plugin('escapeHtmlAttr');
 $escHtml = $this->plugin('escapeHtml');
 ?>
-<nav id="menu-drawer" class="menu-drawer" aria-hidden="true" inert style="display: none;">
+<nav id="menu-drawer" class="menu-drawer" aria-label="<?php echo $escAttr($this->translate('Mobile navigation')); ?>" aria-hidden="true" inert style="display: none;">
 	<div class="wrap">
 
 		<div class="navigation-controls">

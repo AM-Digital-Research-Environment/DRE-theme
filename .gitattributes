@@ -1,3 +1,10 @@
+* text=auto eol=lf
+
+*.png binary
+*.webp binary
+*.woff2 binary
+*.jpg binary
+
 /.gitattributes export-ignore
 /.gitignore export-ignore
 /.tx/ export-ignore

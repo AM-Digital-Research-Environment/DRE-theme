@@ -50,13 +50,13 @@
   --accent-text:   color-mix(in oklab, var(--accent-base), black 22%);
 
   // --- Found-term highlight — the <mark>/<ins> wash, shared verbatim with
-  //     DRE-Search's result highlighting so a matched term reads identically in
-  //     core search, faceted browse and the Svelte client. One token, one tint;
+  //     DRE Search's result highlighting so a matched term reads identically in
+  //     core search and the Svelte client. One token, one tint;
   //     translucent over the active surface so it carries through both modes.
   //     --dre-hl-bg is the DEPRECATED former name (the only token that ever
   //     carried a product prefix and an abbreviation, on the one token whose
-  //     whole purpose is to be shared). Kept as an alias for one minor while
-  //     DRE-Search ships the rename — see AUDIT.md §4. ---
+  //     whole purpose is to be shared). It remains a compatibility alias;
+  //     removing it requires a coordinated breaking release — see AUDIT.md §4.
   --highlight-bg: color-mix(in oklab, var(--accent) 28%, transparent);
   --dre-hl-bg:    var(--highlight-bg);
 

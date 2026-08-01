@@ -17,9 +17,9 @@ use Laminas\View\Helper\AbstractHelper;
  *      sys_get_temp_dir() meant each node recomputed and they could disagree,
  *      and an ephemeral tmpfs dropped it on every deploy. The key carries a
  *      schema version so a change to the metric set ignores a stale shape.
- *   2. The ResourceVisualizations "Collection Overview" precompute, so the home
- *      band and that block never disagree (the block drops its own stat cards
- *      on the home layout — this is the one place they appear).
+ *   2. The DRE Visualizations "Collection Overview" precompute on a
+ *      single-site installation, so the home band and that block agree.
+ *      A global precompute is deliberately bypassed on multi-site installs.
  *   3. The theme's own API-computed counts, so a standalone DRE theme with no
  *      visualizations module still grounds the hero.
  *
@@ -55,7 +55,9 @@ class CollectionStats extends AbstractHelper
             return $cached;
         }
 
-        $stats = $this->fromPrecompute();
+        $stats = $this->canUseGlobalPrecompute($siteId)
+            ? $this->fromPrecompute()
+            : null;
         if (null === $stats) {
             $stats = $this->fromApi($siteId);
         }
@@ -66,6 +68,25 @@ class CollectionStats extends AbstractHelper
         $this->writeCache($cacheKey, $stats);
 
         return $stats;
+    }
+
+    /**
+     * The module precompute describes the archive as a whole. It is safe for
+     * this deployment's one-site installation, but must not leak those totals
+     * into an unrelated site on a multi-site Omeka instance.
+     */
+    private function canUseGlobalPrecompute(?int $siteId): bool
+    {
+        if (null === $siteId) {
+            return true;
+        }
+        try {
+            $response = $this->getView()->api()->search('sites', ['limit' => 0]);
+            return 1 === (int) $response->getTotalResults();
+        } catch (\Throwable $e) {
+            // When scope cannot be proven, prefer the site-filtered API path.
+            return false;
+        }
     }
 
     // ------------------------------------------------------------------ cache

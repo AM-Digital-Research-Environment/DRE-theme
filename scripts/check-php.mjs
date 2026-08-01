@@ -125,7 +125,9 @@ if (syntaxErrors.length) {
 console.log(`PHP syntax: clean (${files.length} files parsed).`);
 
 // --- 2. Behaviour ---------------------------------------------------------
-const tests = files.filter((f) => /Test\.php$/.test(f));
+// OmekaCompatibilityTest needs an unpacked official Omeka release and is run
+// by its dedicated CI job. The dependency-free suites run everywhere else.
+const tests = files.filter((f) => /Test\.php$/.test(f) && !f.endsWith('OmekaCompatibilityTest.php'));
 let failed = 0;
 for (const test of tests) {
   const result = php.run(test);

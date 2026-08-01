@@ -6,8 +6,8 @@ together render the Digital Research Environment:
 | Repo | Role |
 |---|---|
 | **DRE-theme** | The Omeka S theme — owns the design system (tokens, type, components) |
-| **DRE-Search** | Typesense faceted search (Svelte 5) — consumes the tokens |
-| **DREVisualizations** | ECharts/MapLibre dashboards & knowledge graphs — consumes the tokens via a runtime bridge |
+| **DRE Search** | Typesense faceted search (Svelte 5) — consumes the tokens |
+| **DRE Visualizations** | ECharts/MapLibre dashboards & knowledge graphs — consumes the tokens via a runtime bridge |
 
 Audited 2026-06-11 against the philosophy codified in `.impeccable.md` and
 `DESIGN.md` §1–9. This file is the working plan; `DESIGN.md` stays the system
@@ -25,8 +25,8 @@ pairing, the token contract the two modules consume, and the explicit
 anti-pattern list are all real and enforced. The audit found **no gradient
 text, no accent side-stripes, no glassmorphism-as-chrome, no cold-grey
 neutrals, no px type, and no off-brand fallbacks** anywhere in the three repos.
-DRE-Search in particular is a model token consumer (zero violations) and
-DREVisualizations' `cssColor()`/`readTheme()` bridge is the correct
+DRE Search in particular is a model token consumer (zero violations) and
+DRE Visualizations' `cssColor()`/`readTheme()` bridge is the correct
 architecture for canvas/WebGL libraries that cannot parse `oklch()`.
 
 What remains is the gap between *compliant* and *impeccable*:
@@ -35,7 +35,7 @@ What remains is the gap between *compliant* and *impeccable*:
    hard-coded Material Design 2 palette (cold pink/indigo/lime), the only
    surface in the ecosystem that ignores both the brand and the theme toggle.
 2. **Cohesion seams** — charts render in the library's default font rather
-   than the site's; the theme highlights `<mark>` in grey while DRE-Search
+   than the site's; the theme highlights `<mark>` in grey while DRE Search
    highlights matches in the brand accent; empty states are bare.
 3. **Legacy pockets** — a handful of pre-token components (resource grid,
    metadata list, sitewide search results) still speak raw px instead of the
@@ -60,13 +60,13 @@ opportunity, not a defect.
 | T1 | P2 | Resource grid cards use raw px and pre-token geometry (`margin-bottom: 24px`, `margin: 10px 0 0 10px`, `padding: 15px`, `padding: 5px 10px`). The masonry `width: 49%` / `gutter 2%` are layout inputs read by masonry and may stay. | `components/resources/_resource-grid.scss` | ✅ done (v2.8.0) |
 | T2 | P2 | Metadata `<dl>` is a float-based two-column layout with magic numbers (`width: 170px`, `margin-left: 170px`, `padding-right: 15px`, thumb sizes `60px`/`100px`). Works, but it's the core reading surface of the archive and deserves grid + tokens. | `components/metadata/_metadata.scss` | ✅ done — tokens v2.8.0; CSS grid + uppercase eyebrow label rail + tabular values v2.9.0 (verified on the dev instance) |
 | T3 | P2 | Sitewide search results hard-code `max-width: 1160px` (≙ `--measure-wide`) and `margin-bottom: 40px`. | `components/search-results/_search-results.scss` | ✅ done (v2.8.0) |
-| T4 | P1 | `mark, ins` highlight is a grey wash (`$color__gray-87`) — a found-term highlight should carry the brand. DRE-Search already highlights matches with an accent tint (`--dre-hl-bg`: accent 30% over transparent); the theme and module currently speak two different highlight languages for the same concept. | `base/typography/_copy.scss:83` vs DRE-Search `Highlight.svelte` | ✅ done (v2.8.0) |
+| T4 | P1 | `mark, ins` highlight is a grey wash (`$color__gray-87`) — a found-term highlight should carry the brand. DRE Search already highlights matches with an accent tint (`--dre-hl-bg`: accent 30% over transparent); the theme and module currently speak two different highlight languages for the same concept. | `base/typography/_copy.scss:83` vs DRE Search `Highlight.svelte` | ✅ done (v2.8.0) |
 | T5 | P1 | Sitewide search empty state is a bare `<p>No result found</p>`. An empty state should keep the researcher moving: restate the query, suggest spelling/broader terms, offer Advanced Search and Browse-all as paths onward. | `view/omeka/site/index/search.phtml:15` | ✅ done (v2.8.0) · extended to item browse in v2.9.0 — when `search_resource_names` holds a single type, core search **redirects** to item browse (`IndexController::searchAction`), so the zero-hit browse page is where a fruitless search really lands; it previously rendered a blank masonry area |
 | T6 | P3 | No `@media print` layer. Researchers print/save item records and search results; current output prints the sticky header, theme toggle, banner wash, footer band and back-to-top button. A scholarly print layer (chrome hidden, serif metadata, exposed item URL) is cheap and very on-audience. | no `print` rules anywhere in `asset/sass` | ✅ done (v2.8.0) |
 | T7 | P3 | Motion tokens (`--transition-*`, `--ease-expo-out`) power hovers only; there is no arrival moment. One restrained, staggered entrance on the home hero (eyebrow → title → tagline → CTA) is the philosophy's "one well-orchestrated high-impact moment". Must be CSS-only and fully suppressed under `prefers-reduced-motion`. | `components/banner/_banner.scss` | ✅ done (v2.8.0) |
 | T8 | P3 | OpenType is under-used: global `kern/liga/calt` plus two `tabular-nums` call-sites. Numbers in metadata values, pagination, counts and year facets should be tabular; Spectral's display tier could take `case`-sensitive punctuation. Small, quiet wins. | `base/typography/_typography.scss:13` | ✅ done (v2.9.0) — `tabular-nums` on pagination ×2, tables and metadata `dd`; `text-wrap: balance` was already on h1–h4 |
 | T9 | P2 | The `container` mixin pads with raw `15px`/`30px` and the masonry vertical rhythm is a literal `24px`. | `abstracts/mixins/_mixins.scss:14` | ✅ done (v2.9.0) — `--space-4`/`--space-8` (16/32px, ≤2px deltas). Remaining px sweep: the pagination partials (30px margins, 40px buttons, 15px radii) |
-| T10 | P2 | The global `button, .button, input[type=…]` element selector applies the full primary-button treatment to *every* `<button>` on the page. Both modules already pay for this: DRE-Search ships `!important` shields and the Mirador block needs an insulation layer. | `base/elements/_buttons.scss:1` · DESIGN.md §8 "Chrome insulation" | ✅ done (v2.9.0), narrower than first sketched: the BASE element rule keeps (0,0,1) — flattening it to `:where()` would have let normalize.scss's `button` resets win — and only the **state** tails (`:hover`/`:active`/`:focus-visible`/`:disabled`/`:visited`, formerly up to (0,2,1)) are wrapped in `:where()`, so any single-class module rule now beats them. Verified on the dev instance: theme buttons unchanged, DRE-Search tabs show no glow/lift leak. Follow-up ◻: drop DRE-Search's now-redundant `!important` shields and the Mirador insulation in their next releases |
+| T10 | P2 | The global `button, .button, input[type=…]` element selector applies the full primary-button treatment to *every* `<button>` on the page. Both modules already pay for this: DRE Search ships `!important` shields and the Mirador block needs an insulation layer. | `base/elements/_buttons.scss:1` · DESIGN.md §8 "Chrome insulation" | ✅ done (v2.9.0), narrower than first sketched: the BASE element rule keeps (0,0,1) — flattening it to `:where()` would have let normalize.scss's `button` resets win — and only the **state** tails (`:hover`/`:active`/`:focus-visible`/`:disabled`/`:visited`, formerly up to (0,2,1)) are wrapped in `:where()`, so any single-class module rule now beats them. Verified on the dev instance: theme buttons unchanged, DRE Search tabs show no glow/lift leak. Follow-up ◻: drop DRE Search's now-redundant `!important` shields and the Mirador insulation in their next releases |
 | T11 | P2 | Sass partials still use `@import` (deprecated, non-breaking). Mechanical migration to `@use`/`@forward` already sketched in DESIGN.md §10. | all partials | ✅ done (v2.14.0) — full `@use`/`@forward` migration, byte-diff gated (compiled CSS identical bar 8 cosmetic section-divider comments; zero rule changes). Every Sass var turned out to live in `abstracts` (no cross-leaf deps); `_abstracts.scss` → `_index.scss` so `@use "…/abstracts"` resolves; `_mixins.scss` `@use`s breakpoints + typography; the two hybrid aggregators (`typography`, `layout`) had their trailing partial `@import`s lifted into `_base.scss`. **Gotcha banked:** a loud `/* */` comment immediately before `@use "abstracts"` is re-emitted by Dart Sass at every one of the ~50 consumer files, so the CSS file header was moved out of `style.scss` into a gulp post-compile prepend (`gulpfile.js` `prependHeader()`). |
 | T12 | P1 | At in-between widths (half-screen windows, long menus, large font settings) the desktop menu **wrapped onto a second row** instead of collapsing — the $xl media query alone can't know the menu's rendered width. | `_navigation.scss` · `navigation.js` | ✅ done (v2.10.0) — collapse-on-overflow: navigation.js measures the menu's one-line width (invisible off-screen measurement, re-run on resize + fonts.ready) against the lockup→utilities envelope and sets `data-nav="inline|drawer"` on `.main-header`; every desktop-menu rule is gated on `:not([data-nav="drawer"])`, `flex-wrap: nowrap` while the script is in charge, and the old wrap remains the no-JS fallback. Verified on the dev instance at 1280px (collapses; drawer opens at desktop width) and with a short menu (inline, one row). |
 | T13 | P1 | The v2.10.0 measure cap left prose **left-anchored against a blank right half** (user feedback), and the drawer — now the menu on half-screen desktops — opened as a **full-viewport sheet** with 1250px-wide rows. | `_menu-drawer.scss` | The drawer half ✅ (v2.11.0): a **right-anchored panel** (`min(24rem, 100%)`, hairline + `--shadow-xl`, `--z-drawer`, slides from under the hamburger; full-bleed sheet kept below `$sm`). The prose half went through two iterations (left-capped v2.10.0, centred column v2.11.0) and was **reverted entirely in v2.11.1 by owner decision** — HTML-block prose and the page title render at the container's full width, as before. **Do not reintroduce a measure cap on page blocks without an explicit request.** If long-line readability comes up again, the direction to explore is page-grid layouts in the page editor (author-chosen column widths), not theme-imposed caps. (Engineering note kept for posterity: in page-grid layouts blocks are grid items, where auto inline margins shrink the box to fit-content — a centred block needs `width: min(100%, …)`, not `max-width`.) |
@@ -78,14 +78,14 @@ greys in `_timeline.scss` are deliberate — TimelineJS renders on its own
 permanently-light widget surface, so theme inks would go light-on-light in
 dark mode.
 
-### DRE-Search
+### DRE Search
 
 | ID | Sev | Finding | Evidence | Status |
 |---|---|---|---|---|
 | S1 | — | **Zero violations.** Every colour, radius, shadow, size and motion value is `var(--token, on-brand-fallback)`; focus rings, reduced motion and ARIA (combobox, tabs, pagination) are all in place. Treat this module as the reference implementation of the token contract. | whole repo | reference |
 | S2 | P3 | Fallback literals drifted slightly from the theme's current values in places (e.g. `--ink` fallback `#33291f` vs theme's computed warm ink). Inert under the theme; tidy opportunistically when files are touched anyway. | various `<style>` blocks | ◻ opportunistic |
 
-### DREVisualizations
+### DRE Visualizations
 
 | ID | Sev | Finding | Evidence | Status |
 |---|---|---|---|---|
@@ -124,7 +124,7 @@ One brand, one voice, across theme and modules:
   Spectral available for title use; resolved at runtime from `--font-body` /
   `--font-display`, with the theme's own fallback stacks.
 - **T4 — highlight colour.** `mark`/`ins` become the same accent-tinted wash
-  DRE-Search uses (`color-mix(in oklab, var(--accent) 28%, transparent)` on
+  DRE Search uses (`color-mix(in oklab, var(--accent) 28%, transparent)` on
   light ink), unifying "found term" across core search, faceted browse and
   the Svelte client.
 - **T5 — empty states with a path onward.** The sitewide search no-results
@@ -164,6 +164,9 @@ Finish the job DESIGN.md describes: every component speaks the scales.
   `_advanced-search.scss` swept — spacing/control px → `--space-*` /
   `--size-control-*` (exact or ≤1px), leaving borders, flex-basis, gutter
   math, negative magic offsets and between-scale values (6/10/12.5px).
+  **Update (v2.23.0):** the theme-owned advanced-search and accordion assets
+  were removed when search moved fully to DRE Search, so those historical tail
+  counts no longer apply.
 
 *Acceptance:* `grep -E '\b\d+px' components/` returns only intentional
 hairlines (1px borders), icon geometry, and documented exceptions.
@@ -199,7 +202,7 @@ micro-interactions.
   fully disabled under `prefers-reduced-motion` and on interior mastheads.
 - **◻ Candidate follow-ups** (pick at most one; restraint is the brand):
   staggered fade-up of the first row of resource cards on browse pages
-  (IntersectionObserver, matching DREVisualizations' reveal-on-scroll so the
+  (IntersectionObserver, matching DRE Visualizations' reveal-on-scroll so the
   whole DRE shares one arrival grammar); or a view-transition crossfade on
   theme toggle.
 
@@ -221,9 +224,9 @@ Not visual, but it protects the visual system:
   (no deps), gating `npm run build`: raw hex outside `var(…, fallback)`
   position, coloured side-stripe borders, `background-clip: text`, px
   font-sizes — with the false-positive allowlist on record in the script.
-  **✅ Ported (v2.14.0)** to both modules: DRE-Search
+  **✅ Ported (v2.14.0)** to both modules: DRE Search
   (`scripts/check-design-tokens.mjs`, scans `.svelte` `<style>` blocks +
-  `asset/css`, wired into `npm run lint`) — clean; and DREVisualizations
+  `asset/css`, wired into `npm run lint`) — clean; and DRE Visualizations
   (module v2.9.0, scans `asset/css`, `npm run lint:tokens`) — clean after
   carve-outs for the CSS chevron caret and the audit-sanctioned achromatic
   `#000/#fff` anchors (V3 lightbox / V4 map labels).
@@ -240,9 +243,9 @@ Not visual, but it protects the visual system:
 4. **The anti-pattern list is law.** No side-stripes, no gradient text, no
    decorative blur, no cold grey — match-and-refuse (DESIGN.md §8).
 5. **Build is part of the change.** Theme: `npm run build` (stamps the CSS
-   header from `theme.ini` — bump the version there). DRE-Search:
+   header from `theme.ini` — bump the version there). DRE Search:
    `npm run lint && npm run check`, plus `npm run build` if `src/svelte`
-   changed. DREVisualizations ships plain CSS/JS — keep its CSS header
+   changed. DRE Visualizations ships plain CSS/JS — keep its CSS header
    contract note intact.
 6. **Modules never redefine a theme token** — alias into `--rv-*`-style
    namespaces on `body`, never overwrite `--primary` et al. (DESIGN.md §9).
@@ -258,7 +261,7 @@ top of the register above. All are now resolved:
 |---|---|---|---|
 | **P0** | `browserslist` promised Safari/iOS 14, but the single-seed engine needs `color-mix()` (Safari 16.2+) and `oklch()` (15.4+), which autoprefixer cannot polyfill — every derived token silently failed on the declared-supported floor. | theme | Floor raised to `safari >= 16.2` / `ios >= 16.2` (the honest fix; sRGB fallbacks are infeasible because the brand seed is injected at runtime). |
 | P1 | Dashboards showed a bare "Loading…" line and charts popped in. | visualizations | `.rv-loading` is now a token-driven skeleton — a `--rv-bg-sunken` block at the chart's reserved height with a shimmer sweep, one grammar across all 14 loading views; empty/error states get the same quiet sunken panel. Shimmer + spin both suppressed under `prefers-reduced-motion`. (module v2.9.0) |
-| P1 | Core search `<mark>` and DRE-Search highlighted from two near-identical-but-separate recipes. | theme ↔ search | One shared `--dre-hl-bg` token defined in `_colors.scss` (accent wash, both modes); `mark/ins` and DRE-Search's `Highlight.svelte` now resolve the same value. |
+| P1 | Core search `<mark>` and DRE Search highlighted from two near-identical-but-separate recipes. | theme ↔ search | One shared `--highlight-bg` token defined in `_colors.scss` (accent wash, both modes); `mark/ins` and DRE Search's `Highlight.svelte` now resolve the same value. |
 | P2 | Dead `GetSVG` helper (vestigial; `$this->getSVG()` would throw). | theme | Deleted `helper/GetSVG.php` + its `theme.ini` registration + the stale doc/comment references. The `svg-icon()` mask mixin is the icon system. |
 | P2 | Home-stats band cached to `sys_get_temp_dir()` — per-container and ephemeral across the org's multiple Omeka instances. | theme | Cache moved to Omeka's DB-backed settings service (site-scoped key + 1h TTL), shared across containers and deploy-surviving; reached via `getServiceLocator()` wrapped in `catch(\Throwable)` so the home page renders no matter what. |
 | P3 | The resource grid ships `masonry.pkgd.min.js` (~24 KiB) for a layout CSS now does natively. | theme | Native CSS masonry added behind `@supports (grid-template-rows: masonry)` with the JS as fallback; `browse.js` gates on the same feature query. Progressive enhancement — most engines still take the JS path today. |

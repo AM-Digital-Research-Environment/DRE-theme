@@ -14,21 +14,38 @@ class ContrastColor extends AbstractHelper
      */
     public function __invoke(string $baseColor, array $colorList): string
     {
+        $baseColor = $this->normalizeHex($baseColor) ?? '#009260';
         $baseRgb = $this->hexToRgb($baseColor);
         $bestContrast = 0;
-        $bestColor = '';
+        $bestColor = '#ffffff';
 
         foreach ($colorList as $color) {
-            $colorRgb = $this->hexToRgb($color);
+            if (!is_string($color) || null === ($normalized = $this->normalizeHex($color))) {
+                continue;
+            }
+            $colorRgb = $this->hexToRgb($normalized);
             $contrast = $this->calculateContrast($baseRgb, $colorRgb);
 
             if ($contrast > $bestContrast) {
                 $bestContrast = $contrast;
-                $bestColor = $color;
+                $bestColor = $normalized;
             }
         }
 
         return $bestColor;
+    }
+
+    /** Normalize three- or six-digit hex input, or reject it. */
+    private function normalizeHex(string $hex): ?string
+    {
+        $hex = ltrim(trim($hex), '#');
+        if (!preg_match('/^(?:[0-9a-f]{3}|[0-9a-f]{6})$/i', $hex)) {
+            return null;
+        }
+        if (strlen($hex) === 3) {
+            $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+        }
+        return '#' . strtolower($hex);
     }
 
     /**
@@ -40,9 +57,6 @@ class ContrastColor extends AbstractHelper
     private function hexToRgb(string $hex): array
     {
         $hex = ltrim($hex, '#');
-        if (strlen($hex) === 3) {
-            $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
-        }
 
         return [
             'r' => hexdec(substr($hex, 0, 2)),
@@ -80,7 +94,7 @@ class ContrastColor extends AbstractHelper
     {
         $rgb = array_map(function ($value) {
             $value = $value / 255;
-            return $value <= 0.03928 ? $value / 12.92 : pow(($value + 0.055) / 1.055, 2.4);
+            return $value <= 0.04045 ? $value / 12.92 : pow(($value + 0.055) / 1.055, 2.4);
         }, $rgb);
 
         return 0.2126 * $rgb['r'] + 0.7152 * $rgb['g'] + 0.0722 * $rgb['b'];

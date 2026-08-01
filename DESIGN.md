@@ -224,23 +224,20 @@ Defined in `asset/sass/abstracts/variables/_tokens.scss`:
 
 The header logo is overridable via the **Logo** theme setting.
 
-**Icons** are [Lucide](https://lucide.dev/) SVGs (`sun`, `moon`, `search`,
-`chevron-*`, …) — the same family the AMIRA dashboard uses, for cross-product
-consistency — kept in `asset/img/*.svg`. They use `stroke="currentColor"`, so
-they inherit theme colour, and are painted two ways, with **no icon webfont**:
-
-- **Static decorations** (select arrows, the drawer chevron, …) — a plain CSS
-  `background-image: url("../img/<name>.svg")`.
-- **Recolouring `::before` / `::after` glyphs** — the
+**Icons** use [Lucide](https://lucide.dev/) geometry—the same family as the AMIRA
+dashboard—for cross-product consistency, with **no icon webfont**. Interactive
+icons are emitted as accessible inline SVG in templates; CSS pseudo-elements use
+the
   `svg-icon($icon, $size, $color)` mixin (`abstracts/mixins/_mixins.scss`): a
   `mask-image` of an inline-SVG data-URI tinted with
   `background-color: currentColor`, so the glyph follows its host's colour token
-  and its hover / disabled states exactly as a font glyph did.
+  and its hover / disabled states exactly as a font glyph did. The sole external
+  SVG is `arrow-down-blue.svg`, used by native select fields.
 
 **No FontAwesome.** As of **v2.5.5** the theme stopped loading Omeka core's
 `iconfonts.css` (and its ~77 KiB `fa-solid` webfont — ~91 KiB/page). The core
 `o-icon-*` classes the theme still renders — pagination `prev`/`next`, media
-`grid`/`list`, `search`, advanced-search `add`/`delete`, `private`/`annotation`
+`grid`/`list`, `search`, `private`/`annotation`
 — are repainted with `svg-icon()` masks in `base/elements/_icons.scss`. To add a
 glyph: drop a URL-encoded Lucide data-URI into `_mixins.scss` and apply
 `svg-icon()`. With the webfont gone, any unstyled `o-icon-*` renders nothing
@@ -350,7 +347,7 @@ theme-aware in one move. Notable bespoke work:
   few core form contexts the theme can't add a class to: search/login submits,
   the sort-selector and header-search buttons), *not* the bare `button`
   element. Styling every `<button>` leaked the green fill / shadow / hover-lift
-  into embedded modules (DRESearch, ResourceVisualizations), which then fought
+  into embedded modules (DRE Search, DRE Visualizations), which then fought
   back with `!important` resets; scoping to a class lets each module own its
   controls and the theme request the primary look explicitly. The button
   **state** selectors are still wrapped in `:where()` (zero added specificity),
@@ -358,7 +355,7 @@ theme-aware in one move. Notable bespoke work:
   hover/active/disabled treatment. The global `:focus-visible` rule still
   guarantees the focus ring everywhere.
 - **Found-term highlight** — `mark` / `ins` carry the same translucent accent
-  wash DRE-Search paints on result matches (`color-mix(in oklab, var(--accent)
+  wash DRE Search paints on result matches (`color-mix(in oklab, var(--accent)
   28%, transparent)`), so "your term" reads identically in core search, faceted
   browse and the Svelte client.
 - **Search empty state** — the sitewide no-results view is a quiet centred
@@ -489,8 +486,8 @@ indistinguishable from the theme itself:
 
 | Module | Role | How it attaches | Where it is styled |
 |---|---|---|---|
-| **[DRE-Search](https://github.com/AM-Digital-Research-Environment/DRESearch)** | Typesense-backed faceted search (a Svelte 5 client) | site block layouts (`Research*SearchBlock`), a header search-bar view helper, and a federated results route (`/s/{slug}/dre-search`) | server shell in `asset/css/dre-search.css`; component styles compiled into `asset/dist/dre-search.css` |
-| **[ResourceVisualizations](https://github.com/fmadore/ResourceVisualizations)** | ECharts + MapLibre dashboards, charts, maps and a knowledge graph | block layouts (collection / compare / explorer / photo-browse / what's-new…) and resource-page blocks (knowledge graph, item-set dashboard, sibling sparkline…) | one stylesheet, `asset/css/dre-visualizations.css`, plus per-chart JS under `asset/js/` |
+| **[DRE Search](https://github.com/AM-Digital-Research-Environment/DRESearch)** | Typesense-backed faceted search (a Svelte 5 client) | site block layouts (`Research*SearchBlock`), a header search-bar view helper, and a federated results route (`/s/{slug}/dre-search`) | server shell in `asset/css/dre-search.css`; component styles compiled into `asset/dist/dre-search.css` |
+| **[DRE Visualizations](https://github.com/AM-Digital-Research-Environment/DRE-Visualizations)** | ECharts + MapLibre dashboards, charts, maps and a knowledge graph | block layouts (collection / compare / explorer / photo-browse / what's-new…) and resource-page blocks (knowledge graph, item-set dashboard, sibling sparkline…) | one stylesheet, `asset/css/dre-visualizations.css`, plus per-chart JS under `asset/js/` |
 
 **The design tokens are the contract between them.** The custom properties this
 theme defines on `:root` (and re-defines per mode) are a *de-facto public API*:
@@ -514,7 +511,7 @@ breaking change for the modules.
 | State | `--error` (+ the rest of the `--success/-warning/-info` family) |
 | Type | `--font-display` `--font-body` · `--text-2xs … --text-2xl` · `--leading-tight/-snug/-normal/-relaxed` · `--measure-wide` |
 | Layout | `--space-*` `--radius-sm/-md/-lg/-full` `--size-control-md/-lg` `--z-dropdown` · `--container-max` `--container-gutter` `--header-height` `--scroll-offset` `--rail-width` `--label-col` |
-| Highlight | `--highlight-bg` (was `--dre-hl-bg`; alias retained one minor) |
+| Highlight | `--highlight-bg` (was `--dre-hl-bg`; deprecated compatibility alias retained) |
 | Effect | `--shadow-xs/-sm/-md/-lg` `--ring-focus` `--transition-fast/-base` |
 
 ### The data-colour contract (charts & maps)
@@ -529,7 +526,7 @@ contract — distinct from the UI tokens above:
   two darkest pigments (Uni-Grün, Dunkelblau) are raised so they don't disappear
   on the forest-dark surface.
 - **Canvas / WebGL renderers can't read the tokens directly.** ECharts (zrender)
-  and MapLibre don't parse `oklch()` / `color-mix()`, so ResourceVisualizations
+  and MapLibre don't parse `oklch()` / `color-mix()`, so DRE Visualizations
   resolves each token to a plain `rgb()` at runtime — a hidden probe + 1×1 canvas
   (`cssColor()` / `readTheme()` in `dashboard-core.js`) — and re-resolves on every
   `[data-theme]` flip. **Never hand a raw `oklch` token to a canvas/WebGL lib;**
@@ -560,7 +557,7 @@ contract — distinct from the UI tokens above:
 1. **Consume tokens by their exact name; never redefine one.** A module must not
    set `--primary`, `--surface`, … to a *different value* — that is the
    "competing design variables" failure. Read them, don't override them.
-2. **Alias into a local namespace if you need to.** ResourceVisualizations maps
+2. **Alias into a local namespace if you need to.** DRE Visualizations maps
    the theme tokens onto `--rv-*` aliases declared **on `body`** (not `:root`),
    so each alias resolves the *active* token from the body's own cascade and the
    `[data-theme]` flip carries through. This is the pattern to copy for any new
@@ -584,17 +581,17 @@ contract — distinct from the UI tokens above:
    `var(--new-name)` for at least one minor release and records the change in the
    breaking-change register (`AUDIT.md` §4) and the changelog. Modules update at
    their own pace; nothing silently loses its colour. `--dre-hl-bg` →
-   `--highlight-bg` is the worked example: DRE-Search now reads
+   `--highlight-bg` is the worked example: DRE Search now reads
    `var(--highlight-bg, var(--dre-hl-bg, <literal>))`, which is correct against
    both theme versions.
 8. **If a module reaches for a token the theme lacks, add it to the theme.**
-   ResourceVisualizations' bridge carried `var(--text-2xs, 0.6875rem)` with a note
+   DRE Visualizations' bridge carried `var(--text-2xs, 0.6875rem)` with a note
    that it would adopt a theme token "if one is ever added" — a hole in a shared
    scale is something two projects can drift apart in. `--text-2xs` is now a theme
    token.
 
 > Each module also states this contract at the top of its own stylesheet
-> (ResourceVisualizations’ CSS header; DRE-Search’s `dre-search.css`). This
+> (DRE Visualizations’ CSS header; DRE Search’s `dre-search.css`). This
 > section is the canonical, theme-side reference; keep them consistent.
 
 ---

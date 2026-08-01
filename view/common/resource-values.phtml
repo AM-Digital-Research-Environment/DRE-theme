@@ -21,6 +21,7 @@
 
 $translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
+$escapeAttr = $this->plugin('escapeHtmlAttr');
 $decoration = $this->themeSetting('image_decoration');
 
 if ($this->status()->isSiteRequest()) {
@@ -69,7 +70,7 @@ $groups = $this->ResourceGroups($values);
     // holds more than one property, where the labels do distinguish.
     $hideLabels = in_array($group['layout'], ['prose', 'chips'], true) && count($rendered) === 1;
     ?>
-    <section class="record__group record__group--<?php echo $escape($group['layout']); ?>" data-group="<?php echo $escape($group['key']); ?>">
+    <section class="record__group record__group--<?php echo $escapeAttr($group['layout']); ?>" data-group="<?php echo $escapeAttr($group['key']); ?>">
         <h2 class="record__group-title"><?php echo $escape($group['title']); ?></h2>
 
         <dl class="record__list">
@@ -84,7 +85,7 @@ $groups = $this->ResourceGroups($values);
                 $propertyTerm = null;
             }
             ?>
-            <div class="property <?php echo $escape(str_replace(':', '-', $term)); ?>">
+            <div class="property <?php echo $escapeAttr(str_replace(':', '-', $term)); ?>">
                 <dt<?php echo $hideLabels ? ' class="sr-only"' : ''; ?>>
                 <?php echo $escape($propertyLabel); ?>
                 <?php if ($propertyTerm !== null) : ?>
@@ -100,14 +101,14 @@ $groups = $this->ResourceGroups($values);
                     $isResource = ('resource' == $valueType || strpos($valueType, 'resource') !== false);
                     if ($isResource) {
                         $class[] = 'resource';
-                        $class[] = $escape($value->valueResource()->resourceName());
+                        $class[] = $value->valueResource()->resourceName();
                     } elseif ('uri' == $valueType) {
                         $class[] = 'uri';
                     }
                     ?>
-                    <dd class="<?php echo implode(' ', $class); ?>" lang="<?php echo $escape($valueLang); ?>">
+                    <dd class="<?php echo $escapeAttr(implode(' ', $class)); ?>" lang="<?php echo $escapeAttr($valueLang); ?>">
                         <?php if ($showLocale && $valueLang) : ?>
-                            <span class="language"><?php echo $valueLang; ?></span>
+                            <span class="language"><?php echo $escape($valueLang); ?></span>
                         <?php endif; ?>
                         <span class="value-content"><?php
                             // Resource values: render the link ourselves with an aspect-

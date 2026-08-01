@@ -18,7 +18,8 @@ $decoration = $this->themeSetting('image_decoration');
             }
 
             // Get title and title lang.
-            $title = $item->displayTitle();
+            $title = (string) $item->displayTitle();
+            $titleLang = '';
 
             if ($showLocale) {
                 $template = $item->resourceTemplate();
@@ -28,11 +29,7 @@ $decoration = $this->themeSetting('image_decoration');
                     $titleTerm = 'dcterms:title';
                 }
                 $titleObj = $item->value($titleTerm);
-                $titleLang = (string) $titleObj->lang();
-
-                if ($titleLang) {
-                    $title .= '<span class="language">' . $titleLang . '</span>';
-                }
+                $titleLang = $titleObj ? (string) $titleObj->lang() : '';
             }
         ?>
 
@@ -40,7 +37,12 @@ $decoration = $this->themeSetting('image_decoration');
             <!-- Header -->
             <div class="item-with-metadata__header">
                 <?php echo $this->ResourceTags($item); ?>
-                <h3 class="item-with-metadata__heading"><?php echo $title; ?></h3>
+                <h3 class="item-with-metadata__heading">
+                    <?php echo $escape($title); ?>
+                    <?php if ($titleLang): ?>
+                        <span class="language"><?php echo $escape($titleLang); ?></span>
+                    <?php endif; ?>
+                </h3>
             </div>
 
             <!-- Content -->
@@ -60,7 +62,7 @@ $decoration = $this->themeSetting('image_decoration');
                     <?php if($item->itemSets()): ?>
                         <dl class="item-sets">
                             <div class="property">
-                                <dt><?php echo $translate('Item sets'); ?></dt>
+                                <dt><?php echo $escape($translate('Item sets')); ?></dt>
                                 <?php foreach ($item->itemSets() as $itemSet): ?>
                                 <dd class="value"><?php echo $itemSet->link($itemSet->displayTitle()); ?></dd>
                                 <?php endforeach; ?>
@@ -70,7 +72,7 @@ $decoration = $this->themeSetting('image_decoration');
                     <?php if($item->media()): ?>
                         <dl class="media-list">
                             <div class="property">
-                                <dt><?php echo $translate('Media'); ?></dt>
+                                <dt><?php echo $escape($translate('Media')); ?></dt>
                                 <?php foreach ($item->media() as $media): ?>
                                     <?php
                                     $altText = $media->altText() ?: $media->displayTitle() ?: '';

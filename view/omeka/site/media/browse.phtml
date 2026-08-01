@@ -24,7 +24,7 @@ if (is_array($decoration) && in_array('media', $decoration)) {
 }
 ?>
 
-<?php echo $this->pageTitle($translate('Media'), 2); ?>
+<?php echo $this->pageTitle($translate('Media'), 1); ?>
 
 <?php echo $this->searchFilters(); ?>
 
@@ -33,8 +33,8 @@ if (is_array($decoration) && in_array('media', $decoration)) {
 <div class="browse-controls">
     <?php echo $this->partial('common/browse-layout-toggle', ['layout' => $layout, 'icons' => true]); ?>
     <?php echo $this->browse()->renderSortSelector('medias'); ?>
-    <div class="advanced-search-container">
-        <?php echo $this->hyperlink($translate('Advanced search'), $this->url(null, ['action' => 'search'], true), ['class' => 'advanced-search']); ?>
+    <div class="collection-search-container">
+        <?php echo $this->hyperlink($translate('Search the collection'), $this->DreSearchUrl(), ['class' => 'collection-search']); ?>
     </div>
 </div>
 

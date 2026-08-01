@@ -29,7 +29,7 @@
     // ignores the declaration, falling back to the flex guards above.)
     overflow: clip visible;
 
-    // --- Quiet top utility bar (advanced search, contact) — wide screens ---
+    // --- Quiet top utility bar (contact details) — wide screens ---
     &__top-bar {
         background-color: var(--surface-sunken);
         border-bottom: 1px solid var(--border-light);

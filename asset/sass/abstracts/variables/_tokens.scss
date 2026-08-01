@@ -33,8 +33,8 @@
   --space-20: 5rem;     // 80px
   --space-24: 6rem;     // 96px
 
-  // Semantic aliases — ALIASES, never independent literals. DRE-Search and
-  // ResourceVisualizations author against these names; pointing them at the
+  // Semantic aliases — ALIASES, never independent literals. DRE Search and
+  // DRE Visualizations authors against these names; pointing them at the
   // numeric steps means a change to the grid can no longer silently diverge
   // between the two vocabularies.
   --space-xs:  var(--space-1);

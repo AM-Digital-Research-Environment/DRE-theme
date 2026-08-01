@@ -4,6 +4,6 @@
     "description": "Africa Multiple — Digital Research Environment theme for Omeka S.",
     "license": "GPL-3.0-or-later",
     "require": {
-        "omeka/omeka-s": "*"
+        "omeka/omeka-s": "^4.2.1"
     }
 }

@@ -21,16 +21,11 @@ msgstr ""
 msgid "(Private)"
 msgstr ""
 
-#: view/common/advanced-search/properties.phtml:79
-msgid "[Any Property]"
-msgstr ""
-
 #: view/common/block-layout/browse-preview.phtml:49
-#: view/faceted-browse/site/page/browse-items-default.phtml:17
 #: view/hierarchy/site/index/hierarchy.phtml:204
 #: view/hierarchy/site/index/hierarchy.phtml:242
 #: view/hierarchy/site/index/hierarchy.phtml:81
-#: view/omeka/site/item/browse.phtml:144
+#: view/omeka/site/item/browse.phtml:139
 msgid "[Untitled]"
 msgstr ""
 
@@ -50,30 +45,7 @@ msgstr ""
 msgid "Access rights"
 msgstr ""
 
-#: view/common/advanced-search/resource-class.phtml:51
-msgid "Add new class"
-msgstr ""
-
-#: view/common/advanced-search/item-sets.phtml:75
-msgid "Add new item set"
-msgstr ""
-
-#: view/common/advanced-search/properties.phtml:110
-msgid "Add new value"
-msgstr ""
-
-#: view/omeka/site/item/search.phtml:7
-msgid "Advanced item search"
-msgstr ""
-
-#: view/hierarchy/site/index/hierarchy.phtml:231
-#: view/omeka/site/item-set/browse.phtml:31
-#: view/omeka/site/item/browse.phtml:96
-#: view/omeka/site/media/browse.phtml:37
-msgid "Advanced search"
-msgstr ""
-
-#: view/common/header.phtml:38
+#: view/common/header.phtml:34
 msgid "Africa Multiple Cluster of Excellence"
 msgstr ""
 
@@ -89,14 +61,6 @@ msgstr ""
 msgid "All sections"
 msgstr ""
 
-#: view/common/advanced-search/properties.phtml:65
-msgid "AND"
-msgstr ""
-
-#: view/common/advanced-search/sort.phtml:27
-msgid "Ascending"
-msgstr ""
-
 #: view/common/nav-menu.phtml:57
 msgid "Audio series"
 msgstr ""
@@ -105,16 +69,16 @@ msgstr ""
 msgid "Authors & named persons"
 msgstr ""
 
-#: view/layout/layout.phtml:288
+#: view/layout/layout.phtml:276
 msgid "Back to top"
 msgstr ""
 
-#: view/layout/layout.phtml:79
+#: view/layout/layout.phtml:82
 msgid "Browse"
 msgstr ""
 
-#: view/omeka/site/index/search.phtml:38
-#: view/omeka/site/item/browse.phtml:133
+#: view/omeka/site/index/search.phtml:33
+#: view/omeka/site/item/browse.phtml:128
 msgid "Browse all items"
 msgstr ""
 
@@ -122,7 +86,7 @@ msgstr ""
 msgid "Browse projects interactively"
 msgstr ""
 
-#: view/layout/layout.phtml:78
+#: view/layout/layout.phtml:81
 msgid "Browse the collection"
 msgstr ""
 
@@ -135,20 +99,12 @@ msgstr ""
 msgid "Cite this record"
 msgstr ""
 
-#: view/common/advanced-search/resource-class.phtml:35
-msgid "Class"
-msgstr ""
-
 #: view/common/menu-drawer.phtml:2
 msgid "Close"
 msgstr ""
 
-#: view/common/header.phtml:101
+#: view/common/header.phtml:99
 msgid "Close menu"
-msgstr ""
-
-#: view/common/advanced-search/item-sets.phtml:54
-msgid "Condition"
 msgstr ""
 
 #: view/common/linked-resources.phtml:162
@@ -159,8 +115,8 @@ msgstr ""
 msgid "connections to this record"
 msgstr ""
 
-#: view/common/advanced-search/properties.phtml:89
-msgid "contains"
+#: view/common/dre-search-redirect.phtml:22
+msgid "Continue to %s."
 msgstr ""
 
 #: view/common/record-apparatus.phtml:139
@@ -171,28 +127,12 @@ msgstr ""
 msgid "Copy citation"
 msgstr ""
 
-#: view/common/numeric-data-types-advanced-search.phtml:100
-msgid "Date comes on or after"
-msgstr ""
-
-#: view/common/numeric-data-types-advanced-search.phtml:118
-msgid "Date comes on or before"
-msgstr ""
-
-#: view/common/numeric-data-types-advanced-search.phtml:172
-msgid "Date in interval"
-msgstr ""
-
 #: view/common/numeric-timestamp.phtml:19
 msgid "Day"
 msgstr ""
 
 #: view/common/numeric-duration.phtml:19
 msgid "Days"
-msgstr ""
-
-#: view/common/advanced-search/sort.phtml:28
-msgid "Descending"
 msgstr ""
 
 #: helper/ResourceGroups.php:65
@@ -216,24 +156,12 @@ msgstr ""
 msgid "Digital Research Environment (DRE)"
 msgstr ""
 
-#: view/common/header.phtml:75
+#: view/common/header.phtml:71
 msgid "Dismiss"
 msgstr ""
 
 #: view/common/nav-menu.phtml:52
 msgid "Document & media types"
-msgstr ""
-
-#: view/common/advanced-search/properties.phtml:90
-msgid "does not contain"
-msgstr ""
-
-#: view/common/advanced-search/properties.phtml:94
-msgid "does not end with"
-msgstr ""
-
-#: view/common/advanced-search/properties.phtml:92
-msgid "does not start with"
 msgstr ""
 
 #: view/common/record-apparatus.phtml:99
@@ -244,16 +172,8 @@ msgstr ""
 msgid "DRE ID"
 msgstr ""
 
-#: view/common/numeric-data-types-advanced-search.phtml:136
-msgid "Duration is greater than"
-msgstr ""
-
-#: view/common/numeric-data-types-advanced-search.phtml:154
-msgid "Duration is less than"
-msgstr ""
-
-#: view/common/advanced-search/properties.phtml:93
-msgid "ends with"
+#: view/common/dre-search-redirect.phtml:23
+msgid "DRE Search"
 msgstr ""
 
 #: view/common/nav-menu.phtml:64
@@ -289,24 +209,8 @@ msgstr ""
 msgid "Grid"
 msgstr ""
 
-#: view/common/resource-values.phtml:132
+#: view/common/resource-values.phtml:133
 msgid "Has annotation"
-msgstr ""
-
-#: view/common/advanced-search/properties.phtml:97
-msgid "has any value"
-msgstr ""
-
-#: view/common/advanced-search/has-media.phtml:5
-msgid "Has media"
-msgstr ""
-
-#: view/common/advanced-search/has-media.phtml:6
-msgid "Has no media"
-msgstr ""
-
-#: view/common/advanced-search/properties.phtml:98
-msgid "has no values"
 msgstr ""
 
 #: view/common/numeric-timestamp.phtml:25
@@ -321,11 +225,7 @@ msgstr ""
 msgid "Identifiers & sources"
 msgstr ""
 
-#: view/common/advanced-search/item-sets.phtml:56
-msgid "In"
-msgstr ""
-
-#: view/common/header.phtml:72
+#: view/common/header.phtml:68
 msgid "Install app"
 msgstr ""
 
@@ -339,29 +239,9 @@ msgstr ""
 msgid "Invalid value: %s"
 msgstr ""
 
-#: view/common/advanced-search/properties.phtml:87
-msgid "is exactly"
-msgstr ""
-
-#: view/common/advanced-search/properties.phtml:88
-msgid "is not exactly"
-msgstr ""
-
-#: view/common/advanced-search/properties.phtml:96
-msgid "is not resource with ID"
-msgstr ""
-
-#: view/common/advanced-search/properties.phtml:95
-msgid "is resource with ID"
-msgstr ""
-
-#: view/common/advanced-search/item-sets.phtml:60
-msgid "Item Set"
-msgstr ""
-
-#: view/common/block-layout/item-with-metadata.phtml:63
+#: view/common/block-layout/item-with-metadata.phtml:65
 #: view/common/linked-resources.phtml:140
-#: view/omeka/site/index/search.phtml:46
+#: view/omeka/site/index/search.phtml:41
 #: view/omeka/site/item-set/browse.phtml:21
 msgid "Item sets"
 msgstr ""
@@ -372,7 +252,7 @@ msgstr ""
 
 #: view/common/linked-resources.phtml:139
 #: view/hierarchy/site/index/hierarchy.phtml:225
-#: view/omeka/site/index/search.phtml:45
+#: view/omeka/site/index/search.phtml:40
 #: view/omeka/site/item/browse.phtml:83
 #: view/omeka/site/item/browse.phtml:85
 msgid "Items"
@@ -402,14 +282,14 @@ msgstr ""
 msgid "List"
 msgstr ""
 
-#: helper/CollectionStats.php:212
+#: helper/CollectionStats.php:233
 msgid "Locations"
 msgstr ""
 
-#: view/common/block-layout/item-with-metadata.phtml:73
+#: view/common/block-layout/item-with-metadata.phtml:75
 #: view/common/linked-resources.phtml:141
 #: view/common/resource-page-block-layout/media-list.phtml:8
-#: view/omeka/site/index/search.phtml:47
+#: view/omeka/site/index/search.phtml:42
 #: view/omeka/site/media/browse.phtml:27
 msgid "Media"
 msgstr ""
@@ -424,6 +304,10 @@ msgstr ""
 
 #: view/common/numeric-duration.phtml:28
 msgid "Minutes"
+msgstr ""
+
+#: view/common/menu-drawer.phtml:7
+msgid "Mobile navigation"
 msgstr ""
 
 #: view/common/numeric-timestamp.phtml:16
@@ -455,21 +339,9 @@ msgstr ""
 msgid "No pages found"
 msgstr ""
 
-#: view/common/advanced-search/item-sets.phtml:57
-msgid "Not in"
-msgstr ""
-
 #: view/omeka/site/index/search.phtml:20
 #: view/omeka/site/item/browse.phtml:112
 msgid "Nothing in the collections matched this search."
-msgstr ""
-
-#: view/common/numeric-data-types-advanced-search.phtml:190
-msgid "Number is greater than"
-msgstr ""
-
-#: view/common/numeric-data-types-advanced-search.phtml:208
-msgid "Number is less than"
 msgstr ""
 
 #: view/common/pagination.phtml:30
@@ -480,20 +352,16 @@ msgstr ""
 msgid "Offset"
 msgstr ""
 
-#: view/common/header.phtml:100
-#: view/common/header.phtml:103
+#: view/common/header.phtml:101
+#: view/common/header.phtml:98
 msgid "Open menu"
-msgstr ""
-
-#: view/common/advanced-search/properties.phtml:66
-msgid "OR"
 msgstr ""
 
 #: view/common/banner.phtml:156
 msgid "Or browse a corpus below — each has its own filters."
 msgstr ""
 
-#: helper/CollectionStats.php:211
+#: helper/CollectionStats.php:232
 msgid "Organisations"
 msgstr ""
 
@@ -522,7 +390,7 @@ msgstr ""
 msgid "Part of %s"
 msgstr ""
 
-#: helper/CollectionStats.php:210
+#: helper/CollectionStats.php:231
 msgid "People"
 msgstr ""
 
@@ -550,15 +418,15 @@ msgstr ""
 msgid "Previous"
 msgstr ""
 
-#: view/common/header.phtml:121
+#: view/common/header.phtml:119
 msgid "Primary navigation"
 msgstr ""
 
-#: view/common/resource-values.phtml:128
+#: view/common/resource-values.phtml:129
 msgid "Private"
 msgstr ""
 
-#: helper/CollectionStats.php:208
+#: helper/CollectionStats.php:229
 msgid "Projects"
 msgstr ""
 
@@ -574,25 +442,6 @@ msgstr ""
 msgid "Projects, sections and the primary materials they produce."
 msgstr ""
 
-#: view/common/advanced-search/properties.phtml:69
-#: view/common/advanced-search/properties.phtml:76
-#: view/common/numeric-data-types-advanced-search.phtml:103
-#: view/common/numeric-data-types-advanced-search.phtml:12
-#: view/common/numeric-data-types-advanced-search.phtml:121
-#: view/common/numeric-data-types-advanced-search.phtml:139
-#: view/common/numeric-data-types-advanced-search.phtml:157
-#: view/common/numeric-data-types-advanced-search.phtml:175
-#: view/common/numeric-data-types-advanced-search.phtml:193
-#: view/common/numeric-data-types-advanced-search.phtml:211
-#: view/common/numeric-data-types-advanced-search.phtml:25
-#: view/common/numeric-data-types-advanced-search.phtml:38
-#: view/common/numeric-data-types-advanced-search.phtml:50
-#: view/common/numeric-data-types-advanced-search.phtml:62
-#: view/common/numeric-data-types-advanced-search.phtml:75
-#: view/common/numeric-data-types-advanced-search.phtml:87
-msgid "Property"
-msgstr ""
-
 #: view/common/nav-menu.phtml:38
 msgid "Public-facing media from the Cluster."
 msgstr ""
@@ -601,48 +450,23 @@ msgstr ""
 msgid "Publication trends & networks"
 msgstr ""
 
-#: helper/CollectionStats.php:209
+#: helper/CollectionStats.php:230
 msgid "Publications"
-msgstr ""
-
-#: view/common/advanced-search/properties.phtml:100
-#: view/common/advanced-search/properties.phtml:38
-msgid "Query text"
-msgstr ""
-
-#: view/common/advanced-search/properties.phtml:85
-#: view/common/advanced-search/properties.phtml:86
-msgid "Query type"
 msgstr ""
 
 #: view/common/nav-menu.phtml:39
 msgid "Read the metadata at a glance."
 msgstr ""
 
-#: view/omeka/site/index/search.phtml:32
-#: view/omeka/site/item/browse.phtml:127
-msgid "Refine in advanced search"
-msgstr ""
-
 #: view/common/linked-resources.phtml:213
 msgid "Relationship"
 msgstr ""
 
-#: view/common/advanced-search/item-sets.phtml:71
-#: view/common/advanced-search/properties.phtml:102
-#: view/common/advanced-search/resource-class.phtml:47
-msgid "Remove value"
-msgstr ""
-
-#: helper/CollectionStats.php:207
+#: helper/CollectionStats.php:228
 msgid "Research items"
 msgstr ""
 
-#: view/omeka/site/item/search.phtml:15
-msgid "Reset"
-msgstr ""
-
-#: helper/CollectionStats.php:214
+#: helper/CollectionStats.php:235
 msgid "Resource types"
 msgstr ""
 
@@ -651,30 +475,10 @@ msgid "Rights & access"
 msgstr ""
 
 #: view/common/banner.phtml:153
-#: view/layout/layout.phtml:84
-#: view/layout/layout.phtml:85
-#: view/omeka/site/item/search.phtml:14
+#: view/common/main-header-search.phtml:5
+#: view/layout/layout.phtml:87
+#: view/layout/layout.phtml:88
 msgid "Search"
-msgstr ""
-
-#: view/common/advanced-search/resource-class.phtml:24
-msgid "Search by class"
-msgstr ""
-
-#: view/common/advanced-search/ids.phtml:13
-msgid "Search by ID"
-msgstr ""
-
-#: view/common/advanced-search/item-sets.phtml:43
-msgid "Search by item set"
-msgstr ""
-
-#: view/common/advanced-search/has-media.phtml:3
-msgid "Search by media presence"
-msgstr ""
-
-#: view/common/advanced-search/properties.phtml:54
-msgid "Search by value"
 msgstr ""
 
 #: view/common/linked-resources.phtml:189
@@ -683,6 +487,10 @@ msgstr ""
 
 #: view/common/linked-resources.phtml:188
 msgid "Search connections…"
+msgstr ""
+
+#: view/common/dre-search-redirect.phtml:27
+msgid "Search is temporarily unavailable."
 msgstr ""
 
 #: view/common/banner.phtml:152
@@ -694,19 +502,18 @@ msgid "Search results for “%s”"
 msgstr ""
 
 #: view/common/banner.phtml:149
+#: view/common/dre-search-redirect.phtml:17
+#: view/common/dre-search-redirect.phtml:19
+#: view/hierarchy/site/index/hierarchy.phtml:231
+#: view/omeka/site/item-set/browse.phtml:31
+#: view/omeka/site/item/browse.phtml:96
+#: view/omeka/site/media/browse.phtml:37
 msgid "Search the collection"
 msgstr ""
 
-#: view/common/advanced-search/item-sets.phtml:47
-msgid "Searches for items that are assigned to any of these item sets."
-msgstr ""
-
-#: view/common/advanced-search/ids.phtml:17
-msgid "Searches for resources by Omeka S ID. You can search for more than one ID by separating them by commas."
-msgstr ""
-
-#: view/common/advanced-search/resource-class.phtml:28
-msgid "Searches for resources that are any of these classes."
+#: view/omeka/site/index/search.phtml:27
+#: view/omeka/site/item/browse.phtml:122
+msgid "Search with filters"
 msgstr ""
 
 #: view/common/numeric-timestamp.phtml:31
@@ -717,27 +524,15 @@ msgstr ""
 msgid "Seconds"
 msgstr ""
 
-#: view/common/advanced-search/has-media.phtml:8
-msgid "Select media presence…"
-msgstr ""
-
-#: view/common/advanced-search/sort.phtml:20
-msgid "Select sort by…"
-msgstr ""
-
-#: view/common/advanced-search/sort.phtml:25
-msgid "Select sort order…"
-msgstr ""
-
-#: view/common/header.phtml:122
+#: view/common/header.phtml:120
 msgid "Show submenu for “%s”"
 msgstr ""
 
-#: view/omeka/site/index/search.phtml:44
+#: view/omeka/site/index/search.phtml:39
 msgid "Site pages"
 msgstr ""
 
-#: view/layout/layout.phtml:275
+#: view/layout/layout.phtml:263
 msgid "Skip to main content"
 msgstr ""
 
@@ -745,33 +540,28 @@ msgstr ""
 msgid "Social media"
 msgstr ""
 
-#: view/common/advanced-search/sort.phtml:34
 #: view/common/linked-resources.phtml:211
 msgid "Sort"
-msgstr ""
-
-#: view/common/advanced-search/sort.phtml:37
-msgid "Sort by"
-msgstr ""
-
-#: view/common/advanced-search/sort.phtml:40
-msgid "Sort order"
 msgstr ""
 
 #: view/common/nav-menu.phtml:48
 msgid "Sources, media & datasets"
 msgstr ""
 
-#: view/common/advanced-search/properties.phtml:91
-msgid "starts with"
-msgstr ""
-
 #: helper/ResourceGroups.php:71
 msgid "Subjects"
 msgstr ""
 
-#: helper/CollectionStats.php:213
+#: helper/CollectionStats.php:234
 msgid "Subjects & tags"
+msgstr ""
+
+#: view/common/header.phtml:80
+msgid "Switch to dark mode"
+msgstr ""
+
+#: view/common/header.phtml:79
+msgid "Switch to light mode"
 msgstr ""
 
 #: view/common/nav-menu.phtml:58
@@ -799,11 +589,11 @@ msgstr ""
 msgid "Title (Z–A)"
 msgstr ""
 
-#: view/common/header.phtml:74
+#: view/common/header.phtml:70
 msgid "To install this app, tap the Share button, then “Add to Home Screen”."
 msgstr ""
 
-#: view/common/header.phtml:82
+#: view/common/header.phtml:78
 msgid "Toggle dark mode"
 msgstr ""
 
@@ -815,7 +605,7 @@ msgstr ""
 msgid "Value"
 msgstr ""
 
-#: view/common/resource-values.phtml:135
+#: view/common/resource-values.phtml:136
 msgid "Value Annotations"
 msgstr ""
 
@@ -835,7 +625,7 @@ msgstr ""
 msgid "View all"
 msgstr ""
 
-#: view/omeka/site/index/search.phtml:91
+#: view/omeka/site/index/search.phtml:86
 msgid "View all results (%s total)"
 msgstr ""
 

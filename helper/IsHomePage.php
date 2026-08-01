@@ -8,11 +8,11 @@ use Laminas\View\Helper\AbstractHelper;
  *
  * This detection used to live inline in view/layout/layout.phtml, which meant
  * only the layout could ask the question. It now has two callers that must
- * agree, or the page grows a second <h1>:
+ * agree:
  *
  *   • common/banner.phtml — the home masthead carries the page <h1>.
- *   • common/block-layout/page-title.phtml — which therefore has to stand down
- *     on the home page. It cannot read the layout's local $isHome (Omeka
+ *   • common/block-layout/page-title.phtml — which has to stand down on the
+ *     home page. It cannot read the layout's local $isHome (Omeka
  *     renders the content before the layout), so it asks this helper instead.
  *
  * Detected from the request path — the home page is served at the site root

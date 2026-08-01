@@ -1,7 +1,7 @@
 # Africa Multiple — DRE · Omeka S theme
 
 [![latest release](https://img.shields.io/github/v/release/AM-Digital-Research-Environment/DRE-theme?label=release&color=009260&logo=git&logoColor=white)](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases/latest)
-[![Omeka S v4.2.0+](https://img.shields.io/badge/Omeka%20S-v4.2.0+-8a1f1f)](https://omeka.org/s/)
+[![Omeka S v4.2.1+](https://img.shields.io/badge/Omeka%20S-v4.2.1+-8a1f1f)](https://omeka.org/s/)
 [![PHP v8.1+](https://img.shields.io/badge/PHP-v8.1+-605F8E?logo=php&logoColor=white)](https://www.php.net/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-009260.svg)](LICENSE)
 
@@ -13,7 +13,7 @@ The **Digital Research Environment** theme for the [Africa Multiple Cluster of E
 
 - **Single-seed brand engine** — one Uni-Grün seed (`#009260`) drives every accent, hover, focus ring and tint via `color-mix(in oklab, …)`. Change the **Brand colour** setting and the whole theme re-tints, AA-legible in both modes.
 - **Light & dark modes** — respects the visitor’s system preference, with a manual sun/moon toggle that persists; a synchronous head-script prevents any flash of the wrong theme.
-- **Distinctive typography** — Spectral (display serif) + Hanken Grotesk (body/UI) served via **Bunny Fonts**, a privacy-first, GDPR-compliant mirror of Google Fonts (no IP logging) — relevant for an EU deployment.
+- **Distinctive typography** — Spectral (display serif) + Hanken Grotesk (body/UI), sourced from Bunny Fonts and **self-hosted by the theme**. No visitor request is made to a font CDN.
 - **Typographic masthead** — a photography-free masthead carried by *type and rule*, not a colour fill: eyebrow → display title → 3 px brand flag → lede → **search field**, over a hairline strip of corpus counts in tabular numerals. A researcher arrives with a question, so the first screen offers a field. Three **brand-presence** treatments — *quiet*, *balanced* (default), *bold* — are a token switch, not a rebuild. The earlier earth-tone wash is still available as an optional treatment. A slim title strip on interior pages. No image required.
 - **Records that read like records** — item metadata is rendered in named groups (Abstract · Description · Subjects · Origins & context · Rights & access · Identifiers & sources), never in database order, with subjects as chips and a sticky rail carrying citation, DOI, permalink and licence. Any property the theme hasn't been taught about lands in *Further details*, so nothing is ever hidden.
 - **Brand assets** — the Africa Multiple lockup (with an auto-generated dark-mode variant), institutional footer marks (University of Bayreuth + the Cluster), and [Lucide](https://lucide.dev/) icons.
@@ -25,7 +25,7 @@ The **Digital Research Environment** theme for the [Africa Multiple Cluster of E
 
 For out-of-the-box use, follow the [Omeka S manual on installing themes](https://omeka.org/s/docs/user-manual/sites/site_theme/#installing-themes): place this folder in your Omeka S `themes/` directory and select it for your site.
 
-For Sass development you’ll need [Node.js](https://nodejs.org/) (≥ 20). From the theme directory:
+For Sass and test development you’ll need [Node.js](https://nodejs.org/) ≥ 24.15. From the theme directory:
 
 ```bash
 npm install
@@ -45,7 +45,9 @@ Build toolchain: gulp 5, Dart Sass 1.x, gulp-postcss, autoprefixer.
 | `npm run lint:ini` | `theme.ini` structure, `.info` vs `.options.info`, dead `Zend\…` types, settings declared but never read, helper registration |
 | `npm run lint:templates` | `<?php`/`?>` and bracket balance, unresolved `partial()` paths, helper call sites whose casing doesn't match `theme.ini` |
 | `npm run lint:groups` | Every property of the live *Research Items* template lands in a named metadata group, and the ones the record design depends on (Author, Abstract, Subject, DOI…) land in the *right* one |
+| `npm run lint:js` | Every maintained `.js`/`.mjs` file parses with the supported Node runtime |
 | `npm run lint:php` | **Real `php -l`** over every `.php`/`.phtml`, then the theme's PHP tests |
+| `npm run test:unit` | jsdom behavior tests for dark mode, translated labels, storage failures, mobile navigation and the PWA manifest/install prompt |
 | `npm run i18n:check` | `language/template.pot` is up to date (regenerate with `npm run i18n:extract`) |
 
 ### PHP verification
@@ -65,14 +67,27 @@ winget install PHP.PHP.8.3
 ```
 
 `lint:templates` remains the no-PHP structural net (it catches a truncated file,
-not a mistyped `::`). It is a fallback for `lint:php`, not a substitute.
+heading-contract drift and retired integrations, not a mistyped `::`). It is a
+fallback for `lint:php`, not a substitute.
 
 **Syntax is not correctness.** A template can parse perfectly and still render
 the Author under “Further details”. That half is covered by `lint:groups` (data,
 runs anywhere) and `tests/ResourceGroupsTest.php` (logic, needs PHP) — both
 asserted against `tests/fixtures/research-items-template.json`, the real property
-list of the live template. Refresh it with `npm run fixtures:refresh` when the
-template changes.
+list of the live template. The helper and template contract suites also make
+every warning and deprecation fatal. CI validates discovery through Omeka S
+4.2.1's real theme manager on PHP 8.5. Refresh the fixture with
+`npm run fixtures:refresh` when the template changes. See
+[`docs/TESTING.md`](docs/TESTING.md) for the complete matrix and nightly smoke
+test.
+
+### Search integration
+
+Search and faceting are owned by the **DRE Search** Typesense module. Theme links
+go directly to `/s/{slug}/dre-search`; legacy Omeka item, item-set and media
+advanced-search routes return an HTTP 302 to that page. The former advanced-search
+partials, JavaScript and Sass—and the no-longer-installed Faceted Browse module
+override—are intentionally absent.
 
 ### Translations
 
@@ -113,9 +128,9 @@ With the **Progressive Web App** setting enabled (the default), the site becomes
 
 ## Design system
 
-The visual language — palette, the single-seed colour engine, typography, tokens, dark mode, components and maintenance recipes — is documented in **[`DESIGN.md`](DESIGN.md)**. The theme’s design tokens are also the shared contract for its sibling modules, **DRE-Search** and **ResourceVisualizations**, which consume them so they follow the brand and the light/dark toggle automatically — see [§9 “The module ecosystem”](DESIGN.md#9-the-module-ecosystem--search--visualizations).
+The visual language — palette, the single-seed colour engine, typography, tokens, dark mode, components and maintenance recipes — is documented in **[`DESIGN.md`](DESIGN.md)**. The theme’s design tokens are also the shared contract for its sibling modules, **DRE Search** and **DRE Visualizations**, which consume them so they follow the brand and the light/dark toggle automatically — see [§9 “The module ecosystem”](DESIGN.md#9-the-module-ecosystem--search--visualizations).
 
-**Upgrading to v2.22** — the token layer grew beyond colour (type, rhythm and layout families) and a handful of tokens were retired or renamed. Only one rename affects the modules: `--dre-hl-bg` → `--highlight-bg`, shipped with a deprecated alias for one minor and already updated in DRE-Search. The full register, with impact and mitigation per change, is in [`AUDIT.md` §4](AUDIT.md).
+**Upgrading to v2.22** — the token layer grew beyond colour (type, rhythm and layout families) and a handful of tokens were retired or renamed. Only one rename affects the modules: `--dre-hl-bg` → `--highlight-bg`, shipped with a deprecated compatibility alias and already updated in DRE Search. The full register, with impact and mitigation per change, is in [`AUDIT.md` §4](AUDIT.md).
 
 ## Credits
 

@@ -1,7 +1,7 @@
 /**
  * Reveal-on-scroll — the theme half of the DRE's shared arrival grammar.
  *
- * Mirrors ResourceVisualizations' `ns.revealOnScroll` (dashboard-core.js): one
+ * Mirrors DRE Visualizations' `ns.revealOnScroll` (dashboard-core.js): one
  * one-shot IntersectionObserver that fades + rises `[data-rv-reveal]` elements as
  * they enter the viewport, so resource cards (theme) and dashboard charts (module)
  * animate with the SAME motion vocabulary (design-review F11). The CSS does the

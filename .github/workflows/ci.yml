@@ -11,16 +11,24 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   css-and-contracts:
     name: CSS build + design contracts
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - run: npm ci
@@ -32,6 +40,12 @@ jobs:
 
       - name: Translations are up to date
         run: npm run i18n:check
+
+      - name: Browser-script unit tests
+        run: npm run test:unit
+
+      - name: Dependency audit
+        run: npm audit --audit-level=high
 
       # A stale asset/css/style.css is a real failure mode: the compiled CSS is
       # committed, so a Sass change that was never rebuilt ships the old styles.
@@ -46,6 +60,7 @@ jobs:
   php:
     name: PHP ${{ matrix.php }}
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -61,19 +76,16 @@ jobs:
         # 8.3 covers the middle.
         php: ['8.1', '8.3', '8.5']
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
           coverage: none
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
-          cache: npm
-
-      - run: npm ci
+          node-version: 24
 
       # --require turns the local "skip if no PHP" into a hard gate. Runs
       # `php -l` over every .php/.phtml under view/, helper/ and tests/, then
@@ -81,5 +93,38 @@ jobs:
       - name: PHP syntax + behaviour
         run: npm run lint:php:require
 
-      - name: Deprecation notices are failures, not warnings
-        run: php -d error_reporting=E_ALL -d display_errors=1 tests/ResourceGroupsTest.php
+  omeka-compatibility:
+    name: Omeka S 4.2.1 + PHP 8.5
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          coverage: none
+          extensions: mbstring, pdo_mysql, xml
+
+      - name: Validate Composer metadata
+        run: composer validate --strict --no-check-publish
+
+      - name: Download official Omeka S release
+        run: |
+          mkdir -p "$RUNNER_TEMP/omeka"
+          curl -fsSL "https://github.com/omeka/omeka-s/releases/download/v4.2.1/omeka-s-4.2.1.zip" -o "$RUNNER_TEMP/omeka.zip"
+          unzip -q "$RUNNER_TEMP/omeka.zip" -d "$RUNNER_TEMP/omeka"
+          OMEKA_ROOT="$(find "$RUNNER_TEMP/omeka" -maxdepth 2 -name bootstrap.php -printf '%h\n' -quit)"
+          test -n "$OMEKA_ROOT"
+          echo "OMEKA_ROOT=$OMEKA_ROOT" >> "$GITHUB_ENV"
+
+      - name: Install theme into Omeka
+        run: |
+          mkdir -p "$OMEKA_ROOT/themes/dre"
+          rsync -a --exclude='.git' --exclude='node_modules' ./ "$OMEKA_ROOT/themes/dre/"
+
+      - name: Discover theme through Omeka's theme manager
+        env:
+          OMEKA_PATH: ${{ env.OMEKA_ROOT }}
+          OMEKA_REPORT_DEPRECATED: '1'
+        run: php -d error_reporting=E_ALL -d display_errors=1 tests/OmekaCompatibilityTest.php

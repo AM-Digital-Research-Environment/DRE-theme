@@ -3,8 +3,8 @@ $siteTitle = $site->title();
 $userBar = $this->userBar();
 
 // Is this the site's home page? Chooses the full masthead vs. the slim strip and
-// lets the masthead own the page <h1> (the header drops to a plain home link
-// there). The detection lives in helper/IsHomePage.php because the page-title
+// lets the masthead own the page <h1>. The detection lives in
+// helper/IsHomePage.php because the page-title
 // block needs the same answer and cannot read a local from this file — Omeka
 // renders the content before the layout.
 $isHome = $this->IsHomePage();
@@ -24,7 +24,10 @@ $this->htmlElement('body')->setAttribute('data-brand', $brandPresence);
 // --primary-base seed via color-mix(in oklab, …). PHP only injects the seed
 // (defaulting to Uni-Grün) plus a contrast-safe label colour. Changing the
 // "Brand colour" in theme settings re-tints the entire palette automatically.
-$primaryColor = $this->themeSetting('primary_color') ?: '#009260';
+$primaryColor = (string) ($this->themeSetting('primary_color') ?: '#009260');
+if (!preg_match('/^#[0-9a-f]{6}$/i', $primaryColor)) {
+    $primaryColor = '#009260';
+}
 
 // ===== Installable PWA ====================================================
 // Build a per-site Web App Manifest in PHP and emit it as a JSON island in
@@ -83,7 +86,7 @@ if ($pwaEnabled) {
                 [
                     'name' => $this->translate('Search'),
                     'short_name' => $this->translate('Search'),
-                    'url' => $this->url('site/resource', ['site-slug' => $slug, 'controller' => 'item', 'action' => 'search'], ['force_canonical' => true]),
+                    'url' => $this->DreSearchUrl(),
                     'icons' => $shortcutIcon,
                 ],
             ];
@@ -145,8 +148,8 @@ $this->headTitle()->append($this->setting('installation_title', 'Omeka S'));
 $this->headLink()->prependStylesheet($this->assetUrl('css/style.css'));
 // NOTE: Omeka core's FontAwesome webfont (css/iconfonts.css + fa-solid-900.woff2,
 // ~91 KiB/page) is intentionally NOT loaded. The theme draws all of its icons as
-// inline Lucide-style SVG (see asset/img/*.svg and the svg-icon mask mixin
-// in _mixins.scss); the few former FA ::before/::after
+// inline Lucide-style SVG and the svg-icon mask mixin in _mixins.scss; the few
+// former FA ::before/::after
 // glyphs (checkbox tick, menu chevrons, carousel arrows, ToC markers) are now
 // painted with that mask. Omeka's public user bar uses its own user-bar.css and
 // no icon font. If a future module needs FA glyphs, re-add the line below.
@@ -161,29 +164,14 @@ $this->headLink()->prependStylesheet($this->assetUrl('css/style.css'));
 // 400/600/700/800 + italic 400, and Hanken Grotesk (body/UI sans) 400/500/600/700 +
 // italic 400, latin + latin-ext subsets. To add a weight/style: drop its woff2 in
 // asset/fonts/ and add a @font-face to _fonts.scss (then rebuild).
-// jQuery + Omeka core global.js, in the head on every public page.
-//
-// AUDIT (design-review F9, "drop jQuery if nothing public calls $"): the
-// precondition is NOT met — public pages call `$` SYNCHRONOUSLY, so jQuery must
-// stay loaded (and in <head>, before those inline scripts). The dependencies:
-//   • Omeka core `global.js` — the advanced-search form: add/remove-value
-//     (`.value.clone()`), query-type input disabling, and the pre-submit
-//     `cleanSearchQuery()` (search-correctness critical), plus expand/collapse.
-//   • Omeka core `common/advanced-search.phtml` — an inline
-//     `<script>Omeka.prepareSearchForm($('#advanced-search'));</script>` that
-//     runs during parse, so deferring jQuery would throw `$ is not defined`.
-//   • This theme's `common/advanced-search/item-sets.phtml` — an inline
-//     `$('#content').on('change', …)` handler.
-// Our OWN public scripts (navigation.js, theme-toggle.js, back-to-top.js, …) are
-// all vanilla, and the sibling modules (DRE-Search/Svelte, ResourceVisualizations)
-// are jQuery-free. So the only blocker is the core advanced-search form. Dropping
-// (or deferring) jQuery therefore requires first reimplementing that form's JS in
-// vanilla — out of scope for a P3 perf item; re-run this audit before retrying.
+// jQuery + Omeka core global.js stay available for core and third-party module
+// templates. Theme-authored scripts are dependency-free; legacy advanced-search
+// routes now redirect to the DRE Search module.
 $this->headScript()->prependFile($this->assetUrl('js/global.js', 'Omeka'));
 $this->headScript()->prependFile($this->assetUrl('vendor/jquery/jquery.min.js', 'Omeka'));
 $this->jsTranslate();
 
-// DRESearch module: inject the Typesense search bundle into <head> here (before
+// DRE Search module: inject the Typesense search bundle into <head> here (before
 // the head is rendered below), so the header search bar — which renders later as
 // layout chrome — has the bundle. Guarded so the theme works without the module.
 if ($this->getHelperPluginManager()->has('dreSearchAssets')) {
@@ -278,9 +266,9 @@ if ($userBar) {
 
 		<?php echo $this->partial('common/banner', ['site' => $site, 'isHome' => $isHome]); ?>
 
-		<div id="content" class="container" role="main" tabindex="-1">
+		<main id="content" class="container" tabindex="-1">
 			<?php echo $this->content; ?>
-		</div>
+		</main>
 
 		<?php echo $this->partial('common/footer', ['site' => $site]); ?>
 

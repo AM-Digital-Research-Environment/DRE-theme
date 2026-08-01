@@ -1,0 +1,28 @@
+<?php
+/**
+ * Redirect legacy Omeka advanced-search endpoints to DRE Search.
+ *
+ * Theme view scripts are rendered before the layout is emitted, so the normal
+ * path can still send an HTTP Location header. The small HTML/JS fallback only
+ * appears if another extension sent output prematurely.
+ */
+$translate = $this->plugin('translate');
+$target = $this->DreSearchUrl();
+
+if ($target !== '' && !headers_sent()) {
+    header('Location: ' . $target, true, 302);
+    exit;
+}
+
+$this->headTitle($translate('Search the collection'));
+?>
+<h1><?php echo $this->escapeHtml($translate('Search the collection')); ?></h1>
+<?php if ($target !== ''): ?>
+    <p><?php echo sprintf(
+        $this->escapeHtml($translate('Continue to %s.')),
+        $this->hyperlink($translate('DRE Search'), $target)
+    ); ?></p>
+    <script>window.location.replace(<?php echo json_encode($target, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>);</script>
+<?php else: ?>
+    <p><?php echo $this->escapeHtml($translate('Search is temporarily unavailable.')); ?></p>
+<?php endif; ?>
