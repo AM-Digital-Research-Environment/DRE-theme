@@ -10,6 +10,7 @@ if (!defined('OMEKA_PATH')) {
     define('OMEKA_PATH', $omekaPath);
 }
 require $omekaPath . '/vendor/autoload.php';
+require_once $omekaPath . '/application/Module.php';
 require_once __DIR__ . '/bootstrap.php';
 
 use Laminas\ServiceManager\ServiceManager;

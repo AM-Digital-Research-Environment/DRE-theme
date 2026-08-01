@@ -14,14 +14,14 @@ $failures = [];
 $checks = 0;
 
 $contrast = new ContrastColor();
-dre_check($failures, $checks, 'white wins against the brand green',
-    $contrast('#009260', ['#ffffff', '#1a1a1a']) === '#ffffff');
+dre_check($failures, $checks, 'near-black wins against the brand green',
+    $contrast('#009260', ['#ffffff', '#1a1a1a']) === '#1a1a1a');
 dre_check($failures, $checks, 'three-digit colours are normalized',
     $contrast('#fff', ['#000']) === '#000000');
 dre_check($failures, $checks, 'invalid candidates are ignored',
     $contrast('#ffffff', ['not-a-color', '#000000']) === '#000000');
 dre_check($failures, $checks, 'invalid base input falls back safely',
-    $contrast('var(--hostile)', ['#ffffff', '#1a1a1a']) === '#ffffff');
+    $contrast('var(--hostile)', ['#ffffff', '#1a1a1a']) === '#1a1a1a');
 
 $params = new class {
     public string $view = 'list';
