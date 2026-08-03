@@ -1,15 +1,18 @@
 <?php
 /**
- * Site masthead — typographic.
+ * Site masthead — a deep plate carrying the headline and the catalogue.
  *
- * Photography-free, and carried by type and rule rather than a colour fill:
- * eyebrow → display title → 3px brand flag → lede → SEARCH FIELD, over a
- * hairline strip of corpus counts in tabular numerals. The old earth-tone wash
- * is still available (the "Banner wash" setting) but is no longer the page's
- * only visual idea.
+ * Photography-free, and carried by type, rule and ground rather than an image:
+ * gold flag rule → eyebrow → display title → lede → two text links, beside a
+ * sunken "In AMIRA" column that lists what the archive actually holds.
  *
- *  • Home  → the full masthead; carries the page <h1> and the search field.
+ *  • Home  → the full masthead; carries the page <h1> and the catalogue column.
  *  • Other → a slim strip that keeps the site title visible across the site.
+ *
+ * The corpus counts used to sit BELOW the masthead as eleven bordered cells.
+ * They are the same figures, but as a hairline catalogue beside the headline
+ * they read as an index and give the visitor a way in — each row is a link to
+ * its authority page, not a KPI.
  *
  * Brand presence (quiet / balanced / bold) is a token switch handled entirely
  * in CSS via data-brand on <body> — see abstracts/variables/_colors.scss. This
@@ -42,19 +45,19 @@ $eyebrow = $this->themeSetting('banner_eyebrow');
 if ($eyebrow === null) {
     $eyebrow = $translate('Digital Research Environment');
 }
-$tagline     = $this->themeSetting('banner_description');
-$buttonLabel = $this->themeSetting('banner_button_label');
-$buttonLink  = $this->themeSetting('banner_button_link');
+$tagline = $this->themeSetting('banner_description');
 
-// The optional pre-2.22 wash. Off by default: the masthead is typographic now.
+// The optional pre-2.22 wash. Off by default: the masthead is a plate now.
 $showWash = in_array((string) $this->themeSetting('banner_wash', '0'), ['1'], true);
 
 $variant = $isHome ? 'home' : 'page';
 
 // ===== Search =============================================================
-// The first screen has to offer a field. Target the federated search when the
-// DRE Search module is installed (its Svelte client reads ?q=), and core item
-// browse otherwise (?fulltext_search=), so the masthead works on a bare theme.
+// The header owns the primary search field from $xl up, where it fills the
+// centre of tier 1. Below that breakpoint it collapses to a magnifier button
+// (see components/header/_header.scss `&__search { display: none }`), so the
+// masthead still renders a real field and CSS hides it at $xl+ — the first
+// screen always offers somewhere to type, and never two fields at once.
 $searchAction = null;
 $searchParam  = 'fulltext_search';
 $hasDreSearch = $this->getHelperPluginManager()->has('dreSearchAssets');
@@ -75,15 +78,34 @@ if ($isHome) {
     }
 }
 
-// The CTA is now secondary to the search field, so it only renders when an
-// admin has explicitly set a link — no auto-default to /dre-search any more
-// (that is what the field itself does).
+// ===== Hero links =========================================================
+// Two optional text links under the lede — underlined, gold arrow, no filled
+// button. The masthead's job is to point at the two things a visitor most
+// often wants (the records, and the visualisations); a solid CTA competed with
+// the catalogue column for the same attention. Both are empty by default.
+// Link 1 keeps its pre-2.24 label fallback so existing installs are unchanged;
+// link 2 is new and only renders when an admin sets both fields.
+$heroLinks = [];
+$buttonLink = trim((string) $this->themeSetting('banner_button_link', ''));
+if ($buttonLink !== '') {
+    $heroLinks[] = [
+        'href'  => $buttonLink,
+        'label' => $this->themeSetting('banner_button_label') ?: $translate('Explore the collection'),
+    ];
+}
+$buttonLink2  = trim((string) $this->themeSetting('banner_button2_link', ''));
+$buttonLabel2 = trim((string) $this->themeSetting('banner_button2_label', ''));
+if ($buttonLink2 !== '' && $buttonLabel2 !== '') {
+    $heroLinks[] = ['href' => $buttonLink2, 'label' => $buttonLabel2];
+}
 
-// Optional standing note beside the headline ("Open access", licensing, …).
+// Optional standing note ("Open access", licensing, how to cite). It used to
+// own the right-hand column; the catalogue does now, so the note stacks beneath
+// it. Nothing is dropped — an install that set it still shows it.
 $asideTitle = trim((string) $this->themeSetting('banner_aside_title', ''));
 $asideText  = trim((string) $this->themeSetting('banner_aside_text', ''));
 
-// Home-only corpus-count strip. All the sourcing (cache → module precompute →
+// Home-only corpus counts. All the sourcing (cache → module precompute →
 // Omeka API fallback) and its error handling live in helper/CollectionStats.php
 // — it returns [] on any hiccup, so the masthead still renders.
 $stats = [];
@@ -91,6 +113,10 @@ $showStats = $isHome
     && !in_array((string) $this->themeSetting('banner_show_stats', '1'), ['0', ''], true);
 if ($showStats) {
     $stats = $this->CollectionStats($site ? $site->id() : null);
+}
+$statsTitle = trim((string) $this->themeSetting('banner_stats_title', ''));
+if ($statsTitle === '') {
+    $statsTitle = $translate('In the collection');
 }
 
 // Locale-aware thousands separators. number_format() is locale-blind — it always
@@ -106,6 +132,24 @@ $formatNumber = static function ($value): string {
     }
     return number_format((int) $value);
 };
+
+// Each catalogue row links to its authority page. Resource Types has none and
+// stays a plain row rather than a dead link.
+$statLinks = [
+    'researchItems' => 'research-items',
+    'projects'      => 'research-projects',
+    'people'        => 'people',
+    'organisations' => 'organisations',
+    'locations'     => 'locations',
+    'languages'     => 'languages',
+    'subjectsTags'  => 'subjects-tags',
+    'publications'  => 'publications',
+    'podcasts'      => 'podcasts',
+    'youtube'       => 'youtube-videos',
+];
+$siteBase = $site ? rtrim((string) $site->url(), '/') : '';
+
+$hasColumn = $isHome && ($stats || $asideTitle || $asideText);
 ?>
 <div class="site-banner site-banner--<?php echo $variant; ?>">
     <?php if ($showWash): ?>
@@ -114,9 +158,14 @@ $formatNumber = static function ($value): string {
     <?php endif; ?>
 
     <?php if ($isHome): ?>
-    <div class="container site-banner__inner">
+    <div class="container site-banner__inner<?php echo $hasColumn ? ' site-banner__inner--split' : ''; ?>">
         <div class="site-banner__lead">
             <div class="site-banner__headline">
+                <?php // The gold flag now OPENS the masthead rather than dividing
+                      // title from lede: it is the plate's one accent and it marks
+                      // where the band begins. ?>
+                <div class="site-banner__flag" aria-hidden="true"></div>
+
                 <?php if ($eyebrow): ?>
                     <p class="site-banner__eyebrow"><?php echo $escHtml($eyebrow); ?></p>
                 <?php endif; ?>
@@ -125,82 +174,71 @@ $formatNumber = static function ($value): string {
                       // stands down here (see common/block-layout/page-title). ?>
                 <h1 class="site-banner__title"><?php echo $escHtml($heading); ?></h1>
 
-                <div class="site-banner__flag" aria-hidden="true"></div>
-
                 <?php if ($tagline): ?>
                     <p class="site-banner__lede"><?php echo nl2br($escHtml($tagline)); ?></p>
                 <?php endif; ?>
+
+                <?php if ($heroLinks): ?>
+                    <p class="site-banner__links">
+                        <?php foreach ($heroLinks as $link): ?>
+                            <a class="site-banner__link" href="<?php echo $escAttr($link['href']); ?>">
+                                <?php echo $escHtml($link['label']); ?>
+                                <span class="site-banner__link-arrow" aria-hidden="true">&rarr;</span>
+                            </a>
+                        <?php endforeach; ?>
+                    </p>
+                <?php endif; ?>
             </div>
 
+            <?php // Deliberately OUTSIDE __headline: the headline is staggered on
+                  // arrival, and the field must be usable the instant it paints. ?>
+            <?php if ($searchAction): ?>
+                <form class="site-banner__search" role="search" method="GET" action="<?php echo $escAttr($searchAction); ?>">
+                    <label class="sr-only" for="site-banner-search"><?php echo $escHtml($translate('Search the collection')); ?></label>
+                    <input class="site-banner__search-input" type="search" id="site-banner-search"
+                        name="<?php echo $escAttr($searchParam); ?>"
+                        placeholder="<?php echo $escAttr($translate('Search records, people, places, subjects…')); ?>">
+                    <button class="site-banner__search-submit" type="submit"><?php echo $escHtml($translate('Search')); ?></button>
+                </form>
+            <?php endif; ?>
+        </div>
+
+        <?php if ($hasColumn): ?>
+        <?php // The catalogue column — what is IN the archive, as an index. The
+              // hairlines are real borders here (one column, no wrapping), so
+              // they can't dangle the way a wrapping grid's gap rules would. ?>
+        <aside class="site-banner__column">
+            <?php if ($stats): ?>
+                <div class="site-banner__catalogue">
+                    <h2 class="site-banner__catalogue-title"><?php echo $escHtml($statsTitle); ?></h2>
+                    <div class="site-banner__catalogue-list">
+                        <?php foreach ($stats as $s):
+                            $slug = (!empty($s['k']) && !empty($statLinks[$s['k']])) ? $statLinks[$s['k']] : null;
+                            $href = ($slug && $siteBase !== '') ? $siteBase . '/page/' . $slug : null;
+                            $tag  = $href ? 'a' : 'div';
+                        ?>
+                            <<?php echo $tag; ?> class="site-banner__entry"<?php echo $href ? ' href="' . $escAttr($href) . '"' : ''; ?>>
+                                <span class="site-banner__entry-label"><?php echo $escHtml($s['l']); ?><?php if (!empty($s['s'])): ?> <span class="site-banner__entry-sub"><?php echo $escHtml($s['s']); ?></span><?php endif; ?></span>
+                                <span class="site-banner__entry-num"><?php echo $escHtml($formatNumber($s['n'])); ?></span>
+                            </<?php echo $tag; ?>>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+
             <?php if ($asideTitle || $asideText): ?>
-                <aside class="site-banner__aside">
+                <div class="site-banner__aside">
                     <?php if ($asideTitle): ?>
                         <p class="site-banner__aside-title"><?php echo $escHtml($asideTitle); ?></p>
                     <?php endif; ?>
                     <?php if ($asideText): ?>
                         <p class="site-banner__aside-text"><?php echo nl2br($escHtml($asideText)); ?></p>
                     <?php endif; ?>
-                </aside>
+                </div>
             <?php endif; ?>
-        </div>
-
-        <?php if ($searchAction): ?>
-            <form class="site-banner__search" role="search" method="GET" action="<?php echo $escAttr($searchAction); ?>">
-                <label class="sr-only" for="site-banner-search"><?php echo $escHtml($translate('Search the collection')); ?></label>
-                <input class="site-banner__search-input" type="search" id="site-banner-search"
-                    name="<?php echo $escAttr($searchParam); ?>"
-                    placeholder="<?php echo $escAttr($translate('Search records, people, places, subjects…')); ?>">
-                <button class="site-banner__search-submit" type="submit"><?php echo $escHtml($translate('Search')); ?></button>
-            </form>
-            <?php if ($stats): ?>
-                <p class="site-banner__search-note"><?php echo $escHtml($translate('Or browse a corpus below — each has its own filters.')); ?></p>
-            <?php endif; ?>
-        <?php endif; ?>
-
-        <?php if ($buttonLink): ?>
-            <p class="site-banner__cta-row">
-                <a class="button site-banner__cta" href="<?php echo $escAttr($buttonLink); ?>">
-                    <?php echo $escHtml($buttonLabel ?: $translate('Explore the collection')); ?>
-                    <svg class="site-banner__cta-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                </a>
-            </p>
+        </aside>
         <?php endif; ?>
     </div>
-
-    <?php // Corpus counts — a hairline strip, not eleven bordered cards. The
-          // hairlines are the grid's 1px gaps (see _banner.scss), so they never
-          // dangle whatever the set size or wrap. Each cell links to its
-          // authority page; Resource Types has none and stays a <div>. ?>
-    <?php if ($stats):
-        $statLinks = [
-            'researchItems' => 'research-items',
-            'projects'      => 'research-projects',
-            'people'        => 'people',
-            'organisations' => 'organisations',
-            'locations'     => 'locations',
-            'languages'     => 'languages',
-            'subjectsTags'  => 'subjects-tags',
-            'publications'  => 'publications',
-            'podcasts'      => 'podcasts',
-            'youtube'       => 'youtube-videos',
-        ];
-        $siteBase = $site ? rtrim((string) $site->url(), '/') : '';
-    ?>
-    <div class="site-banner__stats">
-        <div class="container site-banner__stats-grid">
-            <?php foreach ($stats as $s):
-                $slug = (!empty($s['k']) && !empty($statLinks[$s['k']])) ? $statLinks[$s['k']] : null;
-                $href = ($slug && $siteBase !== '') ? $siteBase . '/page/' . $slug : null;
-                $tag  = $href ? 'a' : 'div';
-            ?>
-                <<?php echo $tag; ?> class="site-banner__stat"<?php echo $href ? ' href="' . $escAttr($href) . '"' : ''; ?>>
-                    <span class="site-banner__stat-num"><?php echo $escHtml($formatNumber($s['n'])); ?><?php if (!empty($s['s'])): ?> <span class="site-banner__stat-sub"><?php echo $escHtml($s['s']); ?></span><?php endif; ?></span>
-                    <span class="site-banner__stat-label"><?php echo $escHtml($s['l']); ?></span>
-                </<?php echo $tag; ?>>
-            <?php endforeach; ?>
-        </div>
-    </div>
-    <?php endif; ?>
 
     <?php else: ?>
     <?php // Interior: a slim strip. The title is a <p>, never a second <h1> —

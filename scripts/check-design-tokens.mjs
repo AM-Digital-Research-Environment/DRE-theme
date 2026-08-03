@@ -199,10 +199,16 @@ checkPairs('dark', dark, INKS, SURFACES);
 checkPairs('light footer', light, ['--footer-text', '--footer-text-muted'], ['--footer-surface', '--footer-surface-alt']);
 checkPairs('dark footer', dark, ['--footer-text', '--footer-text-muted'], ['--footer-surface', '--footer-surface-alt']);
 
-// Brand presence C paints a masthead ground of its own; its type must clear AA
-// on it, or "bold" would be the one treatment that fails the contract.
-checkPairs('brand=bold light', boldLight, ['--masthead-ink', '--masthead-ink-soft'], ['--masthead-bg']);
-checkPairs('brand=bold dark', boldDark, ['--masthead-ink', '--masthead-ink-soft'], ['--masthead-bg']);
+// Brand presence C paints TWO masthead grounds of its own — the band and the
+// sunken catalogue column — and since 2.24 it is the default, so this is the
+// masthead nearly every visitor sees. Its type must clear AA on both, or the
+// default treatment would be the one that fails the contract. --numeral is in
+// the ink list because the catalogue's figures are its content, not decoration;
+// --masthead-rule is deliberately absent (a 3px rule is non-text, WCAG 1.4.11).
+const BOLD_INKS = ['--masthead-ink', '--masthead-ink-soft', '--numeral'];
+const BOLD_GROUNDS = ['--masthead-bg', '--masthead-sunken'];
+checkPairs('brand=bold light', boldLight, BOLD_INKS, BOLD_GROUNDS);
+checkPairs('brand=bold dark', boldDark, BOLD_INKS, BOLD_GROUNDS);
 
 if (findings.length) {
   console.error(`Design-token contract: ${findings.length} finding(s)\n`);

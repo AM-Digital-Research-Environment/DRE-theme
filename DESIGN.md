@@ -20,7 +20,7 @@ is the single reference for how the system is put together and how to maintain i
 | **Use** | Browsing, searching and reading an Omeka S archive (items, item sets, media, exhibits) — often long reading sessions, sometimes at night. |
 | **Tone** | Scholarly, warm, authoritative, unfussy. Earthy not corporate; precise not flashy. |
 | **Theme** | Light by default, dark on request — the visitor’s OS preference is respected, with a manual toggle that persists. |
-| **Imagery** | None. Photography-free by policy: mastheads are typographic (type + rule + numerals). Item media is content, not decoration. |
+| **Imagery** | None. Photography-free by policy: mastheads are carried by type, rule and ground (no photo, no wash by default). Item media is content, not decoration. |
 
 ---
 
@@ -81,7 +81,7 @@ without magic numbers.
 | Surfaces | `--surface` `--surface-raised` `--surface-sunken` `--background` |
 | Lines | `--border-light` `--border` `--border-strong` |
 | Brand | `--primary` `--primary-hover` `--primary-active` `--primary-muted` `--primary-text` `--primary-contrast` · `--accent*` |
-| Masthead roles | `--masthead-bg/-ink/-ink-soft/-rule/-hair/-field-bg/-field-border` · `--flag` `--numeral` `--cta-bg` `--cta-ink` |
+| Masthead roles | `--masthead-bg/-ink/-ink-soft/-rule/-hair/-sunken/-field-bg/-field-border` · `--flag` `--numeral` `--cta-bg` `--cta-ink` |
 | State | `--success` `--warning` `--error` `--info` (+ `*-bg`) |
 | Links | `--link` `--link-hover` |
 | Highlight | `--highlight-bg` (found-term wash; `--dre-hl-bg` is a deprecated alias) |
@@ -261,29 +261,47 @@ theme-aware in one move. Notable bespoke work:
   one row (half-screen windows, long menus, large fonts) collapses to the
   hamburger/drawer instead of wrapping. Every desktop-menu rule is gated on
   `:not([data-nav="drawer"])`; without JS the old wrap is the fallback.
-- **Masthead — typographic** — photography-free, and carried by type and rule
-  rather than a colour fill: eyebrow → display title (Spectral, `--text-4xl`) →
-  3 px brand flag → lede at `--measure-narrow` → **search field**, over a
-  hairline strip of corpus counts in tabular numerals. A researcher arrives with
-  a question, so the first screen has to offer a field; before v2.22 the home
-  page had none above the fold. Two variants from one partial
-  (`common/banner.phtml`): the full masthead on the home page, and a **slim
-  strip** elsewhere that keeps the site title present site-wide (toggle: *Show
-  banner on interior pages*). The old three-stop earth-tone wash remains
+- **Masthead — the deep plate** — photography-free, and carried by type, rule
+  and *ground*: a gold 3 px flag → eyebrow → display title (Spectral, capped at
+  50 px) → lede at `--measure-narrow` → two text links, beside a **sunken
+  catalogue column** listing what the archive holds. Two variants from one
+  partial (`common/banner.phtml`): the full masthead on the home page, and a
+  **slim strip** elsewhere that keeps the site title present site-wide (toggle:
+  *Show banner on interior pages*). The old three-stop earth-tone wash remains
   available as an optional treatment (*Show the earth-tone wash*, off by
   default) but is no longer the page's only visual idea — it had to work behind
   both a tall hero and a slim strip, so it settled into a generic coloured header
   that carried no information.
 
+  **The band does not follow `--surface`.** Under the pre-2.24 default it did,
+  which put a 99.2 % L band on a 97.4 % L page: a 1.8 % step, so the masthead had
+  no edge and read as empty space above the content. The band, the sunken column
+  and the hairline are one authored triplet in *both* schemes, and gold is the
+  single accent — the flag rule, the link arrows and the catalogue numerals,
+  nothing else.
+
+  The **catalogue column** answers what is *in* the archive rather than carrying
+  a standing note: the same corpus counts that used to sit below the masthead,
+  now as hairline rows of label + gold tabular numeral, each linking to its
+  authority page. As an index it gives the visitor a way in; as a KPI strip it
+  only kept score. The standing note (*Masthead note*) stacks beneath it.
+
+  The masthead no longer carries its own search field above `$xl`, where the
+  header's field fills the centre of tier 1 — two fields on one screen is one
+  too many. Below `$xl` the header search collapses to a magnifier button, so
+  the masthead renders a real field and the first screen always offers somewhere
+  to type.
+
   Three **brand-presence** treatments are expressed purely through the
   `--masthead-*` / `--flag` / `--numeral` / `--cta-*` role tokens — *quiet*
-  (stone ground, green on interactive only), *balanced* (flags, rules and CTA in
-  Uni-Grün — the default), *bold* (deep Uni-Grün ground, cream type) — so the
-  choice is a token switch, not a rebuild. `lint:tokens` checks all three for AA.
-  Home detection lives in `helper/IsHomePage.php` (route `site`, or `site/page`
-  matching `homepage()`) because the page-title block needs the same answer.
-  Copy comes from the **Banner** theme settings and falls back to the site title,
-  so the masthead is meaningful out of the box.
+  (stone ground, green on interactive only), *balanced* (the band follows the
+  page surface, flags and CTA in Uni-Grün), *bold* (the deep plate — the
+  default since 2.24) — so the choice is a token switch, not a rebuild.
+  `lint:tokens` checks all three for AA. Home detection lives in
+  `helper/IsHomePage.php` (route `site`, or `site/page` matching `homepage()`)
+  because the page-title block needs the same answer. Copy comes from the
+  **Banner** theme settings and falls back to the site title, so the masthead is
+  meaningful out of the box.
 - **Footer** — one deep-forest band (`--footer-*`): an asymmetric masthead
   pairing a brand-identity block (title in Spectral + description, with inline
   `currentColor` social icons that recolour on the dark band) against the
@@ -473,8 +491,10 @@ matched to the theme's warm-stone (light) and forest-dark (dark) surfaces:
   wherever the masthead already states the page's title.
 - **Eleven bordered, shadowed, hover-lifting stat cards** under the hero — a lot
   of chrome for eleven numbers, competing with the hero it was meant to ground →
-  a hairline strip of tabular numerals. (The shared `.rv-stat-card` look is still
-  right *inside* a dashboard.)
+  a hairline strip of tabular numerals (v2.22), then the **catalogue column**
+  beside the headline (v2.24), where the same figures read as an index rather
+  than a scoreboard. (The shared `.rv-stat-card` look is still right *inside* a
+  dashboard.)
 
 ---
 

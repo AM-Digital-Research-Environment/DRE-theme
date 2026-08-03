@@ -109,11 +109,18 @@ function* filesUnder(dir, exts) {
 }
 
 // Allow whitespace inside the parens: themeSetting( 'x' ) is used too.
+//
+// The character class MUST match the one the element scan uses above
+// ([A-Za-z0-9_]+). It was [a-z_]+, which cannot see a digit — so the first
+// setting with a number in its name (banner_button2_link) was read normally by
+// the template and still reported as a dead admin field. A name the declare
+// side accepts and the read side cannot express is a false positive by
+// construction.
 const readNames = new Set();
 for (const dir of ['view', 'helper']) {
     for (const file of filesUnder(join(ROOT, dir), ['.phtml', '.php'])) {
         const src = readFileSync(file, 'utf8');
-        for (const m of src.matchAll(/themeSetting\(\s*['"]([a-z_]+)['"]/g)) {
+        for (const m of src.matchAll(/themeSetting\(\s*['"]([A-Za-z0-9_]+)['"]/g)) {
             readNames.add(m[1]);
         }
     }

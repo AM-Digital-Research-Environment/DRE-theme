@@ -1,22 +1,25 @@
 @use "../../abstracts" as *;
 
 // ==========================================================================
-// Site masthead — typographic
+// Site masthead — the deep plate
 //
-// Photography-free, and now carried by TYPE AND RULE rather than a colour
-// fill. Before this revision the masthead was a single 108° three-stop wash and
-// nothing else: it had to work behind both a tall hero and a slim strip, so it
-// settled into a generic coloured header that carried no information. The wash
-// survives as an OPTIONAL treatment (the `banner_wash` setting); the default
-// masthead is eyebrow → display title → flag rule → lede → SEARCH FIELD, over a
-// hairline strip of corpus counts in tabular numerals.
+// Photography-free, and carried by TYPE, RULE AND GROUND. Two revisions ago
+// this was a single 108° three-stop wash; v2.22 replaced it with type on the
+// page surface, which fixed the information problem but created a new one — the
+// band resolved to --surface (99.2% L) on a 97.4% L page, an 1.8% step, so the
+// masthead had no edge and read as empty space above the content.
 //
-// How much Uni-Grün it shows is a token switch, not a rebuild: every colour
-// here comes from a --masthead-* / --flag / --numeral / --cta-* role token, and
-// the three brand-presence treatments (quiet / balanced / bold) simply
-// redefine those. See abstracts/variables/_colors.scss.
+// It is a plate now: an authored ground that does NOT follow --surface, in both
+// schemes. The layout is a gold flag rule → eyebrow → display title → lede →
+// two text links, beside a SUNKEN CATALOGUE COLUMN listing what the archive
+// holds. The wash survives as an optional treatment (`banner_wash`).
 //
-//   .site-banner--home  → the full masthead: hero + search + count strip
+// How much Uni-Grün it shows is still a token switch, not a rebuild: every
+// colour here comes from a --masthead-* / --numeral / --cta-* role token, and
+// the three brand-presence treatments (quiet / balanced / bold — bold is the
+// default) simply redefine those. See abstracts/variables/_colors.scss.
+//
+//   .site-banner--home  → the full masthead: hero + catalogue column
 //   .site-banner--page  → slim strip, single concern: keep the title in view
 // ==========================================================================
 
@@ -89,18 +92,20 @@
     text-wrap: balance;
 }
 
-// The brand flag — a short 3px rule between title and lede. This, the header's
-// top rule and the section rules are the theme's brand signature now; under
-// brand-presence "quiet" they all desaturate to --border-strong together.
+// The brand flag — a short 3px rule that OPENS the masthead (it used to divide
+// title from lede). On the plate it is the one accent, and it marks where the
+// band begins. This, the header's top rule and the section rules are the
+// theme's brand signature; under brand-presence "quiet" they all desaturate to
+// --border-strong together.
 .site-banner__flag {
     width: 6rem;
     height: var(--accent-line-md);
-    margin: var(--space-8) 0 var(--space-6);
+    margin: 0 0 var(--space-6);
     background-color: var(--masthead-rule);
 }
 
 .site-banner__lede {
-    margin: 0;
+    margin: var(--space-6) 0 0;
     font-family: var(--font-body);
     font-size: var(--text-lg);
     line-height: var(--leading-normal);
@@ -109,52 +114,216 @@
     text-wrap: pretty;
 }
 
-.site-banner__cta {
-    align-self: flex-start;
-    margin-top: var(--space-6);
+// --------------------------------------------------------------------------
+// Hero links — the two things a visitor most often wants, as underlined text
+// with a gold arrow rather than a filled button. A solid CTA competed with the
+// catalogue column for the same attention, and on the plate a white pill reads
+// as a second masthead.
+// --------------------------------------------------------------------------
+.site-banner__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-8);
+    margin: var(--space-8) 0 0;
+}
 
-    .site-banner__cta-arrow {
-        transition: transform var(--transition-fast);
-    }
+// `a.` throughout: base/elements/_links.scss styles a:visited / a:hover at
+// (0,1,1), which a bare class (0,1,0) would lose to.
+a.site-banner__link {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--masthead-ink);
+    text-decoration: none;
+    // An inset shadow rather than an underline: it sits clear of the descenders
+    // and can be tinted independently of the text.
+    box-shadow: inset 0 -1px 0 0 color-mix(in oklab, var(--masthead-ink) 45%, transparent);
+    transition: box-shadow var(--transition-fast);
+}
 
-    &:hover .site-banner__cta-arrow {
+a.site-banner__link:hover,
+a.site-banner__link:active {
+    color: var(--masthead-ink);
+    box-shadow: inset 0 -2px 0 0 var(--masthead-rule);
+}
+
+.site-banner__link-arrow {
+    font-size: var(--text-sm);
+    color: var(--masthead-rule);
+    transition: transform var(--transition-fast);
+}
+
+@media (hover: hover) {
+    a.site-banner__link:hover .site-banner__link-arrow {
         transform: translateX(2px);
     }
 }
 
 // --------------------------------------------------------------------------
-// Home masthead
+// Home masthead — hero beside the catalogue column.
+//
+// The grid carries NO block padding of its own: the catalogue is a sunken panel
+// cut into the band, so it runs the full height of the row while only the hero
+// column is inset. Below $lg the column stacks under the hero and the grid
+// takes the bottom padding back.
 // --------------------------------------------------------------------------
 .site-banner--home {
     .site-banner__inner {
-        padding-top: var(--space-20);
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--space-10);
+        padding-bottom: var(--space-12);
+    }
+
+    .site-banner__lead {
+        padding-top: var(--space-16);
     }
 
     .site-banner__title {
-        font-size: var(--text-4xl);
-        max-width: 24ch;
+        // NOT --text-4xl (44–68px). The headline now shares its row with a
+        // 24.5rem column, and 68px display type wrapped the AMIRA title onto
+        // four lines and drove the band past 600px tall. Capped at 50px.
+        font-size: clamp(2.25rem, 1.55rem + 2.35vw, 3.125rem);
+        max-width: 22ch;
+    }
+
+    @media (min-width: $lg) {
+        .site-banner__inner--split {
+            grid-template-columns: minmax(0, 1fr) 24.5rem;
+            gap: var(--space-16);
+            align-items: stretch;
+            padding-bottom: 0;
+        }
+
+        .site-banner__inner--split .site-banner__lead {
+            padding-bottom: var(--space-12);
+        }
     }
 }
 
-// Headline beside an optional standing note ("Open access", licensing…). The
-// note is a hairline-separated column, not a card.
-.site-banner__lead {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-10);
-    align-items: end;
+// --------------------------------------------------------------------------
+// The catalogue column — what is IN the archive, as an index.
+//
+// This replaces eleven bordered, shadowed, hover-lifting stat cards below the
+// masthead (§C3): a lot of chrome for eleven numbers, and it competed with the
+// hero for the same screen. The same figures, as a hairline catalogue beside
+// the headline, read as a way in rather than as a scoreboard — every row is a
+// link to its authority page.
+//
+// One column and no wrapping, so these hairlines are real borders; the old
+// strip had to fake them with 1px grid gaps to stop rules dangling past the
+// last cell of a wrapped row.
+// --------------------------------------------------------------------------
+.site-banner__column {
+    position: relative;
+    background-color: var(--masthead-sunken);
+    padding: calc(var(--accent-line-md) + var(--space-6)) var(--space-6) var(--space-6);
 
-    @media (min-width: $xl) {
-        grid-template-columns: minmax(0, 1fr) 18.75rem;
-        gap: var(--space-16);
+    // The gold rule caps the panel, full-bleed across it.
+    &::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto;
+        height: var(--accent-line-md);
+        background-color: var(--masthead-rule);
+    }
+
+    @media (min-width: $lg) {
+        border-inline: 1px solid var(--masthead-hair);
     }
 }
 
+.site-banner__catalogue-title {
+    margin: 0 0 var(--space-3);
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--masthead-ink-soft);
+}
+
+.site-banner__catalogue-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.site-banner__entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-4);
+    padding: var(--space-2) 0;
+    border-top: 1px solid var(--masthead-hair);
+    transition: background-color var(--transition-fast);
+
+    &:last-child {
+        border-bottom: 1px solid var(--masthead-hair);
+    }
+}
+
+// Linked rows (all but Resource types, which has no authority page) — keep them
+// looking like the catalogue, not like body links: no green, no underline.
+a.site-banner__entry {
+    color: inherit;
+    text-decoration: none;
+}
+
+@media (hover: hover) {
+    a.site-banner__entry:hover {
+        color: inherit;
+        // Bleed into the panel's padding so the whole row lights up, not just
+        // the text column.
+        margin-inline: calc(var(--space-3) * -1);
+        padding-inline: var(--space-3);
+        background-color: color-mix(in oklab, var(--masthead-ink) 7%, var(--masthead-sunken));
+    }
+}
+
+.site-banner__entry-label {
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    // A step brighter than the lede: these are links, and the catalogue is the
+    // column's content rather than its supporting text.
+    color: color-mix(in oklab, var(--masthead-ink) 35%, var(--masthead-ink-soft));
+}
+
+.site-banner__entry-num {
+    flex: none;
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--numeral);
+}
+
+// Optional subtitle (e.g. "in 39 countries"), inline after the label so a row
+// that has one stays the same height as the rest.
+.site-banner__entry-sub {
+    margin-left: var(--space-2);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    color: var(--masthead-ink-soft);
+    white-space: nowrap;
+
+    @media (max-width: #{$sm - 1px}) {
+        display: none;
+    }
+}
+
+// --------------------------------------------------------------------------
+// Standing note ("Open access", licensing, how to cite). It used to own the
+// right-hand column; the catalogue does now, so the note stacks beneath it.
+// --------------------------------------------------------------------------
 .site-banner__aside {
-    @media (min-width: $xl) {
-        padding-bottom: var(--space-2);
-        padding-left: var(--space-8);
-        border-left: 1px solid var(--masthead-hair);
+    margin-top: var(--space-6);
+
+    .site-banner__catalogue + & {
+        padding-top: var(--space-6);
+        border-top: 1px solid var(--masthead-hair);
     }
 }
 
@@ -175,15 +344,23 @@
 }
 
 // --------------------------------------------------------------------------
-// The search field — the reason the masthead exists. A researcher arrives with
-// a question, so the first screen has to offer a field; the previous home page
-// had none above the fold.
+// The search field — small screens only.
+//
+// From $xl up the header's own field fills the centre of tier 1 and is the
+// primary way in; repeating it here would put two search boxes on the first
+// screen. Below $xl the header search collapses to a magnifier button (see
+// components/header/_header.scss), so the masthead carries a real field and the
+// home page always offers somewhere to type above the fold.
 // --------------------------------------------------------------------------
 .site-banner__search {
     display: flex;
     gap: var(--space-3);
-    margin-top: var(--space-12);
+    margin-top: var(--space-10);
     max-width: 42rem;
+
+    @media (min-width: $xl) {
+        display: none;
+    }
 }
 
 .site-banner__search-input {
@@ -223,99 +400,6 @@
     &:hover { filter: brightness(0.94); }
 }
 
-.site-banner__search-note {
-    margin: var(--space-4) 0 0;
-    font-size: var(--text-sm);
-    color: var(--masthead-ink-soft);
-}
-
-// --------------------------------------------------------------------------
-// Corpus counts — the "way in", above the fold and legible before JS.
-//
-// This replaces eleven bordered, shadowed, hover-lifting stat cards (§C3): a
-// lot of chrome for eleven numbers, and it competed with the hero. As a
-// hairline strip of tabular numerals the same figures read faster.
-//
-// The hairlines ARE the grid gaps — a 1px gap over the strip's own background,
-// with each cell opaque on top. That way the rules never dangle past the last
-// cell in a row, at any column count and however the set wraps (the module
-// precompute returns ~11 stats; the API fallback returns 8).
-// --------------------------------------------------------------------------
-.site-banner__stats {
-    position: relative;
-    z-index: 1;
-    margin-top: var(--space-16);
-    border-top: 1px solid var(--masthead-hair);
-}
-
-.site-banner__stats-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1px;
-    background-color: var(--masthead-hair);
-
-    @media (min-width: $sm) {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    @media (min-width: $lg) {
-        grid-template-columns: repeat(6, minmax(0, 1fr));
-    }
-}
-
-.site-banner__stat {
-    display: block;
-    padding: var(--space-6) var(--space-5) var(--space-8);
-    background-color: var(--masthead-bg);
-    transition: background-color var(--transition-fast);
-}
-
-// Linked cells (most of them) are <a>s — keep them looking like the strip, not
-// like links: no green link colour, no underline.
-a.site-banner__stat {
-    color: inherit;
-    text-decoration: none;
-}
-
-@media (hover: hover) {
-    a.site-banner__stat:hover {
-        // Opaque, so the 1px gap hairlines stay visible underneath.
-        background-color: color-mix(in oklab, var(--masthead-ink) 5%, var(--masthead-bg));
-    }
-}
-
-.site-banner__stat-num {
-    display: block;
-    font-family: var(--font-body);
-    font-size: var(--text-2xl);
-    font-weight: 700;
-    line-height: var(--leading-tight);
-    letter-spacing: var(--tracking-tight);
-    color: var(--numeral);
-    font-variant-numeric: tabular-nums;
-}
-
-.site-banner__stat-label {
-    display: block;
-    margin-top: var(--space-2);
-    font-size: var(--text-sm);
-    color: var(--masthead-ink-soft);
-}
-
-// Optional subtitle (e.g. "in 39 countries"), inline after the value so a cell
-// that has one stays the same height as the rest.
-.site-banner__stat-sub {
-    margin-left: var(--space-2);
-    font-size: var(--text-xs);
-    font-weight: 500;
-    color: var(--masthead-ink-soft);
-    white-space: nowrap;
-
-    @media (max-width: #{$sm - 1px}) {
-        display: none;
-    }
-}
-
 // --------------------------------------------------------------------------
 // Interior masthead — slim, single concern: keep the title in view.
 // --------------------------------------------------------------------------
@@ -331,7 +415,7 @@ a.site-banner__stat {
     }
 
     // On the slim strip the flag becomes a short vertical mark beside the
-    // title rather than a rule beneath it — same token, same signature.
+    // title rather than a rule above it — same token, same signature.
     .site-banner__flag {
         flex: none;
         width: var(--accent-line-md);
@@ -377,12 +461,13 @@ body[data-theme="dark"] .site-banner__art {
 
 // --------------------------------------------------------------------------
 // Arrival — the one orchestrated moment. On the home masthead only, the
-// headline rises on a short stagger (eyebrow → title → flag → lede). One-shot,
-// CSS-only, and entirely absent for reduced-motion visitors (the media query
-// also shields pre-@keyframes engines from the opacity:0 start state).
+// headline rises on a short stagger (flag → eyebrow → title → lede → links).
+// One-shot, CSS-only, and entirely absent for reduced-motion visitors (the
+// media query also shields pre-@keyframes engines from the opacity:0 start).
 //
-// The search field is deliberately NOT staggered: it is the page's primary
-// action and must be usable the instant it paints.
+// Neither the search field nor the catalogue column is staggered: the field is
+// an action and must be usable the instant it paints, and the column is the
+// masthead's second half, not a flourish on its first.
 // --------------------------------------------------------------------------
 @media (prefers-reduced-motion: no-preference) {
     .site-banner--home .site-banner__headline > * {
@@ -395,6 +480,7 @@ body[data-theme="dark"] .site-banner__art {
     .site-banner--home .site-banner__headline > :nth-child(2) { animation-delay: 150ms; }
     .site-banner--home .site-banner__headline > :nth-child(3) { animation-delay: 240ms; }
     .site-banner--home .site-banner__headline > :nth-child(4) { animation-delay: 330ms; }
+    .site-banner--home .site-banner__headline > :nth-child(5) { animation-delay: 420ms; }
 
     @keyframes site-banner-arrive {
         to {
@@ -409,12 +495,12 @@ body[data-theme="dark"] .site-banner__art {
 // --------------------------------------------------------------------------
 @media (max-width: ($md - 1)) {
     .site-banner--home {
-        .site-banner__inner {
+        .site-banner__lead {
             padding-top: var(--space-12);
         }
 
-        .site-banner__flag {
-            margin: var(--space-6) 0 var(--space-5);
+        .site-banner__inner {
+            gap: var(--space-8);
         }
     }
 
@@ -425,9 +511,5 @@ body[data-theme="dark"] .site-banner__art {
 
     .site-banner__search-submit {
         width: 100%;
-    }
-
-    .site-banner__stats {
-        margin-top: var(--space-12);
     }
 }

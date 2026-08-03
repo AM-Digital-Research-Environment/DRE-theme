@@ -142,6 +142,10 @@
   --masthead-ink-soft:     var(--ink-light);
   --masthead-rule:         color-mix(in oklab, var(--primary) 55%, var(--border));
   --masthead-hair:         var(--border);
+  // The catalogue column's ground. Always a step DOWN from --masthead-bg, never
+  // up: the column is a sunken panel cut into the band, not a card floating on
+  // it. Surface-relative here so quiet/balanced keep riding the page scale.
+  --masthead-sunken:       var(--surface-sunken);
   --masthead-field-bg:     var(--surface);
   --masthead-field-border: var(--border-strong);
   --flag:    var(--primary);
@@ -273,18 +277,26 @@ body[data-brand="quiet"] {
   --numeral:       var(--ink-light);
 }
 
-// C · Bold — a deep Uni-Grün masthead ground carrying cream type. Values are
-// literals (not derived from --primary-base): this is a *ground*, and it has to
-// stay legible under the cream ink whatever seed an admin picks.
+// C · Bold — a deep Uni-Grün masthead ground carrying cream type, and the
+// theme's default since v2.24. Values are literals (not derived from
+// --primary-base): this is a *ground*, and it has to stay legible under the
+// cream ink whatever seed an admin picks.
+//
+// The point of the plate is that it does NOT follow --surface. Under balanced
+// the band resolved to 99.2% L on a 97.4% L page — a 1.8% step, so the masthead
+// had no edge and read as empty space. Here the band, the sunken catalogue
+// panel and the hairline are one authored triplet in BOTH schemes, and gold is
+// the single accent: the flag rule and the catalogue numerals, nothing else.
 body[data-brand="bold"] {
   --masthead-bg:           oklch(34% 0.075 165);
   --masthead-ink:          oklch(98% 0.008 120);   // 10.7:1 on the ground
   --masthead-ink-soft:     oklch(86% 0.030 150);   // 7.5:1
-  --masthead-rule:         oklch(72% 0.10 150);
+  --masthead-rule:         oklch(78% 0.10 88);     // gold — flag rule + link arrows
   --masthead-hair:         oklch(44% 0.055 165);
+  --masthead-sunken:       oklch(29.5% 0.07 165);  // one step DOWN from the band
   --masthead-field-bg:     oklch(99% 0.004 95);
   --masthead-field-border: oklch(46% 0.070 165);
-  --numeral:               oklch(96% 0.010 130);
+  --numeral:               oklch(84% 0.085 88);    // gold — 7.9:1 on the panel
   --cta-bg:                oklch(98% 0.008 120);
   --cta-ink:               oklch(28% 0.060 165);
 }
@@ -293,9 +305,12 @@ body[data-brand="bold"] {
   --masthead-bg:           oklch(27% 0.055 165);
   --masthead-ink:          oklch(97% 0.008 120);   // 13.5:1 on the ground
   --masthead-ink-soft:     oklch(82% 0.026 150);   // 8.5:1
+  --masthead-rule:         oklch(74% 0.09 88);
   --masthead-field-bg:     oklch(17% 0.016 165);
   --masthead-field-border: oklch(40% 0.045 165);
   --masthead-hair:         oklch(36% 0.040 165);
+  --masthead-sunken:       oklch(22% 0.050 165);
+  --numeral:               oklch(80% 0.085 88);    // 9.2:1 on the panel
   --cta-bg:                oklch(72% 0.13 158);
   --cta-ink:               oklch(18% 0.030 165);
 }
