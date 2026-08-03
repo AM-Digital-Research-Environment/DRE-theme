@@ -52,6 +52,21 @@ function prependHeader() {
         transform(file, _enc, cb) {
             if (file.isBuffer()) {
                 let css = file.contents.toString('utf8');
+                // Dart Sass announces a non-ASCII stylesheet in one of two ways:
+                // `@charset "UTF-8";` in expanded output, but a bare U+FEFF BOM
+                // in COMPRESSED output (a BOM is cheaper than the at-rule).
+                // A BOM at byte 0 is stripped by the CSS parser; prepending the
+                // header below would push it mid-file, where it stops being a
+                // marker and becomes a literal character welded to the first
+                // selector — `﻿:root{--space-1:…}` matches nothing, taking
+                // out the whole spacing/container token block and flattening
+                // every layout on the site. Drop the BOM and declare the charset
+                // explicitly instead. (Only one non-ASCII char reaches the CSS —
+                // the curly quote in `blockquote::before` — which is exactly how
+                // this stayed latent from v2.21.0 until the v2.22.0 redesign.)
+                if (css.charCodeAt(0) === 0xfeff) {
+                    css = css.slice(1);
+                }
                 if (css.startsWith('@charset')) {
                     const nl = css.indexOf('\n') + 1;
                     css = css.slice(0, nl) + header + css.slice(nl);
