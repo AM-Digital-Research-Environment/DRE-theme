@@ -147,7 +147,7 @@ msgstr ""
 msgid "Digital collections and research data of the Africa Multiple Cluster of Excellence, University of Bayreuth."
 msgstr ""
 
-#: view/common/banner.phtml:43
+#: view/common/banner.phtml:46
 #: view/common/footer/footer-masthead.phtml:11
 msgid "Digital Research Environment"
 msgstr ""
@@ -184,7 +184,7 @@ msgstr ""
 msgid "Explore the Cluster's featured collections through timelines, image galleries and maps."
 msgstr ""
 
-#: view/common/banner.phtml:163
+#: view/common/banner.phtml:93
 msgid "Explore the collection"
 msgstr ""
 
@@ -223,6 +223,10 @@ msgstr ""
 
 #: helper/ResourceGroups.php:132
 msgid "Identifiers & sources"
+msgstr ""
+
+#: view/common/banner.phtml:119
+msgid "In the collection"
 msgstr ""
 
 #: view/common/header.phtml:68
@@ -357,10 +361,6 @@ msgstr ""
 msgid "Open menu"
 msgstr ""
 
-#: view/common/banner.phtml:156
-msgid "Or browse a corpus below — each has its own filters."
-msgstr ""
-
 #: helper/CollectionStats.php:232
 msgid "Organisations"
 msgstr ""
@@ -474,7 +474,7 @@ msgstr ""
 msgid "Rights & access"
 msgstr ""
 
-#: view/common/banner.phtml:153
+#: view/common/banner.phtml:201
 #: view/common/main-header-search.phtml:5
 #: view/layout/layout.phtml:87
 #: view/layout/layout.phtml:88
@@ -493,7 +493,7 @@ msgstr ""
 msgid "Search is temporarily unavailable."
 msgstr ""
 
-#: view/common/banner.phtml:152
+#: view/common/banner.phtml:200
 msgid "Search records, people, places, subjects…"
 msgstr ""
 
@@ -501,7 +501,7 @@ msgstr ""
 msgid "Search results for “%s”"
 msgstr ""
 
-#: view/common/banner.phtml:149
+#: view/common/banner.phtml:197
 #: view/common/dre-search-redirect.phtml:17
 #: view/common/dre-search-redirect.phtml:19
 #: view/hierarchy/site/index/hierarchy.phtml:231
