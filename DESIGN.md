@@ -476,6 +476,8 @@ Paste into *Site → Mirador → Mirador config (item)*, replacing what is there
     "maxZoomPixelRatio": 10
   },
   "selectedTheme": "light",
+  "window": { "allowFullscreen": true, "allowMaximize": false, "allowClose": false, "sideBarOpenByDefault": false },
+  "workspaceControlPanel": { "enabled": false },
 
   "theme": {
     "typography": {
@@ -504,7 +506,7 @@ Paste into *Site → Mirador → Mirador config (item)*, replacing what is there
         "error": { "main": "#cc272e" },
         "notification": { "main": "#f59c08", "contrastText": "#f59c08" },
         "hitCounter": { "default": "#bfbab3" },
-        "highlights": { "primary": "#d57912", "secondary": "#44b8f2" },
+        "highlights": { "primary": "#ca7210", "secondary": "#44b8f2" },
         "action": {
           "hover": "rgba(0, 122, 80, 0.08)",
           "selected": "rgba(0, 122, 80, 0.12)",
@@ -518,7 +520,7 @@ Paste into *Site → Mirador → Mirador config (item)*, replacing what is there
           "selected": { "strokeStyle": "#007a50", "globalAlpha": 1 }
         },
         "search": {
-          "default": { "fillStyle": "#d57912", "globalAlpha": 0.28 },
+          "default": { "fillStyle": "#ca7210", "globalAlpha": 0.28 },
           "hovered": { "fillStyle": "#f59c08", "globalAlpha": 0.34 },
           "selected": { "fillStyle": "#cca352", "globalAlpha": 0.5 }
         }
@@ -593,29 +595,54 @@ on through both modes. Re-derive them (rather than eyeballing) whenever
 `_colors.scss` moves: `scripts/lib/contrast.mjs` already carries the OKLCH → sRGB
 matrices these were computed with.
 
+The one that is easy to get wrong is Braun. `--brand-braun` is `#d57912`, but the
+token the search wash must match is `--accent`, which is
+`color-mix(in oklab, var(--accent-base), black 4%)` = **`#ca7210`** in light and
+`…, white 12%` = `#db8a40` in dark. Since `--highlight-bg` is `--accent` at 28%,
+`search.default` at `globalAlpha 0.28` is then byte-identical to the `<mark>` the
+site shares with DRE Search — a hit looks the same in the viewer and in search
+results. Light shipped the raw pigment until v2.26.0; reach for `--accent`, never
+`--brand-braun`, for anything that has to agree with `<mark>`.
+
 > The Mirador config field is **JSON, not JS** — double quotes, no comments, no
 > trailing commas.
 
-**Two open items on this config**, both deliberate and both cheap to change:
+### Where this config actually lives
 
-- **The light search wash is 4% off `--highlight-bg`.** The intent is byte
-  identity with the `<mark>` the site shares with DRE Search, so a hit looks the
-  same in the viewer and in search results. Dark achieves it (`#db8a40` *is*
-  dark's `--accent`), but light uses the raw brand pigment `#d57912`
-  (`--brand-braun`/`--accent-base`) where `--accent` is
-  `color-mix(in oklab, #d57912, black 4%)` = **`#ca7210`**. Swap
-  `themes.light.palette.search.default.fillStyle` to `#ca7210` for exact parity.
-- **`window` / `workspaceControlPanel` are no longer set.** Earlier revisions
-  carried opinionated single-item-embed defaults (`allowMaximize: false`,
-  `sideBarOpenByDefault: false`, `workspaceControlPanel.enabled: false`). They are
-  absent from the current config, so the live viewer shows the workspace control
-  panel and a **Close window** button — and closing the only window on a record
-  page leaves an empty workspace with no way back except a reload. Re-add the
-  block if that is not wanted:
-  ```json
-  "window": { "allowFullscreen": true, "allowMaximize": false, "sideBarOpenByDefault": false },
-  "workspaceControlPanel": { "enabled": false }
-  ```
+Not where you would guess, and the distinction has cost a debugging round trip:
+
+- **Global** — *Admin → Settings → Players → Mirador config (item)*
+  (`/admin/setting`, setting key `mirador_config_item`).
+- **Per site** — *Admin → Sites → [site] → Settings tab*
+  (`/admin/site/s/<slug>`, same key). **The site value wins**; editing only the
+  global one changes nothing on a site that has its own.
+
+Keep both in step — the global copy is the fallback for any site that doesn't
+override, and letting them drift is how this section went stale in the first
+place. The unsuffixed key is Mirador **4**; `mirador_config_item_2` / `_3` are
+the v2 / v3 fields and are unused here.
+
+`mirador_config_collection` (the item-set viewer) is a **separate field** still
+holding the pre-v2.26 config. It was left alone deliberately: the colour fix
+applies equally, but the `window` / `workspaceControlPanel` lockdown below does
+*not* — closing and rearranging windows is the point of a multi-item view.
+
+### The single-item lockdown
+
+`window` and `workspaceControlPanel` are what make a general-purpose IIIF
+workbench behave as an embedded record-page viewer:
+
+- `workspaceControlPanel.enabled: false` — drops *Add resource*, *Jump to
+  window*, *Workspace settings*, *Workspace options*.
+- `allowMaximize: false`, `allowClose: false` — a record page hosts exactly one
+  window, and closing it left an empty workspace recoverable only by reload.
+  **`allowClose` is the load-bearing one**: `allowMaximize: false` alone leaves
+  the Close button in place, which is the actual trap.
+- `allowFullscreen: true`, `sideBarOpenByDefault: false` — deep-zoom stays
+  reachable; the info panel opens on request rather than eating the canvas.
+
+Verified on the deployed viewer: with these set, the window bar carries only
+*Toggle sidebar*, *Window views & thumbnail display* and *Full screen*.
 
 ### Anti-patterns deliberately removed
 
