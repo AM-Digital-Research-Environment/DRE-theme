@@ -1,6 +1,12 @@
 // ==========================================================================
 // Mirador (Omeka-S-module-Mirador, Daniel-KM)
 //
+// Two jobs: frame the block as a card (the one piece of the viewer's look the
+// module's MUI config cannot express, because it is about the block's place in
+// the page), and keep the theme's button chrome out of the viewer's controls.
+// The palette, type and hairlines live in the module's site setting — see
+// DESIGN.md §8 "Mirador".
+//
 // Mirador renders its chrome (Material-UI controls) and its image canvas
 // (OpenSeadragon) into the page's *light* DOM — there is no shadow root — so
 // the theme's global `button` rules cascade straight into the viewer. The base
@@ -23,18 +29,54 @@
 // branch of the block (a native player) carries `block-media-embed` and renders
 // no Mirador chrome, so it is unaffected.
 //
-// NOTE: written against the known button-mixin leak; the viewer could not be
-// rendered locally (Mirador is a React/MUI app and the install freezes Chrome
-// screenshots — see project memory). Eyeball the toolbar once the module is
-// live and tune if a control still inherits theme chrome.
+// NOTE: written against the known button-mixin leak, without rendering the
+// viewer locally (Mirador is a React/MUI app and the install freezes Chrome
+// screenshots — see project memory). The DOM facts below were since measured on
+// the deployed viewer via computed styles and hit-testing, but the *button leak*
+// itself has still never been eyeballed — tune if a control turns out to inherit
+// theme chrome.
 // ==========================================================================
 
 .block-mirador {
+    // --- Frame the viewer as a card -------------------------------------------
+    // Mirador draws its own chrome but no outer edge, so the media region used to
+    // bleed into the page while every other region on the record page (the
+    // apparatus rail, the metadata groups) reads as a bordered panel. The panel
+    // triplet gives it the same edge, radius and lift — the one rule that belongs
+    // on the theme's own wrapper rather than in the module's MUI config, because
+    // it is about how the block sits in the page, not about the viewer's insides.
+    //
+    // `overflow: hidden` clips the viewer's square corners to the radius. That is
+    // safe, but NOT for the reason it looks like: Mirador's menus are *not*
+    // portaled to <body> — they mount inside `#mirador-<n>`, i.e. inside this
+    // block (verified on the live viewer, which contradicts the usual MUI
+    // assumption). They survive the clip because their `.MuiPopover-root` is
+    // `position: fixed`, so its containing block is the viewport, not this box.
+    // Tooltips are portaled out of the block entirely, and native fullscreen
+    // promotes the viewer to the top layer, which no ancestor can clip.
+    //
+    // CONSEQUENCE — do not give this block (or any ancestor) `transform`,
+    // `filter`, `perspective`, `backdrop-filter`, `contain: paint/layout/strict/
+    // content`, or a `will-change` naming those. Any one of them makes this box a
+    // containing block for fixed descendants, at which point `overflow: hidden`
+    // starts cutting every menu off at the viewer's edge. `isolation` (below) is
+    // deliberately none of them.
+    //
+    // Scoped away from the embed-fallback branch: that markup carries
+    // `block-media-embed` and renders a native player whose iframe already has
+    // its own radius (components/blocks/media-embed), so it would double-frame.
+    &:not(.block-media-embed) {
+        border: var(--panel-border);
+        border-radius: var(--panel-radius);
+        box-shadow: var(--panel-shadow);
+        overflow: hidden;
+    }
+
     // --- Keep the viewer's chrome out of the site header ----------------------
     // Mirador's Material-UI chrome carries very high z-indexes — backdrops at
     // 9999, the window/companion bars at 1098–1100, drawers at 1099 — and renders
-    // it all *inside* this container (nothing is portaled to <body>, verified on
-    // the live viewer). The container otherwise establishes no stacking context,
+    // it all *inside* this container (verified on the live viewer; only tooltips
+    // are portaled out). The container otherwise establishes no stacking context,
     // so those z-indexes land in the page root and paint over the sticky site
     // header (--z-header: 250) when the viewer scrolls beneath it. `isolation`
     // gives the block its own stacking context so all of that is scoped below the

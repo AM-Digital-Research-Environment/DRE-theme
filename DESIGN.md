@@ -392,7 +392,7 @@ theme-aware in one move. Notable bespoke work:
 
 The item page's media region is the **[Mirador](https://github.com/Daniel-KM/Omeka-S-module-Mirador)**
 block (Daniel-KM's module). The theme replaced **Universal Viewer** with it in
-**v2.6.0**; three theme-side pieces make it fit the system:
+**v2.6.0**; four theme-side pieces make it fit the system:
 
 1. **Embed fallback** (`view/common/resource-page-block-layout/mirador.phtml`).
    Mirador renders from a IIIF manifest, but a YouTube / oEmbed / raw-HTML media
@@ -421,49 +421,201 @@ block (Daniel-KM's module). The theme replaced **Universal Viewer** with it in
    longer inherit it, so the leak is fixed at the source; the
    `.block-mirador`-scoped neutraliser remains as belt-and-suspenders against
    any future broad `button` rule.
+4. **Card framing** (`components/blocks/mirador`, v2.26.0). Mirador draws its own
+   chrome but no outer edge, so the media region bled into the page while every
+   other region on the record page read as a bordered panel. The block takes the
+   panel triplet (`--panel-border` / `--panel-radius` / `--panel-shadow`) plus
+   `overflow: hidden` to clip the viewer's square corners. This is the one part
+   of the viewer's look that *can't* live in the module config, because it is
+   about the block's place in the page rather than the viewer's insides.
+
+   > `overflow: hidden` is safe here, but not for the reason it looks like.
+   > Mirador's menus are **not** portaled to `<body>` — they mount inside
+   > `#mirador-<n>`, i.e. inside the block (verified on the live viewer, against
+   > the usual MUI assumption). They survive the clip only because their
+   > `.MuiPopover-root` is `position: fixed`, so its containing block is the
+   > viewport. Tooltips *are* portaled out of the block, and native fullscreen
+   > promotes the viewer to the top layer. **Therefore: never give this block or
+   > any ancestor `transform`, `filter`, `perspective`, `backdrop-filter`,
+   > `contain: paint/layout/strict/content`, or a `will-change` naming those** —
+   > each makes the box a containing block for fixed descendants, and every menu
+   > would be cut off at the viewer's edge. The existing `isolation: isolate` is
+   > deliberately none of them. The framing is scoped away from the embed-fallback
+   > branch (`.block-media-embed`), whose iframe carries its own radius.
 
 **Branding lives in the module, not the theme.** Mirador's MUI themes can't read
 `oklch()` / `color-mix()`, so — exactly like the chart libraries (§9) — the brand
 palette is resolved to sRGB and pasted into the module's **site setting**
 (*Site → Mirador → Mirador config*) as JSON. `mirador-theme.js` only switches
-*which* theme is active, so this can be tuned without a rebuild. Starting point,
-matched to the theme's warm-stone (light) and forest-dark (dark) surfaces:
+*which* theme is active, so this can be tuned without a rebuild.
+
+Mode-independent settings live under `theme`; each mode's palette lives under
+`themes.light` / `themes.dark`, which Mirador deep-merges over `theme` when
+`mirador-theme.js` flips `selectedTheme`. The first pass (v2.6.0) set only the
+two greens and the surface stack, which left four Material Design defaults
+showing through — the config below closes all four:
+
+| | Stock Mirador 4 | Here |
+| --- | --- | --- |
+| **Type** | no `typography.fontFamily` → MUI falls back to Roboto/Helvetica, inside a page set in Hanken Grotesk | Hanken Grotesk throughout; `h1`–`h4` in Spectral, the one place the display serif belongs (they carry the info panel's headings) |
+| **Hairlines** | one `section_divider`, `rgba(0,0,0,.25)` — cold on cream, invisible on forest dark | all three border tiers: `--border-strong` for panel and thumbnail-rail edges, `--border` for toolbars, `--border-light` for metadata rows |
+| **Overlays** | cyan / magenta / pure yellow, unchanged since 2019 | brand pigments, keeping the convention scholars read: Hellblau = *there is an annotation*, Gelb = *you are touching it*, Uni-Grün = *this is the current one* |
+| **Panel steps** | light `shades.light` is `#ffffff` on a `#fdfcf9` paper — a 0.8% step, so companion-window toolbars read as empty space; dark aliases `background.default` to a different tier than light does | `shades` and `background` map the *same* tokens to the same keys in both modes (sunken / surface / background) |
+
+Only `styleOverrides` whose Mirador default is a plain object are touched
+(`MuiAppBar`, `CompanionWindowSection`); the callback-based ones take
+`({ theme })` and would be *replaced* rather than merged, dropping the layout
+rules they also carry. Those hairlines are handled in the theme's own
+`.block-mirador` layer instead, where they read live tokens.
+
+Paste into *Site → Mirador → Mirador config (item)*, replacing what is there:
 
 ```json
 {
+  "osdConfig": {
+    "maxZoomPixelRatio": 10
+  },
   "selectedTheme": "light",
+
+  "theme": {
+    "typography": {
+      "fontFamily": "\"Hanken Grotesk\", system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+      "h1": { "fontFamily": "Spectral, Georgia, serif", "fontWeight": 700, "letterSpacing": "-0.02em" },
+      "h2": { "fontFamily": "Spectral, Georgia, serif", "fontWeight": 700, "letterSpacing": "-0.01em" },
+      "h3": { "fontFamily": "Spectral, Georgia, serif", "fontWeight": 600, "letterSpacing": "0em" },
+      "h4": { "fontFamily": "Spectral, Georgia, serif", "fontWeight": 600, "letterSpacing": "0em" },
+      "subtitle1": { "fontWeight": 600, "letterSpacing": "0.01em" },
+      "button": { "fontWeight": 600, "letterSpacing": "0.04em" },
+      "overline": { "fontWeight": 600, "letterSpacing": "0.12em" }
+    }
+  },
+
   "themes": {
     "light": {
       "palette": {
         "mode": "light",
-        "primary":    { "main": "#007a50" },
-        "secondary":  { "main": "#007a50" },
-        "shades":     { "dark": "#f3f0eb", "main": "#fdfcf9", "light": "#ffffff" },
-        "background": { "default": "#f8f6f1", "paper": "#fdfcf9" }
+        "primary": { "main": "#007a50", "contrastText": "#fdfcf9" },
+        "secondary": { "main": "#006440" },
+        "shades": { "dark": "#f3f0eb", "main": "#fdfcf9", "light": "#f8f6f1" },
+        "background": { "default": "#f8f6f1", "paper": "#fdfcf9" },
+        "text": { "primary": "#3c342d", "secondary": "#5f5650", "disabled": "#716a66" },
+        "divider": "#dbd7d1",
+        "section_divider": "#bfbab3",
+        "error": { "main": "#cc272e" },
+        "notification": { "main": "#f59c08", "contrastText": "#f59c08" },
+        "hitCounter": { "default": "#bfbab3" },
+        "highlights": { "primary": "#d57912", "secondary": "#44b8f2" },
+        "action": {
+          "hover": "rgba(0, 122, 80, 0.08)",
+          "selected": "rgba(0, 122, 80, 0.12)",
+          "focus": "rgba(0, 122, 80, 0.16)"
+        },
+        "annotations": {
+          "chipBackground": "#f3f0eb",
+          "hidden": { "globalAlpha": 0 },
+          "default": { "strokeStyle": "#44b8f2", "globalAlpha": 1 },
+          "hovered": { "strokeStyle": "#f59c08", "globalAlpha": 1 },
+          "selected": { "strokeStyle": "#007a50", "globalAlpha": 1 }
+        },
+        "search": {
+          "default": { "fillStyle": "#d57912", "globalAlpha": 0.28 },
+          "hovered": { "fillStyle": "#f59c08", "globalAlpha": 0.34 },
+          "selected": { "fillStyle": "#cca352", "globalAlpha": 0.5 }
+        }
+      },
+      "components": {
+        "MuiAppBar": {
+          "styleOverrides": {
+            "colorDefault": { "backgroundColor": "#f3f0eb", "color": "#3c342d" }
+          }
+        },
+        "CompanionWindowSection": {
+          "styleOverrides": {
+            "root": { "borderBlockEnd": "1px solid #eae8e3" }
+          }
+        }
       }
     },
+
     "dark": {
       "palette": {
         "mode": "dark",
-        "primary":    { "main": "#4da67b" },
-        "secondary":  { "main": "#4da67b" },
-        "shades":     { "dark": "#080f0c", "main": "#0e1612", "light": "#151d19" },
-        "background": { "default": "#0e1612", "paper": "#151d19" }
+        "primary": { "main": "#4da67b", "contrastText": "#05100b" },
+        "secondary": { "main": "#74b794" },
+        "shades": { "dark": "#080f0c", "main": "#0e1612", "light": "#151d19" },
+        "background": { "default": "#080f0c", "paper": "#0e1612" },
+        "text": { "primary": "#e3e1db", "secondary": "#b0aea7", "disabled": "#9c9891" },
+        "divider": "#2c3531",
+        "section_divider": "#49534e",
+        "error": { "main": "#ff645f" },
+        "notification": { "main": "#f59c08", "contrastText": "#f59c08" },
+        "hitCounter": { "default": "#49534e" },
+        "highlights": { "primary": "#db8a40", "secondary": "#44b8f2" },
+        "action": {
+          "hover": "rgba(77, 166, 123, 0.10)",
+          "selected": "rgba(77, 166, 123, 0.16)",
+          "focus": "rgba(77, 166, 123, 0.22)"
+        },
+        "annotations": {
+          "chipBackground": "#1e2622",
+          "hidden": { "globalAlpha": 0 },
+          "default": { "strokeStyle": "#44b8f2", "globalAlpha": 1 },
+          "hovered": { "strokeStyle": "#f59c08", "globalAlpha": 1 },
+          "selected": { "strokeStyle": "#4da67b", "globalAlpha": 1 }
+        },
+        "search": {
+          "default": { "fillStyle": "#db8a40", "globalAlpha": 0.28 },
+          "hovered": { "fillStyle": "#f59c08", "globalAlpha": 0.34 },
+          "selected": { "fillStyle": "#cca352", "globalAlpha": 0.5 }
+        }
+      },
+      "components": {
+        "MuiAppBar": {
+          "styleOverrides": {
+            "colorDefault": { "backgroundColor": "#151d19", "color": "#e3e1db" }
+          }
+        },
+        "CompanionWindowSection": {
+          "styleOverrides": {
+            "root": { "borderBlockEnd": "1px solid #1e2622" }
+          }
+        }
       }
     }
-  },
-  "window": {
-    "allowFullscreen": true,
-    "allowMaximize": false,
-    "sideBarOpenByDefault": false
-  },
-  "workspaceControlPanel": { "enabled": false }
+  }
 }
 ```
 
+Every literal above is the sRGB resolution of a theme token — light `primary`
+`#007a50` is `--primary`, `secondary` `#006440` is `--primary-text`, `divider`
+`#dbd7d1` is `--border`, `section_divider` `#bfbab3` is `--border-strong`, and so
+on through both modes. Re-derive them (rather than eyeballing) whenever
+`_colors.scss` moves: `scripts/lib/contrast.mjs` already carries the OKLCH → sRGB
+matrices these were computed with.
+
 > The Mirador config field is **JSON, not JS** — double quotes, no comments, no
-> trailing commas. The `window` / `workspaceControlPanel` keys are opinionated
-> single-item-embed defaults; drop or tune them as needed.
+> trailing commas.
+
+**Two open items on this config**, both deliberate and both cheap to change:
+
+- **The light search wash is 4% off `--highlight-bg`.** The intent is byte
+  identity with the `<mark>` the site shares with DRE Search, so a hit looks the
+  same in the viewer and in search results. Dark achieves it (`#db8a40` *is*
+  dark's `--accent`), but light uses the raw brand pigment `#d57912`
+  (`--brand-braun`/`--accent-base`) where `--accent` is
+  `color-mix(in oklab, #d57912, black 4%)` = **`#ca7210`**. Swap
+  `themes.light.palette.search.default.fillStyle` to `#ca7210` for exact parity.
+- **`window` / `workspaceControlPanel` are no longer set.** Earlier revisions
+  carried opinionated single-item-embed defaults (`allowMaximize: false`,
+  `sideBarOpenByDefault: false`, `workspaceControlPanel.enabled: false`). They are
+  absent from the current config, so the live viewer shows the workspace control
+  panel and a **Close window** button — and closing the only window on a record
+  page leaves an empty workspace with no way back except a reload. Re-add the
+  block if that is not wanted:
+  ```json
+  "window": { "allowFullscreen": true, "allowMaximize": false, "sideBarOpenByDefault": false },
+  "workspaceControlPanel": { "enabled": false }
+  ```
 
 ### Anti-patterns deliberately removed
 
