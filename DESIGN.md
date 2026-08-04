@@ -622,10 +622,14 @@ override, and letting them drift is how this section went stale in the first
 place. The unsuffixed key is Mirador **4**; `mirador_config_item_2` / `_3` are
 the v2 / v3 fields and are unused here.
 
-`mirador_config_collection` (the item-set viewer) is a **separate field** still
-holding the pre-v2.26 config. It was left alone deliberately: the colour fix
-applies equally, but the `window` / `workspaceControlPanel` lockdown below does
-*not* — closing and rearranging windows is the point of a multi-item view.
+`mirador_config_collection` (the item-set viewer) is a **separate field** and
+carries the same palette, so it takes the same Braun correction — but
+deliberately **not** the single-item lockdown below: closing and rearranging
+windows is the point of a multi-item view. Note that nothing on this site
+currently renders it — the theme's Mirador block is an item-page resource block,
+and no item-set page emits a viewer (checked against the live site) — so the
+collection config is kept correct against the day one is used, not for a visible
+effect today. Site and global copies of it are both Mirador 4's unsuffixed key.
 
 ### The single-item lockdown
 
