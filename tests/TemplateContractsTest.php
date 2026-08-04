@@ -45,6 +45,16 @@ dre_check($failures, $checks, 'the apparatus permalink is absolute',
 dre_check($failures, $checks, 'the apparatus never renders a value by casting the value object',
     !preg_match('/\(string\)\s*\$resource->value\(/', $apparatus));
 
+// DRE-SEO supplies the formatted citations, and it may be absent or older than
+// the theme on any given deploy. These pin the degradation path, not the markup.
+dre_check($failures, $checks, 'the apparatus only calls dreCitation when the module provides it',
+    str_contains($apparatus, "getHelperPluginManager()->has('dreCitation')")
+        && str_contains($apparatus, 'catch (\Throwable $e)'));
+dre_check($failures, $checks, 'the apparatus keeps its own citation fallback',
+    str_contains($apparatus, "elseif (\$citation !== ''):"));
+dre_check($failures, $checks, 'the curated citation is escaped by the theme',
+    str_contains($apparatus, '$escHtml($citation)'));
+
 foreach (['item', 'item-set', 'media'] as $resource) {
     $redirect = "view/omeka/site/{$resource}/search.phtml";
     dre_check($failures, $checks, "legacy {$resource} search redirects to DRE Search",

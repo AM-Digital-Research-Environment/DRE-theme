@@ -294,6 +294,65 @@
     font-size: var(--text-sm);
     line-height: var(--leading-normal);
     color: var(--ink);
+
+    // A citation is a hanging-indent form everywhere it is printed; keeping it
+    // here means a copied line and the shown line read the same shape.
+    a {
+        overflow-wrap: anywhere;
+    }
+}
+
+// --- The generated citation, when DRE-SEO supplies one --------------------
+.record-apparatus__styles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    margin-bottom: var(--space-3);
+}
+
+.record-apparatus__style {
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    background: none;
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wide);
+    color: var(--ink-light);
+    cursor: pointer;
+
+    &:hover {
+        color: var(--ink);
+    }
+
+    &[aria-selected='true'] {
+        border-color: var(--border-light);
+        background-color: var(--surface);
+        font-weight: 600;
+        color: var(--ink);
+    }
+}
+
+.record-apparatus__downloads {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+    font-size: var(--text-xs);
+}
+
+.record-apparatus__downloads-label {
+    color: var(--ink-light);
+}
+
+.record-apparatus__download-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 
 .record-apparatus__rows {

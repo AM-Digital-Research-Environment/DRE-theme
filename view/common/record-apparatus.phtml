@@ -72,6 +72,24 @@ $displayValues = function (string $term) use ($resource): array {
 $citationValues = $displayValues('dcterms:bibliographicCitation');
 $citation = $citationValues ? $citationValues[0]['label'] : '';
 
+// DRE-SEO formats the record as Chicago/APA/MLA and offers BibTeX/RIS/CSL-JSON
+// downloads. The module is optional and may lag the theme on a deploy, so this
+// is a lookup and not a call: without it the panel falls back to the curated
+// citation above, which is exactly what it showed before the module existed.
+$cite = null;
+try {
+    if ($this->getHelperPluginManager()->has('dreCitation')) {
+        $cite = $this->dreCitation($resource);
+    }
+} catch (\Throwable $e) {
+    $cite = null;
+}
+$citeStyles = is_array($cite) && !empty($cite['styles']) ? $cite['styles'] : [];
+$citeDefault = $citeStyles[$cite['defaultStyle'] ?? ''] ?? null
+    ? $cite['defaultStyle']
+    : (string) array_key_first($citeStyles ?: ['' => null]);
+$citeDownloads = is_array($cite) && !empty($cite['downloads']) ? $cite['downloads'] : [];
+
 $doiValues = $displayValues('bibo:doi');
 $licence = $displayValues('dcterms:license');
 $accessRights = $displayValues('dcterms:accessRights');
@@ -109,9 +127,13 @@ if ($dreId) {
     $rows[] = ['label' => $translate('DRE ID'), 'values' => $dreId];
 }
 
-if ($citation === '' && !$rows) {
+if ($citation === '' && !$rows && !$citeStyles) {
     return;
 }
+
+// One id per record so a page carrying two apparatus panels keeps its tabs and
+// panels unambiguously paired.
+$citeId = 'record-cite-' . (int) $resource->id();
 
 // Prefer a real citation; otherwise give the copy button something honest —
 // the record's title and its permalink.
@@ -142,7 +164,32 @@ $this->inlineScript()->appendFile($this->assetUrl('js/record.js'));
 <section class="record-apparatus" aria-labelledby="record-apparatus-title">
     <h2 class="record-apparatus__title" id="record-apparatus-title"><?php echo $escHtml($translate('Cite this record')); ?></h2>
 
-    <?php if ($citation !== ''): ?>
+    <?php if ($citeStyles): ?>
+        <div class="record-apparatus__cite" data-record-citation>
+            <?php if (count($citeStyles) > 1): ?>
+                <div class="record-apparatus__styles" role="tablist" aria-label="<?php echo $escAttr($translate('Citation style')); ?>">
+                    <?php foreach ($citeStyles as $styleId => $style): ?>
+                        <?php $isActive = ($styleId === $citeDefault); ?>
+                        <button type="button" class="record-apparatus__style" role="tab"
+                            id="<?php echo $escAttr($citeId . '-tab-' . $styleId); ?>"
+                            aria-controls="<?php echo $escAttr($citeId . '-panel-' . $styleId); ?>"
+                            aria-selected="<?php echo $isActive ? 'true' : 'false'; ?>"
+                            tabindex="<?php echo $isActive ? '0' : '-1'; ?>"
+                            data-citation-style="<?php echo $escAttr($styleId); ?>"><?php echo $escHtml($style['label']); ?></button>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+
+            <?php foreach ($citeStyles as $styleId => $style): ?>
+                <?php // The module escapes each citation and emits only <em>/<a>. ?>
+                <p class="record-apparatus__citation" role="tabpanel"
+                    id="<?php echo $escAttr($citeId . '-panel-' . $styleId); ?>"
+                    aria-labelledby="<?php echo $escAttr($citeId . '-tab-' . $styleId); ?>"
+                    data-citation-panel="<?php echo $escAttr($styleId); ?>"
+                    <?php echo $styleId === $citeDefault ? '' : 'hidden'; ?>><?php echo $style['html']; ?></p>
+            <?php endforeach; ?>
+        </div>
+    <?php elseif ($citation !== ''): ?>
         <p class="record-apparatus__citation"><?php echo $escHtml($citation); ?></p>
     <?php endif; ?>
 
@@ -176,4 +223,17 @@ $this->inlineScript()->appendFile($this->assetUrl('js/record.js'));
             <?php echo $escHtml($translate('Copy citation')); ?>
         </button>
     </div>
+
+    <?php if ($citeDownloads): ?>
+        <div class="record-apparatus__downloads">
+            <span class="record-apparatus__downloads-label"><?php echo $escHtml($translate('Download')); ?></span>
+            <ul class="record-apparatus__download-list">
+                <?php foreach ($citeDownloads as $download): ?>
+                    <li>
+                        <a href="<?php echo $escAttr($download['url']); ?>" download><?php echo $escHtml($download['label']); ?></a>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    <?php endif; ?>
 </section>
