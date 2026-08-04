@@ -32,6 +32,19 @@ $values = $read('view/common/resource-values.phtml');
 dre_check($failures, $checks, 'resource language and class attributes use attribute escaping',
     str_contains($values, '$escapeAttr(implode') && str_contains($values, '$escapeAttr($valueLang)'));
 
+// The rail once printed `https://…/item/10297` where the licence should read
+// "CC-BY-NC-SA-4.0": casting a linked value to string yields the linked item's
+// URL. These pin the reading idiom, not the markup.
+$apparatus = $read('view/common/record-apparatus.phtml');
+dre_check($failures, $checks, 'the apparatus resolves linked values through the linked record',
+    str_contains($apparatus, '$value->valueResource()->displayTitle()'));
+dre_check($failures, $checks, 'the apparatus reads every value, not only the first',
+    str_contains($apparatus, "['all' => true]"));
+dre_check($failures, $checks, 'the apparatus permalink is absolute',
+    str_contains($apparatus, '$resource->url(null, true)'));
+dre_check($failures, $checks, 'the apparatus never renders a value by casting the value object',
+    !preg_match('/\(string\)\s*\$resource->value\(/', $apparatus));
+
 foreach (['item', 'item-set', 'media'] as $resource) {
     $redirect = "view/omeka/site/{$resource}/search.phtml";
     dre_check($failures, $checks, "legacy {$resource} search redirects to DRE Search",

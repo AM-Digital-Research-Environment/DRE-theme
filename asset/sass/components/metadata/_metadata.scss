@@ -330,6 +330,26 @@
     }
 }
 
+// A prose licence or a second access-rights statement needs the full measure;
+// the label-right-of-value treatment above is for tokens (a DOI, a DRE ID).
+.record-apparatus__row--block {
+    display: block;
+
+    dd {
+        margin-top: var(--space-1);
+        text-align: left;
+        font-weight: 400;
+    }
+}
+
+.record-apparatus__value {
+    display: block;
+
+    + .record-apparatus__value {
+        margin-top: var(--space-1);
+    }
+}
+
 .record-apparatus__actions {
     display: flex;
     gap: var(--space-2);

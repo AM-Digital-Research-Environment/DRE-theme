@@ -23,52 +23,93 @@ if (!isset($resource) || !$resource) {
     return;
 }
 
-/** First plain-text value for a term, or '' — never throws on an unknown term. */
-$text = function (string $term) use ($resource): string {
+// Values a reader must be able to read. Licence and access rights are linked
+// records here — `dcterms:license` points at the CC-BY-NC-SA-4.0 item, not at a
+// string — and casting one of those to string yields the *item's URL*, which is
+// what the rail used to print. Resolve the way common/resource-values.phtml
+// does: a linked value shows its title and links to the record; a URI value
+// falls back to the URI itself when it carries no label (otherwise the row
+// vanished entirely); a literal shows its text.
+//
+// All values, not just the first: records legitimately carry two access-rights
+// statements, one linked and one spelled out.
+$displayValues = function (string $term) use ($resource): array {
     try {
-        $value = $resource->value($term);
-        return $value ? trim((string) $value) : '';
+        $values = $resource->value($term, ['all' => true]) ?: [];
     } catch (\Throwable $e) {
-        return '';
+        return [];
     }
+
+    $out = [];
+    foreach ($values as $value) {
+        try {
+            $type = (string) $value->type();
+            $label = '';
+            $href = '';
+
+            if (false !== strpos($type, 'resource') && $value->valueResource()) {
+                $label = trim((string) $value->valueResource()->displayTitle());
+                $href = (string) $value->valueResource()->url();
+            } elseif ('uri' === $type) {
+                $href = (string) $value->uri();
+                $label = trim((string) $value) ?: $href;
+            } else {
+                $label = trim((string) $value);
+            }
+
+            if ($label !== '') {
+                $out[] = ['label' => $label, 'href' => $href];
+            }
+        } catch (\Throwable $e) {
+            // One malformed value must not cost the reader the whole rail.
+            continue;
+        }
+    }
+
+    return $out;
 };
 
-/** First value for a term as [label, href] where it carries a URI. */
-$linked = function (string $term) use ($resource): array {
-    try {
-        $value = $resource->value($term);
-        if (!$value) {
-            return ['', ''];
-        }
-        $label = trim((string) $value);
-        $href = '';
-        if ('uri' === $value->type()) {
-            $href = (string) $value->uri();
-        }
-        return [$label, $href];
-    } catch (\Throwable $e) {
-        return ['', ''];
-    }
-};
+$citationValues = $displayValues('dcterms:bibliographicCitation');
+$citation = $citationValues ? $citationValues[0]['label'] : '';
 
-$citation = $text('dcterms:bibliographicCitation');
-[$doi, $doiHref] = $linked('bibo:doi');
-[$licence, $licenceHref] = $linked('dcterms:license');
-$accessRights = $text('dcterms:accessRights');
-$dreId = $text('dre:id');
+$doiValues = $displayValues('bibo:doi');
+$licence = $displayValues('dcterms:license');
+$accessRights = $displayValues('dcterms:accessRights');
+$dreId = $displayValues('dre:id');
 
 // A bare DOI string is still a resolvable link.
-if ($doi !== '' && $doiHref === '' && preg_match('~^10\.\d{4,9}/\S+$~', $doi)) {
-    $doiHref = 'https://doi.org/' . $doi;
+foreach ($doiValues as $i => $doiValue) {
+    if ($doiValue['href'] === '' && preg_match('~^10\.\d{4,9}/\S+$~', $doiValue['label'])) {
+        $doiValues[$i]['href'] = 'https://doi.org/' . $doiValue['label'];
+    }
 }
 
+// Absolute: this row is the thing a reader copies into a footnote, and it is
+// also the fallback the copy button hands over.
 try {
-    $permalink = (string) $resource->url();
+    $permalink = (string) $resource->url(null, true);
 } catch (\Throwable $e) {
     $permalink = '';
 }
 
-if ($citation === '' && $doi === '' && $licence === '' && $accessRights === '' && $dreId === '' && $permalink === '') {
+$rows = [];
+if ($doiValues) {
+    $rows[] = ['label' => $translate('DOI'), 'values' => $doiValues];
+}
+if ($permalink !== '') {
+    $rows[] = ['label' => $translate('Permalink'), 'values' => [['label' => $permalink, 'href' => $permalink]]];
+}
+if ($licence) {
+    $rows[] = ['label' => $translate('Licence'), 'values' => $licence];
+}
+if ($accessRights) {
+    $rows[] = ['label' => $translate('Access rights'), 'values' => $accessRights];
+}
+if ($dreId) {
+    $rows[] = ['label' => $translate('DRE ID'), 'values' => $dreId];
+}
+
+if ($citation === '' && !$rows) {
     return;
 }
 
@@ -83,6 +124,19 @@ if ($copyText === '') {
     }
 }
 
+// A licence entered as prose — "Educational, research, criticism, and review
+// purposes only." — is a sentence, not a token, and the right-aligned bold
+// treatment that suits a DOI turns it into a ragged bold block. Stack those.
+$isLongRow = function (array $row): bool {
+    foreach ($row['values'] as $value) {
+        if (mb_strlen($value['label']) > 40) {
+            return true;
+        }
+    }
+
+    return count($row['values']) > 1;
+};
+
 $this->inlineScript()->appendFile($this->assetUrl('js/record.js'));
 ?>
 <section class="record-apparatus" aria-labelledby="record-apparatus-title">
@@ -92,42 +146,24 @@ $this->inlineScript()->appendFile($this->assetUrl('js/record.js'));
         <p class="record-apparatus__citation"><?php echo $escHtml($citation); ?></p>
     <?php endif; ?>
 
-    <?php if ($doi !== '' || $permalink !== '' || $licence !== '' || $accessRights !== '' || $dreId !== ''): ?>
+    <?php if ($rows): ?>
         <dl class="record-apparatus__rows">
-            <?php if ($doi !== ''): ?>
-                <div class="record-apparatus__row">
-                    <dt><?php echo $escHtml($translate('DOI')); ?></dt>
-                    <dd><?php if ($doiHref !== ''): ?><a href="<?php echo $escAttr($doiHref); ?>"><?php echo $escHtml($doi); ?></a><?php else: ?><?php echo $escHtml($doi); ?><?php endif; ?></dd>
+            <?php foreach ($rows as $row): ?>
+                <div class="record-apparatus__row<?php echo $isLongRow($row) ? ' record-apparatus__row--block' : ''; ?>">
+                    <dt><?php echo $escHtml($row['label']); ?></dt>
+                    <dd>
+                        <?php foreach ($row['values'] as $value): ?>
+                            <span class="record-apparatus__value"><?php
+                                if ($value['href'] !== ''):
+                                    ?><a href="<?php echo $escAttr($value['href']); ?>"><?php echo $escHtml($value['label']); ?></a><?php
+                                else:
+                                    echo $escHtml($value['label']);
+                                endif;
+                            ?></span>
+                        <?php endforeach; ?>
+                    </dd>
                 </div>
-            <?php endif; ?>
-
-            <?php if ($permalink !== ''): ?>
-                <div class="record-apparatus__row">
-                    <dt><?php echo $escHtml($translate('Permalink')); ?></dt>
-                    <dd><a href="<?php echo $escAttr($permalink); ?>"><?php echo $escHtml($permalink); ?></a></dd>
-                </div>
-            <?php endif; ?>
-
-            <?php if ($licence !== ''): ?>
-                <div class="record-apparatus__row">
-                    <dt><?php echo $escHtml($translate('Licence')); ?></dt>
-                    <dd><?php if ($licenceHref !== ''): ?><a href="<?php echo $escAttr($licenceHref); ?>"><?php echo $escHtml($licence); ?></a><?php else: ?><?php echo $escHtml($licence); ?><?php endif; ?></dd>
-                </div>
-            <?php endif; ?>
-
-            <?php if ($accessRights !== ''): ?>
-                <div class="record-apparatus__row">
-                    <dt><?php echo $escHtml($translate('Access rights')); ?></dt>
-                    <dd><?php echo $escHtml($accessRights); ?></dd>
-                </div>
-            <?php endif; ?>
-
-            <?php if ($dreId !== ''): ?>
-                <div class="record-apparatus__row">
-                    <dt><?php echo $escHtml($translate('DRE ID')); ?></dt>
-                    <dd><?php echo $escHtml($dreId); ?></dd>
-                </div>
-            <?php endif; ?>
+            <?php endforeach; ?>
         </dl>
     <?php endif; ?>
 

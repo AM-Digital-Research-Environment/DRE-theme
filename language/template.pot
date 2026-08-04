@@ -41,7 +41,7 @@ msgstr ""
 msgid "Abstract"
 msgstr ""
 
-#: view/common/record-apparatus.phtml:120
+#: view/common/record-apparatus.phtml:106
 msgid "Access rights"
 msgstr ""
 
@@ -95,7 +95,7 @@ msgstr ""
 msgid "Check the spelling, or try another form of the word."
 msgstr ""
 
-#: view/common/record-apparatus.phtml:89
+#: view/common/record-apparatus.phtml:143
 msgid "Cite this record"
 msgstr ""
 
@@ -119,11 +119,11 @@ msgstr ""
 msgid "Continue to %s."
 msgstr ""
 
-#: view/common/record-apparatus.phtml:139
+#: view/common/record-apparatus.phtml:175
 msgid "Copied"
 msgstr ""
 
-#: view/common/record-apparatus.phtml:140
+#: view/common/record-apparatus.phtml:176
 msgid "Copy citation"
 msgstr ""
 
@@ -164,11 +164,11 @@ msgstr ""
 msgid "Document & media types"
 msgstr ""
 
-#: view/common/record-apparatus.phtml:99
+#: view/common/record-apparatus.phtml:97
 msgid "DOI"
 msgstr ""
 
-#: view/common/record-apparatus.phtml:127
+#: view/common/record-apparatus.phtml:109
 msgid "DRE ID"
 msgstr ""
 
@@ -274,7 +274,7 @@ msgstr ""
 msgid "Languages represented"
 msgstr ""
 
-#: view/common/record-apparatus.phtml:113
+#: view/common/record-apparatus.phtml:103
 msgid "Licence"
 msgstr ""
 
@@ -406,7 +406,7 @@ msgstr ""
 msgid "Peripheral memories of Capoeira Angola in Salvador"
 msgstr ""
 
-#: view/common/record-apparatus.phtml:106
+#: view/common/record-apparatus.phtml:100
 msgid "Permalink"
 msgstr ""
 
