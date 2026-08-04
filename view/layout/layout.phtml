@@ -12,10 +12,19 @@ $isHome = $this->IsHomePage();
 // Masthead brand presence (A quiet / B balanced / C bold). Purely a token
 // switch: abstracts/variables/_colors.scss redefines the --masthead-* / --flag /
 // --numeral / --cta-* roles per value, so nothing else in the theme knows which
-// treatment is active. Balanced is the default (closest to v2.21).
-$brandPresence = (string) $this->themeSetting('masthead_brand', 'balanced');
+// treatment is active.
+//
+// This fallback MUST track elements.masthead_brand.attributes.value in
+// config/theme.ini. theme.ini's value only pre-fills the admin form on a fresh
+// configure — it is not what themeSetting() falls back to — so an install that
+// has never saved theme settings (masthead_brand simply absent from
+// theme_settings_dre-theme) is served whatever is hard-coded here. When 2.24.0
+// moved the default to "bold" and left this line at "balanced", every existing
+// site kept the band that follows --surface: the deep plate shipped and no
+// visitor saw it.
+$brandPresence = (string) $this->themeSetting('masthead_brand', 'bold');
 if (!in_array($brandPresence, ['quiet', 'balanced', 'bold'], true)) {
-    $brandPresence = 'balanced';
+    $brandPresence = 'bold';
 }
 $this->htmlElement('body')->setAttribute('data-brand', $brandPresence);
 

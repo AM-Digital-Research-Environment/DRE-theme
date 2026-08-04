@@ -19,14 +19,21 @@
  *                     themeSetting() renders an admin field that configures
  *                     nothing. Seven of these were inherited from the Lively
  *                     fork (footer_menu, footer_content, media_caption, …).
- *   5. Helpers      — every `helpers[] = "X"` needs helper/X.php, and every
+ *   5. Defaults     — `attributes.value` only pre-fills the admin form; it is
+ *                     NOT themeSetting()'s fallback. When the two disagree,
+ *                     every site that never saved theme settings gets the
+ *                     template's hard-coded value. v2.24.0 moved
+ *                     masthead_brand to "bold" in the INI while layout.phtml
+ *                     still passed 'balanced' — the redesigned masthead
+ *                     shipped and no visitor saw it.
+ *   6. Helpers      — every `helpers[] = "X"` needs helper/X.php, and every
  *                     helper/X.php should be registered. ShadeColor.php sat
  *                     registered-but-uncalled, loaded on every request.
  *
  * Exit code 1 on any finding; prints the offending line where it has one.
  */
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 
 const ROOT = join(import.meta.dirname, '..');
 const INI = join(ROOT, 'config', 'theme.ini');
@@ -43,6 +50,7 @@ const text = readFileSync(INI, 'utf8');
 let section = null;
 const seen = new Set();
 const elements = new Map(); // name -> first line number
+const elementDefaults = new Map(); // name -> { value, line } from attributes.value
 const helpers = [];
 
 text.split(/\r?\n/).forEach((raw, i) => {
@@ -87,6 +95,10 @@ text.split(/\r?\n/).forEach((raw, i) => {
         add(lineNo, `Zend namespace in element type (${value}) — use Laminas\\…`);
     }
 
+    // Declared admin default, for the fallback-agreement check below.
+    const dm = key.match(/^elements\.([A-Za-z0-9_]+)\.attributes\.value$/);
+    if (dm) elementDefaults.set(dm[1], { value: value.replace(/^"(.*)"$/, '$1'), line: lineNo });
+
     const em = key.match(/^elements\.([A-Za-z0-9_]+)\./);
     if (em && !elements.has(em[1])) elements.set(em[1], lineNo);
 });
@@ -117,11 +129,17 @@ function* filesUnder(dir, exts) {
 // side accepts and the read side cannot express is a false positive by
 // construction.
 const readNames = new Set();
+const readSites = []; // { name, fallback|null, file }
 for (const dir of ['view', 'helper']) {
     for (const file of filesUnder(join(ROOT, dir), ['.phtml', '.php'])) {
         const src = readFileSync(file, 'utf8');
-        for (const m of src.matchAll(/themeSetting\(\s*['"]([A-Za-z0-9_]+)['"]/g)) {
+        for (const m of src.matchAll(/themeSetting\(\s*['"]([A-Za-z0-9_]+)['"]\s*(?:,\s*([^),]*?)\s*)?\)/g)) {
             readNames.add(m[1]);
+            readSites.push({
+                name: m[1],
+                fallback: m[2] === undefined ? null : m[2].trim(),
+                file: relative(ROOT, file).replace(/\\/g, '/'),
+            });
         }
     }
 }
@@ -131,7 +149,40 @@ for (const [name, line] of elements) {
     add(line, `element "${name}" is declared but never read via themeSetting() — dead admin field`);
 }
 
-// --- 5. Helper registration <-> helper/*.php -----------------------------
+// --- 5. theme.ini default <-> the PHP fallback at each call site ----------
+//
+// `elements.<n>.attributes.value` only PRE-FILLS the admin form on a fresh
+// configure; it is NOT what themeSetting() falls back to. A site that has never
+// saved theme settings has the key simply absent, so it is served whatever the
+// template hard-codes as the second argument. When the two disagree, the
+// declared default is a lie for exactly the installs that never touched the
+// setting — i.e. the untouched majority.
+//
+// This shipped in v2.24.0: theme.ini moved masthead_brand to "bold" while
+// layout.phtml still passed 'balanced', so the redesigned masthead was live and
+// invisible on every existing site.
+//
+// Booleans are normalised because a checkbox is authored as 1/0 in INI and read
+// as true/false in PHP — that pairing is correct, not a finding.
+const BOOLISH = new Map([['1', 'true'], ['0', 'false'], ['true', 'true'], ['false', 'false']]);
+const normalise = (v) => {
+    const bare = String(v).trim().replace(/^['"](.*)['"]$/, '$1').toLowerCase();
+    return BOOLISH.get(bare) ?? bare;
+};
+
+for (const site of readSites) {
+    const declared = elementDefaults.get(site.name);
+    if (!declared || site.fallback === null) continue; // nothing to compare
+    if (normalise(declared.value) === normalise(site.fallback)) continue;
+    add(
+        declared.line,
+        `element "${site.name}" declares attributes.value = ${declared.value} but ` +
+            `${site.file} falls back to ${site.fallback} — a site that never saved ` +
+            `theme settings gets the fallback, not the declared default`
+    );
+}
+
+// --- 6. Helper registration <-> helper/*.php -----------------------------
 const helperDir = join(ROOT, 'helper');
 const onDisk = existsSync(helperDir)
     ? readdirSync(helperDir).filter((f) => f.endsWith('.php')).map((f) => f.replace(/\.php$/, ''))

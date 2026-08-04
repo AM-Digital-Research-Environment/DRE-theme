@@ -69,11 +69,11 @@ msgstr ""
 msgid "Authors & named persons"
 msgstr ""
 
-#: view/layout/layout.phtml:276
+#: view/layout/layout.phtml:285
 msgid "Back to top"
 msgstr ""
 
-#: view/layout/layout.phtml:82
+#: view/layout/layout.phtml:91
 msgid "Browse"
 msgstr ""
 
@@ -86,7 +86,7 @@ msgstr ""
 msgid "Browse projects interactively"
 msgstr ""
 
-#: view/layout/layout.phtml:81
+#: view/layout/layout.phtml:90
 msgid "Browse the collection"
 msgstr ""
 
@@ -266,6 +266,10 @@ msgstr ""
 msgid "Knowledge-graph links"
 msgstr ""
 
+#: helper/CollectionStats.php:289
+msgid "Languages"
+msgstr ""
+
 #: view/common/nav-menu.phtml:53
 msgid "Languages represented"
 msgstr ""
@@ -286,7 +290,7 @@ msgstr ""
 msgid "List"
 msgstr ""
 
-#: helper/CollectionStats.php:233
+#: helper/CollectionStats.php:288
 msgid "Locations"
 msgstr ""
 
@@ -361,7 +365,7 @@ msgstr ""
 msgid "Open menu"
 msgstr ""
 
-#: helper/CollectionStats.php:232
+#: helper/CollectionStats.php:287
 msgid "Organisations"
 msgstr ""
 
@@ -390,7 +394,7 @@ msgstr ""
 msgid "Part of %s"
 msgstr ""
 
-#: helper/CollectionStats.php:231
+#: helper/CollectionStats.php:286
 msgid "People"
 msgstr ""
 
@@ -414,6 +418,10 @@ msgstr ""
 msgid "Places mapped & georeferenced"
 msgstr ""
 
+#: helper/CollectionStats.php:292
+msgid "Podcasts"
+msgstr ""
+
 #: view/common/pagination.phtml:18
 msgid "Previous"
 msgstr ""
@@ -426,7 +434,7 @@ msgstr ""
 msgid "Private"
 msgstr ""
 
-#: helper/CollectionStats.php:229
+#: helper/CollectionStats.php:285
 msgid "Projects"
 msgstr ""
 
@@ -450,7 +458,7 @@ msgstr ""
 msgid "Publication trends & networks"
 msgstr ""
 
-#: helper/CollectionStats.php:230
+#: helper/CollectionStats.php:291
 msgid "Publications"
 msgstr ""
 
@@ -462,22 +470,18 @@ msgstr ""
 msgid "Relationship"
 msgstr ""
 
-#: helper/CollectionStats.php:228
+#: helper/CollectionStats.php:284
 msgid "Research items"
-msgstr ""
-
-#: helper/CollectionStats.php:235
-msgid "Resource types"
 msgstr ""
 
 #: helper/ResourceGroups.php:121
 msgid "Rights & access"
 msgstr ""
 
-#: view/common/banner.phtml:201
+#: view/common/banner.phtml:204
 #: view/common/main-header-search.phtml:5
-#: view/layout/layout.phtml:87
-#: view/layout/layout.phtml:88
+#: view/layout/layout.phtml:96
+#: view/layout/layout.phtml:97
 msgid "Search"
 msgstr ""
 
@@ -493,7 +497,7 @@ msgstr ""
 msgid "Search is temporarily unavailable."
 msgstr ""
 
-#: view/common/banner.phtml:200
+#: view/common/banner.phtml:203
 msgid "Search records, people, places, subjects…"
 msgstr ""
 
@@ -501,7 +505,7 @@ msgstr ""
 msgid "Search results for “%s”"
 msgstr ""
 
-#: view/common/banner.phtml:197
+#: view/common/banner.phtml:200
 #: view/common/dre-search-redirect.phtml:17
 #: view/common/dre-search-redirect.phtml:19
 #: view/hierarchy/site/index/hierarchy.phtml:231
@@ -532,7 +536,7 @@ msgstr ""
 msgid "Site pages"
 msgstr ""
 
-#: view/layout/layout.phtml:263
+#: view/layout/layout.phtml:272
 msgid "Skip to main content"
 msgstr ""
 
@@ -552,7 +556,7 @@ msgstr ""
 msgid "Subjects"
 msgstr ""
 
-#: helper/CollectionStats.php:234
+#: helper/CollectionStats.php:290
 msgid "Subjects & tags"
 msgstr ""
 
@@ -639,4 +643,8 @@ msgstr ""
 
 #: view/common/numeric-duration.phtml:13
 msgid "Years"
+msgstr ""
+
+#: helper/CollectionStats.php:293
+msgid "YouTube videos"
 msgstr ""

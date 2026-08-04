@@ -34,11 +34,20 @@ class CollectionStats extends AbstractHelper
     /** Cache lifetime in seconds. */
     private const TTL = 3600;
 
-    /** Bump when the shape or metric set changes, to invalidate old caches. */
-    private const CACHE_VERSION = 'v4';
+    /**
+     * Bump when the shape or metric set changes, to invalidate old caches.
+     * v5: dropped Resource types, added Languages / Podcasts / YouTube videos.
+     */
+    private const CACHE_VERSION = 'v5';
 
-    /** Path of the visualizations module's precompute, relative to OMEKA_PATH. */
-    private const PRECOMPUTE = '/modules/DreVisualizations/asset/data/item-dashboards/collection-overview.json';
+    /** The visualizations module's data directory, relative to OMEKA_PATH. */
+    private const PRECOMPUTE_DIR = '/modules/DreVisualizations/asset/data';
+
+    /** The artifact to read, relative to the resolved generation root. */
+    private const PRECOMPUTE_FILE = 'item-dashboards/collection-overview.json';
+
+    /** A published generation id, e.g. 20260803T085234Z-964ff56b9f5c. */
+    private const GENERATION_ID = '/^[0-9]{8}T[0-9]{6}Z-[a-f0-9]{12}$/';
 
     /** Templates summed into the "Publications" figure in the API fallback. */
     private const PUBLICATION_TEMPLATES = [
@@ -142,14 +151,52 @@ class CollectionStats extends AbstractHelper
      * Read the visualizations module's precompute. Returns null when the module,
      * the file or a usable `stats` array is absent.
      */
+    /**
+     * Resolve the precompute through the module's generation pointer.
+     *
+     * The module publishes atomically: artifacts are staged, then the directory
+     * is renamed and asset/data/current.json is swapped to point at it
+     * (Precompute/SnapshotPublisher.php). Readers must therefore go through the
+     * pointer — this mirrors the module's own
+     * Precompute/PublishedSnapshot::path(), which a theme cannot call because
+     * the class is absent whenever the module is.
+     *
+     * Getting this wrong is silent: the flat pre-generation path simply stops
+     * existing, is_readable() returns false, and the masthead quietly serves the
+     * thinner API fallback instead. That is exactly what happened between the
+     * module adopting generations and theme 2.24.1 — the band lost Languages,
+     * Podcasts and YouTube videos and nothing anywhere reported an error.
+     */
+    private function precomputePath(): ?string
+    {
+        $dataDir = OMEKA_PATH . self::PRECOMPUTE_DIR;
+
+        $manifestPath = $dataDir . '/current.json';
+        if (is_readable($manifestPath)) {
+            $manifest = json_decode((string) file_get_contents($manifestPath), true);
+            $generationId = is_array($manifest) ? (string) ($manifest['generationId'] ?? '') : '';
+            // Validated, not trusted as a path fragment: this string is
+            // concatenated into a filesystem path.
+            if (preg_match(self::GENERATION_ID, $generationId)) {
+                $published = $dataDir . '/generations/' . $generationId . '/' . self::PRECOMPUTE_FILE;
+                return is_readable($published) ? $published : null;
+            }
+        }
+
+        // Upgrade compatibility: a module older than the generations layout, or
+        // one that has not regenerated since upgrading, still writes it flat.
+        $legacy = $dataDir . '/' . self::PRECOMPUTE_FILE;
+        return is_readable($legacy) ? $legacy : null;
+    }
+
     private function fromPrecompute(): ?array
     {
         try {
             if (!defined('OMEKA_PATH')) {
                 return null;
             }
-            $path = OMEKA_PATH . self::PRECOMPUTE;
-            if (!is_readable($path)) {
+            $path = $this->precomputePath();
+            if (null === $path) {
                 return null;
             }
             $data = json_decode((string) file_get_contents($path), true);
@@ -224,15 +271,26 @@ class CollectionStats extends AbstractHelper
                 $publications += $byTemplate($label);
             }
 
+            // Same metrics, same ORDER as the module precompute's
+            // buildOverviewStats(), so the masthead does not silently reshuffle
+            // when an install gains or loses the visualizations module.
+            //
+            // Resource Types was dropped after 2.24: every other row answers
+            // "how much of X does the collection hold" and links to an authority
+            // page, but Type of Resource describes the other records rather than
+            // being a corpus of its own — and it is the one key the masthead has
+            // no route for, so it was the single dead row in the catalogue.
             return [
                 ['k' => 'researchItems', 'l' => $translate('Research items'),  'n' => $byTemplate('Research Items'), 's' => ''],
                 ['k' => 'projects',      'l' => $translate('Projects'),        'n' => $byTemplate('Projects'),       's' => ''],
-                ['k' => 'publications',  'l' => $translate('Publications'),    'n' => $publications,                 's' => ''],
                 ['k' => 'people',        'l' => $translate('People'),          'n' => $byTemplate('Persons'),        's' => ''],
                 ['k' => 'organisations', 'l' => $translate('Organisations'),   'n' => $byTemplate('Organisation'),   's' => ''],
                 ['k' => 'locations',     'l' => $translate('Locations'),       'n' => $byTemplate('Location'),       's' => ''],
+                ['k' => 'languages',     'l' => $translate('Languages'),       'n' => $bySet('Languages'),           's' => ''],
                 ['k' => 'subjectsTags',  'l' => $translate('Subjects & tags'), 'n' => $bySet('Subjects'),            's' => ''],
-                ['k' => 'resourceTypes', 'l' => $translate('Resource types'),  'n' => $bySet('Type of Resource'),    's' => ''],
+                ['k' => 'publications',  'l' => $translate('Publications'),    'n' => $publications,                 's' => ''],
+                ['k' => 'podcasts',      'l' => $translate('Podcasts'),        'n' => $bySet('Podcasts'),            's' => ''],
+                ['k' => 'youtube',       'l' => $translate('YouTube videos'),  'n' => $bySet('YouTube videos'),      's' => ''],
             ];
         } catch (\Throwable $e) {
             return null;

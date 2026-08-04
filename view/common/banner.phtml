@@ -133,8 +133,11 @@ $formatNumber = static function ($value): string {
     return number_format((int) $value);
 };
 
-// Each catalogue row links to its authority page. Resource Types has none and
-// stays a plain row rather than a dead link.
+// Each catalogue row links to its authority page. Every metric both sources
+// emit is mapped here since 2.24.1 (Resource Types, the one that never had a
+// route, was dropped from both), but the plain-row fallback stays: a stale
+// hourly cache or an older visualizations module can still hand us a key we
+// have no page for, and a dead link is worse than an unlinked row.
 $statLinks = [
     'researchItems' => 'research-items',
     'projects'      => 'research-projects',

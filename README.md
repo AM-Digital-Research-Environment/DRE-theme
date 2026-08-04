@@ -134,7 +134,9 @@ The visual language — palette, the single-seed colour engine, typography, toke
 
 ## Credits
 
-Theme by Frédérick Madore for the Africa Multiple Cluster of Excellence. Originally forked from the **Lively** theme by the Omeka Team ([omeka-s-themes/lively](https://github.com/omeka-s-themes/lively)), it has since been rebuilt into a standalone theme and design system.
+Theme by Frédérick Madore for the Africa Multiple Cluster of Excellence.
+
+This theme began in 2026 as a fork of the **Lively** theme by the Omeka Team ([omeka-s-themes/lively](https://github.com/omeka-s-themes/lively)), whose GPLv3 licence it keeps, and to whom it owes its starting point. It has since been rebuilt top to bottom — palette and the single-seed colour engine, typography, spacing and layout tokens, every component, both colour schemes, the build pipeline and the test suite — and the last of the inherited stock-theme furniture was retired in v2.22 (see [`AUDIT.md`](AUDIT.md) §B7). It is now developed, versioned and released independently, and is not affiliated with or supported by the Omeka Team.
 
 ## License
 
