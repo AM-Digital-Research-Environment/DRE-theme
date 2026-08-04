@@ -41,7 +41,7 @@ msgstr ""
 msgid "Abstract"
 msgstr ""
 
-#: view/common/record-apparatus.phtml:124
+#: view/common/record-apparatus.phtml:135
 msgid "Access rights"
 msgstr ""
 
@@ -95,11 +95,11 @@ msgstr ""
 msgid "Check the spelling, or try another form of the word."
 msgstr ""
 
-#: view/common/record-apparatus.phtml:170
+#: view/common/record-apparatus.phtml:186
 msgid "Citation style"
 msgstr ""
 
-#: view/common/record-apparatus.phtml:165
+#: view/common/record-apparatus.phtml:101
 msgid "Cite this record"
 msgstr ""
 
@@ -123,12 +123,16 @@ msgstr ""
 msgid "Continue to %s."
 msgstr ""
 
-#: view/common/record-apparatus.phtml:222
+#: view/common/record-apparatus.phtml:238
 msgid "Copied"
 msgstr ""
 
-#: view/common/record-apparatus.phtml:223
+#: view/common/record-apparatus.phtml:102
 msgid "Copy citation"
+msgstr ""
+
+#: view/common/record-apparatus.phtml:102
+msgid "Copy link"
 msgstr ""
 
 #: view/common/numeric-timestamp.phtml:19
@@ -168,15 +172,15 @@ msgstr ""
 msgid "Document & media types"
 msgstr ""
 
-#: view/common/record-apparatus.phtml:115
+#: view/common/record-apparatus.phtml:126
 msgid "DOI"
 msgstr ""
 
-#: view/common/record-apparatus.phtml:229
+#: view/common/record-apparatus.phtml:245
 msgid "Download"
 msgstr ""
 
-#: view/common/record-apparatus.phtml:127
+#: view/common/record-apparatus.phtml:138
 msgid "DRE ID"
 msgstr ""
 
@@ -282,7 +286,7 @@ msgstr ""
 msgid "Languages represented"
 msgstr ""
 
-#: view/common/record-apparatus.phtml:121
+#: view/common/record-apparatus.phtml:132
 msgid "Licence"
 msgstr ""
 
@@ -414,7 +418,7 @@ msgstr ""
 msgid "Peripheral memories of Capoeira Angola in Salvador"
 msgstr ""
 
-#: view/common/record-apparatus.phtml:118
+#: view/common/record-apparatus.phtml:129
 msgid "Permalink"
 msgstr ""
 
@@ -586,6 +590,10 @@ msgstr ""
 
 #: view/common/nav-menu.phtml:37
 msgid "The named entities that link every record together."
+msgstr ""
+
+#: view/common/record-apparatus.phtml:101
+msgid "This record"
 msgstr ""
 
 #: view/common/numeric-duration.phtml:22

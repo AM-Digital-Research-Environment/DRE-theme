@@ -54,6 +54,12 @@ dre_check($failures, $checks, 'the apparatus keeps its own citation fallback',
     str_contains($apparatus, "elseif (\$citation !== ''):"));
 dre_check($failures, $checks, 'the curated citation is escaped by the theme',
     str_contains($apparatus, '$escHtml($citation)'));
+// A subject heading is describable, not citable, and the panel must not claim
+// otherwise — but "the module said no" and "there is no module" are different
+// answers, and only the first should retitle the panel.
+dre_check($failures, $checks, 'the panel title follows whether the record is citable',
+    str_contains($apparatus, "\$cite['citable'] ?? true) === false")
+        && str_contains($apparatus, '$escHtml($panelTitle)'));
 
 foreach (['item', 'item-set', 'media'] as $resource) {
     $redirect = "view/omeka/site/{$resource}/search.phtml";

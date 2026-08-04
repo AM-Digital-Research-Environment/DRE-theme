@@ -90,6 +90,17 @@ $citeDefault = $citeStyles[$cite['defaultStyle'] ?? ''] ?? null
     : (string) array_key_first($citeStyles ?: ['' => null]);
 $citeDownloads = is_array($cite) && !empty($cite['downloads']) ? $cite['downloads'] : [];
 
+// A subject heading, a language, a person, a journal — the module says plainly
+// that these are describable but not citable, and a panel headed "Cite this
+// record" over a vocabulary term claims something untrue. The permalink is
+// still worth having, so the box stays and only its framing changes.
+//
+// Note the three-way read: `null` means the module is absent or switched off
+// and the theme cannot tell, in which case nothing changes.
+$isAuthority = is_array($cite) && ($cite['citable'] ?? true) === false;
+$panelTitle = $isAuthority ? $translate('This record') : $translate('Cite this record');
+$copyLabel = $isAuthority ? $translate('Copy link') : $translate('Copy citation');
+
 $doiValues = $displayValues('bibo:doi');
 $licence = $displayValues('dcterms:license');
 $accessRights = $displayValues('dcterms:accessRights');
@@ -136,13 +147,18 @@ if ($citation === '' && !$rows && !$citeStyles) {
 $citeId = 'record-cite-' . (int) $resource->id();
 
 // Prefer a real citation; otherwise give the copy button something honest —
-// the record's title and its permalink.
-$copyText = $citation;
-if ($copyText === '') {
-    try {
-        $copyText = trim($resource->displayTitle() . ($permalink !== '' ? '. ' . $permalink : ''));
-    } catch (\Throwable $e) {
-        $copyText = $permalink;
+// the record's title and its permalink. On an authority record the link IS the
+// payload: nobody wants "Artefact." pasted in front of it.
+if ($isAuthority) {
+    $copyText = $permalink;
+} else {
+    $copyText = $citation;
+    if ($copyText === '') {
+        try {
+            $copyText = trim($resource->displayTitle() . ($permalink !== '' ? '. ' . $permalink : ''));
+        } catch (\Throwable $e) {
+            $copyText = $permalink;
+        }
     }
 }
 
@@ -162,7 +178,7 @@ $isLongRow = function (array $row): bool {
 $this->inlineScript()->appendFile($this->assetUrl('js/record.js'));
 ?>
 <section class="record-apparatus" aria-labelledby="record-apparatus-title">
-    <h2 class="record-apparatus__title" id="record-apparatus-title"><?php echo $escHtml($translate('Cite this record')); ?></h2>
+    <h2 class="record-apparatus__title" id="record-apparatus-title"><?php echo $escHtml($panelTitle); ?></h2>
 
     <?php if ($citeStyles): ?>
         <div class="record-apparatus__cite" data-record-citation>
@@ -220,7 +236,7 @@ $this->inlineScript()->appendFile($this->assetUrl('js/record.js'));
         <button type="button" class="button btn--secondary record-apparatus__copy"
             data-copy-text="<?php echo $escAttr($copyText); ?>"
             data-copied-label="<?php echo $escAttr($translate('Copied')); ?>">
-            <?php echo $escHtml($translate('Copy citation')); ?>
+            <?php echo $escHtml($copyLabel); ?>
         </button>
     </div>
 
