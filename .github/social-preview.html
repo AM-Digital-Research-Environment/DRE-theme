@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DRE-theme social preview</title>
+<!--
+  Source for .github/social-preview.png — the repository's Open Graph card
+  (GitHub → Settings → General → Social preview, 1280×640).
+
+  It is the masthead: the same "bold" plate tokens from
+  asset/sass/abstracts/variables/_colors.scss, the theme's own Spectral and
+  Hanken Grotesk faces, the brand flag, the sunken catalogue column, and the
+  lockup on the light plaque the footer uses for marks over a forest band.
+  Restate a token here only if the theme changed it.
+
+  To re-render, from the repository root:
+
+    npx serve . -l 8931          # or: python -m http.server 8931
+    npx playwright screenshot       --viewport-size=1280,640 --device-scale-factor=2 --wait-for-timeout=2000       http://127.0.0.1:8931/.github/social-preview.html raw.png
+    npx sharp-cli -i raw.png -o .github/social-preview.png resize 1280 640
+
+  The catalogue column states support ranges (Omeka S, PHP) — check them against
+  config/theme.ini and .github/workflows/ci.yml before regenerating.
+-->
+<style>
+  @font-face { font-family: "Spectral"; src: url("../asset/fonts/spectral-latin-800-normal.woff2") format("woff2"); font-weight: 800; font-style: normal; font-display: block; }
+  @font-face { font-family: "Hanken Grotesk"; src: url("../asset/fonts/hanken-grotesk-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: block; }
+  @font-face { font-family: "Hanken Grotesk"; src: url("../asset/fonts/hanken-grotesk-latin-600-normal.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: block; }
+  @font-face { font-family: "Hanken Grotesk"; src: url("../asset/fonts/hanken-grotesk-latin-700-normal.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: block; }
+
+  /* The masthead's "bold" plate, token for token — see
+     asset/sass/abstracts/variables/_colors.scss, body[data-brand="bold"]. */
+  :root {
+    --masthead-bg:       oklch(34% 0.075 165);
+    --masthead-ink:      oklch(98% 0.008 120);
+    --masthead-ink-soft: oklch(86% 0.030 150);
+    --masthead-rule:     oklch(78% 0.10 88);
+    --masthead-hair:     oklch(44% 0.055 165);
+    --masthead-sunken:   oklch(29.5% 0.07 165);
+    --numeral:           oklch(84% 0.085 88);
+    --entry-label:       color-mix(in oklab, var(--masthead-ink) 35%, var(--masthead-ink-soft));
+    /* The system's one deliberately mode-independent ground — the footer puts
+       the full-colour institutional marks on it so they stay legible over the
+       forest band. Same problem here, same answer. */
+    --plaque-bg:         oklch(99% 0.004 95);
+    --border-light:      oklch(93% 0.007 85);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    width: 1280px;
+    height: 640px;
+    overflow: hidden;
+    background-color: var(--masthead-bg);
+    font-family: "Hanken Grotesk", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .plate {
+    width: 1280px;
+    height: 640px;
+    display: flex;
+    flex-direction: column;
+    padding: 56px 72px 44px;
+  }
+
+  .masthead { flex: 1; display: flex; align-items: flex-start; gap: 72px; min-height: 0; }
+
+  .headline { flex: 1; min-width: 0; }
+
+  /* The brand flag — a short 3px rule that opens the masthead. */
+  .flag { width: 96px; height: 3px; background-color: var(--masthead-rule); }
+
+  .eyebrow {
+    margin: 28px 0 0;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--masthead-ink-soft);
+  }
+
+  .title {
+    margin: 20px 0 0;
+    font-family: "Spectral", Georgia, serif;
+    font-weight: 800;
+    font-size: 88px;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    color: var(--masthead-ink);
+  }
+
+  .lede {
+    margin: 30px 0 0;
+    max-width: 648px;
+    font-size: 24px;
+    line-height: 1.55;
+    color: var(--masthead-ink-soft);
+  }
+
+  .colophon {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+    margin-top: 44px;
+    padding-top: 26px;
+    border-top: 1px solid var(--masthead-hair);
+  }
+  .plaque {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 18px;
+    background-color: var(--plaque-bg);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+  }
+  .plaque img { height: 44px; width: auto; display: block; }
+  .repo {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--masthead-ink-soft);
+  }
+
+  /* The catalogue column: a sunken panel, one step DOWN from the band. */
+  .catalogue {
+    flex: none;
+    width: 372px;
+    background-color: var(--masthead-sunken);
+    border-radius: 12px;
+    padding: 32px 30px 34px;
+  }
+
+  .catalogue h2 {
+    margin: 0 0 14px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--masthead-ink-soft);
+  }
+
+  .entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    padding: 12px 0;
+    border-top: 1px solid var(--masthead-hair);
+  }
+  .entry:last-child { border-bottom: 1px solid var(--masthead-hair); }
+
+  .entry-label { font-size: 20px; color: var(--entry-label); }
+  .entry-num {
+    flex: none;
+    font-size: 20px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--numeral);
+  }
+</style>
+</head>
+<body>
+  <div class="plate">
+    <div class="masthead">
+      <div class="headline">
+      <div class="flag"></div>
+      <p class="eyebrow">Omeka&nbsp;S theme · Africa Multiple Cluster of Excellence</p>
+      <h1 class="title">Digital Research Environment</h1>
+      <p class="lede">A “Scholarly Modernism” design system on an OKLCH token foundation — first-class light and dark, with WCAG&nbsp;AA asserted by the build.</p>
+      </div>
+
+      <div class="catalogue">
+      <h2>In the theme</h2>
+      <div class="entry"><span class="entry-label">Colour schemes</span><span class="entry-num">2</span></div>
+      <div class="entry"><span class="entry-label">Contrast floor</span><span class="entry-num">AA</span></div>
+      <div class="entry"><span class="entry-label">Design tokens</span><span class="entry-num">OKLCH</span></div>
+      <div class="entry"><span class="entry-label">Omeka S</span><span class="entry-num">4.2.1+</span></div>
+      <div class="entry"><span class="entry-label">PHP</span><span class="entry-num">8.1–8.5</span></div>
+        <div class="entry"><span class="entry-label">Licence</span><span class="entry-num">GPLv3</span></div>
+      </div>
+    </div>
+
+    <div class="colophon">
+      <span class="plaque"><img src="../asset/img/africamultiple.webp" alt=""></span>
+      <span class="repo">github.com/AM-Digital-Research-Environment/DRE-theme</span>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,8 +1,34 @@
 {
     "name": "am-digital-research-environment/dre-theme",
     "type": "omeka-s-theme",
-    "description": "Africa Multiple — Digital Research Environment theme for Omeka S.",
+    "description": "Africa Multiple — Digital Research Environment theme for Omeka S. A \"Scholarly Modernism\" design system on an OKLCH design-token foundation, with first-class light and dark modes.",
+    "keywords": [
+        "omeka",
+        "omeka-s",
+        "theme",
+        "design-system",
+        "design-tokens",
+        "oklch",
+        "accessibility",
+        "dark-mode",
+        "digital-humanities",
+        "research-data"
+    ],
+    "homepage": "https://data.africamultiple.uni-bayreuth.de/s/amira",
+    "readme": "README.md",
     "license": "GPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Frédérick Madore",
+            "homepage": "https://www.frederickmadore.com/",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/AM-Digital-Research-Environment/DRE-theme/issues",
+        "source": "https://github.com/AM-Digital-Research-Environment/DRE-theme",
+        "docs": "https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/DESIGN.md"
+    },
     "require": {
         "omeka/omeka-s": "^4.2.1"
     }
