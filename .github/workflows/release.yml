@@ -1,0 +1,178 @@
+name: Release
+
+# Builds the installable theme package and attaches it to the release for the
+# tag. The package is `git archive`, so .gitattributes `export-ignore` is the
+# manifest — the file that decides what a site admin unpacks lives next to the
+# code it describes, not in this workflow.
+#
+# Two things this exists to make impossible:
+#
+#   1. A zip without the DRE-theme/ prefix. Omeka discovers a theme by
+#      directory: an archive whose files unpack loose contains no theme at all,
+#      and the failure is silent — the theme simply never appears in the admin.
+#   2. A package that CI never tested. The `omeka-compatibility` job in ci.yml
+#      copies the WORKING TREE into Omeka, which has files the release does not.
+#      So the artefact people actually install has never been through a theme
+#      manager. Here it is: this job unpacks the zip it just built and runs the
+#      same discovery test against that.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag to (re)build the package for, e.g. v2.29.0'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.event.inputs.tag || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  package:
+    name: Package and attach DRE-theme.zip
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # The tag has to be a real ref for `git archive <tag>`, and the
+          # release notes step wants the history behind it.
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          coverage: none
+
+      - name: Resolve the tag
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+          echo "VERSION=${TAG#v}" >> "$GITHUB_ENV"
+
+      # theme.ini is the version Omeka shows an admin, so it is the one the tag
+      # has to match. lint:ini then holds package.json, package-lock.json and
+      # CITATION.cff to the same number — it needs no dependencies, so it runs
+      # here without an `npm ci`.
+      - name: The tag names the version the theme declares
+        run: |
+          INI="$(sed -n 's/^version *= *"\(.*\)"/\1/p' config/theme.ini | head -1)"
+          if [ "$INI" != "$VERSION" ]; then
+            echo "::error::tag $TAG expects version $VERSION but config/theme.ini declares $INI"
+            exit 1
+          fi
+          node scripts/check-theme-ini.mjs
+
+      - name: Build the package
+        run: git archive --format=zip -9 --prefix=DRE-theme/ -o DRE-theme.zip "$TAG"
+
+      # Everything below asserts against the ZIP, never the checkout.
+      - name: The package contains a theme, and only a theme
+        run: |
+          set -euo pipefail
+          unzip -qq -l DRE-theme.zip | awk '{ $1=$2=$3=""; sub(/^ +/,""); print }' | grep -v '^$' > paths.txt
+
+          roots="$(sed 's|/.*||' paths.txt | sort -u)"
+          if [ "$roots" != "DRE-theme" ]; then
+            echo "::error::archive must have exactly one top-level directory, DRE-theme/ — found: $roots"
+            exit 1
+          fi
+
+          fail=0
+
+          # What Omeka loads, plus what an admin reads.
+          for required in \
+            DRE-theme/config/theme.ini \
+            DRE-theme/asset/css/style.css \
+            DRE-theme/view/layout/layout.phtml \
+            DRE-theme/theme.jpg \
+            DRE-theme/README.md \
+            DRE-theme/LICENSE \
+            DRE-theme/CITATION.cff \
+            DRE-theme/composer.json
+          do
+            grep -qxF "$required" paths.txt || { echo "::error::missing from package: $required"; fail=1; }
+          done
+
+          for dir in DRE-theme/helper/ DRE-theme/asset/fonts/ DRE-theme/asset/img/ DRE-theme/asset/js/; do
+            grep -q "^$dir" paths.txt || { echo "::error::missing from package: $dir"; fail=1; }
+          done
+
+          # What has no business being installed on someone else's server.
+          for forbidden in \
+            'DRE-theme/scripts/' \
+            'DRE-theme/tests/' \
+            'DRE-theme/asset/sass/' \
+            'DRE-theme/\.github/' \
+            'DRE-theme/node_modules/' \
+            'DRE-theme/package\.json' \
+            'DRE-theme/package-lock\.json' \
+            'DRE-theme/gulpfile\.js' \
+            'DRE-theme/playwright\.config\.mjs' \
+            'DRE-theme/\.editorconfig' \
+            'DRE-theme/\.gitattributes'
+          do
+            if grep -qE "^$forbidden" paths.txt; then
+              echo "::error::development file leaked into the package: $forbidden"
+              grep -E "^$forbidden" paths.txt | head -5
+              fail=1
+            fi
+          done
+
+          exit $fail
+
+      - name: The packaged theme.ini declares the tagged version
+        run: |
+          unzip -p DRE-theme.zip DRE-theme/config/theme.ini > packaged-theme.ini
+          INI="$(sed -n 's/^version *= *"\(.*\)"/\1/p' packaged-theme.ini | head -1)"
+          test "$INI" = "$VERSION" || { echo "::error::packaged theme.ini says $INI, tag says $VERSION"; exit 1; }
+
+      # The artefact people install, through Omeka's own theme manager. Same
+      # test ci.yml runs against the working tree; here the theme under test is
+      # the unpacked zip, so anything export-ignore removed by mistake fails.
+      - name: Omeka S 4.2.1 discovers the packaged theme
+        run: |
+          mkdir -p "$RUNNER_TEMP/omeka"
+          curl -fsSL "https://github.com/omeka/omeka-s/releases/download/v4.2.1/omeka-s-4.2.1.zip" -o "$RUNNER_TEMP/omeka.zip"
+          unzip -q "$RUNNER_TEMP/omeka.zip" -d "$RUNNER_TEMP/omeka"
+          OMEKA_ROOT="$(find "$RUNNER_TEMP/omeka" -maxdepth 2 -name bootstrap.php -printf '%h\n' -quit)"
+          test -n "$OMEKA_ROOT"
+          unzip -q DRE-theme.zip -d "$RUNNER_TEMP/pkg"
+          mkdir -p "$OMEKA_ROOT/themes"
+          cp -r "$RUNNER_TEMP/pkg/DRE-theme" "$OMEKA_ROOT/themes/dre"
+          OMEKA_PATH="$OMEKA_ROOT" OMEKA_REPORT_DEPRECATED=1 \
+            php -d error_reporting=E_ALL -d display_errors=1 tests/OmekaCompatibilityTest.php
+
+      - name: Report the package
+        run: |
+          echo "### \`DRE-theme.zip\` — $TAG" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "\`$(du -h DRE-theme.zip | cut -f1)\` · $(unzip -qq -l DRE-theme.zip | wc -l) files · \`sha256:$(sha256sum DRE-theme.zip | cut -c1-16)…\`" >> "$GITHUB_STEP_SUMMARY"
+
+      # An existing release keeps its hand-written notes and just gets the
+      # asset. A tag pushed without one gets a DRAFT, because the notes on this
+      # repo's releases are written, not generated.
+      - name: Attach to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" DRE-theme.zip --clobber
+          else
+            gh release create "$TAG" DRE-theme.zip \
+              --draft \
+              --title "$TAG" \
+              --generate-notes
+            echo "::notice::No release existed for $TAG — created a DRAFT with the package attached. Write the notes and publish it."
+          fi

@@ -7,7 +7,7 @@
 
 The **Digital Research Environment** theme for the [Africa Multiple Cluster of Excellence](https://www.africamultiple.uni-bayreuth.de/) (University of Bayreuth) — a *“Scholarly Modernism”* design system for the Cluster’s Omeka S archive. Warm and scholarly, built on a modern **OKLCH design-token** foundation with first-class **light and dark modes** and the Cluster’s Uni-Grün brand identity.
 
-> 📐 Full design-system reference: **[`DESIGN.md`](DESIGN.md)** · design context: [`.impeccable.md`](.impeccable.md) · current design/token audit and its breaking-change register: [`AUDIT.md`](AUDIT.md)
+> 📐 Full design-system reference: **[`DESIGN.md`](DESIGN.md)** · design context: [`.impeccable.md`](https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/.impeccable.md) · current design/token audit and its breaking-change register: [`AUDIT.md`](https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/AUDIT.md)
 
 ## Features
 
@@ -23,9 +23,11 @@ The **Digital Research Environment** theme for the [Africa Multiple Cluster of E
 
 ## Installation
 
-For out-of-the-box use, follow the [Omeka S manual on installing themes](https://omeka.org/s/docs/user-manual/sites/site_theme/#installing-themes): place this folder in your Omeka S `themes/` directory and select it for your site.
+Download **`DRE-theme.zip`** from the [latest release](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases/latest) and unpack it into your Omeka S `themes/` directory, then select the theme for your site — see the [Omeka S manual on installing themes](https://omeka.org/s/docs/user-manual/sites/site_theme/#installing-themes). The zip already carries the compiled CSS, the self-hosted fonts and the icon set; there is nothing to build.
 
-For Sass and test development you’ll need [Node.js](https://nodejs.org/) ≥ 24.15. From the theme directory:
+That asset is the theme as Omeka loads it and nothing else: no build toolchain, no test suite, no CI configuration, no Sass sources. Those live here, in the repository, under the same GPLv3 — clone it if you want to modify the theme rather than install it.
+
+For Sass and test development you’ll need [Node.js](https://nodejs.org/) ≥ 24.15. From a clone of the repository:
 
 ```bash
 npm install
@@ -78,8 +80,8 @@ list of the live template. The helper and template contract suites also make
 every warning and deprecation fatal. CI validates discovery through Omeka S
 4.2.1's real theme manager on PHP 8.5. Refresh the fixture with
 `npm run fixtures:refresh` when the template changes. See
-[`docs/TESTING.md`](docs/TESTING.md) for the complete matrix and nightly smoke
-test.
+[`docs/TESTING.md`](https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/docs/TESTING.md)
+for the complete matrix and nightly smoke test.
 
 ### Search integration
 
@@ -130,13 +132,13 @@ With the **Progressive Web App** setting enabled (the default), the site becomes
 
 The visual language — palette, the single-seed colour engine, typography, tokens, dark mode, components and maintenance recipes — is documented in **[`DESIGN.md`](DESIGN.md)**. The theme’s design tokens are also the shared contract for its sibling modules, **DRE Search** and **DRE Visualizations**, which consume them so they follow the brand and the light/dark toggle automatically — see [§9 “The module ecosystem”](DESIGN.md#9-the-module-ecosystem--search--visualizations).
 
-**Upgrading to v2.22** — the token layer grew beyond colour (type, rhythm and layout families) and a handful of tokens were retired or renamed. Only one rename affects the modules: `--dre-hl-bg` → `--highlight-bg`, shipped with a deprecated compatibility alias and already updated in DRE Search. The full register, with impact and mitigation per change, is in [`AUDIT.md` §4](AUDIT.md).
+**Upgrading to v2.22** — the token layer grew beyond colour (type, rhythm and layout families) and a handful of tokens were retired or renamed. Only one rename affects the modules: `--dre-hl-bg` → `--highlight-bg`, shipped with a deprecated compatibility alias and already updated in DRE Search. The full register, with impact and mitigation per change, is in [`AUDIT.md` §4](https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/AUDIT.md).
 
 ## Credits
 
 Theme by Frédérick Madore for the Africa Multiple Cluster of Excellence.
 
-This theme began in 2026 as a fork of the **Lively** theme by the Omeka Team ([omeka-s-themes/lively](https://github.com/omeka-s-themes/lively)), whose GPLv3 licence it keeps, and to whom it owes its starting point. It has since been rebuilt top to bottom — palette and the single-seed colour engine, typography, spacing and layout tokens, every component, both colour schemes, the build pipeline and the test suite — and the last of the inherited stock-theme furniture was retired in v2.22 (see [`AUDIT.md`](AUDIT.md) §B7). It is now developed, versioned and released independently, and is not affiliated with or supported by the Omeka Team.
+This theme began in 2026 as a fork of the **Lively** theme by the Omeka Team ([omeka-s-themes/lively](https://github.com/omeka-s-themes/lively)), whose GPLv3 licence it keeps, and to whom it owes its starting point. It has since been rebuilt top to bottom — palette and the single-seed colour engine, typography, spacing and layout tokens, every component, both colour schemes, the build pipeline and the test suite — and the last of the inherited stock-theme furniture was retired in v2.22 (see [`AUDIT.md`](https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/AUDIT.md) §B7). It is now developed, versioned and released independently, and is not affiliated with or supported by the Omeka Team.
 
 ## License
 

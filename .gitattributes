@@ -5,8 +5,58 @@
 *.woff2 binary
 *.jpg binary
 
-/.gitattributes export-ignore
-/.gitignore export-ignore
-/.tx/ export-ignore
-/language/*.pot export-ignore
-/language/*.po export-ignore
+# ==========================================================================
+# Release packaging
+# ==========================================================================
+#
+# Every release asset is built by .github/workflows/release.yml as
+#
+#     git archive --prefix=DRE-theme/ -o DRE-theme.zip <tag>
+#
+# so `export-ignore` below is the package manifest, stated as a subtraction:
+# whatever is marked here is absent from the zip an admin unpacks into
+# `themes/`. The rule is that the package carries what Omeka LOADS at runtime
+# plus what an admin READS (README, licence, screenshot, design reference),
+# and nothing whose only reason to exist is developing or verifying the theme.
+#
+# The --prefix is not cosmetic: Omeka discovers a theme by directory, so an
+# archive that unpacks its files loose contains no theme at all.
+#
+# Before v2.29 the zip shipped the whole working tree — CI workflows, the gulp
+# pipeline, a 132 KB package-lock, the test suite and the Sass sources — none
+# of which Omeka reads, all of which an admin would have to trust.
+
+# --- Build toolchain ------------------------------------------------------
+# The Sass is the source of asset/css/style.css, which is committed and is
+# what Omeka actually serves. It leaves with the toolchain rather than
+# without it: shipping sources the package has no way to compile is worse
+# than pointing at the repository, which carries both under the same GPLv3
+# (see README, "License").
+/gulpfile.js            export-ignore
+/package.json           export-ignore
+/package-lock.json      export-ignore
+/playwright.config.mjs  export-ignore
+/scripts/               export-ignore
+/asset/sass/            export-ignore
+
+# --- Tests and CI ---------------------------------------------------------
+/tests/                 export-ignore
+/.github/               export-ignore
+/.editorconfig          export-ignore
+
+# --- Working documents ----------------------------------------------------
+# Published on GitHub and linked from the README by absolute URL, so removing
+# them here does not leave the packaged README pointing at nothing.
+/AUDIT.md               export-ignore
+/DESIGN-ROADMAP.md      export-ignore
+/.impeccable.md         export-ignore
+/docs/TESTING.md        export-ignore
+
+# --- Repository metadata --------------------------------------------------
+# CITATION.cff deliberately stays IN the package: it tells whoever installed
+# the theme how to cite it, which is the one moment they need to know.
+/.gitattributes         export-ignore
+/.gitignore             export-ignore
+/.tx/                   export-ignore
+/language/*.pot         export-ignore
+/language/*.po          export-ignore
