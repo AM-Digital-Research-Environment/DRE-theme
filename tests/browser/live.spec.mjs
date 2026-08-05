@@ -11,12 +11,14 @@ function watchErrors(page) {
     return errors;
 }
 
+// No `${site}/media` here: Omeka S core has no site-level media browse
+// (Controller\Site\MediaController only implements showAction), so that URL is
+// a 404 by design. Media show pages are covered by their own test below.
 for (const path of [
     `${site}/page/home`,
     `${site}/item`,
     `${site}/item/9754`,
     `${site}/item-set`,
-    `${site}/media`,
     `${site}/dre-search`,
 ]) {
     test(`${path} has one document heading and no runtime errors`, async ({ page }) => {
@@ -26,6 +28,20 @@ for (const path of [
         expect(errors).toEqual([]);
     });
 }
+
+test('a media page has one document heading and no runtime errors', async ({ page, request }) => {
+    // Media ids move with each sync, so resolve one from the public API rather
+    // than pinning it here.
+    const response = await request.get('/api/media?per_page=1');
+    expect(response.ok(), 'the public media API is unavailable').toBeTruthy();
+    const [media] = await response.json();
+    expect(media, 'the public API returned no media to smoke-test').toBeTruthy();
+
+    const errors = watchErrors(page);
+    await page.goto(`${site}/media/${media['o:id']}`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('h1')).toHaveCount(1);
+    expect(errors).toEqual([]);
+});
 
 test('legacy advanced search redirects to DRE Search', async ({ page }) => {
     await page.goto(`${site}/item/search`, { waitUntil: 'domcontentloaded' });
