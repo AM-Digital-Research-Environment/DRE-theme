@@ -238,10 +238,11 @@ const headerTemplate = readFileSync(join(VIEW, 'common', 'header.phtml'), 'utf8'
 if (/<h1\b/i.test(headerTemplate) || headerTemplate.includes('$titleTag')) {
     add('view/common/header.phtml', null, 'the site lockup must never own the document <h1>');
 }
+// No media browse here: core's Controller\Site\MediaController implements
+// showAction() and nothing else, so /s/:site/media has no template to render.
 for (const rel of [
     'omeka/site/item/browse.phtml',
     'omeka/site/item-set/browse.phtml',
-    'omeka/site/media/browse.phtml',
     'omeka/site/page/browse.phtml',
 ]) {
     const src = readFileSync(join(VIEW, ...rel.split('/')), 'utf8');

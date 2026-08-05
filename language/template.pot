@@ -310,7 +310,6 @@ msgstr ""
 #: view/common/linked-resources.phtml:141
 #: view/common/resource-page-block-layout/media-list.phtml:8
 #: view/omeka/site/index/search.phtml:42
-#: view/omeka/site/media/browse.phtml:27
 msgid "Media"
 msgstr ""
 
@@ -523,7 +522,6 @@ msgstr ""
 #: view/hierarchy/site/index/hierarchy.phtml:231
 #: view/omeka/site/item-set/browse.phtml:31
 #: view/omeka/site/item/browse.phtml:96
-#: view/omeka/site/media/browse.phtml:37
 msgid "Search the collection"
 msgstr ""
 
