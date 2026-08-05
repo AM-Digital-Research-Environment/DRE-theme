@@ -12,10 +12,11 @@ dre_check($failures, $checks, 'the site lockup never owns the document h1',
 dre_check($failures, $checks, 'theme-toggle translations are supplied by the template',
     str_contains($header, 'data-label-light=') && str_contains($header, 'data-label-dark='));
 
+// No media browse here: core's Controller\Site\MediaController implements
+// showAction() and nothing else, so /s/:site/media has no template to render.
 foreach ([
     'view/omeka/site/item/browse.phtml',
     'view/omeka/site/item-set/browse.phtml',
-    'view/omeka/site/media/browse.phtml',
     'view/omeka/site/page/browse.phtml',
 ] as $file) {
     dre_check($failures, $checks, "{$file} has a level-one page title",

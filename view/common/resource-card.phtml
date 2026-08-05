@@ -37,9 +37,9 @@ $showHeading = isset($showHeading) ? (bool) $showHeading : true;
 $reveal = $reveal ?? null;
 $heading = $heading ?? $resource->displayTitle();
 
-// Derive the type class from the resource itself. media/browse.phtml used to
-// hardcode "item-set" here (a copy-paste from the item-set template), so every
-// media card carried the wrong type class.
+// Derive the type class from the resource itself. Callers used to pass it in,
+// and one of them hardcoded "item-set" for media (a copy-paste from the
+// item-set template), so every media card carried the wrong type class.
 if (!isset($typeClass) || null === $typeClass) {
     $typeClass = [
         'items' => 'item',

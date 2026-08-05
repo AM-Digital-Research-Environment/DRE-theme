@@ -7,7 +7,8 @@ use Laminas\View\Helper\AbstractHelper;
  * Resolves the browse-page layout state (grid vs list) in one place.
  *
  * This preamble used to be copy-pasted, verbatim, into four templates
- * (item/browse, item-set/browse, media/browse and the browse-preview block).
+ * (item/browse, item-set/browse, the browse-preview block, and the media/browse
+ * that has since been deleted for having no route to render it).
  * Each copy also read `$_GET['view']` directly, bypassing the MVC request.
  *
  * Returns an array so a template can destructure what it needs:
