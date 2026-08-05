@@ -1,0 +1,64 @@
+# Citation File Format — https://citation-file-format.github.io/
+#
+# GitHub reads this file and offers "Cite this repository" (APA + BibTeX) on the
+# repository page. It ships inside the release zip as well: the moment someone
+# needs the citation is usually the moment they are looking at the installed
+# theme, not at GitHub.
+#
+# `version` and `date-released` are checked against config/theme.ini and
+# package.json by `npm run lint:ini` — a citation that names a version the
+# theme never shipped is worse than one that names none.
+cff-version: 1.2.0
+title: "Africa Multiple — DRE: an Omeka S theme for the Digital Research Environment"
+message: "If you use this theme, or its design system, please cite it as below."
+type: software
+
+authors:
+  - family-names: Madore
+    given-names: Frédérick
+    orcid: "https://orcid.org/0000-0003-0959-2092"
+    affiliation: "University of Bayreuth"
+
+abstract: >-
+  An Omeka S theme for the Africa Multiple Cluster of Excellence (University of
+  Bayreuth), built for the Cluster's Digital Research Environment and the AMIRA
+  research archive. It implements a "Scholarly Modernism" design system on an
+  OKLCH design-token foundation: a single brand seed from which every accent,
+  hover, focus ring and tint is derived by colour-mixing; first-class light and
+  dark modes; WCAG AA contrast asserted by the build rather than by hand; and a
+  record layer that renders item metadata in named scholarly groups with
+  citation, DOI, permalink and licence in a sticky rail. The token layer is a
+  published contract, consumed by name by the Cluster's DRE Search and
+  ResourceVisualizations modules.
+
+version: 2.29.0
+date-released: "2026-08-05"
+license: GPL-3.0-or-later
+
+repository-code: "https://github.com/AM-Digital-Research-Environment/DRE-theme"
+url: "https://data.africamultiple.uni-bayreuth.de/s/amira"
+
+keywords:
+  - Omeka S
+  - theme
+  - design system
+  - design tokens
+  - OKLCH
+  - accessibility
+  - dark mode
+  - digital humanities
+  - research data
+  - Africa
+
+references:
+  - type: software
+    title: "Lively"
+    notes: >-
+      The theme began in 2026 as a fork of Lively and keeps its GPLv3 licence.
+      It has since been rebuilt top to bottom and is developed, versioned and
+      released independently; it is not affiliated with or supported by the
+      Omeka Team.
+    authors:
+      - name: "Omeka Team"
+    repository-code: "https://github.com/omeka-s-themes/lively"
+    license: GPL-3.0-or-later

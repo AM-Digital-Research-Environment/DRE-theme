@@ -29,6 +29,14 @@
  *   6. Helpers      — every `helpers[] = "X"` needs helper/X.php, and every
  *                     helper/X.php should be registered. ShadeColor.php sat
  *                     registered-but-uncalled, loaded on every request.
+ *   7. Version      — the release version is written in four files and read
+ *                     from all four by someone: Omeka's theme manager reads
+ *                     theme.ini, npm reads package.json and package-lock.json,
+ *                     and GitHub's "Cite this repository" reads CITATION.cff.
+ *                     Nothing derives one from another, so they drift silently
+ *                     — package-lock.json sat at 2.23.1 through six releases,
+ *                     and a citation naming a version the theme never shipped
+ *                     is worse than one naming none.
  *
  * Exit code 1 on any finding; prints the offending line where it has one.
  */
@@ -194,6 +202,56 @@ for (const { name, line } of helpers) {
 for (const name of onDisk) {
     if (!helpers.some((h) => h.name === name)) {
         add(null, `helper/${name}.php exists but is not registered in [info] helpers[]`);
+    }
+}
+
+// --- 7. One version, four files -------------------------------------------
+//
+// theme.ini is the authority — it is the number Omeka shows an admin and the
+// one the release tag has to match. The other three are checked against it.
+// CITATION.cff is parsed by hand rather than with a YAML dependency: two
+// scalar keys off the top level do not justify one in a lint that must run
+// from a bare `npm ci`.
+const versionSources = [
+    {
+        file: 'package.json',
+        read: (src) => [JSON.parse(src).version],
+    },
+    {
+        // The root manifest and packages[""] — NOT a text scan: every
+        // transitive dependency in the tree also has a "version" key.
+        file: 'package-lock.json',
+        read: (src) => {
+            const lock = JSON.parse(src);
+            return [lock.version, lock.packages?.['']?.version].filter(Boolean);
+        },
+    },
+    {
+        file: 'CITATION.cff',
+        read: (src) => [...src.matchAll(/^version:\s*"?([^"\s#]+)"?/gm)].map((m) => m[1]),
+    },
+];
+
+const iniVersion = text.match(/^version\s*=\s*"([^"]+)"/m)?.[1];
+if (!iniVersion) {
+    add(null, 'config/theme.ini declares no [info] version');
+} else {
+    for (const { file, read } of versionSources) {
+        const path = join(ROOT, file);
+        if (!existsSync(path)) {
+            add(null, `${file} is missing — theme.ini version ${iniVersion} has nothing to agree with`);
+            continue;
+        }
+        const found = read(readFileSync(path, 'utf8'));
+        if (!found.length) {
+            add(null, `${file} declares no version (theme.ini says ${iniVersion})`);
+            continue;
+        }
+        for (const v of new Set(found)) {
+            if (v !== iniVersion) {
+                add(null, `${file} says version ${v} but config/theme.ini says ${iniVersion}`);
+            }
+        }
     }
 }
 
