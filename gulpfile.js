@@ -7,16 +7,21 @@ const autoprefixer = require('autoprefixer');
 const fs = require('fs');
 const { Transform } = require('stream');
 
-// Single source of truth for the theme version: config/theme.ini [info] version
-// (the value Omeka actually reads and appends to assetUrl() for cache-busting).
-// Read it fresh at build time so the compiled CSS header can never drift from
-// it the way the hand-maintained SCSS header did (it sat at 2.0.3 for ~30
-// releases). Throws loudly rather than shipping a wrong/blank version.
-function themeVersion() {
+// Single source of truth for the theme's metadata: config/theme.ini [info]
+// (the values Omeka actually reads — `version` is what it appends to
+// assetUrl() for cache-busting). Read fresh at build time so the compiled CSS
+// header can never drift from it the way the hand-maintained SCSS header did
+// (it sat at 2.0.3 for ~30 releases). Throws loudly rather than shipping a
+// wrong/blank value.
+//
+// `omeka_version_constraint` is read for the same reason: it was pinned here by
+// hand at ^4.2.0 while theme.ini had moved to ^4.2.1, so the header advertised
+// a floor the theme no longer supported.
+function themeInfo(key) {
     const ini = fs.readFileSync('./config/theme.ini', 'utf8');
-    const match = ini.match(/^\s*version\s*=\s*"([^"]+)"/m);
+    const match = ini.match(new RegExp(`^\\s*${key}\\s*=\\s*"([^"]+)"`, 'm'));
     if (!match) {
-        throw new Error('gulp: could not read [info] version from config/theme.ini');
+        throw new Error(`gulp: could not read [info] ${key} from config/theme.ini`);
     }
     return match[1];
 }
@@ -28,7 +33,7 @@ function themeVersion() {
 // (~50×). Building it post-compile keeps it to exactly one copy, with the real
 // version stamped from theme.ini. Inserted after the hoisted @charset so the
 // result stays valid CSS.
-function cssHeader(version) {
+function cssHeader(version, omekaConstraint) {
     return `/*
 Theme Name: Africa Multiple — DRE
 Theme URI: https://github.com/AM-Digital-Research-Environment/DRE-theme
@@ -36,7 +41,7 @@ Author: Frédérick Madore
 Author URI: https://www.frederickmadore.com/
 Description: Digital Research Environment theme for the Africa Multiple Cluster of Excellence (University of Bayreuth). Scholarly Modernism on an OKLCH design-token foundation, with light and dark modes.
 Version: ${version}
-Omeka Version Constraint: ^4.2.0
+Omeka Version Constraint: ${omekaConstraint}
 Requires PHP: 8.1
 License: GNU General Public License v3 or later
 License URI: LICENSE
@@ -46,7 +51,7 @@ Text Domain: dre-theme
 }
 
 function prependHeader() {
-    const header = cssHeader(themeVersion());
+    const header = cssHeader(themeInfo('version'), themeInfo('omeka_version_constraint'));
     return new Transform({
         objectMode: true,
         transform(file, _enc, cb) {
