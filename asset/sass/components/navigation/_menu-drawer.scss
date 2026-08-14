@@ -233,7 +233,7 @@
         display: block;
         margin-top: 2px;
         font-size: 0.82rem;
-        line-height: 1.4;
+        line-height: var(--leading-snug);
         color: var(--ink-subtle);
     }
 }

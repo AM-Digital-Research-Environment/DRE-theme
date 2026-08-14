@@ -1,6 +1,6 @@
 {
   "name": "dre-theme",
-  "version": "2.29.0",
+  "version": "2.30.0",
   "description": "Africa Multiple — Digital Research Environment. An Omeka S theme for the Africa Multiple Cluster of Excellence (University of Bayreuth), built on a modern OKLCH design-token system with light/dark modes.",
   "main": "gulpfile.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "build": "npm run lint && gulp css && npm run lint:css",
     "watch": "gulp css:watch",
     "lint": "npm run lint:tokens && npm run lint:css && npm run lint:ini && npm run lint:templates && npm run lint:groups && npm run lint:js && npm run lint:php",
-    "lint:tokens": "node scripts/check-design-tokens.mjs",
+    "lint:tokens": "node scripts/gen-token-fallbacks.mjs --check && node scripts/check-design-tokens.mjs",
     "lint:css": "node scripts/check-compiled-css.mjs",
     "lint:ini": "node scripts/check-theme-ini.mjs",
     "lint:templates": "node scripts/check-templates.mjs",
@@ -22,7 +22,9 @@
     "fixtures:refresh": "node scripts/fetch-template-fixture.mjs",
     "i18n:extract": "node scripts/extract-translations.mjs",
     "i18n:check": "node scripts/extract-translations.mjs --check",
-    "build:icons": "node scripts/gen-pwa-icons.mjs"
+    "build:icons": "node scripts/gen-pwa-icons.mjs",
+    "build:tokens": "node scripts/gen-token-fallbacks.mjs",
+    "vendor:lint": "node scripts/vendor-lint.mjs"
   },
   "repository": {
     "type": "git",

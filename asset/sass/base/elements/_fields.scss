@@ -23,7 +23,7 @@ select {
     margin-bottom: var(--space-2);
     padding: 0.6rem 0.9rem;
     border-radius: var(--radius-md);
-    line-height: 1.4;
+    line-height: var(--leading-snug);
     color: var(--ink);
     text-overflow: ellipsis;
     width: 100%;

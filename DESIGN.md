@@ -713,9 +713,146 @@ breaking change for the modules.
 | Lines | `--border` `--border-light` `--border-strong` |
 | State | `--error` (+ the rest of the `--success/-warning/-info` family) |
 | Type | `--font-display` `--font-body` · `--text-2xs … --text-2xl` · `--leading-tight/-snug/-normal/-relaxed` · `--measure-wide` |
-| Layout | `--space-*` `--radius-sm/-md/-lg/-full` `--size-control-md/-lg` `--z-dropdown` · `--container-max` `--container-gutter` `--header-height` `--scroll-offset` `--rail-width` `--label-col` |
+| Layout | `--space-*` `--radius-sm/-md/-lg/-full` `--size-control-md/-lg` · `--container-max` `--container-gutter` `--header-height` `--scroll-offset` `--rail-width` `--label-col` |
+| Stacking | the **whole** scale: `--z-banner` `--z-dropdown` `--z-sticky` `--z-header` `--z-drawer` `--z-stage` `--z-modal` `--z-tooltip` |
+| Entity | `--entity-person` `--entity-project` `--entity-organisation` `--entity-subject` `--entity-location` `--entity-genre` `--entity-language` `--entity-contributor` `--entity-item` `--entity-item-related` `--entity-item-shared` `--entity-grouping` (+ `--type-entity-term`, an alias of `--entity-subject`) |
 | Highlight | `--highlight-bg` (was `--dre-hl-bg`; deprecated compatibility alias retained) |
 | Effect | `--shadow-xs/-sm/-md/-lg` `--ring-focus` `--transition-fast/-base` |
+
+**Stacking** is the whole scale on purpose. This table used to offer modules
+`--z-dropdown` alone, and the result was sixteen raw `z-index` values in the
+dashboards, two of them `9999` — a fullscreen chart stage sitting above the
+theme's sticky header, drawer, modal layer *and* tooltip. A module cannot stack
+correctly against chrome it has no name for. `--z-stage` (290) is the layer a
+module's fullscreen visualization belongs on: above the drawer, below the modal
+layer, so a dialog raised from inside it still lands on top.
+
+Purely **local** stacking — ordering siblings inside a component that already
+establishes its own context — is not on the scale and should stay a small
+integer. The scale names page layers; `z-index: 2` on a card caption is not one.
+
+**Entity colour** is data-adjacent, which is why it lived outside the contract
+for so long: as a private JS registry in DRE Visualizations (`ns.entityColor`,
+keyed by type name) *and*, separately, as a CSS variable DRE Search reached for
+(`--type-entity-term`) that nothing anywhere defined. Two encodings of one
+meaning, so a Person chip in search results and a Person node in a graph could
+not be guaranteed to be the same hue. It is shared, named and stable — the same
+test `--highlight-bg` passes — so it is a token family now, with a light set and
+a dark-lifted set. The values are unchanged from the dashboards' own palette
+slots. These are **fixed reference hues**: a categorical scale has to stay
+discriminable, so unlike `--primary` they do not follow an admin's brand override.
+
+### Mode selectors — a module never asks the OS
+
+The contract used to document tokens and nothing else, which left "how do I know
+it's dark?" unanswered — so three DRE Search components answered it themselves,
+with `@media (prefers-color-scheme: dark)` and `matchMedia`. That is the wrong
+switch. It is the OS preference, and the theme's mode is a *choice* that may
+override it.
+
+**The mode is `[data-theme]`, on `<html>` and on `<body>`.** The head script in
+`view/layout/layout.phtml` resolves it before first paint — stored preference
+first, OS preference only as the default — and writes `light` or `dark` to both
+elements, always, so the attribute is never absent under this theme.
+
+| You need | Use |
+|---|---|
+| A token that differs per mode | Nothing. Read the token; it already resolves per mode. |
+| A CSS rule that only applies in dark | `:root[data-theme="dark"]` / `body[data-theme="dark"]` (in Svelte: `:global([data-theme='dark']) .thing`) |
+| A mode boolean in JS | `window.DRETokens.isDark()` — see below |
+| To react to a mode change in JS | `window.DRETokens.onThemeChange(fn)` |
+
+Reading `prefers-color-scheme` inverts the page for any visitor who overrode
+their system setting, and it inverts *partially* — which is worse, because the
+rest of the module still follows the tokens. A system-dark visitor who chose
+light used to get a light page carrying a dark-matter basemap and dark-tuned
+image filters.
+
+The one legitimate media query of this shape is `prefers-reduced-motion`: that
+is a genuine OS accessibility preference with no in-theme override.
+
+### Breakpoints — one ladder
+
+```
+600px · 768px · 1024px · 1200px · 1460px
+```
+
+Authoritative copy: `asset/sass/abstracts/variables/_breakpoints.scss`
+(`$sm $md $lg $xl $xxl`).
+
+Breakpoints are the one scale a custom property **cannot** express — `var()` is
+illegal in a media query — so the ladder lived in Sass, where only the theme
+could read it, and both modules invented their own: six values in the dashboards
+(420/600/680/700/720/768), six more in the search client (30/32/40/46/48/60rem).
+The visible cost is that a page carrying the theme's header, a facet panel and a
+dashboard reflows at up to six different widths as the window narrows, and the
+720px/768px pair leaves a 48px band in which the module has changed layout and
+the theme has not.
+
+Two ways out, and they compose:
+
+1. **Author `@media` against the five numbers above.** The shared token lint
+   checks every `@media` width literal against the ladder, with a per-repo
+   allowlist of the values still to be converted. Shrinking that allowlist is
+   the unit of work.
+2. **Prefer container queries for module-internal layout.** This is the more
+   correct answer anyway: a facet panel in a rail should respond to *the rail*,
+   not to the window. A module block whose layout depends only on its own width
+   should use `@container`, and then it needs no ladder at all.
+
+### Reading tokens from JavaScript
+
+`asset/js/dre-token-bridge.js` publishes **`window.DRETokens`**, loaded deferred
+in `<head>` on every page. It exists because the token layer is a *CSS* API: the
+moment a module paints to a canvas, a WebGL map or an SVG attribute, `var(--x)`
+is unavailable, and MapLibre/ECharts cannot parse `oklch()` or `color-mix()`
+either. This capability used to exist in exactly one module, which is why the
+search client's map was the one surface on the site that ignored both the theme
+toggle and the admin's brand colour.
+
+| Call | Returns |
+|---|---|
+| `DRETokens.cssColor('--primary')` | the active mode's value as `rgb()` / `rgba()` |
+| `DRETokens.cssFont('--font-body')` | the computed font stack |
+| `DRETokens.cssValue('--space-4')` | the raw computed string (lengths, numbers) |
+| `DRETokens.toRGB(any)` | any browser-parseable colour, rasterised to `rgb()` |
+| `DRETokens.isDark()` | mode boolean, from `[data-theme]` |
+| `DRETokens.onThemeChange(fn)` | subscribe to mode changes; returns an unsubscribe |
+
+It resolves through a hidden probe parented to `<body>`, so it sees the live
+cascade — including a brand colour an admin overrode in theme settings, which no
+build-time table can know. A canvas that resolves colour once must subscribe to
+`onThemeChange`, or it freezes the mode it was first painted in.
+
+### Generated fallbacks — nobody types a hex
+
+`npm run build:tokens` resolves the whole token layer to concrete sRGB and rem
+and writes two committed artefacts:
+
+- `asset/css/dre-tokens-fallback.css` — one `:root` block per mode
+- `asset/css/dre-tokens-fallback.json` — the same table, for JS bridges, the
+  Mirador config, and the lint
+
+`npm run lint:tokens` asserts they are current, so they cannot go stale.
+
+This exists because rule 3 below — *keep fallbacks on-brand* — was the one rule
+in this contract with no enforcement anywhere, and it had drifted furthest. The
+literals were hand-written at 31 token names across three repositories: `--muted`
+alone appeared as four different greys in DRE Search, none of them the theme's
+`#716a66`, and the search client's type fallbacks encoded an entire scale the
+theme does not have. Nothing was visible in production, because the token always
+wins when the theme is loaded — and that is precisely why it drifted. All three
+token lints strip `var(--x, …)` before applying any rule, so the fallback was the
+one part of the design system no check had ever looked at.
+
+A module has two correct options:
+
+1. **Ship `dre-tokens-fallback.css` ahead of its own stylesheet** and write bare
+   `var(--token)` — no literals to keep in sync at all.
+2. **Keep the inline `var(--token, literal)` form** and let the shared lint
+   compare each literal against the JSON.
+
+Either way there is one number per token instead of one per call site.
 
 ### The data-colour contract (charts & maps)
 
@@ -729,13 +866,16 @@ contract — distinct from the UI tokens above:
   two darkest pigments (Uni-Grün, Dunkelblau) are raised so they don't disappear
   on the forest-dark surface.
 - **Canvas / WebGL renderers can't read the tokens directly.** ECharts (zrender)
-  and MapLibre don't parse `oklch()` / `color-mix()`, so DRE Visualizations
-  resolves each token to a plain `rgb()` at runtime — a hidden probe + 1×1 canvas
-  (`cssColor()` / `readTheme()` in `dashboard-core.js`) — and re-resolves on every
-  `[data-theme]` flip. **Never hand a raw `oklch` token to a canvas/WebGL lib;**
-  route it through that bridge (or through a `--rv-*` alias it has already
-  resolved). This is why the modules can follow the live toggle even though the
-  tokens are in a colour space the chart libraries reject.
+  and MapLibre don't parse `oklch()` / `color-mix()`, so a token has to be
+  resolved to a plain `rgb()` at runtime and re-resolved on every `[data-theme]`
+  flip. **Never hand a raw `oklch` token to a canvas/WebGL lib;** route it
+  through `window.DRETokens` (*Reading tokens from JavaScript* above), or through
+  a `--rv-*` alias the module has already resolved. This is why the modules can
+  follow the live toggle even though the tokens are in a colour space the chart
+  libraries reject. The bridge lives in the theme because the theme owns the
+  tokens — it began as `cssColor()` / `readTheme()` inside `dashboard-core.js`,
+  where only one of the two modules could reach it, and the other painted its
+  map with raw brand hexes for want of it.
 - **Keep the palette and the tokens identical.** **Stops 1–6 are the `--brand-*`
   pigments and must stay in sync; stops 7–12 are an independent harmonious
   extension.** The palette needs those twelve stops and a dark-lifted variant the
@@ -765,15 +905,23 @@ contract — distinct from the UI tokens above:
    so each alias resolves the *active* token from the body's own cascade and the
    `[data-theme]` flip carries through. This is the pattern to copy for any new
    module.
-3. **Keep fallbacks on-brand.** Every `var(--token, <fallback>)` carries a literal
-   for hosts that lack the DRE tokens. That literal **must be the brand value** —
-   Uni-Grün / warm stone (light) / forest (dark) — never a cold grey and never a
-   different hue. (The fallback is inert whenever this theme is loaded — the token
-   always wins — but it is what an isolated render, a non-DRE host, or a
-   maintainer reading the code sees, so it must not encode a "shadow brand.")
+3. **Take fallbacks from the generated table; don't type them.** Every
+   `var(--token, <fallback>)` carries a literal for hosts that lack the DRE
+   tokens, and that literal **must be the theme's own resolved value** — copy it
+   from `dre-tokens-fallback.json` (see *Generated fallbacks* above), which the
+   shared lint then checks on every run. The fallback is inert whenever this
+   theme is loaded, but it is what an isolated render, a non-DRE host, and a
+   maintainer reading the code all see, so it must not encode a "shadow brand".
+   Being unobservable is not a reason to let it drift — it is the *reason* it
+   drifts, and this rule went unenforced for two years and two repositories
+   before anyone measured it.
 4. **Don't invent parallel scales.** No module-local spacing, radius or type
    scale that competes with the theme's. Use `--space-*`, `--radius-*`,
-   `--text-*`.
+   `--text-*` — and equally `--leading-*` for rhythm, the z-index scale for
+   stacking, and the five-step breakpoint ladder for `@media`. Those three were
+   in the contract but consumed by almost nobody: body text was 1.6 in the theme
+   and 1.5 in search on the same page, and each repository grew its own
+   breakpoint ladder and its own stacking numbers.
 5. **The anti-patterns (§8) apply equally.** No side-stripe accents, no gradient
    text, no glassmorphism — in the modules as much as in the theme.
 6. **Data colours are part of the contract too.** A chart palette tracks the six

@@ -178,6 +178,17 @@ $this->headLink()->prependStylesheet($this->assetUrl('css/style.css'));
 // routes now redirect to the DRE Search module.
 $this->headScript()->prependFile($this->assetUrl('js/global.js', 'Omeka'));
 $this->headScript()->prependFile($this->assetUrl('vendor/jquery/jquery.min.js', 'Omeka'));
+// Token bridge (window.DRETokens) — the CSS token layer, readable from JS. Any
+// module painting to a canvas, a WebGL map or an SVG attribute needs a token
+// resolved to something that is not `var(--x)`, and that capability belongs to
+// the theme that owns the tokens rather than to whichever module wrote it first.
+// In <head> and deferred: available before any module initialises, blocking
+// nothing. See DESIGN.md §9 "Reading tokens from JavaScript".
+$this->headScript()->prependFile(
+    $this->assetUrl('js/dre-token-bridge.js'),
+    'text/javascript',
+    ['defer' => true]
+);
 $this->jsTranslate();
 
 // DRE Search module: inject the Typesense search bundle into <head> here (before

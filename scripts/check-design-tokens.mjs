@@ -1,136 +1,119 @@
 #!/usr/bin/env node
 /**
  * Design-token contract lint — encodes the anti-patterns from DESIGN.md §8/§9
- * and DESIGN-ROADMAP.md §3 so they cannot quietly regress.
+ * so they cannot quietly regress.
  *
  *   node scripts/check-design-tokens.mjs        (also: npm run lint:tokens)
  *
- * Syntax checks, over every SCSS source under asset/sass (compiled CSS exempt):
- *   1. Raw hex colours outside the token files and outside var(--x, #hex)
- *      fallback position.
- *   2. Coloured border-left/right wider than 1px (the "accent side-stripe"
- *      AI tell). CSS-triangle/chevron borders pair left+bottom etc. and are
- *      allowlisted by file.
- *   3. Gradient text (background-clip: text).
- *   4. px-valued font-size (the type scale is rem-only).
- *   5. Any surviving $font__h1-sm-size … $font__h6-base-size reference — the
- *      parallel Sass heading scale is deleted; --text-* is the only scale.
- *   6. Off-grid px page geometry in the layout partials — that layer reads the
- *      --container-* / --header-height / --space-* tokens now.
+ * The RULES live in scripts/lib/token-rules.mjs and are shared verbatim with
+ * DRE-Visualizations and DRESearch (`npm run vendor:lint` copies them out).
+ * Before that, all three repos had their own script, each claiming to mirror
+ * this one and none of them doing so — the dashboards enforced off-scale spacing
+ * and radius that the theme did not, this file measured contrast that no module
+ * did, and the search client had no rem check at all. This file is now just the
+ * theme's CONFIG plus the one check only the theme can perform.
  *
- * PROPERTY check — the one the design system actually promises:
- *   7. Computed WCAG contrast for every ink/surface pair, per mode, parsed
- *      straight out of the OKLCH literals in _colors.scss. DESIGN.md used to
- *      *assert* AA by hand and was wrong about --muted; this measures it.
- *      Limitation, stated rather than hidden: only hand-authored oklch()
- *      literals can be evaluated. Tones derived with color-mix() from the admin
- *      --primary-base seed (links, --primary-*) are not statically knowable and
- *      are out of scope.
+ * The contrast assertion stays here because it needs the OKLCH source: it parses
+ * the literals out of _colors.scss and computes the ratios, so DESIGN.md's
+ * accessibility claim is measured on every build rather than restated by hand.
+ * (The previous 60% L --muted was 3.9:1 in light — i.e. the claim was untrue.)
  *
  * Exit code 1 on any finding; prints file:line for each.
  */
-import { readFileSync, readdirSync, statSync } from 'node:fs';
-import { join, relative, sep } from 'node:path';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { parseOklch, contrastRatio } from './lib/contrast.mjs';
+import { runRules, report, parseAllowlist, formatAllowlist } from './lib/token-rules.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
 const SASS = join(ROOT, 'asset', 'sass');
+const ALLOWLIST = join(ROOT, 'scripts', 'design-token-allowlist.txt');
+const table = JSON.parse(readFileSync(join(ROOT, 'asset', 'css', 'dre-tokens-fallback.json'), 'utf8'));
+const updateAllowlist = process.argv.includes('--update-allowlist');
 
-// Files allowed to hold raw colour values, with the reason on record.
-const HEX_ALLOW = [
-  'abstracts/variables/_colors.scss',   // the palette itself
-  'abstracts/variables/_tokens.scss',   // shadow inks
-  'abstracts/mixins/_mixins.scss',      // URL-encoded SVG data URIs (%23000 masks)
-  'components/blocks/timeline/_timeline.scss', // TimelineJS's permanently-light widget surface
-  'base/elements/_body.scss',
-  'base/_theme.scss',
-  'utilities/_print.scss',              // paper is true white; ink is ink
-  'generic/_normalize.scss',            // vendored
-];
+// Rules the theme is exempt from BY DESIGN — as opposed to the ratchet below,
+// which is work not yet done.
+const BASE_RULES = {
+    // The theme AUTHORS the tokens, so its own token partials are the one place
+    // raw colour and raw scale values belong.
+    hex: {
+      allow: [
+        'asset/sass/abstracts/variables/_colors.scss', // the palette itself
+        'asset/sass/abstracts/variables/_tokens.scss', // shadow inks
+        'asset/sass/abstracts/mixins/_mixins.scss', // URL-encoded SVG data URIs (%23000 masks)
+        'asset/sass/components/blocks/timeline/_timeline.scss', // TimelineJS's permanently-light widget
+        'asset/sass/base/elements/_body.scss',
+        'asset/sass/base/_theme.scss',
+        'asset/sass/utilities/_print.scss', // paper is true white; ink is ink
+        'asset/sass/generic/_normalize.scss', // vendored
+      ],
+    },
+    stripe: {
+      allow: [
+        'asset/sass/components/linked-resources/_linked-resources.scss', // CSS chevron caret
+        'asset/sass/components/navigation/_navigation.scss', // CSS chevron caret
+      ],
+    },
+    // The scale definitions themselves, plus the vendored reset.
+    fontSize: { allow: ['asset/sass/abstracts/variables/', 'asset/sass/generic/_normalize.scss'] },
+    spacing: { allow: ['asset/sass/abstracts/variables/', 'asset/sass/generic/_normalize.scss'] },
+    radius: { allow: ['asset/sass/abstracts/variables/'] },
+    leading: { allow: ['asset/sass/abstracts/variables/', 'asset/sass/generic/_normalize.scss'] },
+    zindex: { allow: ['asset/sass/abstracts/variables/_tokens.scss'] },
+    media: { allow: ['asset/sass/abstracts/variables/_breakpoints.scss'] },
+  // The theme's own fallbacks are the generated table's source, so checking
+  // them against it would be circular.
+  fallback: false,
+};
 
-// border-left/right >1px that are construction, not decoration.
-const STRIPE_ALLOW = [
-  'components/linked-resources/_linked-resources.scss', // CSS chevron caret
-  'components/navigation/_navigation.scss',             // CSS chevron caret
-];
-
-// Partials that own page geometry and must express it in tokens.
-const LAYOUT_PARTIALS = [
-  'base/layout/_layout.scss',
-  'base/layout/_regions.scss',
-  'abstracts/variables/_layout.scss',
-];
-// Hairlines, rules and outlines are legitimately sub-grid.
-const PX_GEOMETRY_OK = new Set(['0px', '1px', '2px', '3px']);
-
-const findings = [];
-
-function* scssFiles(dir) {
-  for (const name of readdirSync(dir)) {
-    const p = join(dir, name);
-    if (statSync(p).isDirectory()) yield* scssFiles(p);
-    else if (name.endsWith('.scss')) yield p;
-  }
-}
-
-function stripComments(line) {
-  return line.replace(/\/\/.*$/, '').replace(/\/\*.*?\*\//g, '');
-}
-
-for (const file of scssFiles(SASS)) {
-  const rel = relative(ROOT, file).split(sep).join('/');
-  const relSass = relative(SASS, file).split(sep).join('/');
-  const lines = readFileSync(file, 'utf8').split(/\r?\n/);
-
-  lines.forEach((raw, i) => {
-    const line = stripComments(raw);
-    const loc = `${rel}:${i + 1}`;
-
-    // 1. Raw hex outside allowlist and outside var() fallback position.
-    if (!HEX_ALLOW.includes(relSass)) {
-      const noFallbacks = line.replace(/var\(\s*--[\w-]+\s*,[^)]*\)/g, '');
-      const noDataUri = noFallbacks.replace(/url\([^)]*\)/g, '').replace(/%23[0-9a-fA-F]{3,6}/g, '');
-      const hex = noDataUri.match(/#[0-9a-fA-F]{3,8}\b/);
-      if (hex) findings.push(`${loc}  raw hex outside fallback position: ${hex[0]}`);
-    }
-
-    // 2. Side-stripe accents.
-    if (!STRIPE_ALLOW.includes(relSass)) {
-      if (/border-(left|right)\s*:\s*([2-9]|\d{2,})px\s+\w+\s+(var\(|#|oklch|rgb)/.test(line)) {
-        findings.push(`${loc}  coloured side-stripe border: ${line.trim()}`);
-      }
-    }
-
-    // 3. Gradient text.
-    if (/background-clip\s*:\s*text/.test(line)) {
-      findings.push(`${loc}  gradient text (background-clip: text)`);
-    }
-
-    // 4. px type.
-    if (/font-size\s*:\s*\d+px/.test(line)) {
-      findings.push(`${loc}  px font-size (the type scale is rem-only): ${line.trim()}`);
-    }
-
-    // 5. The deleted parallel heading scale.
-    const legacyHeading = line.match(/\$font__h[1-6]-(sm|base)-size/);
-    if (legacyHeading) {
-      findings.push(`${loc}  ${legacyHeading[0]} — the Sass heading scale is deleted; author from --text-*`);
-    }
-
-    // 6. Off-grid px geometry in the layout layer (@media breakpoints exempt:
-    //    those are viewport queries, not page geometry).
-    if (LAYOUT_PARTIALS.includes(relSass) && !/@media|@include|@use/.test(line)) {
-      for (const px of line.match(/-?\d+(\.\d+)?px/g) ?? []) {
-        if (!PX_GEOMETRY_OK.has(px)) {
-          findings.push(`${loc}  px page geometry in a layout partial (use --container-*/--space-*): ${px}`);
-        }
-      }
-    }
-  });
-}
+const SCAN = { root: ROOT, dirs: ['asset/sass'], extensions: ['.scss'], table };
 
 // ==========================================================================
-// 7. Contrast assertion.
+// The ratchet — scripts/design-token-allowlist.txt
+//
+// The px-geometry rule used to name three files, one of which —
+// abstracts/variables/_layout.scss — had been DELETED when its contents became
+// tokens. So it guarded two files, while the component layer held 95 px
+// geometry declarations on an inherited 5px sub-grid living alongside the 4pt
+// scale, concentrated in exactly the components a researcher touches.
+//
+// Every rule now runs over the WHOLE tree, and what has not been converted yet
+// is written down, per rule per file, in the allowlist. The list is the backlog:
+// shrinking it is the unit of work, and nothing new can be added to the tree
+// without either being on-scale or being recorded.
+//
+//   node scripts/check-design-tokens.mjs --update-allowlist
+//
+// regenerates it from the current state — use after a conversion pass, and read
+// the diff: lines should only ever disappear.
+// ==========================================================================
+if (updateAllowlist) {
+  const all = runRules({ ...SCAN, rules: BASE_RULES });
+  writeFileSync(
+    ALLOWLIST,
+    formatAllowlist(
+      all,
+      `# GENERATED baseline for scripts/check-design-tokens.mjs — the RATCHET.\n` +
+        `#\n` +
+        `# Each line exempts one rule in one file. This is a backlog, not a set of\n` +
+        `# exemptions: every line is a conversion someone still owes. Lines should\n` +
+        `# only ever be REMOVED. Regenerate with --update-allowlist after a pass,\n` +
+        `# and check the diff — a new line means new drift got in.\n` +
+        `#\n` +
+        `# Rules exempt by design (the theme authors the scales) live in the script.`
+    )
+  );
+  console.log(`Wrote ${all.length} allowlist entr(ies) to scripts/design-token-allowlist.txt`);
+  process.exit(0);
+}
+
+const findings = runRules({
+  ...SCAN,
+  rules: parseAllowlist(readFileSync(ALLOWLIST, 'utf8'), BASE_RULES),
+});
+
+// ==========================================================================
+// Contrast assertion — the one check only the theme can make.
 // ==========================================================================
 
 const colorsSrc = readFileSync(join(SASS, 'abstracts', 'variables', '_colors.scss'), 'utf8');
@@ -154,9 +137,7 @@ function blockBody(src, opener) {
 function oklchTokens(body) {
   const out = new Map();
   if (!body) return out;
-  for (const m of body.matchAll(/(--[\w-]+)\s*:\s*(oklch\([^)]*\))\s*;/g)) {
-    out.set(m[1], m[2]);
-  }
+  for (const m of body.matchAll(/(--[\w-]+)\s*:\s*(oklch\([^)]*\))\s*;/g)) out.set(m[1], m[2]);
   return out;
 }
 
@@ -176,7 +157,9 @@ function checkPairs(modeName, tokens, inks, surfaces) {
   for (const inkName of inks) {
     const ink = tokens.get(inkName);
     if (!ink) {
-      findings.push(`_colors.scss  ${modeName}: ${inkName} is not a hand-authored oklch() literal — contrast cannot be asserted`);
+      findings.push(
+        `_colors.scss  ${modeName}: ${inkName} is not a hand-authored oklch() literal — contrast cannot be asserted`
+      );
       continue;
     }
     for (const surfName of surfaces) {
@@ -210,10 +193,4 @@ const BOLD_GROUNDS = ['--masthead-bg', '--masthead-sunken'];
 checkPairs('brand=bold light', boldLight, BOLD_INKS, BOLD_GROUNDS);
 checkPairs('brand=bold dark', boldDark, BOLD_INKS, BOLD_GROUNDS);
 
-if (findings.length) {
-  console.error(`Design-token contract: ${findings.length} finding(s)\n`);
-  for (const f of findings) console.error('  ' + f);
-  process.exit(1);
-} else {
-  console.log('Design-token contract: clean (incl. computed WCAG contrast, both modes).');
-}
+report('Design-token contract (incl. computed WCAG contrast, both modes)', findings);

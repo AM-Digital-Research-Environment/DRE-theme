@@ -136,14 +136,32 @@
 
   // ========================================================================
   // Z-index scale
+  //
+  // The WHOLE scale is the contract, not just --z-dropdown. §9 used to offer
+  // modules that one step, which is why DRE-Visualizations had sixteen raw
+  // values and two of them were 9999 — a fullscreen chart stage that covered
+  // the theme's own modal layer and tooltip. A module cannot stack correctly
+  // against chrome it cannot name.
+  //
+  // Values are spaced so a module can insert a local step between two named
+  // layers without renumbering anything.
   // ========================================================================
   --z-banner:   10;
   --z-dropdown: 100;
   --z-sticky:   200;
   --z-header:   250;
   --z-drawer:   280;
+  // A module's fullscreen stage — a chart, graph or map taking over the
+  // viewport. Above the drawer, deliberately BELOW the modal layer, so a dialog
+  // raised from inside a fullscreen visualization still lands on top of it.
+  --z-stage:    290;
   --z-modal:    300;
   --z-tooltip:  500;
+
+  // Purely local stacking — ordering siblings inside a component that already
+  // establishes its own context — is NOT on this scale and should stay a small
+  // integer. The scale names page LAYERS; a `z-index: 2` on a card's caption is
+  // not one, and tokenising it would imply a relationship it does not have.
 }
 
 // Wider gutter once there is room for one. A single responsive token beats a

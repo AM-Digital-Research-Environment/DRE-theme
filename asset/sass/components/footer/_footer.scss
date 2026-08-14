@@ -105,7 +105,7 @@
         font-family: $font__headings;
         font-size: var(--text-xl);
         font-weight: 600;
-        line-height: 1.2;
+        line-height: var(--leading-tight);
         letter-spacing: var(--tracking-tight);
         color: var(--footer-text);
 

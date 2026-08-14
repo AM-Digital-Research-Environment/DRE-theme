@@ -347,6 +347,89 @@ body[data-theme="dark"][data-brand="bold"] { @include am-masthead-bold-dark; }
 }
 
 // ==========================================================================
+// Entity-type colour — the categorical family.
+//
+// Person, Project, Organisation, Subject, Location, Genre, Language,
+// Contributor and the item buckets each carry a stable hue, so a Person chip in
+// DRE Search, a Person node in a knowledge graph and a Person swatch in a
+// dashboard legend are the SAME colour. Until now they could not be: the family
+// lived as a private JS registry in DRE-Visualizations (ns.entityColor, keyed by
+// type name) while DRE Search reached for a CSS variable — --type-entity-term —
+// that nothing anywhere defined. Two encodings of one meaning, and neither was
+// the contract.
+//
+// It is data-adjacent, which is why it was never a token. But it is shared,
+// named and stable, and that is exactly the test the contract already applies to
+// --highlight-bg — the other token whose whole purpose is to look identical in
+// two products. So it belongs here.
+//
+// VALUES are the cluster brand pigments in slot order, unchanged from the
+// dashboards' own palette, so publishing them re-colours nothing. Dark lifts the
+// two darkest hues (Uni-Grün, Dunkelblau), which are near-invisible on the
+// forest-dark surface, and nudges the rest lighter — again matching what the
+// dashboards already did per mode.
+//
+// These are FIXED reference hues, not theme-derived: a categorical scale has to
+// stay discriminable, so it does not follow an admin's --primary-base override.
+// For text on a low-contrast ground, mix toward the active --surface rather than
+// painting them raw.
+// ==========================================================================
+@mixin am-entity-colors-light {
+  --entity-person:       #009260;  // Uni-Grün
+  --entity-project:      #f59c08;  // Gelb
+  --entity-organisation: #44b8f2;  // Hellblau
+  --entity-subject:      #d57912;  // Braun — folds the former free-form tags
+  --entity-location:     #00268a;  // Dunkelblau
+  --entity-genre:        #cca352;  // Gold
+  --entity-language:     #0e7c71;
+  --entity-contributor:  #8a4fb0;
+  --entity-item:         #6fa82e;  // also the fallback for an unknown type
+  --entity-item-related: #b0392e;
+  --entity-item-shared:  #2e6fe0;
+  --entity-grouping:     #8c6a2b;  // research sections, groups
+}
+
+@mixin am-entity-colors-dark {
+  --entity-person:       #1fb083;
+  --entity-project:      #f7ae3a;
+  --entity-organisation: #7ccbf7;
+  --entity-subject:      #ec9a4d;
+  --entity-location:     #6e8ce8;
+  --entity-genre:        #dcc084;
+  --entity-language:     #3fb8a5;
+  --entity-contributor:  #b49be6;
+  --entity-item:         #9ccb4e;
+  --entity-item-related: #e8705a;
+  --entity-item-shared:  #6ba0f2;
+  --entity-grouping:     #cba45e;
+}
+
+// The alias DRE Search authored against before the family existed. A "term" in
+// a result list is a subject, which is slot 3.
+@mixin am-entity-colors-shared {
+  --type-entity-term: var(--entity-subject);
+}
+
+:root {
+  @include am-entity-colors-light;
+  @include am-entity-colors-shared;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { @include am-entity-colors-dark; }
+}
+
+body[data-theme="dark"] {
+  @include am-entity-colors-dark;
+  @include am-entity-colors-shared;
+}
+
+body[data-theme="light"] {
+  @include am-entity-colors-light;
+  @include am-entity-colors-shared;
+}
+
+// ==========================================================================
 // Legacy Sass aliases ($color__*) — repointed at the semantic tokens above so
 // the existing base-theme component partials become theme-aware with no edits.
 //

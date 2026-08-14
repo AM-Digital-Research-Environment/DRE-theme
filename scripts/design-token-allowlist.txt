@@ -1,0 +1,86 @@
+# GENERATED baseline for scripts/check-design-tokens.mjs — the RATCHET.
+#
+# Each line exempts one rule in one file. This is a backlog, not a set of
+# exemptions: every line is a conversion someone still owes. Lines should
+# only ever be REMOVED. Regenerate with --update-allowlist after a pass,
+# and check the diff — a new line means new drift got in.
+#
+# Rules exempt by design (the theme authors the scales) live in the script.
+
+# fontSize — 13 file(s)
+fontSize  asset/sass/base/elements/_buttons.scss
+fontSize  asset/sass/base/elements/_tooltip.scss
+fontSize  asset/sass/base/typography/_copy.scss
+fontSize  asset/sass/components/blocks/media-embed/_media-embed.scss
+fontSize  asset/sass/components/blocks/table-of-contents/_table-of-contents.scss
+fontSize  asset/sass/components/header/_search.scss
+fontSize  asset/sass/components/hierarchy/_hierarchy.scss
+fontSize  asset/sass/components/linked-resources/_linked-resources.scss
+fontSize  asset/sass/components/mapping/_mapping-map.scss
+fontSize  asset/sass/components/navigation/_menu-drawer.scss
+fontSize  asset/sass/components/navigation/_navigation.scss
+fontSize  asset/sass/components/pagination/_resources-pagination.scss
+fontSize  asset/sass/utilities/_accessibility.scss
+
+# pxGeometry — 35 file(s)
+pxGeometry  asset/sass/abstracts/variables/_breakpoints.scss
+pxGeometry  asset/sass/abstracts/variables/_tokens.scss
+pxGeometry  asset/sass/base/elements/_fields.scss
+pxGeometry  asset/sass/base/elements/_language-tag.scss
+pxGeometry  asset/sass/base/elements/_lists.scss
+pxGeometry  asset/sass/base/elements/_media.scss
+pxGeometry  asset/sass/base/elements/_resource-tag.scss
+pxGeometry  asset/sass/base/elements/_titles.scss
+pxGeometry  asset/sass/base/elements/_tooltip.scss
+pxGeometry  asset/sass/components/annotation/_annotation.scss
+pxGeometry  asset/sass/components/back-to-top/_back-to-top.scss
+pxGeometry  asset/sass/components/banner/_banner.scss
+pxGeometry  asset/sass/components/blocks/assets/_assets.scss
+pxGeometry  asset/sass/components/blocks/carousel/_carousel.scss
+pxGeometry  asset/sass/components/blocks/collecting/_collecting.scss
+pxGeometry  asset/sass/components/blocks/item-showcase/_item-showcase.scss
+pxGeometry  asset/sass/components/blocks/item-with-metadata/_item-with-metadata.scss
+pxGeometry  asset/sass/components/blocks/media-embed/_media-embed.scss
+pxGeometry  asset/sass/components/blocks/table-of-contents/_table-of-contents.scss
+pxGeometry  asset/sass/components/footer/_footer.scss
+pxGeometry  asset/sass/components/header/_header.scss
+pxGeometry  asset/sass/components/header/_search.scss
+pxGeometry  asset/sass/components/hierarchy/_hierarchy.scss
+pxGeometry  asset/sass/components/linked-resources/_linked-resources.scss
+pxGeometry  asset/sass/components/local-contexts/_local-contexts.scss
+pxGeometry  asset/sass/components/mapping/_mapping-map.scss
+pxGeometry  asset/sass/components/navigation/_menu-drawer.scss
+pxGeometry  asset/sass/components/navigation/_navigation.scss
+pxGeometry  asset/sass/components/pwa/_pwa-install.scss
+pxGeometry  asset/sass/components/resources/_browse-controls.scss
+pxGeometry  asset/sass/components/resources/_resource-list.scss
+pxGeometry  asset/sass/components/user-bar/_user-bar.scss
+pxGeometry  asset/sass/generic/_normalize.scss
+pxGeometry  asset/sass/utilities/_accessibility.scss
+pxGeometry  asset/sass/utilities/_alignments.scss
+
+# radius — 12 file(s)
+radius  asset/sass/base/elements/_fields.scss
+radius  asset/sass/base/elements/_language-tag.scss
+radius  asset/sass/base/elements/_media.scss
+radius  asset/sass/base/elements/_resource-tag.scss
+radius  asset/sass/base/elements/_tooltip.scss
+radius  asset/sass/base/typography/_copy.scss
+radius  asset/sass/components/blocks/item-showcase/_item-showcase.scss
+radius  asset/sass/components/blocks/item-with-metadata/_item-with-metadata.scss
+radius  asset/sass/components/blocks/media-embed/_media-embed.scss
+radius  asset/sass/components/header/_search.scss
+radius  asset/sass/components/navigation/_navigation.scss
+radius  asset/sass/utilities/_accessibility.scss
+
+# spacing — 10 file(s)
+spacing  asset/sass/base/elements/_fields.scss
+spacing  asset/sass/base/elements/_resource-description.scss
+spacing  asset/sass/base/elements/_titles.scss
+spacing  asset/sass/components/blocks/media-embed/_media-embed.scss
+spacing  asset/sass/components/blocks/table-of-contents/_table-of-contents.scss
+spacing  asset/sass/components/linked-resources/_linked-resources.scss
+spacing  asset/sass/components/mapping/_mapping-map.scss
+spacing  asset/sass/components/navigation/_menu-drawer.scss
+spacing  asset/sass/components/navigation/_navigation.scss
+spacing  asset/sass/components/uri-dereferencer/_uri-dereferencer.scss
