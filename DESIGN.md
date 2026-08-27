@@ -1,1069 +1,491 @@
-# Africa Multiple — DRE Theme · Design System
-
-**“Scholarly Modernism.”** A refined, warm, academic visual language for the
-Digital Research Environment of the [Africa Multiple Cluster of Excellence](https://www.africamultiple.uni-bayreuth.de/)
-(University of Bayreuth). A complete, standalone design system on a modern OKLCH
-design-token foundation with first-class light/dark modes. It began as a fork of
-Omeka S’s **Lively** but has since been rebuilt top to bottom — palette, colour
-engine, typography, tokens, components and templates are all its own.
-
-The brand identity is shared with the **AMIRA** research dashboard. This document
-is the single reference for how the system is put together and how to maintain it.
-
+---
+name: Africa Multiple — DRE Theme
+description: A warm, reading-first Scholarly Modernism design system for the AMIRA research-data platform.
+colors:
+  uni-green: "#009260"
+  warm-brown: "#d57912"
+  brand-yellow: "#f59c08"
+  deep-blue: "#00268a"
+  light-blue: "#44b8f2"
+  archive-gold: "#cca352"
+  cream-background: "oklch(97.4% 0.007 90)"
+  paper-surface: "oklch(99.2% 0.004 95)"
+  sunken-stone: "oklch(95.6% 0.008 88)"
+  warm-ink: "oklch(33% 0.017 62)"
+  strong-warm-ink: "oklch(24% 0.020 66)"
+  forest-background: "oklch(16% 0.013 165)"
+  forest-surface: "oklch(19% 0.013 165)"
+  forest-raised: "oklch(22% 0.014 165)"
+  light-ink: "oklch(91% 0.008 92)"
+  primary-contrast: "oklch(99% 0.004 95)"
+typography:
+  display:
+    fontFamily: "Spectral, Georgia, Times New Roman, serif"
+    fontSize: "clamp(2.75rem, 2rem + 3.1vw, 4.25rem)"
+    fontWeight: 800
+    lineHeight: 1.1
+    letterSpacing: "-0.02em"
+  headline:
+    fontFamily: "Spectral, Georgia, Times New Roman, serif"
+    fontSize: "clamp(2.25rem, 1.85rem + 1.7vw, 2.875rem)"
+    fontWeight: 700
+    lineHeight: 1.1
+  title:
+    fontFamily: "Spectral, Georgia, Times New Roman, serif"
+    fontSize: "1.875rem"
+    fontWeight: 600
+    lineHeight: 1.25
+  body:
+    fontFamily: "Hanken Grotesk, system-ui, Segoe UI, sans-serif"
+    fontSize: "1.0625rem"
+    fontWeight: 400
+    lineHeight: 1.6
+  label:
+    fontFamily: "Hanken Grotesk, system-ui, Segoe UI, sans-serif"
+    fontSize: "0.8125rem"
+    fontWeight: 600
+    lineHeight: 1.25
+    letterSpacing: "0.04em"
+rounded:
+  sm: "0.375rem"
+  md: "0.5rem"
+  lg: "0.75rem"
+  xl: "1rem"
+  full: "9999px"
+spacing:
+  1: "0.25rem"
+  2: "0.5rem"
+  3: "0.75rem"
+  4: "1rem"
+  5: "1.25rem"
+  6: "1.5rem"
+  8: "2rem"
+  10: "2.5rem"
+  12: "3rem"
+  16: "4rem"
+  20: "5rem"
+  24: "6rem"
+components:
+  button-primary:
+    backgroundColor: "{colors.uni-green}"
+    textColor: "{colors.primary-contrast}"
+    rounded: "{rounded.md}"
+    padding: "0.75rem 1.25rem"
+    height: "2.75rem"
+    typography: "{typography.label}"
+  input:
+    backgroundColor: "{colors.paper-surface}"
+    textColor: "{colors.warm-ink}"
+    rounded: "{rounded.md}"
+    padding: "0.75rem 1rem"
+    height: "2.75rem"
+    typography: "{typography.body}"
+  chip:
+    backgroundColor: "{colors.sunken-stone}"
+    textColor: "{colors.warm-ink}"
+    rounded: "{rounded.full}"
+    padding: "0.25rem 0.75rem"
+    typography: "{typography.label}"
+  resource-card:
+    backgroundColor: "{colors.paper-surface}"
+    textColor: "{colors.warm-ink}"
+    rounded: "{rounded.lg}"
+    padding: "1.5rem"
+    typography: "{typography.body}"
 ---
 
-## 1. Design context
-
-| | |
-|---|---|
-| **Audience** | Researchers, students and the interested public engaging with the Cluster’s digital collections and research data. |
-| **Use** | Browsing, searching and reading an Omeka S archive (items, item sets, media, exhibits) — often long reading sessions, sometimes at night. |
-| **Tone** | Scholarly, warm, authoritative, unfussy. Earthy not corporate; precise not flashy. |
-| **Theme** | Light by default, dark on request — the visitor’s OS preference is respected, with a manual toggle that persists. |
-| **Imagery** | None. Photography-free by policy: mastheads are carried by type, rule and ground (no photo, no wash by default). Item media is content, not decoration. |
-
----
-
-## 2. Brand palette
-
-Anchored on the Cluster’s signature green and earth-tone accent family.
-
-| Token | Hex | Role |
-|---|---|---|
-| **Uni-Grün** | `#009260` | Primary — the brand seed (`--primary-base`) |
-| **Braun** | `#d57912` | Accent — warmth, secondary emphasis |
-| **Gelb** | `#f59c08` | Brand yellow (decorative / data) |
-| **Dunkelblau** | `#00268a` | Brand deep blue (data) |
-| **Hellblau** | `#44b8f2` | Brand light blue (data) |
-| **Gold** | `#cca352` | Complementary — decorative rules & dividers |
-
-Neutrals are **warm stone** in light mode (a faint earth cast, never cold grey)
-and a Uni-Grün-tinted **forest dark** in dark mode (deep neutral, anchored to the
-brand rather than a generic charcoal).
-
-The six brand colours are exposed as `--brand-green … --brand-gold` for tags,
-categories and decorative use.
-
----
-
-## 3. The single-seed colour engine
-
-The most important maintainability decision: **one brand seed drives everything.**
-
-```
---primary-base: #009260;   /* injected by layout.phtml from the "Brand colour" setting */
-```
-
-Every primary variant is **derived** from that seed with `color-mix(in oklab, …)`
-rather than hand-picked:
-
-```scss
---primary:        color-mix(in oklab, var(--primary-base), black 12%);
---primary-hover:  color-mix(in oklab, var(--primary-base), black 22%);
---primary-text:   color-mix(in oklab, var(--primary-base), black 24%);   /* links */
-/* …and in dark mode the same seed is mixed toward white instead */
-```
-
-Glows, focus rings, selection, blockquote tints and primary-muted surfaces are
-**all** mixed from `--primary`, so **changing the brand colour in theme settings
-re-tints the entire interface** — and stays AA-legible in both modes — with no
-other edits.
-
-**Why OKLCH / oklab?** Perceptually uniform: equal lightness steps *look* equal,
-so tints don’t go garish at the extremes and dark-mode lifts are predictable
-without magic numbers.
-
-### Semantic tokens (the vocabulary components use)
-
-| Group | Tokens |
-|---|---|
-| Ink (text) | `--ink-strong` `--ink` `--ink-light` `--ink-subtle` `--muted` |
-| Surfaces | `--surface` `--surface-raised` `--surface-sunken` `--background` |
-| Lines | `--border-light` `--border` `--border-strong` |
-| Brand | `--primary` `--primary-hover` `--primary-active` `--primary-muted` `--primary-text` `--primary-contrast` · `--accent*` |
-| Masthead roles | `--masthead-bg/-ink/-ink-soft/-rule/-hair/-sunken/-field-bg/-field-border` · `--flag` `--numeral` `--cta-bg` `--cta-ink` |
-| State | `--success` `--warning` `--error` `--info` (+ `*-bg`) |
-| Links | `--link` `--link-hover` |
-| Highlight | `--highlight-bg` (found-term wash; `--dre-hl-bg` is a deprecated alias) |
-| Footer | `--footer-surface` `--footer-surface-alt` `--footer-divider` `--footer-text` `--footer-text-muted` |
-| Focus / select | `--focus-color` `--focus-ring` `--selection-bg` |
-
-All are defined in `asset/sass/abstracts/variables/_colors.scss`, once for light
-(`@mixin am-light-theme`) and once for dark (`@mixin am-dark-theme`).
-
-### Why the token layer covers more than colour
-
-Colour was tokenised first and thoroughly; type, spacing and layout followed
-later and partly stayed in Sass. As of v2.22 there is **one scale per decision,
-in CSS**:
-
-| Family | Tokens | Rule |
-|---|---|---|
-| Type size | `--text-2xs … --text-4xl` | the only heading/body sizes; the `$font__h*-size` Sass set is deleted |
-| Rhythm | `--leading-tight/-snug/-normal/-relaxed` | headings `-tight`/`-snug`, body `-normal`, long prose `-relaxed` |
-| Space | `--space-1…24` (source of truth) + `--space-xs…3xl` aliases | aliases are `var(--space-N)`, never independent literals; nothing off the 4 pt grid |
-| Layout | `--container-max` `--container-gutter` `--header-height` `--scroll-offset` `--rail-width` `--label-col` | no px page geometry in components; `--scroll-offset` is derived from `--header-height` and declared once |
-
-`--scroll-offset: calc(var(--header-height) + var(--space-6))` replaces the
-duplicated `scroll-padding-top: 6rem` that used to sit in **both**
-`base/_theme.scss` and `base/layout/_layout.scss` — a magic number that matched
-neither the 74 px header nor its own twin. `abstracts/variables/_layout.scss`
-(the last Sass-only geometry: `$header-min-height`, `$wrap-max-width`) is gone.
-
-### Contrast
-
-> **Body and UI text** meets WCAG AA (≥ 4.5:1) against its surface in both
-> modes; `--muted` and `--ink-subtle` are AA at 15 px+ and are reserved for
-> non-essential text. The pairings are asserted by `npm run lint:tokens`, not by
-> hand — the check parses the OKLCH literals, computes contrast for each
-> ink/surface pair per mode, and fails the build on a regression.
-
-Each quiet tier clears 4.5:1 against the *worst* surface in its mode
-(`--surface-sunken` in light, `--surface-raised` in dark). The previous 60 % L
-values were 3.9:1 and 4.4:1 — i.e. the blanket AA claim this document used to
-make was not true. Tones derived with `color-mix()` from the admin seed are not
-statically knowable and are out of the check's scope; that limitation is stated
-in the lint's header rather than papered over.
-
----
-
-## 4. Light / dark mode
-
-A `data-theme` attribute drives the modes. It is mirrored on **both `<html>` and
-`<body>`**: `<html>` so the root `color-scheme` (scrollbars and the viewport
-canvas) tracks the active theme, and `<body>` for the subtree token theming and
-for chart modules that observe `body[data-theme]`.
-
-- **Default** = follow the OS (`@media (prefers-color-scheme: dark)` applies dark
-  to `:root:not([data-theme="light"])`), falling back to light.
-- **Manual** = the sun/moon toggle writes `light` / `dark` to
-  `localStorage['dre-theme-preference']` and sets `data-theme` on both elements.
-- **No flash (FOUC)** = a tiny synchronous script at the top of `<body>` in
-  `layout.phtml` applies the stored/preferred theme **before first paint**. The
-  toggle icon is chosen by CSS from `[data-theme]`, so there’s no flash of the
-  wrong icon either.
-
-Files: `asset/js/theme-toggle.js` (toggle + persistence), `asset/js/utils.js`
-(`DREUtils.onReady`), the head-script in `view/layout/layout.phtml`.
-
----
-
-## 5. Typography
-
-| Role | Family | Notes |
-|---|---|---|
-| **Display** (h1–h4, banner, titles) | **Spectral** | Warm scholarly serif with real optical weight; carries the academic voice. |
-| **Body / UI** (everything else, h5–h6) | **Hanken Grotesk** | Humanist grotesque, highly legible, full Latin-Extended for FR + transliteration. |
-| **Mono** | system mono stack | Code, technical values. |
-
-Deliberately **not** the Inter / DM Sans / Fraunces monoculture. **Self-hosted**
-woff2 (`asset/fonts/`, `@font-face` in `base/_fonts.scss`) — the byte-identical
-Bunny Fonts files (a GDPR-compliant mirror of Google Fonts), but served from the
-theme's own origin so there is no third-party font request at all and no
-render-blocking CDN stylesheet on the LCP path. latin + latin-ext subsets only.
-
-**Scale.** `--text-*` in `_typography.scss` is the single source of truth: fixed
-`rem` steps for product UI so a 13 px label never drifts between breakpoints,
-fluid `clamp()` for the display tier (`--text-3xl`, `--text-4xl`). Headings
-consume those tokens directly — there is no parallel Sass size set — and their
-weights differentiate the ramp (**h1 800 / h2 700 / h3 600**) so the hierarchy
-survives at small viewports, where the old ramp had h2 and h3 at the same size
-(both 30 px below `$md`) and h1/h2 at the same weight. Heading margins come from
-`--space-*`; line height from `--leading-*`. Body is 17 px for long-form reading,
-capped by `--measure-*`.
-
-**Reading vs UI.** Long-form reading tiers (the record's abstract, exhibit prose)
-are set in Spectral at `--text-lg`/`--leading-relaxed`; everything operational
-(labels, chips, controls, metadata values) stays in Hanken. The split is
-deliberate and is most visible on the item page.
-
----
-
-## 6. Other token scales
-
-Defined in `asset/sass/abstracts/variables/_tokens.scss`:
-
-- **Spacing** — 4 pt grid, `--space-1…24` with `--space-xs…3xl` as *aliases of*
-  the numeric steps (not independent values).
-- **Layout** — `--container-max`, `--container-gutter`, `--header-height`,
-  `--scroll-offset`, `--rail-width`, `--label-col`. Page geometry lives here, not
-  in component px.
-- **Radius** — `--radius-sm…xl` (component default 8 px — institutional, not consumer-round).
-- **Shadow / panel** — warm-tinted `--shadow-xs…xl` and the `--panel-*` helpers
-  are emitted from `@mixin am-light-tokens` / `am-dark-tokens`, mirroring how
-  `_colors.scss` applies its theme mixins. The light values are declared **once**
-  (the earlier `:root` + `body[data-theme="light"]` duplication was 14
-  hand-synced declarations). `@mixin am-panel-tokens` states the
-  custom-property-freeze workaround once instead of commenting it in three blocks.
-- **Motion** — `--transition-fast/base/slow` on `--ease-out-quart`; emphasis on `--ease-expo-out`. Suppressed under `prefers-reduced-motion`.
-- **Z-index** — named scale (`--z-header`, `--z-modal`, …).
-- **Retired in v2.22** — `--white`, `--black` (literal colours in a theme-aware
-  system, and the exact tool for breaking dark mode — replaced by the one
-  deliberately mode-independent `--plaque-bg`), `--primary-dark` (alias of
-  `--primary-hover`), `--secondary` (only ever aliased `--primary`),
-  `--complementary` (decorative-only, and differently hued per mode for no stated
-  reason — its single call site now reads `--brand-gold`), `--space-40`,
-  `--radius-2xl`, `--tracking-tighter`, `--glow-md`, `--ring-focus-sm`,
-  `--lift-sm`, `--accent-line-sm`. `--dre-hl-bg` is renamed `--highlight-bg` with
-  the old name kept as a deprecated alias for one minor.
-
----
-
-## 7. Logos & icons
-
-**Logos** (in `asset/img/`):
-
-- `africamultiple.webp` (light) / `africamultiple-dark.webp` (dark) — the header
-  lockup. The dark variant was generated by lightening only the **neutral**
-  pixels of the mark (the grey “multiple” wordmark) while preserving the
-  saturated brand colours, so it stays legible on the forest-dark surface.
-- `bayreuth.webp`, `uni-bayreuth-africa-multiple-logo.webp` — the University of
-  Bayreuth and Africa Multiple Cluster marks, shown on light plaques in the
-  footer (`common/footer/footer-institutions`).
-- `ubt.webp` — a compact University of Bayreuth mark, available for settings use.
-
-The header logo is overridable via the **Logo** theme setting.
-
-**Icons** use [Lucide](https://lucide.dev/) geometry—the same family as the AMIRA
-dashboard—for cross-product consistency, with **no icon webfont**. Interactive
-icons are emitted as accessible inline SVG in templates; CSS pseudo-elements use
-the
-  `svg-icon($icon, $size, $color)` mixin (`abstracts/mixins/_mixins.scss`): a
-  `mask-image` of an inline-SVG data-URI tinted with
-  `background-color: currentColor`, so the glyph follows its host's colour token
-  and its hover / disabled states exactly as a font glyph did. The sole external
-  SVG is `arrow-down-blue.svg`, used by native select fields.
-
-**No FontAwesome.** As of **v2.5.5** the theme stopped loading Omeka core's
-`iconfonts.css` (and its ~77 KiB `fa-solid` webfont — ~91 KiB/page). The core
-`o-icon-*` classes the theme still renders — pagination `prev`/`next`, media
-`grid`/`list`, `search`, `private`/`annotation`
-— are repainted with `svg-icon()` masks in `base/elements/_icons.scss`. To add a
-glyph: drop a URL-encoded Lucide data-URI into `_mixins.scss` and apply
-`svg-icon()`. With the webfont gone, any unstyled `o-icon-*` renders nothing
-(an empty `::before`) rather than a “tofu” box.
-
----
-
-## 8. Components
-
-Most component partials consume the legacy `$color__*` Sass aliases, which are
-**repointed at the semantic tokens** in `_colors.scss` — so the whole theme became
-theme-aware in one move. Notable bespoke work:
-
-- **Header** — sticky surface with a 3 px Uni-Grün top “flag” rule, quiet utility
-  bar, the lockup with light/dark swap, and the sun/moon toggle. On the home page
-  the lockup steps down from `<h1>` to a plain home link, because the hero banner
-  there carries the site title as the page `<h1>` (one `<h1>` per page).
-  **The menu never wraps**: at `$xl`+ `navigation.js` measures the menu's
-  one-line width against the lockup→utilities envelope and sets
-  `data-nav="inline|drawer"` on `.main-header` — a menu that wouldn't fit on
-  one row (half-screen windows, long menus, large fonts) collapses to the
-  hamburger/drawer instead of wrapping. Every desktop-menu rule is gated on
-  `:not([data-nav="drawer"])`; without JS the old wrap is the fallback.
-- **Masthead — the deep plate** — photography-free, and carried by type, rule
-  and *ground*: a gold 3 px flag → eyebrow → display title (Spectral, capped at
-  50 px) → lede at `--measure-narrow` → two text links, beside a **sunken
-  catalogue column** listing what the archive holds. Two variants from one
-  partial (`common/banner.phtml`): the full masthead on the home page, and a
-  **slim strip** elsewhere that keeps the site title present site-wide (toggle:
-  *Show banner on interior pages*). The old three-stop earth-tone wash remains
-  available as an optional treatment (*Show the earth-tone wash*, off by
-  default) but is no longer the page's only visual idea — it had to work behind
-  both a tall hero and a slim strip, so it settled into a generic coloured header
-  that carried no information.
-
-  **The band does not follow `--surface`.** Under the pre-2.24 default it did,
-  which put a 99.2 % L band on a 97.4 % L page: a 1.8 % step, so the masthead had
-  no edge and read as empty space above the content. The band, the sunken column
-  and the hairline are one authored triplet in *both* schemes, and gold is the
-  single accent — the flag rule, the link arrows and the catalogue numerals,
-  nothing else.
-
-  The **catalogue column** answers what is *in* the archive rather than carrying
-  a standing note: the same corpus counts that used to sit below the masthead,
-  now as hairline rows of label + gold tabular numeral, each linking to its
-  authority page. As an index it gives the visitor a way in; as a KPI strip it
-  only kept score. The standing note (*Masthead note*) stacks beneath it.
-
-  The masthead no longer carries its own search field above `$xl`, where the
-  header's field fills the centre of tier 1 — two fields on one screen is one
-  too many. Below `$xl` the header search collapses to a magnifier button, so
-  the masthead renders a real field and the first screen always offers somewhere
-  to type.
-
-  Three **brand-presence** treatments are expressed purely through the
-  `--masthead-*` / `--flag` / `--numeral` / `--cta-*` role tokens — *quiet*
-  (stone ground, green on interactive only), *balanced* (the band follows the
-  page surface, flags and CTA in Uni-Grün), *bold* (the deep plate — the
-  default since 2.24) — so the choice is a token switch, not a rebuild.
-  `lint:tokens` checks all three for AA. Home detection lives in
-  `helper/IsHomePage.php` (route `site`, or `site/page` matching `homepage()`)
-  because the page-title block needs the same answer. Copy comes from the
-  **Banner** theme settings and falls back to the site title, so the masthead is
-  meaningful out of the box.
-- **Footer** — one deep-forest band (`--footer-*`): an asymmetric masthead
-  pairing a brand-identity block (title in Spectral + description, with inline
-  `currentColor` social icons that recolour on the dark band) against the
-  institutional marks (Bayreuth + Cluster, on light plaques), over a single
-  hairline-separated legal row (copyright + a discreet designer credit). The
-  Cluster's Facebook / Instagram / YouTube are wired as overridable defaults.
-  Replaced the old stack of three bands (empty top, bordered marks strip, darker
-  bottom bar).
-- **Back to top** — a fixed brand-green control that fades in past a scroll
-  threshold and smooth-scrolls to the top (honours `prefers-reduced-motion`).
-- **Cards** (resource grid/list) — clean surface cards: hairline border, soft
-  shadow, hover lift. (Replaced the dashed / asymmetric-radius base style.)
-- **Linked resources** — a consolidated, faceted view of every record that
-  references the current one, inside a native `<details>` disclosure
-  (collapsible, no JS, open by default). Records are merged (a record linked as
-  both *author* and *editor* appears once, carrying both relationships) and laid
-  out as a dense, responsive **card grid** — each card showing the record’s
-  **type** (its resource class) and how it relates. Relationship **facet pills**
-  filter the grid and a control sorts it (relationship / title), all client-side
-  over the server-rendered DOM (`asset/js/linked-resources.js`). Replaced the
-  old per-property **accordion** stack, then the earlier one-row-per-record list.
-- **Titles** — a short Uni-Grün underline accent (replaced the left-edge colour
-  bar — see anti-patterns below).
-- **Blockquote** — full-bordered, primary-tinted panel with a serif quotation
-  glyph (no icon-font dependency, no side-stripe).
-- **Value annotations** — the metadata-value annotation popover
-  (`components/annotation`) restyled onto the tokens: a hairline-bordered,
-  soft-shadowed `--surface-raised` card (was a dashed box with an asymmetric
-  `10px/0` radius). Its width is now intrinsic and viewport-capped
-  (`min(22rem, calc(100vw − 2·--space-4))`) and the inner property list stacks
-  and wraps, so a long URI or resource link no longer overflows on mobile.
-- **Metadata record — grouped, not dumped** — properties are rendered in named
-  groups, never in database order: **Abstract · Description · Subjects · People &
-  roles · Origins & context · Rights & access · Identifiers & sources**, with a
-  *Further details* bucket that catches any term the map does not name, so
-  nothing is ever hidden (`helper/ResourceGroups.php`,
-  `common/resource-values.phtml`). *People & roles* is its own group because the
-  Research Items template can express **54 `marcrel:*` contributor roles**;
-  folded into context they would swamp it, and the group is claimed by a
-  vocabulary **prefix** rather than 54 enumerated terms so a role added upstream
-  cannot silently demote an Author to "Further details". The intellectual
-  content leads at a real reading measure; identifiers, IDs and URIs come last;
-  `Subject` values are chips rather than a run of links. The label rail
-  (`--label-col`, 12 rem) uses a 14 px sentence-case Hanken label — the previous
-  10.625 rem rail of 13 px uppercase at `--ink-subtle` wrapped "Copyright Date" /
-  "Access Rights" to two lines *and* was the theme's worst contrast case.
-
-  Citation (with DOI, permalink, licence, access rights and a feature-detected
-  *Copy citation*) lives in a sticky rail (`--rail-width`,
-  `common/record-apparatus.phtml`), so a reader meets the apparatus without
-  scrolling past it — a journal article with a DOI used to have no citation,
-  licence or download affordance anywhere near the top. The rail is
-  theme-provided but does not take the right region over: an admin's *Right
-  sidebar* blocks render below it, and with neither present the rail is dropped
-  and the record takes the full measure. The inner value markup is byte-identical
-  to before (`.property` / `<dt>` / `<dd class="value …">`), because the
-  uri-dereferencer, the annotation tooltips and the sibling modules select
-  against it. Sidebar regions and the rail itself keep the stacked flow.
-- **Buttons, links, fields** — token-driven, with proper `:focus-visible`
-  rings. The filled-primary look is **opt-in via the `.button` class** (plus a
-  few core form contexts the theme can't add a class to: search/login submits,
-  the sort-selector and header-search buttons), *not* the bare `button`
-  element. Styling every `<button>` leaked the green fill / shadow / hover-lift
-  into embedded modules (DRE Search, DRE Visualizations), which then fought
-  back with `!important` resets; scoping to a class lets each module own its
-  controls and the theme request the primary look explicitly. The button
-  **state** selectors are still wrapped in `:where()` (zero added specificity),
-  so a module's own single-class styling beats the theme's
-  hover/active/disabled treatment. The global `:focus-visible` rule still
-  guarantees the focus ring everywhere.
-- **Found-term highlight** — `mark` / `ins` carry the same translucent accent
-  wash DRE Search paints on result matches (`color-mix(in oklab, var(--accent)
-  28%, transparent)`), so "your term" reads identically in core search, faceted
-  browse and the Svelte client.
-- **Search empty state** — the sitewide no-results view is a quiet centred
-  pause with a path onward (spelling/breadth/transliteration hints, advanced
-  search carrying the query over, browse-all) instead of a one-line shrug
-  (`view/omeka/site/index/search.phtml` + `components/search-results`).
-- **Print** (`utilities/_print.scss`) — researchers print item records: chrome
-  (header, footer band, controls, banner wash, Mirador) drops away, the light
-  palette is re-applied over any dark state, the rem scale steps down to a
-  bookish body, and external links spell out their URLs for citation.
-- **Arrival** — the home hero's eyebrow → title → tagline → CTA rise onto the
-  wash on a short stagger (`--ease-expo-out`, one-shot, CSS-only); the wash
-  itself never moves. Entirely absent under `prefers-reduced-motion`.
-
-### Mirador — the IIIF viewer
-
-The item page's media region is the **[Mirador](https://github.com/Daniel-KM/Omeka-S-module-Mirador)**
-block (Daniel-KM's module). The theme replaced **Universal Viewer** with it in
-**v2.6.0**; four theme-side pieces make it fit the system:
-
-1. **Embed fallback** (`view/common/resource-page-block-layout/mirador.phtml`).
-   Mirador renders from a IIIF manifest, but a YouTube / oEmbed / raw-HTML media
-   is **not** a IIIF canvas, so the manifest is empty and the viewer has nothing
-   to show. For items whose media use those ingesters the override renders the
-   media's **native player** instead (the same IIIF-vs-embed split the old
-   Universal Viewer override carried — only the fallback viewer changed). Image /
-   AV-file items fall through to `$this->mirador($resource)` with deep-zoom intact.
-2. **Theme-reactive** (`asset/js/mirador-theme.js`, enqueued only by the Mirador
-   branch of that partial). The module ships **Mirador 4** as an ES module and
-   leaves each live viewer in `window.miradors`; Mirador holds its active
-   Material-UI theme in that viewer's Redux store (`config.selectedTheme`,
-   choosing from `config.themes.{light,dark}`). The script follows the site's
-   light/dark toggle — the same `body[data-theme]` signal the chart modules watch
-   (§4, §9) — by dispatching the updateConfig action on the store. Note: Mirador 4
-   is a module-local ESM import, so there is **no `window.Mirador`** and **no
-   exported `actions`** (both verified against the live viewer); hence the plain
-   action object `{ type: 'mirador/UPDATE_CONFIG', config: { selectedTheme } }`
-   rather than an action creator. Brand-agnostic and fully guarded: if the
-   module's shape changes it no-ops and Mirador keeps its configured theme.
-3. **Chrome insulation** (`components/blocks/mirador`). Mirador's controls are
-   bare `<button>`s in the light DOM. The global `primary-button` used to style
-   every `<button>` and leaked a green fill + lift + glow into the toolbar — the
-   same leak the Universal Viewer override fixed. Now that the primary look is
-   `.button`-scoped (see *Buttons, links, fields*), bare Mirador buttons no
-   longer inherit it, so the leak is fixed at the source; the
-   `.block-mirador`-scoped neutraliser remains as belt-and-suspenders against
-   any future broad `button` rule.
-4. **Card framing** (`components/blocks/mirador`, v2.26.0). Mirador draws its own
-   chrome but no outer edge, so the media region bled into the page while every
-   other region on the record page read as a bordered panel. The block takes the
-   panel triplet (`--panel-border` / `--panel-radius` / `--panel-shadow`) plus
-   `overflow: hidden` to clip the viewer's square corners. This is the one part
-   of the viewer's look that *can't* live in the module config, because it is
-   about the block's place in the page rather than the viewer's insides.
-
-   > `overflow: hidden` is safe here, but not for the reason it looks like.
-   > Mirador's menus are **not** portaled to `<body>` — they mount inside
-   > `#mirador-<n>`, i.e. inside the block (verified on the live viewer, against
-   > the usual MUI assumption). They survive the clip only because their
-   > `.MuiPopover-root` is `position: fixed`, so its containing block is the
-   > viewport. Tooltips *are* portaled out of the block, and native fullscreen
-   > promotes the viewer to the top layer. **Therefore: never give this block or
-   > any ancestor `transform`, `filter`, `perspective`, `backdrop-filter`,
-   > `contain: paint/layout/strict/content`, or a `will-change` naming those** —
-   > each makes the box a containing block for fixed descendants, and every menu
-   > would be cut off at the viewer's edge. The existing `isolation: isolate` is
-   > deliberately none of them. The framing is scoped away from the embed-fallback
-   > branch (`.block-media-embed`), whose iframe carries its own radius.
-
-**Branding lives in the module, not the theme.** Mirador's MUI themes can't read
-`oklch()` / `color-mix()`, so — exactly like the chart libraries (§9) — the brand
-palette is resolved to sRGB and pasted into the module's **site setting**
-(*Site → Mirador → Mirador config*) as JSON. `mirador-theme.js` only switches
-*which* theme is active, so this can be tuned without a rebuild.
-
-Mode-independent settings live under `theme`; each mode's palette lives under
-`themes.light` / `themes.dark`, which Mirador deep-merges over `theme` when
-`mirador-theme.js` flips `selectedTheme`. The first pass (v2.6.0) set only the
-two greens and the surface stack, which left four Material Design defaults
-showing through — the config below closes all four:
-
-| | Stock Mirador 4 | Here |
-| --- | --- | --- |
-| **Type** | no `typography.fontFamily` → MUI falls back to Roboto/Helvetica, inside a page set in Hanken Grotesk | Hanken Grotesk throughout; `h1`–`h4` in Spectral, the one place the display serif belongs (they carry the info panel's headings) |
-| **Hairlines** | one `section_divider`, `rgba(0,0,0,.25)` — cold on cream, invisible on forest dark | all three border tiers: `--border-strong` for panel and thumbnail-rail edges, `--border` for toolbars, `--border-light` for metadata rows |
-| **Overlays** | cyan / magenta / pure yellow, unchanged since 2019 | brand pigments, keeping the convention scholars read: Hellblau = *there is an annotation*, Gelb = *you are touching it*, Uni-Grün = *this is the current one* |
-| **Panel steps** | light `shades.light` is `#ffffff` on a `#fdfcf9` paper — a 0.8% step, so companion-window toolbars read as empty space; dark aliases `background.default` to a different tier than light does | `shades` and `background` map the *same* tokens to the same keys in both modes (sunken / surface / background) |
-
-Only `styleOverrides` whose Mirador default is a plain object are touched
-(`MuiAppBar`, `CompanionWindowSection`); the callback-based ones take
-`({ theme })` and would be *replaced* rather than merged, dropping the layout
-rules they also carry. Those hairlines are handled in the theme's own
-`.block-mirador` layer instead, where they read live tokens.
-
-Paste into *Site → Mirador → Mirador config (item)*, replacing what is there:
-
-```json
-{
-  "osdConfig": {
-    "maxZoomPixelRatio": 10
-  },
-  "selectedTheme": "light",
-  "window": { "allowFullscreen": true, "allowMaximize": false, "allowClose": false, "sideBarOpenByDefault": false },
-  "workspaceControlPanel": { "enabled": false },
-
-  "theme": {
-    "typography": {
-      "fontFamily": "\"Hanken Grotesk\", system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
-      "h1": { "fontFamily": "Spectral, Georgia, serif", "fontWeight": 700, "letterSpacing": "-0.02em" },
-      "h2": { "fontFamily": "Spectral, Georgia, serif", "fontWeight": 700, "letterSpacing": "-0.01em" },
-      "h3": { "fontFamily": "Spectral, Georgia, serif", "fontWeight": 600, "letterSpacing": "0em" },
-      "h4": { "fontFamily": "Spectral, Georgia, serif", "fontWeight": 600, "letterSpacing": "0em" },
-      "subtitle1": { "fontWeight": 600, "letterSpacing": "0.01em" },
-      "button": { "fontWeight": 600, "letterSpacing": "0.04em" },
-      "overline": { "fontWeight": 600, "letterSpacing": "0.12em" }
-    }
-  },
-
-  "themes": {
-    "light": {
-      "palette": {
-        "mode": "light",
-        "primary": { "main": "#007a50", "contrastText": "#fdfcf9" },
-        "secondary": { "main": "#006440" },
-        "shades": { "dark": "#f3f0eb", "main": "#fdfcf9", "light": "#f8f6f1" },
-        "background": { "default": "#f8f6f1", "paper": "#fdfcf9" },
-        "text": { "primary": "#3c342d", "secondary": "#5f5650", "disabled": "#716a66" },
-        "divider": "#dbd7d1",
-        "section_divider": "#bfbab3",
-        "error": { "main": "#cc272e" },
-        "notification": { "main": "#f59c08", "contrastText": "#f59c08" },
-        "hitCounter": { "default": "#bfbab3" },
-        "highlights": { "primary": "#ca7210", "secondary": "#44b8f2" },
-        "action": {
-          "hover": "rgba(0, 122, 80, 0.08)",
-          "selected": "rgba(0, 122, 80, 0.12)",
-          "focus": "rgba(0, 122, 80, 0.16)"
-        },
-        "annotations": {
-          "chipBackground": "#f3f0eb",
-          "hidden": { "globalAlpha": 0 },
-          "default": { "strokeStyle": "#44b8f2", "globalAlpha": 1 },
-          "hovered": { "strokeStyle": "#f59c08", "globalAlpha": 1 },
-          "selected": { "strokeStyle": "#007a50", "globalAlpha": 1 }
-        },
-        "search": {
-          "default": { "fillStyle": "#ca7210", "globalAlpha": 0.28 },
-          "hovered": { "fillStyle": "#f59c08", "globalAlpha": 0.34 },
-          "selected": { "fillStyle": "#cca352", "globalAlpha": 0.5 }
-        }
-      },
-      "components": {
-        "MuiAppBar": {
-          "styleOverrides": {
-            "colorDefault": { "backgroundColor": "#f3f0eb", "color": "#3c342d" }
-          }
-        },
-        "CompanionWindowSection": {
-          "styleOverrides": {
-            "root": { "borderBlockEnd": "1px solid #eae8e3" }
-          }
-        }
-      }
-    },
-
-    "dark": {
-      "palette": {
-        "mode": "dark",
-        "primary": { "main": "#4da67b", "contrastText": "#05100b" },
-        "secondary": { "main": "#74b794" },
-        "shades": { "dark": "#080f0c", "main": "#0e1612", "light": "#151d19" },
-        "background": { "default": "#080f0c", "paper": "#0e1612" },
-        "text": { "primary": "#e3e1db", "secondary": "#b0aea7", "disabled": "#9c9891" },
-        "divider": "#2c3531",
-        "section_divider": "#49534e",
-        "error": { "main": "#ff645f" },
-        "notification": { "main": "#f59c08", "contrastText": "#f59c08" },
-        "hitCounter": { "default": "#49534e" },
-        "highlights": { "primary": "#db8a40", "secondary": "#44b8f2" },
-        "action": {
-          "hover": "rgba(77, 166, 123, 0.10)",
-          "selected": "rgba(77, 166, 123, 0.16)",
-          "focus": "rgba(77, 166, 123, 0.22)"
-        },
-        "annotations": {
-          "chipBackground": "#1e2622",
-          "hidden": { "globalAlpha": 0 },
-          "default": { "strokeStyle": "#44b8f2", "globalAlpha": 1 },
-          "hovered": { "strokeStyle": "#f59c08", "globalAlpha": 1 },
-          "selected": { "strokeStyle": "#4da67b", "globalAlpha": 1 }
-        },
-        "search": {
-          "default": { "fillStyle": "#db8a40", "globalAlpha": 0.28 },
-          "hovered": { "fillStyle": "#f59c08", "globalAlpha": 0.34 },
-          "selected": { "fillStyle": "#cca352", "globalAlpha": 0.5 }
-        }
-      },
-      "components": {
-        "MuiAppBar": {
-          "styleOverrides": {
-            "colorDefault": { "backgroundColor": "#151d19", "color": "#e3e1db" }
-          }
-        },
-        "CompanionWindowSection": {
-          "styleOverrides": {
-            "root": { "borderBlockEnd": "1px solid #1e2622" }
-          }
-        }
-      }
-    }
-  }
-}
-```
-
-Every literal above is the sRGB resolution of a theme token — light `primary`
-`#007a50` is `--primary`, `secondary` `#006440` is `--primary-text`, `divider`
-`#dbd7d1` is `--border`, `section_divider` `#bfbab3` is `--border-strong`, and so
-on through both modes. Re-derive them (rather than eyeballing) whenever
-`_colors.scss` moves: `scripts/lib/contrast.mjs` already carries the OKLCH → sRGB
-matrices these were computed with.
-
-The one that is easy to get wrong is Braun. `--brand-braun` is `#d57912`, but the
-token the search wash must match is `--accent`, which is
-`color-mix(in oklab, var(--accent-base), black 4%)` = **`#ca7210`** in light and
-`…, white 12%` = `#db8a40` in dark. Since `--highlight-bg` is `--accent` at 28%,
-`search.default` at `globalAlpha 0.28` is then byte-identical to the `<mark>` the
-site shares with DRE Search — a hit looks the same in the viewer and in search
-results. Light shipped the raw pigment until v2.26.0; reach for `--accent`, never
-`--brand-braun`, for anything that has to agree with `<mark>`.
-
-> The Mirador config field is **JSON, not JS** — double quotes, no comments, no
-> trailing commas.
-
-### Where this config actually lives
-
-Not where you would guess, and the distinction has cost a debugging round trip:
-
-- **Global** — *Admin → Settings → Players → Mirador config (item)*
-  (`/admin/setting`, setting key `mirador_config_item`).
-- **Per site** — *Admin → Sites → [site] → Settings tab*
-  (`/admin/site/s/<slug>`, same key). **The site value wins**; editing only the
-  global one changes nothing on a site that has its own.
-
-Keep both in step — the global copy is the fallback for any site that doesn't
-override, and letting them drift is how this section went stale in the first
-place. The unsuffixed key is Mirador **4**; `mirador_config_item_2` / `_3` are
-the v2 / v3 fields and are unused here.
-
-`mirador_config_collection` (the item-set viewer) is a **separate field** and
-carries the same palette, so it takes the same Braun correction — but
-deliberately **not** the single-item lockdown below: closing and rearranging
-windows is the point of a multi-item view. Note that nothing on this site
-currently renders it — the theme's Mirador block is an item-page resource block,
-and no item-set page emits a viewer (checked against the live site) — so the
-collection config is kept correct against the day one is used, not for a visible
-effect today. Site and global copies of it are both Mirador 4's unsuffixed key.
-
-### The single-item lockdown
-
-`window` and `workspaceControlPanel` are what make a general-purpose IIIF
-workbench behave as an embedded record-page viewer:
-
-- `workspaceControlPanel.enabled: false` — drops *Add resource*, *Jump to
-  window*, *Workspace settings*, *Workspace options*.
-- `allowMaximize: false`, `allowClose: false` — a record page hosts exactly one
-  window, and closing it left an empty workspace recoverable only by reload.
-  **`allowClose` is the load-bearing one**: `allowMaximize: false` alone leaves
-  the Close button in place, which is the actual trap.
-- `allowFullscreen: true`, `sideBarOpenByDefault: false` — deep-zoom stays
-  reachable; the info panel opens on request rather than eating the canvas.
-
-Verified on the deployed viewer: with these set, the window bar carries only
-*Toggle sidebar*, *Window views & thumbnail display* and *Full screen*.
-
-### Anti-patterns deliberately removed
-
-- **Left/right accent stripes** on titles, callouts and collapsible blocks
-  (the classic “AI admin UI” tell) → replaced with underline accents, full
-  borders, or background tints.
-- **Accordion stacks** (dashed boxes, asymmetric `20px/0` radius, centred
-  triggers) for linked resources → replaced with a single consolidated,
-  faceted list (see Components above).
-- **Gradient text**, glassmorphism, neon-on-dark → not used.
-- **Cold grey** neutrals → warm stone (light) / forest (dark).
-- **FontAwesome icon webfont** (Omeka core `iconfonts.css` + the `fa-solid`
-  woff2, ~91 KiB/page) → removed; glyphs are painted from `currentColor`-tinted
-  Lucide SVG masks (`svg-icon()`), so there is no icon-font request.
-- **Stock-theme furniture inherited from Lively** — the green `border-bottom`
-  under every `.regions-container`, its 50 px gaps and `-30px` sidebar offsets,
-  and the asymmetric `#content` search padding (`3rem 10rem 4rem 4rem` inside a
-  1160 px box) → hairline `--border`, spacing from the scale, geometry from
-  `--container-*` / `--measure-*`.
-- **The flat metadata dump** — one `<dl>` of every property in database order,
-  with administrative identifiers weighted like authorship → grouped record
-  (Components above).
-- **Duplicate `<h1>`s** — the live home page rendered the banner title *and* the
-  page title ("Home") as two `<h1>`s. The page-title block now stands down
-  wherever the masthead already states the page's title.
-- **Eleven bordered, shadowed, hover-lifting stat cards** under the hero — a lot
-  of chrome for eleven numbers, competing with the hero it was meant to ground →
-  a hairline strip of tabular numerals (v2.22), then the **catalogue column**
-  beside the headline (v2.24), where the same figures read as an index rather
-  than a scoreboard. (The shared `.rv-stat-card` look is still right *inside* a
-  dashboard.)
-
----
-
-## 9. The module ecosystem — Search & Visualizations
-
-The theme is not consumed in isolation. Two sibling Omeka S **modules**, developed
-alongside it, render their own UI into theme pages and are styled to be
-indistinguishable from the theme itself:
-
-| Module | Role | How it attaches | Where it is styled |
-|---|---|---|---|
-| **[DRE Search](https://github.com/AM-Digital-Research-Environment/DRESearch)** | Typesense-backed faceted search (a Svelte 5 client) | site block layouts (`Research*SearchBlock`), a header search-bar view helper, and a federated results route (`/s/{slug}/dre-search`) | server shell in `asset/css/dre-search.css`; component styles compiled into `asset/dist/dre-search.css` |
-| **[DRE Visualizations](https://github.com/AM-Digital-Research-Environment/DRE-Visualizations)** | ECharts + MapLibre dashboards, charts, maps and a knowledge graph | block layouts (collection / compare / explorer / photo-browse / what's-new…) and resource-page blocks (knowledge graph, item-set dashboard, sibling sparkline…) | one stylesheet, `asset/css/dre-visualizations.css`, plus per-chart JS under `asset/js/` |
-
-**The design tokens are the contract between them.** The custom properties this
-theme defines on `:root` (and re-defines per mode) are a *de-facto public API*:
-both modules read them and inherit the brand, the warm-stone/forest palette, the
-type scale, spacing, radii, shadows and focus rings — and they follow the live
-light/dark toggle **for free**, because the theme flips the tokens at
-`body[data-theme]` and the modules only ever *reference* them.
-
-### The shared token contract
-
-Modules may rely on these token families (defined in
-`asset/sass/abstracts/variables/`). Treat them as stable; renaming one is a
-breaking change for the modules.
-
-| Group | Tokens modules consume |
-|---|---|
-| Brand | `--primary` `--primary-hover` `--primary-contrast` · `--accent` |
-| Ink | `--ink-strong` `--ink` `--ink-light` `--muted` |
-| Surfaces | `--surface` `--surface-raised` `--surface-sunken` `--surface-overlay` |
-| Lines | `--border` `--border-light` `--border-strong` |
-| State | `--error` (+ the rest of the `--success/-warning/-info` family) |
-| Type | `--font-display` `--font-body` · `--text-2xs … --text-2xl` · `--leading-tight/-snug/-normal/-relaxed` · `--measure-wide` |
-| Layout | `--space-*` `--radius-sm/-md/-lg/-full` `--size-control-md/-lg` · `--container-max` `--container-gutter` `--header-height` `--scroll-offset` `--rail-width` `--label-col` |
-| Stacking | the **whole** scale: `--z-banner` `--z-dropdown` `--z-sticky` `--z-header` `--z-drawer` `--z-stage` `--z-modal` `--z-tooltip` |
-| Entity | `--entity-person` `--entity-project` `--entity-organisation` `--entity-subject` `--entity-location` `--entity-genre` `--entity-language` `--entity-contributor` `--entity-item` `--entity-item-related` `--entity-item-shared` `--entity-grouping` (+ `--type-entity-term`, an alias of `--entity-subject`) |
-| Highlight | `--highlight-bg` (was `--dre-hl-bg`; deprecated compatibility alias retained) |
-| Effect | `--shadow-xs/-sm/-md/-lg` `--ring-focus` `--transition-fast/-base` |
-
-**Stacking** is the whole scale on purpose. This table used to offer modules
-`--z-dropdown` alone, and the result was sixteen raw `z-index` values in the
-dashboards, two of them `9999` — a fullscreen chart stage sitting above the
-theme's sticky header, drawer, modal layer *and* tooltip. A module cannot stack
-correctly against chrome it has no name for. `--z-stage` (290) is the layer a
-module's fullscreen visualization belongs on: above the drawer, below the modal
-layer, so a dialog raised from inside it still lands on top.
-
-Purely **local** stacking — ordering siblings inside a component that already
-establishes its own context — is not on the scale and should stay a small
-integer. The scale names page layers; `z-index: 2` on a card caption is not one.
-
-**Entity colour** is data-adjacent, which is why it lived outside the contract
-for so long: as a private JS registry in DRE Visualizations (`ns.entityColor`,
-keyed by type name) *and*, separately, as a CSS variable DRE Search reached for
-(`--type-entity-term`) that nothing anywhere defined. Two encodings of one
-meaning, so a Person chip in search results and a Person node in a graph could
-not be guaranteed to be the same hue. It is shared, named and stable — the same
-test `--highlight-bg` passes — so it is a token family now, with a light set and
-a dark-lifted set. The values are unchanged from the dashboards' own palette
-slots. These are **fixed reference hues**: a categorical scale has to stay
-discriminable, so unlike `--primary` they do not follow an admin's brand override.
-
-### Mode selectors — a module never asks the OS
-
-The contract used to document tokens and nothing else, which left "how do I know
-it's dark?" unanswered — so three DRE Search components answered it themselves,
-with `@media (prefers-color-scheme: dark)` and `matchMedia`. That is the wrong
-switch. It is the OS preference, and the theme's mode is a *choice* that may
-override it.
-
-**The mode is `[data-theme]`, on `<html>` and on `<body>`.** The head script in
-`view/layout/layout.phtml` resolves it before first paint — stored preference
-first, OS preference only as the default — and writes `light` or `dark` to both
-elements, always, so the attribute is never absent under this theme.
-
-| You need | Use |
-|---|---|
-| A token that differs per mode | Nothing. Read the token; it already resolves per mode. |
-| A CSS rule that only applies in dark | `:root[data-theme="dark"]` / `body[data-theme="dark"]` (in Svelte: `:global([data-theme='dark']) .thing`) |
-| A mode boolean in JS | `window.DRETokens.isDark()` — see below |
-| To react to a mode change in JS | `window.DRETokens.onThemeChange(fn)` |
-
-Reading `prefers-color-scheme` inverts the page for any visitor who overrode
-their system setting, and it inverts *partially* — which is worse, because the
-rest of the module still follows the tokens. A system-dark visitor who chose
-light used to get a light page carrying a dark-matter basemap and dark-tuned
-image filters.
-
-The one legitimate media query of this shape is `prefers-reduced-motion`: that
-is a genuine OS accessibility preference with no in-theme override.
-
-### Breakpoints — one ladder
-
-```
-600px · 768px · 1024px · 1200px · 1460px
-```
-
-Authoritative copy: `asset/sass/abstracts/variables/_breakpoints.scss`
-(`$sm $md $lg $xl $xxl`).
-
-Breakpoints are the one scale a custom property **cannot** express — `var()` is
-illegal in a media query — so the ladder lived in Sass, where only the theme
-could read it, and both modules invented their own: six values in the dashboards
-(420/600/680/700/720/768), six more in the search client (30/32/40/46/48/60rem).
-The visible cost is that a page carrying the theme's header, a facet panel and a
-dashboard reflows at up to six different widths as the window narrows, and the
-720px/768px pair leaves a 48px band in which the module has changed layout and
-the theme has not.
-
-Two ways out, and they compose:
-
-1. **Author `@media` against the five numbers above.** The shared token lint
-   checks every `@media` width literal against the ladder, with a per-repo
-   allowlist of the values still to be converted. Shrinking that allowlist is
-   the unit of work.
-2. **Prefer container queries for module-internal layout.** This is the more
-   correct answer anyway: a facet panel in a rail should respond to *the rail*,
-   not to the window. A module block whose layout depends only on its own width
-   should use `@container`, and then it needs no ladder at all.
-
-### Reading tokens from JavaScript
-
-`asset/js/dre-token-bridge.js` publishes **`window.DRETokens`**, loaded deferred
-in `<head>` on every page. It exists because the token layer is a *CSS* API: the
-moment a module paints to a canvas, a WebGL map or an SVG attribute, `var(--x)`
-is unavailable, and MapLibre/ECharts cannot parse `oklch()` or `color-mix()`
-either. This capability used to exist in exactly one module, which is why the
-search client's map was the one surface on the site that ignored both the theme
-toggle and the admin's brand colour.
-
-| Call | Returns |
-|---|---|
-| `DRETokens.cssColor('--primary')` | the active mode's value as `rgb()` / `rgba()` |
-| `DRETokens.cssFont('--font-body')` | the computed font stack |
-| `DRETokens.cssValue('--space-4')` | the raw computed string (lengths, numbers) |
-| `DRETokens.toRGB(any)` | any browser-parseable colour, rasterised to `rgb()` |
-| `DRETokens.isDark()` | mode boolean, from `[data-theme]` |
-| `DRETokens.onThemeChange(fn)` | subscribe to mode changes; returns an unsubscribe |
-
-It resolves through a hidden probe parented to `<body>`, so it sees the live
-cascade — including a brand colour an admin overrode in theme settings, which no
-build-time table can know. A canvas that resolves colour once must subscribe to
-`onThemeChange`, or it freezes the mode it was first painted in.
-
-### Generated fallbacks — nobody types a hex
-
-`npm run build:tokens` resolves the whole token layer to concrete sRGB and rem
-and writes two committed artefacts:
-
-- `asset/css/dre-tokens-fallback.css` — one `:root` block per mode
-- `asset/css/dre-tokens-fallback.json` — the same table, for JS bridges, the
-  Mirador config, and the lint
-
-`npm run lint:tokens` asserts they are current, so they cannot go stale.
-
-This exists because rule 3 below — *keep fallbacks on-brand* — was the one rule
-in this contract with no enforcement anywhere, and it had drifted furthest. The
-literals were hand-written at 31 token names across three repositories: `--muted`
-alone appeared as four different greys in DRE Search, none of them the theme's
-`#716a66`, and the search client's type fallbacks encoded an entire scale the
-theme does not have. Nothing was visible in production, because the token always
-wins when the theme is loaded — and that is precisely why it drifted. All three
-token lints strip `var(--x, …)` before applying any rule, so the fallback was the
-one part of the design system no check had ever looked at.
-
-A module has two correct options:
-
-1. **Ship `dre-tokens-fallback.css` ahead of its own stylesheet** and write bare
-   `var(--token)` — no literals to keep in sync at all.
-2. **Keep the inline `var(--token, literal)` form** and let the shared lint
-   compare each literal against the JSON.
-
-Either way there is one number per token instead of one per call site.
-
-### The data-colour contract (charts & maps)
-
-Colour in a visualization is **data**, not chrome, so it has its own slice of the
-contract — distinct from the UI tokens above:
-
-- **The six brand pigments are the categorical palette.** A multi-series chart
-  leads with `--brand-green · --brand-gelb · --brand-hellblau · --brand-braun ·
-  --brand-dunkelblau · --brand-gold` (§2), then harmonious extensions for charts
-  with more than six series. There is a light set and a **dark-lifted** set — the
-  two darkest pigments (Uni-Grün, Dunkelblau) are raised so they don't disappear
-  on the forest-dark surface.
-- **Canvas / WebGL renderers can't read the tokens directly.** ECharts (zrender)
-  and MapLibre don't parse `oklch()` / `color-mix()`, so a token has to be
-  resolved to a plain `rgb()` at runtime and re-resolved on every `[data-theme]`
-  flip. **Never hand a raw `oklch` token to a canvas/WebGL lib;** route it
-  through `window.DRETokens` (*Reading tokens from JavaScript* above), or through
-  a `--rv-*` alias the module has already resolved. This is why the modules can
-  follow the live toggle even though the tokens are in a colour space the chart
-  libraries reject. The bridge lives in the theme because the theme owns the
-  tokens — it began as `cssColor()` / `readTheme()` inside `dashboard-core.js`,
-  where only one of the two modules could reach it, and the other painted its
-  map with raw brand hexes for want of it.
-- **Keep the palette and the tokens identical.** **Stops 1–6 are the `--brand-*`
-  pigments and must stay in sync; stops 7–12 are an independent harmonious
-  extension.** The palette needs those twelve stops and a dark-lifted variant the
-  tokens don't carry, so the module hard-codes the hex values — meaning stops 1–6
-  **duplicate** `--brand-*`. They are one brand: when a `--brand-*` value changes,
-  change the module palette in the same commit (and vice-versa). A drift between
-  them is the data-side of the "competing design variables" failure. (The module
-  README states this same split verbatim.)
-- **Community halos have their own family.** In the knowledge graph a ring
-  encodes *community* while the fill encodes *entity type*, so the halo palette
-  (`ns.HALO`, beside the categorical palette in `dashboard-core.js`) is
-  deliberately distinct from the fills but stays in the brand's warm pigment
-  world: deep pigment-pot tones on light, lifted luminous tones on dark,
-  swapped in place by `readTheme()` on every toggle.
-- **Type crosses the bridge too.** `cssFont()` resolves `--font-body` /
-  `--font-display` the same way `cssColor()` resolves colours, so in-canvas
-  chart text (axes, legends, tooltips) is Hanken Grotesk and the rare in-canvas
-  title is Spectral — no more library-default sans.
-
-### Rules for keeping the modules in sync
-
-1. **Consume tokens by their exact name; never redefine one.** A module must not
-   set `--primary`, `--surface`, … to a *different value* — that is the
-   "competing design variables" failure. Read them, don't override them.
-2. **Alias into a local namespace if you need to.** DRE Visualizations maps
-   the theme tokens onto `--rv-*` aliases declared **on `body`** (not `:root`),
-   so each alias resolves the *active* token from the body's own cascade and the
-   `[data-theme]` flip carries through. This is the pattern to copy for any new
-   module.
-3. **Take fallbacks from the generated table; don't type them.** Every
-   `var(--token, <fallback>)` carries a literal for hosts that lack the DRE
-   tokens, and that literal **must be the theme's own resolved value** — copy it
-   from `dre-tokens-fallback.json` (see *Generated fallbacks* above), which the
-   shared lint then checks on every run. The fallback is inert whenever this
-   theme is loaded, but it is what an isolated render, a non-DRE host, and a
-   maintainer reading the code all see, so it must not encode a "shadow brand".
-   Being unobservable is not a reason to let it drift — it is the *reason* it
-   drifts, and this rule went unenforced for two years and two repositories
-   before anyone measured it.
-4. **Don't invent parallel scales.** No module-local spacing, radius or type
-   scale that competes with the theme's. Use `--space-*`, `--radius-*`,
-   `--text-*` — and equally `--leading-*` for rhythm, the z-index scale for
-   stacking, and the five-step breakpoint ladder for `@media`. Those three were
-   in the contract but consumed by almost nobody: body text was 1.6 in the theme
-   and 1.5 in search on the same page, and each repository grew its own
-   breakpoint ladder and its own stacking numbers.
-5. **The anti-patterns (§8) apply equally.** No side-stripe accents, no gradient
-   text, no glassmorphism — in the modules as much as in the theme.
-6. **Data colours are part of the contract too.** A chart palette tracks the six
-   `--brand-*` pigments and reaches the tokens through the runtime bridge — see
-   *The data-colour contract* above. Don't ship a palette that disagrees with
-   `--brand-*`.
-7. **A renamed token ships with an alias.** The theme keeps the old name as
-   `var(--new-name)` for at least one minor release and records the change in the
-   breaking-change register (`AUDIT.md` §4) and the changelog. Modules update at
-   their own pace; nothing silently loses its colour. `--dre-hl-bg` →
-   `--highlight-bg` is the worked example: DRE Search now reads
-   `var(--highlight-bg, var(--dre-hl-bg, <literal>))`, which is correct against
-   both theme versions.
-8. **If a module reaches for a token the theme lacks, add it to the theme.**
-   DRE Visualizations' bridge carried `var(--text-2xs, 0.6875rem)` with a note
-   that it would adopt a theme token "if one is ever added" — a hole in a shared
-   scale is something two projects can drift apart in. `--text-2xs` is now a theme
-   token.
-
-> Each module also states this contract at the top of its own stylesheet
-> (DRE Visualizations’ CSS header; DRE Search’s `dre-search.css`). This
-> section is the canonical, theme-side reference; keep them consistent.
-
----
-
-## 10. Build
-
-```bash
-npm install
-npm run build        # token-contract lint, then gulp css → asset/css/style.css
-npm run watch        # rebuild on change
-npm run lint:tokens  # design-token contract check alone (scripts/check-design-tokens.mjs)
-```
-
-`lint:tokens` encodes the §8 anti-patterns (raw hex outside `var()` fallback
-position, coloured side-stripes, gradient text, px type) and fails the build
-on a regression; its allowlist records the sanctioned exceptions. Since v2.22 it
-also asserts the properties this document *claims*, rather than restating them:
-
-| Check | What it enforces |
-|---|---|
-| Contrast | Computed WCAG ratio for every ink/surface pair, per mode, plus the footer band and both brand-presence *bold* grounds — parsed straight out of the OKLCH literals in `_colors.scss` (`scripts/lib/contrast.mjs`) |
-| One type scale | No surviving `$font__h1-sm-size … $font__h6-base-size` reference; headings resolve from `--text-*` |
-| Layout tokens | No off-grid px page geometry in the layout partials (hairlines ≤ 3 px excepted, `@media` breakpoints exempt) |
-
-`lint:ini` walks the tree in Node rather than shelling out to `grep`: the old
-`execSync('grep …')` returned an empty string on any platform without grep — i.e.
-Windows, i.e. `npm run build` — and "nothing is read anywhere" made the check
-report *every* admin field as dead. A lint that fails open on one OS and closed
-on another is worse than no lint.
-
-### Verifying the PHP
-
-The theme is developed without a local PHP binary, which is why
-`lint:templates` counts brackets instead of parsing. That is a net for a
-truncated file; it cannot see a mistyped `::`, and a broken template fails at
-request time, in production, on the one page that renders it. Three layers now
-close that gap:
-
-| Layer | Needs PHP? | Catches |
-|---|---|---|
-| `lint:templates` | no | truncation, tag/bracket imbalance, unresolved `partial()` paths, helper-casing drift |
-| `lint:groups` | no | a metadata property that falls through to “Further details”, or lands in the wrong group |
-| `lint:php` → `php -l` + `tests/*Test.php` | yes | real grammar errors; and the grouping **logic** (exact-beats-prefix, ordering, losslessness) |
-
-`lint:php` finds a PHP on `PATH`, else a pulled `php:8.3-cli` image, else prints
-install instructions and **exits 0** — a contributor without PHP is not blocked.
-CI (`.github/workflows/ci.yml`) runs `lint:php:require` across PHP 8.1 / 8.3 /
-8.4, so the gate is hard exactly where it can always run. 8.1 is the floor Omeka
-S 4.2 declares; 8.4 is where implicit-nullable parameters became a deprecation.
-
-**Syntax is not correctness**, and the metadata map is the proof. It was first
-written from the field names visible in the `MongoDB2OmekaS` mapper source, and
-every file parsed — but the *Research Items* template carries **54 `marcrel:*`
-contributor roles the mapper generates rather than spells out**, so `marcrel:aut`
-(the Author) was unmapped and would have rendered last, under the administrative
-identifiers. That is the precise failure the record redesign exists to fix. No
-syntax check would ever have found it; `lint:groups` finds it in 40 ms, because
-it asserts the map against the **real** template
-(`tests/fixtures/research-items-template.json`, refreshed with
-`npm run fixtures:refresh`) rather than against a second copy of the developer's
-assumptions. Hence the prefix rules in `helper/ResourceGroups.php`: a map that
-enumerates 54 roles is one upstream role away from the same bug.
-
-Toolchain (latest as of build): **gulp 5**, **dart-sass 1.100**, **gulp-sass 6**,
-**gulp-postcss 10**, **autoprefixer 10.5**. Browser targets in
-`package.json › browserslist`: modern evergreen + **Safari/iOS ≥ 16.2**. That
-floor is deliberate, not conservative — the single-seed engine is built on
-`color-mix()` (Safari 16.2+) and `oklch()` (15.4+), neither of which autoprefixer
-can polyfill, so the support promise must match what the CSS actually needs
-(raised from ≥ 14 in v2.14.0).
-
-### SCSS architecture
-
-```
-abstracts/variables/_tokens.scss      ← spacing, LAYOUT, radii, rhythm, shadows, motion, z-index
-abstracts/variables/_colors.scss      ← OKLCH brand palette, light/dark, masthead roles, $color__* aliases
-abstracts/variables/_typography.scss  ← Spectral + Hanken, the one type scale, $font__* aliases
-abstracts/mixins/_mixins.scss         ← buttons, container, clearfix
-base/ … components/ … utilities/      ← consume the tokens above
-```
-
-> `abstracts/variables/_layout.scss` was removed in v2.22. It held the last two
-> pieces of page geometry CSS could not read (`$header-min-height: 74px`,
-> `$wrap-max-width: 1300px`) while the container mixin said 1440 px and the
-> search page hard-coded 1160 px — three container widths, none of them a token.
-> They are now `--header-height` and `--container-max`.
-
-> **Module system:** the partials use Dart Sass `@use`/`@forward` (migrated from
-> the deprecated `@import` in v2.14.0). `abstracts/_index.scss` `@forward`s the
-> variables + mixins; each leaf partial starts with `@use "…/abstracts" as *;` for
-> the token + mixin contract; the section aggregators (`base/_base.scss`,
-> `components/_components.scss`, …) `@forward` their leaves. The CSS file header is
-> prepended **post-compile** by gulp (`prependHeader()` in `gulpfile.js`), not
-> emitted from `style.scss`: a loud `/* */` comment immediately before
-> `@use "abstracts"` is re-emitted by Dart Sass at every one of the ~50 files that
-> load the abstracts module, so the header is kept out of the Sass graph.
-
----
-
-## 11. Maintenance recipes
-
-**Re-brand to a different colour.** Change **Brand colour** in the theme settings
-(or `--primary-base` default in `_colors.scss`). Everything else re-derives.
-
-**Add a token.** Put primitives/derived values in `_tokens.scss` or `_colors.scss`
-inside *both* the light and dark blocks if it must differ per mode.
-
-**Style a new component theme-aware.** Use the semantic tokens
-(`var(--surface)`, `var(--ink)`, `var(--border)`, `var(--primary)`) — never a raw
-hex or a cold grey. Avoid `border-left/right` accent stripes.
-
-**Touch a sibling module’s styles (Search / Visualizations).** Both consume this
-theme’s tokens — see §9. Reference tokens by name, keep every
-`var(--token, <fallback>)` fallback on-brand (Uni-Grün / warm stone / forest),
-and never redefine a theme token to a new value. After editing a module, rebuild
-it from its own folder (`npm run build`); the search client also wants
-`npm run lint && npm run check`.
-
-**Swap the header logo.** Upload via the **Logo** setting, or replace
-`asset/img/africamultiple{,-dark}.webp`.
-
-**Accessibility.** Body/surface pairings target WCAG AA (≥ 4.5:1) in both modes;
-focus is always visible (`:focus-visible` ring); motion respects
-`prefers-reduced-motion`; the theme toggle is a labelled `aria-pressed` button.
+# Design System: Africa Multiple — DRE Theme
+
+## Overview
+
+**Creative North Star: "Scholarly Modernism"**
+
+The DRE interface should feel like a well-kept research library made legible by
+contemporary information design. It is warm, calm, exact, and recognisably part
+of the Africa Multiple family. Type, rule, ground, and meaningful data carry the
+page; decorative effects remain subordinate to discovery and reading.
+
+The system serves four kinds of surface. Landing and index pages help visitors
+enter the corpus; search and filtering surfaces support focused operation;
+records support sustained reading; maps, charts, and networks let the metadata
+be experienced directly. Expression may change with the surface, but the token
+contract, typographic voice, accessibility floor, and restraint remain stable.
+
+The interface is photography-free by default. Item images, scans, audio,
+video, and IIIF canvases are evidence and content rather than ornamental
+backdrops. Light mode uses warm stone and paper; dark mode uses a green-tinted
+forest rather than generic charcoal. Both modes are first-class and follow the
+visitor's explicit selection when it differs from the operating system.
+
+**Key Characteristics:**
+
+- Spectral display typography paired with Hanken Grotesk for body and UI.
+- One Uni-Grün seed from which interactive primary states are derived.
+- Warm-stone light surfaces and forest-dark surfaces with measured contrast.
+- A 4-point spacing grid, restrained radii, hairline borders, and quiet depth.
+- Reading-first records, operational search, and data-rich visualizations that
+  still read as one product.
+- Gold used as a rare structural accent, not as ambient decoration.
+
+**The Content-before-Apparatus Rule.** A record leads with title, authorship,
+abstract, and meaningful groups. Citation controls, identifiers, and technical
+apparatus support the reading rather than precede it.
+
+**The One-product Rule.** DRE Search and DRE Visualizations may render from
+separate repositories, but they consume the theme's tokens and interaction
+language. A visitor must not be able to see the repository boundary.
+
+## Colors
+
+The palette joins exact Africa Multiple pigments to perceptually uniform OKLCH
+surfaces. The frontmatter contains the portable primitives; the runtime source
+of truth is `asset/sass/abstracts/variables/_colors.scss`, where semantic tokens
+resolve per mode and from an administrator-overridable `--primary-base`.
+
+### Primary
+
+- **Uni-Grün** (`uni-green`) is the brand seed and the default interactive
+  accent. Buttons, links, focus, selection, and primary-muted surfaces derive
+  from it with `color-mix(in oklab, ...)`.
+- `--primary`, `--primary-hover`, `--primary-active`, `--primary-text`, and
+  `--primary-contrast` are the component-facing roles. Components consume these
+  roles, not the raw pigment.
+
+### Secondary
+
+- **Warm Brown** (`warm-brown`) supplies earth warmth and secondary emphasis.
+  Its semantic roles are `--accent`, `--accent-hover`, `--accent-muted`, and
+  `--accent-text`.
+- **Archive Gold** (`archive-gold`) is reserved for authored structural moments:
+  the masthead flag, catalogue numerals, and selected data accents.
+
+### Tertiary
+
+- **Brand Yellow**, **Deep Blue**, and **Light Blue** complete the institutional
+  pigment family and support categorical data. They do not become arbitrary UI
+  decoration.
+- Entity-type colors are stable shared meanings. A person, project,
+  organisation, subject, location, genre, or language retains its hue across
+  search chips, chart legends, and graph nodes.
+
+### Neutral
+
+- **Cream Background** is the light page ground; **Paper Surface** is the
+  card, header, menu, and popover plane; **Sunken Stone** is used for wells,
+  code, muted chips, and inset controls.
+- **Warm Ink** and **Strong Warm Ink** carry body and display text. Cold neutral
+  greys are outside the system.
+- **Forest Background**, **Forest Surface**, and **Forest Raised** form the dark
+  material stack; **Light Ink** carries the corresponding text.
+- `--muted` and `--ink-subtle` are reserved for non-essential text at 15px or
+  larger. Their worst-case surface contrast is checked by `npm run lint:tokens`.
+
+### Mode and state rules
+
+- The active mode is `[data-theme="light|dark"]` on `<html>` and `<body>`.
+  A module must never infer it independently from `prefers-color-scheme`.
+- `--highlight-bg` is the one found-term wash shared by core markup and DRE
+  Search. `--dre-hl-bg` is a temporary compatibility alias.
+- Status colors use their semantic roles (`--success`, `--warning`, `--error`,
+  `--info`) and paired backgrounds rather than ad hoc hues.
+- Fixed light plaques are permitted only for institutional marks whose artwork
+  requires one; use `--plaque-bg`.
+
+**The One-seed Rule.** Never hard-code a primary shade in a component. Change
+the seed once and allow the semantic roles to re-resolve.
+
+**The Rare-gold Rule.** Gold earns attention by scarcity. Do not repeat it on
+every divider, heading, or card.
+
+**The Measured-contrast Rule.** Contrast claims belong in executable checks.
+When a pairing changes, update the test rather than asserting compliance in
+prose alone.
+
+## Typography
+
+- **Display Font:** Spectral (with Georgia and Times New Roman fallbacks)
+- **Body Font:** Hanken Grotesk (with system UI fallbacks)
+- **Mono Font:** the system monospace stack
+
+**Character:** Spectral supplies a warm, scholarly voice with real weight in
+display and long-form moments. Hanken Grotesk remains compact, legible, and
+neutral enough for facets, metadata, navigation, and dense visualization
+controls. Both families are self-hosted with Latin and Latin Extended subsets.
+
+### Hierarchy
+
+- **Display** (800, `--text-4xl`, `--leading-tight`): one page or masthead idea.
+- **Headline** (700, `--text-3xl`, `--leading-tight`): record titles and major
+  section headings.
+- **Title** (600, `--text-2xl`, `--leading-snug`): section and dashboard titles.
+- **Body** (400, `--text-base`, `--leading-normal`): general copy and metadata.
+- **Reading body** (400, `--text-lg`, `--leading-relaxed`): abstracts and
+  exhibit prose where the available line length supports it.
+- **Label** (600, `--text-xs`, wide tracking when uppercase): eyebrows, facets,
+  chips, metadata labels, and compact controls.
+- **Micro** (`--text-2xs`): dense legends and captions only. It is not a
+  substitute for fitting too much UI into too little space.
+
+Display sizes may be fluid; operational sizes remain fixed so controls and
+labels do not drift between breakpoints. Long prose normally targets
+`--measure-narrow`; records and forms may use `--measure-base`; broad search
+results may use `--measure-wide`. Page-builder HTML blocks are not globally
+measure-capped: previous attempts created an unusable blank half-page and were
+reverted.
+
+Tabular numerals belong on corpus counts, dates in aligned lists, pagination,
+metadata values, and visualization summaries. `text-wrap: balance` is suitable
+for short display headings, not for body paragraphs.
+
+**The Two-voice Rule.** Spectral speaks when content asks to be read; Hanken
+Grotesk speaks when the interface asks to be operated.
+
+**The No-shadow-scale Rule.** Every size and line height comes from the shared
+type and rhythm tokens. Do not create a parallel Sass or module-local scale.
+
+## Layout
+
+The page uses a centered container (`--container-max: 81.25rem`) with a
+responsive gutter (`--space-4`, rising to `--space-8`). The spacing scale is a
+4-point rhythm from `--space-1` through `--space-24`; semantic aliases such as
+`--space-md` point to those numeric steps and never introduce new values.
+
+The authoritative viewport ladder is 600, 768, 1024, 1200, and 1460px. Theme
+chrome may use these breakpoints. Module-internal layouts should prefer
+container queries when the component's own width, rather than the viewport,
+determines its composition.
+
+### Surface modes
+
+- **Persuade:** the home masthead introduces AMIRA and offers a route into the
+  corpus without turning the archive into a marketing page.
+- **Operate:** search, filters, compare tools, maps, and dashboard controls
+  prioritize scanability, state, and reliable target sizes.
+- **Read:** records, publications, and prose privilege hierarchy, measure, and
+  continuity.
+- **Experience:** maps, networks, IIIF, and image-led collections let the
+  artifact or data view lead while keeping controls discoverable.
+
+### Responsive behavior
+
+- The header remains one row. JavaScript measures whether the full navigation
+  fits and switches to the drawer before labels wrap.
+- Record pages use a main reading column and apparatus rail when space allows,
+  then stack without reordering the document meaning.
+- Search facets collapse behind an explicit control on narrow screens.
+- Visualization blocks reserve meaningful height while loading, avoid layout
+  shifts, and never trap ordinary page scrolling.
+- Touch controls target at least `--size-control-lg` (44px) where they are the
+  primary interaction.
+- Print removes sticky chrome and interactive controls, exposes essential URLs,
+  and preserves record hierarchy.
+
+**The One-ladder Rule.** Use the five shared breakpoints or a component query.
+Do not add a near-duplicate breakpoint to solve a local spacing problem.
+
+**The No-horizontal-overflow Rule.** Every representative surface must remain
+within the viewport at 320px, 390px, 200% text zoom, and intermediate desktop
+widths where the navigation changes mode.
+
+## Elevation & Depth
+
+The system is layered, not glossy. Most separation comes from a tonal step and
+a warm hairline border. Shadows are soft, warm-tinted, and reserved for floating
+or interactive elevation: menus, popovers, the mobile drawer, hovered cards,
+and the record apparatus. Dark-mode shadows deepen while raised surfaces become
+slightly lighter than the forest ground.
+
+### Shadow vocabulary
+
+- **Hairline separation** (`--border-light` / `--border`) is the default.
+- **Ambient low** (`--shadow-xs` / `--shadow-sm`) supports cards and compact
+  overlays.
+- **Floating** (`--shadow-md` / `--shadow-lg`) belongs to menus, hover elevation,
+  and deliberately raised controls.
+- **Drawer or modal** (`--shadow-xl`) is reserved for major temporary layers.
+- **Primary glow** (`--glow-sm`) may support a primary interactive state, never
+  ambient decoration.
+
+The masthead's catalogue column is sunken into its band rather than floated
+above it. Dashboard loading states use a quiet inset surface with reduced-motion
+aware shimmer. Frosted controls are a sanctioned exception only when placed
+over unpredictable user imagery, such as a lightbox.
+
+**The Flat-by-default Rule.** A surface begins with tone and border. Add a
+shadow only when it communicates state, overlap, or elevation.
+
+**The No-glass-chrome Rule.** Do not apply translucent blur to ordinary cards,
+navigation, or dashboard panels.
+
+## Shapes
+
+The form language is institutional and instrument-like: gently curved rather
+than pillowy, with consistent borders and no ornamental asymmetry.
+
+- Small controls use `--radius-sm` (6px).
+- Inputs and standard controls use `--radius-md` (8px).
+- Cards and larger panels use `--radius-lg` (12px).
+- `--radius-xl` (16px) is exceptional and should correspond to a genuinely
+  larger enclosure.
+- Full pills are reserved for chips, tags, compact filters, and circular or
+  capsule controls whose semantics justify the silhouette.
+- Structural rules are normally 1px. The 3px brand flag is an authored
+  signature, not a generic left-border accent.
+
+Cards use a complete border. Blockquotes use a full frame and a quotation mark.
+Titles may use a short underline accent. Side stripes, arbitrarily missing
+corners, and extreme mixed radii are not part of the system.
+
+**The Complete-frame Rule.** If a component needs a boundary, draw the whole
+boundary or use a tonal change. Do not signal importance with a coloured side
+stripe.
+
+## Components
+
+The components are refined and restrained. They use semantic tokens, expose
+clear focus and disabled states, and allow module-owned controls to keep their
+own identity without fighting global element selectors. The representative
+renderable subset lives in `.impeccable/design.json`; the implementation remains
+authoritative.
+
+### Header and navigation
+
+The sticky header uses the paper or forest surface, a 3px Uni-Grün top flag,
+the Africa Multiple lockup, federated search, utility controls, and a measured
+inline-or-drawer navigation. Menu labels never wrap. The drawer is a right-side
+panel on larger narrow windows and becomes full-width only on small screens.
+The light/dark toggle is a labelled `aria-pressed` button and updates both root
+theme attributes before dependent charts repaint.
+
+### Masthead
+
+The deep-plate masthead is carried by eyebrow, Spectral display title, lede,
+textual entry links, a gold flag, and a sunken catalogue column of corpus counts.
+It has quiet, balanced, and bold token treatments; bold is the default. It does
+not duplicate the header search on wide screens. On narrower screens, where the
+header search collapses, the masthead supplies a full field.
+
+### Buttons
+
+- **Shape:** controlled curve (`--radius-md`) and a 44px primary touch target.
+- **Primary:** `--primary` fill with `--primary-contrast` text.
+- **Hover / active:** derived primary roles plus a restrained lift.
+- **Focus:** the shared visible `--ring-focus`; never remove it.
+- **Secondary / ghost:** paper or transparent ground with semantic border and
+  ink; state may introduce the primary-muted surface.
+- Theme rules must not globally overpower module buttons. Keep base specificity
+  low enough for a single module class to win.
+
+### Inputs and search fields
+
+Fields use a surface or sunken ground, a complete `--border-strong` outline,
+the body font, and the shared focus ring. Labels remain visible; placeholders
+are hints rather than labels. Search controls preserve the query in navigation
+and expose clear, translated empty, loading, error, and unavailable states.
+
+### Chips and tags
+
+Chips are compact, fully rounded, and information-bearing. Selected or
+interactive variants use semantic primary or entity colors without allowing
+raw pigments to compromise contrast. Subjects, resource types, and facet values
+must remain distinguishable by text, not color alone.
+
+### Cards and resource lists
+
+Resource cards use the panel surface, a full hairline border, `--radius-lg`, and
+quiet shadow. Hover may lift slightly when the whole card is actionable. Lists
+remain available where dense comparison is more important than image-forward
+browsing. Pagination, sorting, and layout toggles form one coherent control
+cluster.
+
+### Record and linked-resource patterns
+
+Record metadata is grouped semantically: Abstract; Description; People and
+roles; Subjects; Origins and context; Rights and access; Identifiers and
+sources; and Further details as a lossless fallback. The apparatus rail owns
+citation styles, DOI, licence, permalink, and copy actions. Linked resources
+merge duplicate records, expose relationship facets, and use a native
+`<details>` disclosure with a dense responsive card grid.
+
+### Visualizations and maps
+
+DRE Visualizations inherits the shared font, surface, control, focus, entity
+color, and stacking contracts. Canvas and WebGL libraries receive resolved sRGB
+colors and font stacks through `window.DRETokens`, then repaint after a
+`data-theme` change. Maps preserve ordinary page scroll, provide keyboard and
+list alternatives where applicable, and reserve fullscreen content for
+`--z-stage`, below dialogs and tooltips.
+
+### DRE Search
+
+DRE Search is an Operate surface. Its Svelte components inherit the semantic
+tokens, retain clear facet and result state, keep list mode as the dependable
+baseline, and may add gallery or map views when content warrants them. The
+federated route, corpus tabs, facet panels, result cards, autocomplete, and
+zero-result recovery must be tested together with theme chrome.
+
+### Mirador
+
+Mirador is framed as scholarly media apparatus, not a second application pasted
+into the page. The theme supplies `window.DRE_MIRADOR_CONFIG`; the local default
+uses the Braun accent rather than Mirador's cyan, restrained controls, no
+language switcher, and no workspace menu for the theme's single-item use case.
+The wrapper provides the accessible name and constrains viewer elevation. Do not
+style unstable internals when a supported configuration option exists.
+
+### Shared integration contract
+
+The complete token API, mode contract, JavaScript bridge, fallback rules,
+stacking scale, data-color rules, and cross-repository release procedure are in
+[`docs/DESIGN-INTEGRATION.md`](docs/DESIGN-INTEGRATION.md). Treat that document
+as required reading before changing a token consumed by DRE Search or DRE
+Visualizations.
+
+## Do's and Don'ts
+
+### Do
+
+- **Do** start every design task from `PRODUCT.md`, this document, and the
+  relevant surface brief or route evidence.
+- **Do** use semantic CSS custom properties for color, type, spacing, radius,
+  depth, motion, layout, and stacking.
+- **Do** design and inspect light and dark modes together.
+- **Do** preserve a single meaningful `<h1>`, a logical heading hierarchy, and
+  reading order independent of the desktop layout.
+- **Do** group metadata by scholarly meaning and retain unknown properties under
+  Further details.
+- **Do** give empty, loading, offline, unavailable, permission, and error states
+  a clear path forward.
+- **Do** resolve canvas and WebGL colors through `window.DRETokens` and repaint
+  them when the theme changes.
+- **Do** use the generated token fallback artifacts when a module must render
+  outside this theme.
+- **Do** run `npm run build`, `npm run test:unit`, and `npm run i18n:check`
+  before shipping a theme change, then run the bounded production smoke suite
+  after deployment.
+- **Do** use browser-local CSS or JavaScript injection only for ephemeral visual
+  experiments, with production version guards and no writes or form submission.
+- **Do** keep generated comps as directional evidence. Implementation must still
+  meet content, accessibility, responsive, and integration constraints.
+
+### Don't
+
+- **Don't** reintroduce `.impeccable.md`; durable product truth belongs in
+  `PRODUCT.md` and visual truth belongs here.
+- **Don't** redefine a theme token inside a module or create parallel type,
+  spacing, radius, breakpoint, or z-index scales.
+- **Don't** use raw brand hex values in component rules when a semantic token
+  exists.
+- **Don't** add gradient text, generic glassmorphism, neon-on-dark effects,
+  cold-grey surfaces, colored side stripes, or arbitrary asymmetric radii.
+- **Don't** use Inter, DM Sans, or a fashionable editorial serif as a shortcut
+  around the established Spectral and Hanken Grotesk system.
+- **Don't** render metadata in database order, hide unrecognised properties, or
+  put identifiers ahead of the record's meaning.
+- **Don't** make a canvas visualization the only way to access its information.
+- **Don't** test unversioned working-copy CSS against production and call the
+  result a release validation; the deployed asset versions must be recorded.
+- **Don't** run destructive, authenticated, or state-changing experiments on
+  the public Omeka S instance.
+- **Don't** keep polishing indefinitely. Inspect desktop and mobile together,
+  fix the observed defects in one batch, confirm once, and stop.

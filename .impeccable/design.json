@@ -1,0 +1,293 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-27T12:34:10.9628611+02:00",
+  "title": "Design System: Africa Multiple — DRE Theme",
+  "extensions": {
+    "colorMeta": {
+      "uni-green": {
+        "role": "primary",
+        "displayName": "Uni-Grün",
+        "canonical": "#009260",
+        "tonalRamp": [
+          "color-mix(in oklab, #009260 35%, black)",
+          "color-mix(in oklab, #009260 55%, black)",
+          "color-mix(in oklab, #009260 75%, black)",
+          "color-mix(in oklab, #009260 90%, black)",
+          "#009260",
+          "color-mix(in oklab, #009260 82%, white)",
+          "color-mix(in oklab, #009260 58%, white)",
+          "color-mix(in oklab, #009260 28%, white)"
+        ]
+      },
+      "warm-brown": {
+        "role": "secondary",
+        "displayName": "Warm Brown",
+        "canonical": "#d57912",
+        "tonalRamp": [
+          "color-mix(in oklab, #d57912 32%, black)",
+          "color-mix(in oklab, #d57912 52%, black)",
+          "color-mix(in oklab, #d57912 72%, black)",
+          "color-mix(in oklab, #d57912 88%, black)",
+          "#d57912",
+          "color-mix(in oklab, #d57912 80%, white)",
+          "color-mix(in oklab, #d57912 54%, white)",
+          "color-mix(in oklab, #d57912 26%, white)"
+        ]
+      },
+      "archive-gold": {
+        "role": "secondary",
+        "displayName": "Archive Gold",
+        "canonical": "#cca352",
+        "tonalRamp": [
+          "color-mix(in oklab, #cca352 30%, black)",
+          "color-mix(in oklab, #cca352 50%, black)",
+          "color-mix(in oklab, #cca352 70%, black)",
+          "color-mix(in oklab, #cca352 88%, black)",
+          "#cca352",
+          "color-mix(in oklab, #cca352 78%, white)",
+          "color-mix(in oklab, #cca352 52%, white)",
+          "color-mix(in oklab, #cca352 25%, white)"
+        ]
+      },
+      "cream-background": {
+        "role": "neutral",
+        "displayName": "Cream Ground",
+        "canonical": "oklch(97.4% 0.007 90)",
+        "tonalRamp": [
+          "oklch(18% 0.010 90)",
+          "oklch(30% 0.010 90)",
+          "oklch(43% 0.009 90)",
+          "oklch(56% 0.009 90)",
+          "oklch(69% 0.008 90)",
+          "oklch(81% 0.008 90)",
+          "oklch(90% 0.007 90)",
+          "oklch(97.4% 0.007 90)"
+        ]
+      },
+      "paper-surface": {
+        "role": "neutral",
+        "displayName": "Paper Surface",
+        "canonical": "oklch(99.2% 0.004 95)",
+        "tonalRamp": [
+          "oklch(20% 0.008 95)",
+          "oklch(32% 0.008 95)",
+          "oklch(45% 0.007 95)",
+          "oklch(58% 0.006 95)",
+          "oklch(71% 0.006 95)",
+          "oklch(83% 0.005 95)",
+          "oklch(92% 0.005 95)",
+          "oklch(99.2% 0.004 95)"
+        ]
+      },
+      "warm-ink": {
+        "role": "neutral",
+        "displayName": "Warm Ink",
+        "canonical": "oklch(33% 0.017 62)",
+        "tonalRamp": [
+          "oklch(15% 0.017 62)",
+          "oklch(25% 0.017 62)",
+          "oklch(35% 0.016 62)",
+          "oklch(47% 0.015 62)",
+          "oklch(59% 0.014 62)",
+          "oklch(71% 0.012 62)",
+          "oklch(83% 0.010 62)",
+          "oklch(95% 0.006 62)"
+        ]
+      },
+      "forest-background": {
+        "role": "neutral",
+        "displayName": "Forest Ground",
+        "canonical": "oklch(16% 0.013 165)",
+        "tonalRamp": [
+          "oklch(15% 0.013 165)",
+          "oklch(26% 0.014 165)",
+          "oklch(38% 0.014 165)",
+          "oklch(50% 0.013 165)",
+          "oklch(62% 0.012 165)",
+          "oklch(74% 0.010 165)",
+          "oklch(86% 0.008 165)",
+          "oklch(95% 0.005 165)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Masthead and page-level statements in Spectral."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Record titles and major section headings."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Section, card, and dashboard titles."
+      },
+      "body": {
+        "displayName": "Body and UI",
+        "purpose": "Reading, metadata, search, and interface controls in Hanken Grotesk."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Eyebrows, facets, chips, legends, and compact control copy."
+      }
+    },
+    "shadows": [
+      {
+        "name": "ambient-xs",
+        "value": "var(--shadow-xs, 0 1px 2px rgb(48 39 32 / 0.07))",
+        "purpose": "Barely raised controls and resting cards."
+      },
+      {
+        "name": "ambient-sm",
+        "value": "var(--shadow-sm, 0 1px 3px rgb(48 39 32 / 0.14))",
+        "purpose": "Resource cards, compact overlays, and apparatus panels."
+      },
+      {
+        "name": "floating-md",
+        "value": "var(--shadow-md, 0 4px 6px -1px rgb(48 39 32 / 0.14))",
+        "purpose": "Menus and deliberate hover elevation."
+      },
+      {
+        "name": "drawer-xl",
+        "value": "var(--shadow-xl, 0 20px 25px -5px rgb(48 39 32 / 0.18))",
+        "purpose": "The navigation drawer and modal-scale temporary layers."
+      }
+    ],
+    "motion": [
+      {
+        "name": "fast",
+        "value": "150ms cubic-bezier(0.25, 1, 0.5, 1)",
+        "purpose": "Direct hover and focus response."
+      },
+      {
+        "name": "base",
+        "value": "200ms cubic-bezier(0.25, 1, 0.5, 1)",
+        "purpose": "Standard component state changes."
+      },
+      {
+        "name": "slow",
+        "value": "320ms cubic-bezier(0.25, 1, 0.5, 1)",
+        "purpose": "Drawers and larger disclosure transitions."
+      },
+      {
+        "name": "emphasis",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "The restrained masthead arrival and rare emphasis moments."
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "600px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1200px" },
+      { "name": "xxl", "value": "1460px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The default high-confidence action, derived from the active primary seed.",
+      "html": "<button class='ds-btn-primary' type='button'>Explore the collection</button>",
+      "css": ".ds-btn-primary { min-height: var(--size-control-lg, 2.75rem); padding: var(--space-3, .75rem) var(--space-5, 1.25rem); border: 1px solid transparent; border-radius: var(--radius-md, .5rem); background: var(--primary, #007d53); color: var(--primary-contrast, #fff); font: 600 var(--text-sm, .9375rem)/1.25 var(--font-body, system-ui, sans-serif); cursor: pointer; transition: background var(--transition-fast, 150ms ease), transform var(--transition-fast, 150ms ease), box-shadow var(--transition-fast, 150ms ease); } .ds-btn-primary:hover { background: var(--primary-hover, #006744); transform: translateY(var(--lift-xs, -2px)); } .ds-btn-primary:active { background: var(--primary-active, #005137); transform: none; } .ds-btn-primary:focus-visible { outline: none; box-shadow: var(--ring-focus, 0 0 0 3px rgb(0 146 96 / .32)); }"
+    },
+    {
+      "name": "Search Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "A complete, quiet field for federated or in-surface search.",
+      "html": "<label class='ds-field'><span class='ds-field__label'>Search AMIRA</span><input class='ds-field__input' type='search' placeholder='People, projects, places, subjects…'></label>",
+      "css": ".ds-field { display: grid; gap: var(--space-2, .5rem); color: var(--ink, #3c342f); font-family: var(--font-body, system-ui, sans-serif); } .ds-field__label { color: var(--ink-light, #6c625c); font-size: var(--text-xs, .8125rem); font-weight: 600; letter-spacing: var(--tracking-wide, .04em); } .ds-field__input { width: 100%; min-height: var(--size-control-lg, 2.75rem); padding: var(--space-3, .75rem) var(--space-4, 1rem); border: 1px solid var(--border-strong, #b9afa7); border-radius: var(--radius-md, .5rem); background: var(--surface, #fff); color: var(--ink, #3c342f); font: 400 var(--text-base, 1.0625rem)/1.6 var(--font-body, system-ui, sans-serif); } .ds-field__input:focus-visible { outline: none; border-color: var(--focus-color, #009260); box-shadow: var(--ring-focus, 0 0 0 3px rgb(0 146 96 / .32)); }"
+    },
+    {
+      "name": "Subject Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "A compact, text-first subject or facet value.",
+      "html": "<a class='ds-chip' href='#subject'>Knowledge production</a>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; min-height: 2rem; padding: var(--space-1, .25rem) var(--space-3, .75rem); border: 1px solid var(--border, #d7cec6); border-radius: var(--radius-full, 9999px); background: var(--surface-sunken, #f2eee8); color: var(--ink, #3c342f); font: 600 var(--text-xs, .8125rem)/1.25 var(--font-body, system-ui, sans-serif); text-decoration: none; transition: background var(--transition-fast, 150ms ease), border-color var(--transition-fast, 150ms ease); } .ds-chip:hover { border-color: var(--primary, #009260); background: var(--primary-muted, #e7f3ed); color: var(--primary-text, #006b48); } .ds-chip:focus-visible { outline: none; box-shadow: var(--ring-focus, 0 0 0 3px rgb(0 146 96 / .32)); }"
+    },
+    {
+      "name": "Resource Card",
+      "kind": "card",
+      "refersTo": "resource-card",
+      "description": "A reading-oriented search or browse result with restrained elevation.",
+      "html": "<article class='ds-resource-card'><p class='ds-resource-card__eyebrow'>Research project</p><h3 class='ds-resource-card__title'><a href='#record'>Multiple Artworks — Multiple Indian Ocean</a></h3><p class='ds-resource-card__body'>A connected record from the Africa Multiple research corpus.</p></article>",
+      "css": ".ds-resource-card { padding: var(--space-6, 1.5rem); border: 1px solid var(--border, #d7cec6); border-radius: var(--radius-lg, .75rem); background: var(--surface, #fff); color: var(--ink, #3c342f); box-shadow: var(--shadow-sm, 0 1px 3px rgb(48 39 32 / .14)); font-family: var(--font-body, system-ui, sans-serif); transition: transform var(--transition-base, 200ms ease), box-shadow var(--transition-base, 200ms ease), border-color var(--transition-base, 200ms ease); } .ds-resource-card:hover { transform: translateY(var(--lift-xs, -2px)); border-color: var(--border-strong, #b9afa7); box-shadow: var(--shadow-md, 0 4px 6px -1px rgb(48 39 32 / .14)); } .ds-resource-card__eyebrow { margin: 0 0 var(--space-2, .5rem); color: var(--ink-light, #6c625c); font-size: var(--text-xs, .8125rem); font-weight: 600; letter-spacing: var(--tracking-widest, .12em); text-transform: uppercase; } .ds-resource-card__title { margin: 0; font: 600 var(--text-xl, 1.5rem)/1.25 var(--font-display, Georgia, serif); } .ds-resource-card__title a { color: var(--ink-strong, #2b231e); text-decoration-color: color-mix(in oklab, var(--primary, #009260) 55%, transparent); text-underline-offset: .18em; } .ds-resource-card__title a:focus-visible { outline: none; box-shadow: var(--ring-focus, 0 0 0 3px rgb(0 146 96 / .32)); } .ds-resource-card__body { margin: var(--space-3, .75rem) 0 0; line-height: var(--leading-normal, 1.6); }"
+    },
+    {
+      "name": "Navigation Link",
+      "kind": "nav",
+      "description": "A single-line primary navigation item with a quiet active state.",
+      "html": "<nav class='ds-nav' aria-label='Primary'><a class='ds-nav__link' href='#research' aria-current='page'>Research</a><a class='ds-nav__link' href='#index'>Index</a><a class='ds-nav__link' href='#visualisations'>Visualisations</a></nav>",
+      "css": ".ds-nav { display: flex; flex-wrap: nowrap; gap: var(--space-5, 1.25rem); align-items: center; font-family: var(--font-body, system-ui, sans-serif); } .ds-nav__link { position: relative; padding-block: var(--space-3, .75rem); color: var(--ink, #3c342f); font-size: var(--text-sm, .9375rem); font-weight: 600; text-decoration: none; white-space: nowrap; } .ds-nav__link::after { content: ''; position: absolute; inset: auto 0 0; height: 2px; background: var(--primary, #009260); transform: scaleX(0); transform-origin: left; transition: transform var(--transition-fast, 150ms ease); } .ds-nav__link:hover::after, .ds-nav__link[aria-current='page']::after { transform: scaleX(1); } .ds-nav__link:focus-visible { outline: none; box-shadow: var(--ring-focus, 0 0 0 3px rgb(0 146 96 / .32)); }"
+    },
+    {
+      "name": "Linked Resources Disclosure",
+      "kind": "custom",
+      "description": "The native disclosure grammar shared by linked records and visualizations.",
+      "html": "<details class='ds-disclosure' open><summary class='ds-disclosure__summary'><span>Linked resources</span><span class='ds-disclosure__count'>182 connections</span></summary><div class='ds-disclosure__body'>Relationship facets and linked-resource cards appear here.</div></details>",
+      "css": ".ds-disclosure { border: 1px solid var(--border, #d7cec6); border-radius: var(--radius-lg, .75rem); background: var(--surface, #fff); color: var(--ink, #3c342f); font-family: var(--font-body, system-ui, sans-serif); overflow: clip; } .ds-disclosure__summary { display: flex; justify-content: space-between; gap: var(--space-4, 1rem); align-items: center; min-height: var(--size-control-lg, 2.75rem); padding: var(--space-4, 1rem) var(--space-5, 1.25rem); color: var(--ink-strong, #2b231e); cursor: pointer; font: 600 var(--text-lg, 1.1875rem)/1.25 var(--font-display, Georgia, serif); } .ds-disclosure__summary:focus-visible { outline: none; box-shadow: inset var(--ring-focus, 0 0 0 3px rgb(0 146 96 / .32)); } .ds-disclosure__count { color: var(--muted, #746b65); font: 500 var(--text-sm, .9375rem)/1.25 var(--font-body, system-ui, sans-serif); } .ds-disclosure__body { padding: var(--space-5, 1.25rem); border-top: 1px solid var(--border-light, #ebe5df); background: var(--surface-raised, #fcfaf7); line-height: var(--leading-normal, 1.6); }"
+    },
+    {
+      "name": "Record Apparatus",
+      "kind": "custom",
+      "description": "A compact scholarly rail for citation, identifier, licence, and permalink actions.",
+      "html": "<aside class='ds-apparatus' aria-labelledby='ds-apparatus-title'><h2 class='ds-apparatus__title' id='ds-apparatus-title'>This record</h2><dl class='ds-apparatus__rows'><div><dt>Permalink</dt><dd><a href='#record'>Copy link</a></dd></div><div><dt>DRE ID</dt><dd>UBT_Example</dd></div></dl></aside>",
+      "css": ".ds-apparatus { padding: var(--space-5, 1.25rem); border: 1px solid var(--border, #d7cec6); border-radius: var(--radius-lg, .75rem); background: var(--surface-raised, #fcfaf7); color: var(--ink, #3c342f); box-shadow: var(--shadow-sm, 0 1px 3px rgb(48 39 32 / .14)); font-family: var(--font-body, system-ui, sans-serif); } .ds-apparatus__title { margin: 0 0 var(--space-4, 1rem); color: var(--ink-strong, #2b231e); font: 600 var(--text-xl, 1.5rem)/1.25 var(--font-display, Georgia, serif); } .ds-apparatus__rows { display: grid; gap: var(--space-3, .75rem); margin: 0; } .ds-apparatus__rows > div { display: grid; gap: var(--space-1, .25rem); padding-top: var(--space-3, .75rem); border-top: 1px solid var(--border-light, #ebe5df); } .ds-apparatus dt { color: var(--ink-light, #6c625c); font-size: var(--text-xs, .8125rem); font-weight: 600; letter-spacing: var(--tracking-wide, .04em); text-transform: uppercase; } .ds-apparatus dd { margin: 0; } .ds-apparatus a { color: var(--link, #006b48); text-underline-offset: .18em; } .ds-apparatus a:focus-visible { outline: none; box-shadow: var(--ring-focus, 0 0 0 3px rgb(0 146 96 / .32)); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Scholarly Modernism",
+    "overview": "The DRE interface should feel like a well-kept research library made legible by contemporary information design. It is warm, calm, exact, and recognisably part of the Africa Multiple family. Type, rule, ground, and meaningful data carry the page; decorative effects remain subordinate to discovery and reading. The system serves four kinds of surface: landing and index pages help visitors enter the corpus; search and filtering surfaces support focused operation; records support sustained reading; maps, charts, and networks let the metadata be experienced directly. Expression may change with the surface, but the token contract, typographic voice, accessibility floor, and restraint remain stable. The interface is photography-free by default. Item images, scans, audio, video, and IIIF canvases are evidence and content rather than ornamental backdrops. Light mode uses warm stone and paper; dark mode uses a green-tinted forest rather than generic charcoal. Both modes are first-class and follow the visitor's explicit selection when it differs from the operating system.",
+    "keyCharacteristics": [
+      "Spectral display typography paired with Hanken Grotesk for body and UI.",
+      "One Uni-Grün seed from which interactive primary states are derived.",
+      "Warm-stone light surfaces and forest-dark surfaces with measured contrast.",
+      "A 4-point spacing grid, restrained radii, hairline borders, and quiet depth.",
+      "Reading-first records, operational search, and data-rich visualizations that still read as one product.",
+      "Gold used as a rare structural accent, not as ambient decoration."
+    ],
+    "rules": [
+      { "name": "Content-before-Apparatus", "body": "A record leads with title, authorship, abstract, and meaningful groups. Citation controls, identifiers, and technical apparatus support the reading rather than precede it.", "section": "overview" },
+      { "name": "One-product", "body": "DRE Search and DRE Visualizations may render from separate repositories, but they consume the theme's tokens and interaction language. A visitor must not be able to see the repository boundary.", "section": "overview" },
+      { "name": "One-seed", "body": "Never hard-code a primary shade in a component. Change the seed once and allow the semantic roles to re-resolve.", "section": "colors" },
+      { "name": "Rare-gold", "body": "Gold earns attention by scarcity. Do not repeat it on every divider, heading, or card.", "section": "colors" },
+      { "name": "Measured-contrast", "body": "Contrast claims belong in executable checks. When a pairing changes, update the test rather than asserting compliance in prose alone.", "section": "colors" },
+      { "name": "Two-voice", "body": "Spectral speaks when content asks to be read; Hanken Grotesk speaks when the interface asks to be operated.", "section": "typography" },
+      { "name": "No-shadow-scale", "body": "Every size and line height comes from the shared type and rhythm tokens. Do not create a parallel Sass or module-local scale.", "section": "typography" },
+      { "name": "One-ladder", "body": "Use the five shared breakpoints or a component query. Do not add a near-duplicate breakpoint to solve a local spacing problem.", "section": "layout" },
+      { "name": "No-horizontal-overflow", "body": "Every representative surface must remain within the viewport at 320px, 390px, 200% text zoom, and intermediate desktop widths where the navigation changes mode.", "section": "layout" },
+      { "name": "Flat-by-default", "body": "A surface begins with tone and border. Add a shadow only when it communicates state, overlap, or elevation.", "section": "elevation" },
+      { "name": "No-glass-chrome", "body": "Do not apply translucent blur to ordinary cards, navigation, or dashboard panels.", "section": "elevation" },
+      { "name": "Complete-frame", "body": "If a component needs a boundary, draw the whole boundary or use a tonal change. Do not signal importance with a coloured side stripe.", "section": "shapes" }
+    ],
+    "dos": [
+      "Do start every design task from PRODUCT.md, this document, and the relevant surface brief or route evidence.",
+      "Do use semantic CSS custom properties for color, type, spacing, radius, depth, motion, layout, and stacking.",
+      "Do design and inspect light and dark modes together.",
+      "Do preserve a single meaningful <h1>, a logical heading hierarchy, and reading order independent of the desktop layout.",
+      "Do group metadata by scholarly meaning and retain unknown properties under Further details.",
+      "Do give empty, loading, offline, unavailable, permission, and error states a clear path forward.",
+      "Do resolve canvas and WebGL colors through window.DRETokens and repaint them when the theme changes.",
+      "Do use the generated token fallback artifacts when a module must render outside this theme.",
+      "Do run npm run build, npm run test:unit, and npm run i18n:check before shipping a theme change, then run the bounded production smoke suite after deployment.",
+      "Do use browser-local CSS or JavaScript injection only for ephemeral visual experiments, with production version guards and no writes or form submission.",
+      "Do keep generated comps as directional evidence. Implementation must still meet content, accessibility, responsive, and integration constraints."
+    ],
+    "donts": [
+      "Don't reintroduce .impeccable.md; durable product truth belongs in PRODUCT.md and visual truth belongs in DESIGN.md.",
+      "Don't redefine a theme token inside a module or create parallel type, spacing, radius, breakpoint, or z-index scales.",
+      "Don't use raw brand hex values in component rules when a semantic token exists.",
+      "Don't add gradient text, generic glassmorphism, neon-on-dark effects, cold-grey surfaces, colored side stripes, or arbitrary asymmetric radii.",
+      "Don't use Inter, DM Sans, or a fashionable editorial serif as a shortcut around the established Spectral and Hanken Grotesk system.",
+      "Don't render metadata in database order, hide unrecognised properties, or put identifiers ahead of the record's meaning.",
+      "Don't make a canvas visualization the only way to access its information.",
+      "Don't test unversioned working-copy CSS against production and call the result a release validation; the deployed asset versions must be recorded.",
+      "Don't run destructive, authenticated, or state-changing experiments on the public Omeka S instance.",
+      "Don't keep polishing indefinitely. Inspect desktop and mobile together, fix the observed defects in one batch, confirm once, and stop."
+    ]
+  }
+}

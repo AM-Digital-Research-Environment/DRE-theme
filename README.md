@@ -7,7 +7,7 @@
 
 The **Digital Research Environment** theme for the [Africa Multiple Cluster of Excellence](https://www.africamultiple.uni-bayreuth.de/) (University of Bayreuth) — a *“Scholarly Modernism”* design system for the Cluster’s Omeka S archive. Warm and scholarly, built on a modern **OKLCH design-token** foundation with first-class **light and dark modes** and the Cluster’s Uni-Grün brand identity.
 
-> 📐 Full design-system reference: **[`DESIGN.md`](DESIGN.md)** · design context: [`.impeccable.md`](https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/.impeccable.md) · current design/token audit and its breaking-change register: [`AUDIT.md`](https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/AUDIT.md)
+> 📐 Product context: **[`PRODUCT.md`](PRODUCT.md)** · portable design system: **[`DESIGN.md`](DESIGN.md)** · cross-module contract: **[`docs/DESIGN-INTEGRATION.md`](docs/DESIGN-INTEGRATION.md)** · Impeccable evaluation programme: **[`docs/IMPECCABLE-ROADMAP.md`](docs/IMPECCABLE-ROADMAP.md)** · design/token audit and breaking-change register: **[`AUDIT.md`](AUDIT.md)**
 
 ## Features
 
@@ -130,7 +130,9 @@ With the **Progressive Web App** setting enabled (the default), the site becomes
 
 ## Design system
 
-The visual language — palette, the single-seed colour engine, typography, tokens, dark mode, components and maintenance recipes — is documented in **[`DESIGN.md`](DESIGN.md)**. The theme’s design tokens are also the shared contract for its sibling modules, **DRE Search** and **DRE Visualizations**, which consume them so they follow the brand and the light/dark toggle automatically — see [§9 “The module ecosystem”](DESIGN.md#9-the-module-ecosystem--search--visualizations).
+The visual language — palette, typography, layout, depth, shapes, components and guardrails — is documented in the canonical **[`DESIGN.md`](DESIGN.md)** format, with machine-readable tokens in its frontmatter and a renderable Impeccable sidecar at `.impeccable/design.json`. Durable audience, purpose and operating constraints live separately in **[`PRODUCT.md`](PRODUCT.md)**.
+
+The theme’s design tokens are the shared API for **DRE Search** and **DRE Visualizations**. Their mode, JavaScript, fallback, data-colour, stacking and coordinated-release rules live in **[`docs/DESIGN-INTEGRATION.md`](docs/DESIGN-INTEGRATION.md)**. The phased Impeccable 4.1.2 audit, representative live routes and safe browser-local CSS/JavaScript experiment protocol are documented in **[`docs/IMPECCABLE-ROADMAP.md`](docs/IMPECCABLE-ROADMAP.md)**.
 
 **Upgrading to v2.22** — the token layer grew beyond colour (type, rhythm and layout families) and a handful of tokens were retired or renamed. Only one rename affects the modules: `--dre-hl-bg` → `--highlight-bg`, shipped with a deprecated compatibility alias and already updated in DRE Search. The full register, with impact and mitigation per change, is in [`AUDIT.md` §4](https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/AUDIT.md).
 
