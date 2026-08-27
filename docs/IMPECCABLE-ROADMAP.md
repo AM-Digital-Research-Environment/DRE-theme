@@ -306,6 +306,19 @@ any production write capability.
 
 ### Phase 2 — Establish a critique and audit baseline
 
+Status: in progress. The first home/global-chrome critique and technical audit
+are recorded. The selected Priority A hardening work is implemented in source:
+
+- DRE-theme commit `0840207` gives Mirador a translated, named application
+  boundary and adds a deployment-gated canonical-route assertion;
+- DRE Visualizations commit `5e2851d6` separates chart titles from named action
+  toolbars and adds a persistent async status contract;
+- the local component fixture now represents both visualization semantics and
+  tests them independently of an Omeka installation.
+
+Production still serves the older versions recorded above. Keep the remaining
+live acceptance checks open until coordinated releases are deployed.
+
 Run `critique` and `audit` as separate passes over five groups:
 
 1. global chrome and home;

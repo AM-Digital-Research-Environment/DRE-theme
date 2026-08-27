@@ -155,6 +155,25 @@ semantic class rather than `!important` shields.
 - Do not style generated Svelte scope classes or unstable library internals as a
   long-term integration surface.
 
+## Semantic embedding contract
+
+The outer Omeka page remains the document. An embedded application may own an
+internal landmark and heading hierarchy only when the integration boundary has
+a stable, descriptive accessible name.
+
+- Mirador is wrapped in a translated, named `role="application"` boundary. Its
+  React-owned `main` and H1 remain untouched inside that scope.
+- A visualization heading contains title text only. Related actions live in a
+  named sibling `role="toolbar"`; icon-only controls also have their own names.
+- An asynchronous visualization keeps one persistent `role="status"` node with
+  `aria-live="polite"` and `aria-atomic="true"`. Set `aria-busy="true"` on its
+  stable container only while work is active, clear it for every terminal
+  outcome, and announce ready, empty, and unavailable states without moving
+  focus.
+- Do not repair module semantics by moving or relabelling library-owned DOM
+  after mount. Change the owning module or establish a standards-based outer
+  boundary, then pin the contract in that repository's tests.
+
 ## Degraded and isolated rendering
 
 The integrated site is the primary product, but each repository must remain
