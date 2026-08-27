@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en" data-theme="light" class="js">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AMIRA design-system fixture</title>
+    <link rel="stylesheet" href="../../../asset/css/style.css">
+    <link rel="stylesheet" href="catalog.css?v=20260827-2">
+</head>
+<body class="home" data-theme="light" data-brand="bold">
+    <aside class="fixture-toolbar" aria-label="Fixture controls">
+        <p><strong>AMIRA component fixture</strong><span>Sanitized · source-mapped · local only</span></p>
+        <div class="fixture-toolbar__controls">
+            <label for="fixture-theme">Mode</label>
+            <select id="fixture-theme" data-fixture-theme>
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+            </select>
+            <a href="#fixture-index">Component index</a>
+        </div>
+    </aside>
+
+    <header class="main-header fixture-header" data-nav="inline">
+        <div class="main-header__main-bar container">
+            <div class="main-header__site-title site-title">
+                <a href="#masthead" rel="home">
+                    <span class="sr-only">Africa Multiple Digital Research Environment</span>
+                    <img class="site-logo site-logo--light" src="../../../asset/img/africamultiple.webp" alt="Africa Multiple Cluster of Excellence" width="569" height="140">
+                    <img class="site-logo site-logo--dark" src="../../../asset/img/africamultiple-dark.webp" alt="" aria-hidden="true" width="569" height="140">
+                </a>
+            </div>
+            <form class="main-header__search fixture-header__search" role="search">
+                <label class="sr-only" for="header-search">Search the collection</label>
+                <input id="header-search" type="search" placeholder="Search records, people, places, subjects…">
+                <button type="submit">Search</button>
+            </form>
+            <div class="main-header__utilities">
+                <button class="theme-toggle" data-theme-toggle type="button" aria-label="Toggle dark mode" aria-pressed="false">
+                    <span aria-hidden="true">◐</span>
+                </button>
+                <button type="button" class="main-navigation__toggle" aria-expanded="false" aria-controls="fixture-navigation">
+                    <span class="sr-only">Open menu</span><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
+                </button>
+            </div>
+        </div>
+        <div class="main-header__nav-row">
+            <nav id="fixture-navigation" class="main-navigation container" aria-label="Primary navigation">
+                <div class="main-navigation__container">
+                    <ul class="navigation">
+                        <li><a href="#masthead">Discover</a></li>
+                        <li><a href="#records">Research</a></li>
+                        <li><a href="#module-states">Visualize</a></li>
+                        <li><a href="#states">About</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="masthead" class="site-banner site-banner--home">
+            <div class="container site-banner__inner site-banner__inner--split">
+                <div class="site-banner__lead">
+                    <div class="site-banner__headline">
+                        <div class="site-banner__flag" aria-hidden="true"></div>
+                        <p class="site-banner__eyebrow">Digital Research Environment</p>
+                        <h1 class="site-banner__title">Africa Multiple Research Archive</h1>
+                        <p class="site-banner__lede">Explore connected research materials, people, projects, places, and publications across a shared scholarly collection.</p>
+                        <p class="site-banner__links">
+                            <a class="site-banner__link" href="#resources">Explore the collection <span class="site-banner__link-arrow" aria-hidden="true">→</span></a>
+                            <a class="site-banner__link" href="#module-states">Open visual explorations <span class="site-banner__link-arrow" aria-hidden="true">→</span></a>
+                        </p>
+                    </div>
+                    <form class="site-banner__search" role="search">
+                        <label class="sr-only" for="banner-search">Search the collection</label>
+                        <input class="site-banner__search-input" id="banner-search" type="search" placeholder="Search records, people, places, subjects…">
+                        <button class="site-banner__search-submit" type="submit">Search</button>
+                    </form>
+                </div>
+                <aside class="site-banner__column">
+                    <div class="site-banner__catalogue">
+                        <h2 class="site-banner__catalogue-title">In the collection</h2>
+                        <div class="site-banner__catalogue-list">
+                            <a class="site-banner__entry" href="#resources"><span class="site-banner__entry-label">Research items</span><span class="site-banner__entry-num">8,420</span></a>
+                            <a class="site-banner__entry" href="#resources"><span class="site-banner__entry-label">People</span><span class="site-banner__entry-num">1,284</span></a>
+                            <a class="site-banner__entry" href="#resources"><span class="site-banner__entry-label">Locations</span><span class="site-banner__entry-num">638</span></a>
+                            <a class="site-banner__entry" href="#resources"><span class="site-banner__entry-label">Publications</span><span class="site-banner__entry-num">2,106</span></a>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </section>
+
+        <div class="container fixture-layout">
+            <nav id="fixture-index" class="fixture-index" aria-label="Component index">
+                <p class="fixture-kicker">Catalogue</p>
+                <a href="#foundations">Foundations and controls</a>
+                <a href="#resources">Resource cards</a>
+                <a href="#records">Record and apparatus</a>
+                <a href="#states">Shared states</a>
+                <a href="#module-states">Module shells</a>
+            </nav>
+
+            <div class="fixture-content">
+                <section id="foundations" class="fixture-section" data-fixture-component="foundations">
+                    <header class="fixture-section__header">
+                        <p class="fixture-kicker">Theme · global</p>
+                        <h2>Foundations and controls</h2>
+                        <p>The existing typographic hierarchy, semantic colors, fields, buttons, links, and chips in one compact review surface.</p>
+                    </header>
+                    <div class="fixture-swatch-grid" aria-label="Semantic color roles">
+                        <div class="fixture-swatch fixture-swatch--primary"><span>Primary</span><code>--primary</code></div>
+                        <div class="fixture-swatch fixture-swatch--accent"><span>Accent</span><code>--accent</code></div>
+                        <div class="fixture-swatch fixture-swatch--surface"><span>Surface</span><code>--surface</code></div>
+                        <div class="fixture-swatch fixture-swatch--sunken"><span>Sunken</span><code>--surface-sunken</code></div>
+                    </div>
+                    <div class="fixture-control-row">
+                        <button type="button" class="button">Primary action</button>
+                        <button type="button" class="button btn--secondary">Secondary action</button>
+                        <a href="#records">Text link</a>
+                        <label>Field <input type="text" value="A long multilingual label"></label>
+                    </div>
+                    <div class="fixture-chip-row" aria-label="Selected subjects">
+                        <a href="#">Mobility</a><a href="#">Material culture</a><a href="#">Transregional networks</a><a href="#">Études africaines</a>
+                    </div>
+                </section>
+
+                <section id="resources" class="fixture-section" data-fixture-component="resource-card">
+                    <header class="fixture-section__header">
+                        <p class="fixture-kicker">Theme · browse</p>
+                        <h2>Resource cards and pagination</h2>
+                        <p>Cards use invented content in short, missing-image, and long-title conditions.</p>
+                    </header>
+                    <div class="fixture-resource-grid">
+                        <article class="item resource">
+                            <div class="resource__thumbnail fixture-thumbnail fixture-thumbnail--map" aria-hidden="true"><span>Map preview</span></div>
+                            <div class="resource__content">
+                                <div class="fixture-tags"><span>Research item</span><span>Map</span></div>
+                                <div class="resource__meta"><a href="#records">Routes, memory, and everyday exchange</a><div class="description">A concise description shows the normal card rhythm and reading measure.</div></div>
+                            </div>
+                        </article>
+                        <article class="item resource">
+                            <div class="resource__thumbnail fixture-thumbnail fixture-thumbnail--portrait" aria-hidden="true"><span>Portrait preview</span></div>
+                            <div class="resource__content">
+                                <div class="fixture-tags"><span>Person</span></div>
+                                <div class="resource__meta"><a href="#records">A deliberately long multilingual title testing resilient wrapping across the full available card width</a><div class="description">Affiliation and role content may also extend over several lines.</div></div>
+                            </div>
+                        </article>
+                        <article class="item resource fixture-resource--missing">
+                            <div class="resource__content">
+                                <div class="fixture-tags"><span>Publication</span><span>Open access</span></div>
+                                <div class="resource__meta"><a href="#records">Record without a thumbnail</a><div class="description">The layout remains intentional when media are absent.</div></div>
+                            </div>
+                        </article>
+                    </div>
+                    <nav class="pagination" aria-label="Results pages">
+                        <span class="button" aria-disabled="true">Previous</span>
+                        <span>Page 2 of 18</span>
+                        <a class="button" href="#resources">Next</a>
+                    </nav>
+                </section>
+
+                <section id="records" class="fixture-section" data-fixture-component="item-record">
+                    <header class="fixture-section__header">
+                        <p class="fixture-kicker">Theme + visualizations · record</p>
+                        <h2>A long record with its apparatus</h2>
+                        <p>This sanitized sample keeps the production class contract for metadata and citation structures.</p>
+                    </header>
+                    <div class="item-record item-record--railed">
+                        <div class="item-record__main metadata">
+                            <section class="record__group record__group--prose">
+                                <h3 class="record__group-title">Description</h3>
+                                <dl class="record__list"><div class="property"><dt class="sr-only">Abstract</dt><dd><p>This invented abstract demonstrates a sustained scholarly reading block. It should remain calm beside dense identifiers, linked authorities, and interactive research components.</p></dd></div></dl>
+                            </section>
+                            <section class="record__group record__group--chips">
+                                <h3 class="record__group-title">Subjects</h3>
+                                <dl class="record__list"><div class="property"><dt class="sr-only">Subjects</dt><dd><span class="value-content"><a href="#">Knowledge circulation</a></span></dd><dd><span class="value-content"><a href="#">Urban history</a></span></dd><dd><span class="value-content"><a href="#">West Africa</a></span></dd></div></dl>
+                            </section>
+                            <section class="record__group record__group--rows">
+                                <h3 class="record__group-title">Record details</h3>
+                                <dl class="record__list">
+                                    <div class="property"><dt>Creator</dt><dd><a href="#">Sample Researcher</a></dd></div>
+                                    <div class="property"><dt>Language</dt><dd>English; français</dd></div>
+                                    <div class="property"><dt>Copyright date</dt><dd>2026</dd></div>
+                                    <div class="property"><dt>Parent project with an unusually long label</dt><dd><a href="#">Connected Archives and Research Infrastructures</a></dd></div>
+                                </dl>
+                            </section>
+                            <details class="fixture-disclosure">
+                                <summary>Linked resources <span aria-hidden="true">12</span></summary>
+                                <div><p>Relationships and module content appear here after disclosure.</p></div>
+                            </details>
+                        </div>
+                        <aside class="item-record__rail">
+                            <section class="record-apparatus" aria-labelledby="fixture-apparatus-title">
+                                <h3 class="record-apparatus__title" id="fixture-apparatus-title">Cite this record</h3>
+                                <div class="record-apparatus__styles" role="tablist" aria-label="Citation style">
+                                    <button type="button" class="record-apparatus__style" role="tab" aria-selected="true">Chicago</button>
+                                    <button type="button" class="record-apparatus__style" role="tab" aria-selected="false">APA</button>
+                                    <button type="button" class="record-apparatus__style" role="tab" aria-selected="false">MLA</button>
+                                </div>
+                                <p class="record-apparatus__citation">Researcher, Sample. “A Long Record with Its Apparatus.” <em>AMIRA</em>, 2026.</p>
+                                <dl class="record-apparatus__rows">
+                                    <div class="record-apparatus__row"><dt>DOI</dt><dd><a href="#">10.0000/example.42</a></dd></div>
+                                    <div class="record-apparatus__row record-apparatus__row--block"><dt>Access rights</dt><dd>Open for educational, research, criticism, and review purposes.</dd></div>
+                                    <div class="record-apparatus__row"><dt>DRE ID</dt><dd>fixture-0042</dd></div>
+                                </dl>
+                                <div class="record-apparatus__actions"><button type="button" class="button btn--secondary record-apparatus__copy">Copy citation</button></div>
+                            </section>
+                        </aside>
+                    </div>
+                </section>
+
+                <section id="states" class="fixture-section" data-fixture-component="shared-states">
+                    <header class="fixture-section__header">
+                        <p class="fixture-kicker">Shared contract · state matrix</p>
+                        <h2>Loading, empty, and unavailable</h2>
+                        <p>These shells provide a common visual target; their final DOM belongs in the owning module.</p>
+                    </header>
+                    <div class="fixture-state-grid">
+                        <section class="fixture-state" aria-busy="true"><span class="fixture-state__mark" aria-hidden="true"></span><h3>Loading results</h3><p>Searching the connected collections…</p></section>
+                        <section class="fixture-state"><span class="fixture-state__mark" aria-hidden="true">0</span><h3>No matching records</h3><p>Remove a filter or try a broader term.</p><button type="button" class="button btn--secondary">Clear filters</button></section>
+                        <section class="fixture-state fixture-state--error" role="status"><span class="fixture-state__mark" aria-hidden="true">!</span><h3>Visualization unavailable</h3><p>The record remains readable while the interactive view is unavailable.</p><button type="button" class="button btn--secondary">Try again</button></section>
+                    </div>
+                </section>
+
+                <section id="module-states" class="fixture-section" data-fixture-component="module-shells">
+                    <header class="fixture-section__header">
+                        <p class="fixture-kicker">Search + visualizations · integration</p>
+                        <h2>Module shells</h2>
+                        <p>A facet rail, results region, chart toolbar, legend, and accessible fallback establish the integration boundary.</p>
+                    </header>
+                    <div class="fixture-module-grid">
+                        <section class="fixture-module" aria-labelledby="search-shell-title">
+                            <div class="fixture-module__heading"><div><p class="fixture-kicker">DRE Search</p><h3 id="search-shell-title">Research items</h3></div><span>248 results</span></div>
+                            <div class="fixture-search-shell">
+                                <aside><strong>Filters</strong><label><input type="checkbox" checked> Publications</label><label><input type="checkbox"> Projects</label><label><input type="checkbox"> People with a long role label</label></aside>
+                                <div><div class="fixture-chip-row"><button type="button">Publications ×</button><button type="button">2020–2026 ×</button></div><ol class="fixture-result-list"><li><a href="#records">A representative bibliographic result</a><span>Publication · 2026</span></li><li><a href="#records">Networks of scholarship and institutional exchange</a><span>Publication · 2024</span></li></ol></div>
+                            </div>
+                        </section>
+                        <section class="fixture-module" aria-labelledby="chart-shell-title">
+                            <div class="fixture-module__heading"><div><p class="fixture-kicker">DRE Visualizations</p><h3 id="chart-shell-title">Collection over time</h3></div><div class="fixture-toolbar-buttons"><button type="button">Table</button><button type="button">Download</button></div></div>
+                            <div class="fixture-chart" role="img" aria-label="Placeholder bar chart showing an increasing collection over five years"><span style="--bar:42%"></span><span style="--bar:58%"></span><span style="--bar:51%"></span><span style="--bar:76%"></span><span style="--bar:88%"></span></div>
+                            <ul class="fixture-legend" aria-label="Legend"><li><i></i>Research items</li><li><i></i>Publications</li></ul>
+                            <details class="fixture-fallback"><summary>View data table</summary><table><thead><tr><th>Year</th><th>Records</th></tr></thead><tbody><tr><td>2025</td><td>1,248</td></tr><tr><td>2026</td><td>1,532</td></tr></tbody></table></details>
+                        </section>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <footer class="fixture-footer"><div class="container"><strong>Fixture boundary</strong><p>This page contains no Omeka data, API calls, analytics, or production writes.</p></div></footer>
+    <script src="catalog.js"></script>
+</body>
+</html>

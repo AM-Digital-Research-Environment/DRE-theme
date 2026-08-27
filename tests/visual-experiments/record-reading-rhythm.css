@@ -1,0 +1,19 @@
+/*
+ * Disposable visual probe. The body attribute is installed only by the
+ * Playwright experiment and scopes every rule away from production source.
+ * Replace these rules with the selected comp; never copy the file into assets.
+ */
+body[data-impeccable-experiment='record-reading-rhythm'] .item-record {
+    outline: 2px dashed color-mix(in oklab, var(--accent) 70%, transparent);
+    outline-offset: var(--space-4);
+}
+
+body[data-impeccable-experiment='record-reading-rhythm'] .record__group {
+    scroll-margin-top: var(--scroll-offset);
+}
+
+body[data-impeccable-experiment='record-reading-rhythm'] .record__group-title::after {
+    content: '  ·  experiment';
+    color: var(--accent-text);
+    letter-spacing: var(--tracking-wide);
+}
