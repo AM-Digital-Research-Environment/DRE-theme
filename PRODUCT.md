@@ -97,8 +97,8 @@ providing a connected discovery layer and a consistent public interface.
   dashboards, maps, and networks for read-only integration testing.
 - `tests/fixtures/research-items-template.json` captures the production Research
   Items template used by metadata-group contract tests.
-- `tests/browser/live.spec.mjs` and `.github/workflows/live-smoke.yml` provide a
-  nightly production smoke-test baseline.
+- The grouped specs in `tests/browser/` and `.github/workflows/live-smoke.yml`
+  provide a nightly production smoke-test baseline.
 - `DESIGN.md` records the visual system; `docs/DESIGN-INTEGRATION.md` records the
   cross-repository contract; `docs/IMPECCABLE-ROADMAP.md` records the evaluation
   programme and representative routes.

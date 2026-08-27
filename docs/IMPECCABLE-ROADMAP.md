@@ -85,7 +85,7 @@ loaded asset versions, data state, and owning repository.
 | Index gateway | `/s/amira/page/index` | Authority-entry navigation and card groups | Theme | `critique`, `clarify`, `distill` |
 | Item browse | `/s/amira/item` | Browse controls, resource grid/list, pagination, empty state | Theme | `audit`, `layout`, `adapt`, `harden` |
 | Item-set browse | `/s/amira/item-set` | Collection search entry, layout toggle, resource cards, pagination | Theme | `critique`, `audit`, `adapt` |
-| Item record | `/s/amira/item/9754` or an API-resolved current record | Mirador, grouped metadata, record apparatus, linked resources, dashboard, knowledge graph, location map | Theme + Visualizations | `critique`, `typeset`, `layout`, `harden`, `adapt` |
+| Item record | `/s/amira/item/32328` (canonical Mirador sample), plus an API-resolved current record | Mirador, grouped metadata, record apparatus, linked resources, dashboard, knowledge graph, location map | Theme + Visualizations + Mirador | `critique`, `typeset`, `layout`, `harden`, `adapt` |
 | Media record | Resolve with `/api/media?per_page=1`, then `/s/amira/media/{id}` | Media viewer, metadata, record chrome | Theme | `audit`, `adapt`, `harden` |
 | Installation and mode controls | Any route | Theme toggle, PWA control, navigation drawer, back to top | Theme | `audit`, `adapt`, `polish` |
 
@@ -205,7 +205,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('record comp against production markup', async ({ page }) => {
-  await page.goto('/s/amira/item/9754');
+  await page.goto('/s/amira/item/32328');
   await expect(page.locator('link[href*="/themes/DRE-theme/"]'))
     .toHaveAttribute('href', /v=2\.29\.0/);
   await page.addStyleTag({ path: 'tests/visual-experiments/record-comp.css' });

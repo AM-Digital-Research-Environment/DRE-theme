@@ -12,7 +12,7 @@ body:
     attributes:
       label: Surface and route
       description: Name the surface and provide its representative AMIRA path or sanitized local fixture URL.
-      placeholder: "Item record — /s/amira/item/9754"
+      placeholder: "Mirador item record — /s/amira/item/32328"
     validations:
       required: true
 

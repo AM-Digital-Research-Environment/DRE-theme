@@ -48,14 +48,18 @@ separate admin/event paths.
 
 After each test the suite attaches `production-request-safety.json`, including
 any allowed query-shaped POST, and `dre-asset-versions.json` with the loaded
-DRE-theme, DRESearch, and DRE-Visualizations asset URLs and query-string
+DRE-theme, DRESearch, DRE-Visualizations, and Mirador asset URLs and query-string
 versions. The suite checks:
 
-- one document `<h1>`;
+- one page-level `<h1>` (embedded application headings are tracked separately);
 - browser console/page errors;
 - the legacy advanced-search redirect;
 - mobile drawer state and horizontal overflow;
 - lazy-loaded visualization canvases.
+- the canonical DRESearch surface at `/s/amira/dre-search`;
+- the Mirador workspace and digitized canvas at `/s/amira/item/32328`;
+- the research gateway's links to research sections, projects, and items;
+- duplicate IDs on those three integration routes.
 
 List the selected production checks without opening the site:
 
