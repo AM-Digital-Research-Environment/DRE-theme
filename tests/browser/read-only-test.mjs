@@ -20,6 +20,7 @@ export async function collectDreAssetVersions(page) {
         'DRE-theme': /\/themes\/DRE-theme\//i,
         DRESearch: /\/modules\/DRESearch\//i,
         'DRE-Visualizations': /\/modules\/(?:DRE-?Visualizations|ResourceVisualizations)\//i,
+        Mirador: /\/modules\/Mirador\//i,
     };
 
     return Object.fromEntries(Object.entries(owners).map(([owner, pattern]) => {

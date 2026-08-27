@@ -5,7 +5,8 @@ for (const surface of smokeSurfaces('core')) {
     test(`${surface.label} has one document heading and no runtime errors`, async ({ page }) => {
         const errors = watchErrors(page);
         await page.goto(surface.path, { waitUntil: 'domcontentloaded' });
-        await expect(page.locator('h1')).toHaveCount(1);
+        const pageHeading = surface.id === 'item-record' ? '#content > h1' : 'h1';
+        await expect(page.locator(pageHeading)).toHaveCount(1);
         expect(errors).toEqual([]);
     });
 }

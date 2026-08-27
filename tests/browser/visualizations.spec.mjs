@@ -14,7 +14,7 @@ for (const surface of smokeSurfaces('visualizations')) {
         const errors = watchErrors(page);
         await page.goto(surface.path, { waitUntil: 'domcontentloaded' });
         await expect(page.locator('h1')).toHaveCount(1);
-        await expect(page.locator('main')).toBeVisible();
+        await expect(page.locator('main#content')).toBeVisible();
         expect(errors).toEqual([]);
     });
 }
