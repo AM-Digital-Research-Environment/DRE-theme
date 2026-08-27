@@ -217,10 +217,12 @@ The version assertion above is illustrative and must be updated to the version
 the experiment is intentionally targeting. Never silently loosen it.
 
 JavaScript injection is appropriate only for visual state setup or disposable
-interaction experiments. It must not call `fetch`, `XMLHttpRequest`,
+interaction experiments. It must not add calls to `fetch`, `XMLHttpRequest`,
 `sendBeacon`, form submission, the Omeka API with a write method, or an
-authenticated admin route. The request blocker is a second line of defence, not
-permission to write risky experiment code.
+authenticated admin route. The page's existing anonymous DRESearch retrieval
+POSTs may continue through the exact path allowlist in the shared request guard;
+every other write-shaped request is aborted. The blocker is a second line of
+defence, not permission to write risky experiment code.
 
 This method changes only the local page DOM. Reloading or closing the browser
 removes the experiment. It is suitable for computed-style checks, layout
@@ -282,16 +284,20 @@ no migration finding, and the sidecar parses as JSON.
 
 ### Phase 1 — Build the audit harness and evidence register
 
-- Add a machine-readable surface manifest with URL, mode, owner, expected key
+Status: completed in DRE-theme on 2026-08-27. A manual production run passed all
+14 grouped checks against the deployed site. The nightly run remains the
+operational monitor, and Phase 2 can now begin from this baseline.
+
+- [x] Add a machine-readable surface manifest with URL, mode, owner, expected key
   selectors, and asset-version extraction.
-- Split live Playwright tests into core theme, search, visualization, and shared
+- [x] Split live Playwright tests into core theme, search, visualization, and shared
   integration groups while retaining one command.
-- Add safe mutation blocking to every production test context.
-- Add a local-only visual-experiment configuration with CSP bypass, artifact
+- [x] Add safe mutation blocking to every production test context.
+- [x] Add a local-only visual-experiment configuration with CSP bypass, artifact
   output, and explicit version guards.
-- Create the first static fixture catalogue for editable, source-mapped
+- [x] Create the first static fixture catalogue for editable, source-mapped
   Impeccable `live` sessions.
-- Define a finding template: route, owner, mode, viewport, evidence, severity,
+- [x] Define a finding template: route, owner, mode, viewport, evidence, severity,
   user impact, proposed command, and acceptance check.
 
 Acceptance: a contributor can locate the correct test surface and owner without
@@ -446,7 +452,7 @@ evidence; do not pre-populate the backlog with speculative style changes.
 | Risk | Control |
 | --- | --- |
 | Production differs from the checked-out source | Assert and record theme and module asset versions before interpreting evidence. |
-| A browser experiment accidentally writes data | Use anonymous pages, block every non-GET/HEAD/OPTIONS request, avoid admin routes, and prohibit write-capable injected code. |
+| A browser experiment accidentally writes data | Use anonymous pages; allow inherently safe methods plus only the exact DRESearch query POST paths verified in its controller; block all other write-shaped requests; avoid admin routes; and prohibit write-capable injected code. |
 | Dynamic records make tests flaky | Resolve representative IDs from the public API and keep stable semantic assertions. |
 | Visual snapshots change with synchronized content | Use stable component crops or fixtures; keep dynamic production screenshots informative rather than gating. |
 | Static fixtures drift from Omeka templates | Store source route and refresh date; add selector and structure contracts against production. |

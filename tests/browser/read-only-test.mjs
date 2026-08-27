@@ -1,6 +1,6 @@
 import { test as base, expect } from '@playwright/test';
 
-const safeMethods = new Set(['GET', 'HEAD', 'OPTIONS']);
+import { productionRequestDecision } from './production-request-policy.mjs';
 
 export function watchErrors(page) {
     const errors = [];
@@ -33,19 +33,33 @@ export async function collectDreAssetVersions(page) {
 }
 
 export const test = base.extend({
-    blockedMutationRequests: [async ({ page }, use) => {
+    productionRequestSafety: [async ({ page, baseURL }, use, testInfo) => {
         const blocked = [];
+        const allowedReadOnlyPosts = [];
         await page.route('**/*', async (route) => {
             const request = route.request();
-            if (!safeMethods.has(request.method())) {
+            const decision = productionRequestDecision(
+                request.method(),
+                request.url(),
+                request.headers(),
+                baseURL,
+            );
+            if (!decision.allowed) {
                 blocked.push(`${request.method()} ${request.url()}`);
                 await route.abort('blockedbyclient');
                 return;
             }
+            if (decision.reason === 'read-only-search-post') {
+                allowedReadOnlyPosts.push(`${request.method()} ${request.url()}`);
+            }
             await route.continue();
         });
 
-        await use(blocked);
+        await use({ blocked, allowedReadOnlyPosts });
+        await testInfo.attach('production-request-safety.json', {
+            body: JSON.stringify({ blocked, allowedReadOnlyPosts }, null, 2),
+            contentType: 'application/json',
+        });
         expect(blocked, 'production tests must never attempt a mutating request').toEqual([]);
     }, { auto: true }],
 });

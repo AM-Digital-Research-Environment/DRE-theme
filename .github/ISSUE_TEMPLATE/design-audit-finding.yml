@@ -1,0 +1,176 @@
+name: Design audit finding
+description: Record one evidence-based AMIRA UX, accessibility, responsive, performance, or integration finding.
+title: "[Design audit]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form after an Impeccable `critique`, `audit`, or focused refinement pass. One issue should describe one primary user problem and name one primary owning repository. Do not include personal data from production records in screenshots or traces.
+
+  - type: input
+    id: route
+    attributes:
+      label: Surface and route
+      description: Name the surface and provide its representative AMIRA path or sanitized local fixture URL.
+      placeholder: "Item record — /s/amira/item/9754"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: owner
+    attributes:
+      label: Primary owner
+      description: Select the repository that owns the smallest effective fix.
+      options:
+        - DRE-theme
+        - DRESearch
+        - DRE-Visualizations
+        - Cross-repository contract
+    validations:
+      required: true
+
+  - type: textarea
+    id: versions
+    attributes:
+      label: Loaded asset versions
+      description: Paste the DRE-theme, DRESearch, and DRE-Visualizations versions attached by the production test, or explain why the evidence is fixture-only.
+      placeholder: |
+        DRE-theme: 2.29.0
+        DRESearch: 1.20.0
+        DRE-Visualizations: 2.28.0
+    validations:
+      required: true
+
+  - type: input
+    id: viewport
+    attributes:
+      label: Viewport and input
+      description: Record width × height, zoom, pointer/input, and any relevant browser detail.
+      placeholder: "390 × 844, 100% zoom, touch emulation, Chromium"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: modes
+    attributes:
+      label: Modes reproduced
+      multiple: true
+      options:
+        - Light
+        - Dark
+        - Reduced motion
+        - Forced colors
+        - Print
+        - Not mode-dependent
+    validations:
+      required: true
+
+  - type: dropdown
+    id: state
+    attributes:
+      label: Component or data state
+      options:
+        - Default or ready
+        - Loading
+        - Empty or zero results
+        - Error or unavailable
+        - Filtered or selected
+        - Long or multilingual content
+        - Missing media or sparse metadata
+        - Keyboard focus or disclosure
+        - Other state described below
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Priority
+      description: Apply the definitions in docs/IMPECCABLE-ROADMAP.md, not visual preference alone.
+      options:
+        - P0 — unsafe, inaccessible, or contract-breaking
+        - P1 — primary task, keyboard, mobile, or interpretation blocker
+        - P2 — visible inconsistency, incomplete state, or regression risk
+        - P3 — bounded enhancement with a testable hypothesis
+    validations:
+      required: true
+
+  - type: dropdown
+    id: command
+    attributes:
+      label: Proposed Impeccable command
+      description: Choose the command that best describes the next decision, not every command that might apply later.
+      options:
+        - critique
+        - audit
+        - extract
+        - shape
+        - typeset
+        - layout
+        - adapt
+        - clarify
+        - onboard
+        - harden
+        - optimize
+        - animate
+        - colorize
+        - delight
+        - bolder
+        - quieter
+        - distill
+        - polish
+        - Engineering fix without a design command
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence and reproduction
+      description: State what is observable, how to reproduce it, and attach a sanitized screenshot, trace, or DOM detail where useful.
+      placeholder: |
+        1. Open the route anonymously.
+        2. Set the viewport and mode listed above.
+        3. Perform the interaction.
+        4. Observe…
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: User impact
+      description: Explain which research task or interpretation is impaired and for whom. Keep heuristic preference separate from reproducible failure.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed direction or engineering action
+      description: Describe the narrowest useful next step. For structural or visual work, identify the axis that three on-brand comps should vary.
+      placeholder: "Comp axis: move filter disclosure from page chrome to the results context while preserving query state."
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance checks
+      description: Include relevant light/dark, desktop/mobile, keyboard, zoom, reduced-motion, long-content, fixture, module, and post-deployment checks.
+      placeholder: |
+        - [ ] Selected comp is recorded with rationale.
+        - [ ] Deterministic repository checks pass.
+        - [ ] Affected surface group passes after deployment.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Evidence safety
+      options:
+        - label: I used anonymous, read-only production access or the sanitized local fixture and removed personal or sensitive data from evidence.
+          required: true
+        - label: I recorded deployed asset versions before attributing live behavior to the checked-out source.
+          required: true

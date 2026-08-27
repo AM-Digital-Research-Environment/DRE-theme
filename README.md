@@ -134,6 +134,8 @@ The visual language — palette, typography, layout, depth, shapes, components a
 
 The theme’s design tokens are the shared API for **DRE Search** and **DRE Visualizations**. Their mode, JavaScript, fallback, data-colour, stacking and coordinated-release rules live in **[`docs/DESIGN-INTEGRATION.md`](docs/DESIGN-INTEGRATION.md)**. The phased Impeccable 4.1.2 audit, representative live routes and safe browser-local CSS/JavaScript experiment protocol are documented in **[`docs/IMPECCABLE-ROADMAP.md`](docs/IMPECCABLE-ROADMAP.md)**.
 
+For design work without a local Omeka database, use the editable, sanitized **[`tests/fixtures/design-system/`](tests/fixtures/design-system/README.md)** catalogue first. The grouped read-only production tests, explicit deployed-version guard, and disposable CSS-injection workflow are documented in **[`docs/TESTING.md`](docs/TESTING.md)**.
+
 **Upgrading to v2.22** — the token layer grew beyond colour (type, rhythm and layout families) and a handful of tokens were retired or renamed. Only one rename affects the modules: `--dre-hl-bg` → `--highlight-bg`, shipped with a deprecated compatibility alias and already updated in DRE Search. The full register, with impact and mitigation per change, is in [`AUDIT.md` §4](https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/AUDIT.md).
 
 ## Credits
