@@ -200,6 +200,13 @@ the theme's explicit 44px control token.
 5. **[P2] `/impeccable polish`:** repeat desktop/mobile, light/dark, keyboard,
    and reduced-motion checks after the selected fixes land.
 
+## Tracking
+
+- [DRE-theme #3 — shared 44px mobile control target](https://github.com/AM-Digital-Research-Environment/DRE-theme/issues/3)
+- [DRE-theme #4 — Mirador heading and landmark hierarchy](https://github.com/AM-Digital-Research-Environment/DRE-theme/issues/4)
+- [DRE-theme #5 — intentional reduced-motion alternatives](https://github.com/AM-Digital-Research-Environment/DRE-theme/issues/5)
+- [DRE Visualizations #12 — visualization headings, toolbars, and async status](https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/issues/12)
+
 The next audit should use the canonical DRESearch, Mirador, and research-gateway
 routes recorded in the surface manifest and should repeat production evidence
 only against explicitly recorded deployed versions.

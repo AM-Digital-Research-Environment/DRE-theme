@@ -425,7 +425,7 @@ release note.
 - Deterministic tests run before deployment; production smoke runs afterward.
 - Documentation and sidecar are refreshed only when system-level truth changes.
 
-## Proposed GitHub issue structure
+## GitHub issue structure
 
 Create one tracking issue in DRE-theme and implementation issues in the
 repository that owns the work:
@@ -442,10 +442,23 @@ repository that owns the work:
 4. [**Audit DRE Visualizations with the shared Impeccable surface and state
    matrix**](https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/issues/11)
    — DRE-Visualizations.
+5. [**Improve mobile chrome controls to the shared 44px hit-area
+   target**](https://github.com/AM-Digital-Research-Environment/DRE-theme/issues/3)
+   — DRE-theme.
+6. [**Harden Mirador's embedded heading and landmark
+   hierarchy**](https://github.com/AM-Digital-Research-Environment/DRE-theme/issues/4)
+   — DRE-theme and the Mirador integration.
+7. [**Replace the global reduced-motion kill switch with intentional
+   alternatives**](https://github.com/AM-Digital-Research-Environment/DRE-theme/issues/5)
+   — DRE-theme.
+8. [**Separate visualization headings, toolbars, and async status
+   semantics**](https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/issues/12)
+   — DRE-Visualizations.
 
-The tracking issue links the other three and uses the phases in this document
-as its checklist. New visual fixes should be opened only after Phase 2 produces
-evidence; do not pre-populate the backlog with speculative style changes.
+The tracking issue links the implementation work and uses the phases in this
+document as its checklist. New visual fixes are opened only after Phase 2
+produces evidence; the backlog is not pre-populated with speculative style
+changes.
 
 ## Risks and controls
 
