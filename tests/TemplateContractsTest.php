@@ -33,6 +33,13 @@ $values = $read('view/common/resource-values.phtml');
 dre_check($failures, $checks, 'resource language and class attributes use attribute escaping',
     str_contains($values, '$escapeAttr(implode') && str_contains($values, '$escapeAttr($valueLang)'));
 
+$mirador = $read('view/common/resource-page-block-layout/mirador.phtml');
+dre_check($failures, $checks, 'Mirador has an application boundary inside the record document',
+    str_contains($mirador, 'role="application"')
+        && str_contains($mirador, "translate('Image viewer')"));
+dre_check($failures, $checks, 'the Mirador application boundary has an escaped accessible name',
+    str_contains($mirador, 'escapeHtmlAttr($viewerLabel)'));
+
 // The rail once printed `https://…/item/10297` where the licence should read
 // "CC-BY-NC-SA-4.0": casting a linked value to string yields the linked item's
 // URL. These pin the reading idiom, not the markup.

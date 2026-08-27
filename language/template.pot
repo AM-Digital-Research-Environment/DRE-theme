@@ -237,6 +237,10 @@ msgstr ""
 msgid "Identifiers & sources"
 msgstr ""
 
+#: view/common/resource-page-block-layout/mirador.phtml:30
+msgid "Image viewer"
+msgstr ""
+
 #: view/common/banner.phtml:119
 msgid "In the collection"
 msgstr ""

@@ -6,6 +6,20 @@ import {
 } from './read-only-test.mjs';
 import { getSurface } from './surfaces.mjs';
 
+function versionAtLeast(version, minimum) {
+    const current = version.split('.').map((part) => Number.parseInt(part, 10) || 0);
+    const floor = minimum.split('.').map((part) => Number.parseInt(part, 10) || 0);
+    const length = Math.max(current.length, floor.length);
+
+    for (let index = 0; index < length; index += 1) {
+        const currentPart = current[index] || 0;
+        const floorPart = floor[index] || 0;
+        if (currentPart !== floorPart) return currentPart > floorPart;
+    }
+
+    return true;
+}
+
 async function expectUniqueIds(page) {
     const duplicates = await page.locator('[id]').evaluateAll((elements) => {
         const counts = new Map();
@@ -40,6 +54,10 @@ test('the canonical item route mounts Mirador and its digitized canvas', async (
     await expect(page.locator('canvas[aria-label="Digitized view"]')).toBeVisible({ timeout: 30_000 });
     const versions = await collectDreAssetVersions(page);
     expect(versions.Mirador.versions, 'the Mirador asset version must be observable').not.toEqual([]);
+    if (versions['DRE-theme'].versions.some((version) => versionAtLeast(version, '2.30.0'))) {
+        await expect(page.locator('.block-mirador[role="application"]'))
+            .toHaveAttribute('aria-label', 'Image viewer');
+    }
     await expectUniqueIds(page);
     expect(errors).toEqual([]);
 });

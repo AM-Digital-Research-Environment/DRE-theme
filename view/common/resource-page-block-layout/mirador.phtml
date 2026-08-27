@@ -27,6 +27,7 @@
 
 // Ingesters whose media are external embeds rather than IIIF-renderable files.
 $embedIngesters = ['youtube', 'oembed', 'html'];
+$viewerLabel = $this->translate('Image viewer');
 
 $embedMedia = [];
 if (method_exists($resource, 'media')) {
@@ -56,7 +57,11 @@ $this->headScript()->appendFile(
     ['defer' => 'defer']
 );
 ?>
-<div class="block resource-block block-mirador">
+<?php // Mirador owns a nested main landmark and h1 by design. The application
+      // boundary gives that workspace its own semantic scope inside the Omeka
+      // record's main landmark without rewriting React-owned DOM after mount. ?>
+<div class="block resource-block block-mirador" role="application"
+    aria-label="<?php echo $this->escapeHtmlAttr($viewerLabel); ?>">
     <?= $this->mirador($resource) ?>
 </div>
 <?php endif; ?>

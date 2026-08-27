@@ -256,6 +256,19 @@ if (existsSync(join(VIEW, 'faceted-browse'))
     add('view/faceted-browse', null, 'obsolete Faceted Browse integration must not return');
 }
 
+const miradorTemplate = readFileSync(
+    join(VIEW, 'common', 'resource-page-block-layout', 'mirador.phtml'),
+    'utf8',
+);
+if (!/class="block resource-block block-mirador"\s+role="application"/s.test(miradorTemplate)
+    || !miradorTemplate.includes('escapeHtmlAttr($viewerLabel)')) {
+    add(
+        'view/common/resource-page-block-layout/mirador.phtml',
+        null,
+        'the embedded Mirador workspace needs a labelled application boundary inside the record main',
+    );
+}
+
 if (findings.length) {
     console.error(`Template structure: ${findings.length} finding(s)\n`);
     for (const f of findings) console.error('  ' + f);

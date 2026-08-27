@@ -77,9 +77,10 @@ the theme's explicit 44px control token.
   document centres and two primary headings, obscuring the record hierarchy.
 - **Standard:** HTML `main` conformance and WCAG 1.3.1 structural relationships.
 - **Recommendation:** establish a Mirador embedding contract that renders the
-  embedded workspace as a labelled region rather than a nested document main,
-  and demote or otherwise scope the viewer title without removing its accessible
-  name. Coordinate upstream if the module does not expose semantic overrides.
+  embedded workspace inside a named application boundary so Mirador's own main
+  landmark and H1 belong to a nested semantic scope rather than the Omeka record
+  document. Mirador hard-codes its workspace as `main` and tests that contract
+  upstream, so the theme must not rewrite React-owned DOM after mount.
 - **Suggested command:** `/impeccable harden`.
 
 ### [P2] Mobile theme and visualization controls miss the 44px project target
