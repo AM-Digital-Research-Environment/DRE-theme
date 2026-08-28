@@ -82,7 +82,9 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: var(--space-4);
+        // At 320px, the fixed-size touch controls need the narrow 4pt gap so
+        // the brand can keep the remaining width without forcing overflow.
+        gap: var(--space-1);
         position: relative;
         // The layout token is the CONTRACT, not a guess about this bar: the
         // menu drawer parks below it and --scroll-offset is derived from it, so
@@ -90,12 +92,17 @@
         min-height: var(--header-height);
         padding-top: var(--space-3);
         padding-bottom: var(--space-3);
+
+        @media (min-width: $sm) {
+            gap: var(--space-4);
+        }
     }
 
     &__site-title {
         display: flex;          // flex container kills the inline baseline gap
         align-items: center;    // that left ~18px of dead space under the logo
-        flex-shrink: 0;
+        flex-shrink: 1;
+        min-width: 0;
         margin-bottom: 0;
         max-width: 60%;
         order: 0;
@@ -108,6 +115,7 @@
         a {
             display: inline-flex;
             align-items: center;
+            min-width: 0;
             font-family: $font__headings;
             font-size: var(--text-xl);
             font-weight: 600;
@@ -135,7 +143,7 @@
     &__utilities {
         display: flex;
         align-items: center;
-        gap: var(--space-2);
+        gap: var(--space-1);
         flex-shrink: 0;
         // Mobile: the collapsible magnifier carries the single auto margin that
         // clusters search · toggle · hamburger to the right, so utilities stays
@@ -144,6 +152,7 @@
 
         @media (min-width: $xl) {
             order: initial;
+            gap: var(--space-2);
         }
     }
 
@@ -176,6 +185,7 @@ html.js .main-header:not([data-nav]) .main-header__nav-row {
 .site-logo {
     display: block;
     width: auto;
+    max-width: 100%;
     height: auto;
     max-height: 46px;
 
@@ -207,8 +217,8 @@ body[data-theme="dark"] {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    width: var(--size-control-md);
-    height: var(--size-control-md);
+    width: var(--size-control-lg);
+    height: var(--size-control-lg);
     padding: 0;
     border: 1px solid var(--border);
     border-radius: var(--radius-md);

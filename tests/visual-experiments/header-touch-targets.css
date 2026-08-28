@@ -1,0 +1,8 @@
+/* Disposable bridge for the DRESearch source change while production still
+   serves 1.20.0. The theme controls come from the locally injected compiled
+   stylesheet; this selector models the module-owned 44px search control. */
+body[data-impeccable-experiment="header-touch-targets"] .dre-search-bar__toggle,
+body[data-impeccable-experiment="header-touch-targets"] .dre-search-bar__input {
+    width: var(--size-control-lg, 2.75rem);
+    height: var(--size-control-lg, 2.75rem);
+}

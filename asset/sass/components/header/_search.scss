@@ -5,8 +5,8 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    width: var(--size-control-md);
-    height: var(--size-control-md);
+    width: var(--size-control-lg);
+    height: var(--size-control-lg);
     padding: 0;
     font-size: 1.125rem;
     line-height: 1;
@@ -152,7 +152,7 @@
     top: 100%;                               // same origin as the field…
     // …then clear it: field offset (--space-2) + field height + a matching gap.
     transform: translateY(
-        calc(var(--space-2) + var(--size-control-md, 2.5rem) + var(--space-2))
+        calc(var(--space-2) + var(--size-control-lg, 2.75rem) + var(--space-2))
     );
 }
 

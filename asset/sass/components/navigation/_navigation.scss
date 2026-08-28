@@ -42,8 +42,10 @@
 
     &__toggle {
         display: block;
-        width: 35px;
-        height: 28px;
+        width: var(--size-control-lg);
+        height: var(--size-control-lg);
+        min-width: var(--size-control-lg);
+        min-height: var(--size-control-lg);
         position: relative;
         margin: 0;          // was `20px auto` — the auto centred the hamburger and
         flex-shrink: 0;     // the 20px bloated the mobile bar height
@@ -83,35 +85,35 @@
             display: block;
             position: absolute;
             height: 4px;
-            width: 100%;
+            width: 35px;
             background: $color__primary;
             border-radius: 9px;
             opacity: 1;
-            left: 0;
+            left: calc(50% - 17.5px);
             transform: rotate(0deg);
             transition: .25s ease-in-out;
         }
 
         span:nth-child(2) {
-            top: 0px;
+            top: calc(50% - 13px);
             transform-origin: left center;
         }
         
         span:nth-child(3) {
-            top: 11px;
+            top: calc(50% - 2px);
             transform-origin: left center;
         }
         
         span:nth-child(4) {
-            top: 22px;
+            top: calc(50% + 9px);
             transform-origin: left center;
         }
     
         &.open {
             span:nth-child(2) {
                 transform: rotate(45deg);
-                top: -1px;
-                left: 5px;
+                top: calc(50% - 14px);
+                left: calc(50% - 12.5px);
             }
             
             span:nth-child(3) {
@@ -121,8 +123,8 @@
             
             span:nth-child(4) {
                 transform: rotate(-45deg);
-                top: 24px;
-                left: 5px;
+                top: calc(50% + 11px);
+                left: calc(50% - 12.5px);
             }
         }
     }
