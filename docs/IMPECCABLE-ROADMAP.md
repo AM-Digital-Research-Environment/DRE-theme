@@ -37,8 +37,9 @@ The theme already has unusually strong foundations:
 
 During the 2026-08-27 inspection, the public site served DRE-theme 2.29.0,
 DRE Visualizations 2.28.0, and DRE Search 1.20.0. The theme repository was at
-2.30.0. Production evidence must therefore always record the asset versions
-before a finding is attributed to current source.
+2.30.0 during that audit; the resulting fixes ship in 2.30.1. Production
+evidence must therefore always record the asset versions before a finding is
+attributed to current source.
 
 ## Impeccable command map
 
