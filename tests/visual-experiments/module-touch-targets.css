@@ -1,0 +1,32 @@
+/* Disposable bridge for module source changes while production serves the
+   previous releases. Semantic component classes make this independent of the
+   Svelte build hash; none of these rules are shipped by the theme. */
+body[data-impeccable-experiment="module-touch-targets"] .dre-search-box__input,
+body[data-impeccable-experiment="module-touch-targets"] .dre-search-bar__input,
+body[data-impeccable-experiment="module-touch-targets"] .dre-sort__select,
+body[data-impeccable-experiment="module-touch-targets"] .dre-export__trigger,
+body[data-impeccable-experiment="module-touch-targets"] .dre-fed__search input {
+    height: var(--size-control-lg, 2.75rem);
+}
+
+body[data-impeccable-experiment="module-touch-targets"] .dre-search-box__clear,
+body[data-impeccable-experiment="module-touch-targets"] .dre-search-bar__clear,
+body[data-impeccable-experiment="module-touch-targets"] .dre-fed__search > button {
+    inset-inline-end: 0;
+    top: 0;
+    width: var(--size-control-lg, 2.75rem);
+    height: var(--size-control-lg, 2.75rem);
+    min-width: var(--size-control-lg, 2.75rem);
+    min-height: var(--size-control-lg, 2.75rem);
+    transform: none;
+}
+
+body[data-impeccable-experiment="module-touch-targets"] .dre-view button,
+body[data-impeccable-experiment="module-touch-targets"] .dre-export__item,
+body[data-impeccable-experiment="module-touch-targets"] .dre-summary__tools > button,
+body[data-impeccable-experiment="module-touch-targets"] .dre-pager button,
+body[data-impeccable-experiment="module-touch-targets"] .dre-pager__btn {
+    min-width: var(--size-control-lg, 2.75rem);
+    min-height: var(--size-control-lg, 2.75rem);
+    height: var(--size-control-lg, 2.75rem);
+}

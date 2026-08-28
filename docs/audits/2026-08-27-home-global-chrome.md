@@ -102,9 +102,11 @@ the theme's explicit 44px control token.
 - **Suggested command:** `/impeccable adapt`.
 - **Implementation status (2026-08-28):** implemented in DRE-theme `d2e7e7b`,
   DRESearch `1e2269d`, and DRE Visualizations `aec09b45`. The theme's injected
-  320px and 390px checks pass without horizontal overflow. Production acceptance
-  remains open until compatible releases are deployed and measured on the
-  canonical routes.
+  320px and 390px checks pass without horizontal overflow. Injecting the local
+  visualization CSS into the deployed spatial-exploration route also confirms
+  the 44px MapLibre cascade under a coarse pointer. This is integration evidence,
+  not deployed-release acceptance; keep the finding open until compatible
+  releases are deployed and measured on the canonical routes.
 
 ### [P2] Visualization toolbar actions are part of heading names
 
