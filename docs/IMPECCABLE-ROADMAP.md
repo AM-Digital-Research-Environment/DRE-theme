@@ -307,7 +307,8 @@ any production write capability.
 ### Phase 2 — Establish a critique and audit baseline
 
 Status: in progress. The first home/global-chrome critique and technical audit
-are recorded. The selected Priority A hardening work is implemented in source:
+are recorded. The selected Priority A semantic hardening and Priority B
+touch-target adaptation are implemented in source:
 
 - DRE-theme commit `0840207` gives Mirador a translated, named application
   boundary and adds a deployment-gated canonical-route assertion;
@@ -315,6 +316,14 @@ are recorded. The selected Priority A hardening work is implemented in source:
   toolbars and adds a persistent async status contract;
 - the local component fixture now represents both visualization semantics and
   tests them independently of an Omeka installation.
+- DRE-theme commit `d2e7e7b` gives the mobile header search, install, mode, and
+  menu controls real 44px boxes and pins the contract with a source check and
+  320/390px live-injection experiment;
+- DRESearch commit `1e2269d` applies the same token to high-frequency search,
+  clear, sort, view, export, copy, and paging actions and adds regression tests;
+- DRE Visualizations commit `aec09b45` enlarges native MapLibre navigation and
+  popup-close controls on coarse pointers while preserving compact desktop
+  geometry and clear popup text.
 
 Production still serves the older versions recorded above. Keep the remaining
 live acceptance checks open until coordinated releases are deployed.
@@ -466,6 +475,9 @@ repository that owns the work:
    — DRE-theme.
 8. [**Separate visualization headings, toolbars, and async status
    semantics**](https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/issues/12)
+   — DRE-Visualizations.
+9. [**Validate 44px MapLibre touch controls after
+   deployment**](https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/issues/13)
    — DRE-Visualizations.
 
 The tracking issue links the implementation work and uses the phases in this

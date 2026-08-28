@@ -100,6 +100,11 @@ the theme's explicit 44px control token.
   preserving glyph size and compact visual weight. Apply the same contract in
   DRESearch and DRE Visualizations.
 - **Suggested command:** `/impeccable adapt`.
+- **Implementation status (2026-08-28):** implemented in DRE-theme `d2e7e7b`,
+  DRESearch `1e2269d`, and DRE Visualizations `aec09b45`. The theme's injected
+  320px and 390px checks pass without horizontal overflow. Production acceptance
+  remains open until compatible releases are deployed and measured on the
+  canonical routes.
 
 ### [P2] Visualization toolbar actions are part of heading names
 
@@ -207,6 +212,8 @@ the theme's explicit 44px control token.
 - [DRE-theme #4 — Mirador heading and landmark hierarchy](https://github.com/AM-Digital-Research-Environment/DRE-theme/issues/4)
 - [DRE-theme #5 — intentional reduced-motion alternatives](https://github.com/AM-Digital-Research-Environment/DRE-theme/issues/5)
 - [DRE Visualizations #12 — visualization headings, toolbars, and async status](https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/issues/12)
+- [DRE Visualizations #13 — post-deployment MapLibre touch validation](https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/issues/13)
+- [DRESearch #21 — shared search surface and state audit](https://github.com/AM-Digital-Research-Environment/DRESearch/issues/21)
 
 The next audit should use the canonical DRESearch, Mirador, and research-gateway
 routes recorded in the surface manifest and should repeat production evidence

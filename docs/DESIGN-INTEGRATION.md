@@ -155,6 +155,25 @@ semantic class rather than `!important` shields.
 - Do not style generated Svelte scope classes or unstable library internals as a
   long-term integration surface.
 
+## Touch-target contract
+
+High-frequency actions use `--size-control-lg` (2.75rem, 44px at the root
+size), including global chrome, primary search controls, paging, and native map
+navigation. Keep the icon visually quiet inside the larger interactive box.
+
+- Prefer a real 44px `width`, `height`, `min-width`, or `min-height` so pointer,
+  focus, and visual geometry agree.
+- A centred pseudo-element may extend a compact icon toolbar only on coarse
+  pointers, only when adjacent hit areas cannot overlap, and only when the
+  element retains its visible keyboard focus treatment.
+- Dense, repeated controls such as thirteen corpus tabs may use the WCAG 2.2
+  spacing exception when 44px boxes would make the surface harder to scan.
+  Record the exception beside the component and preserve adequate separation.
+- Enlarging an absolutely positioned close control must also reserve content
+  space so the action never obscures text.
+- Pin shared-size claims in the owning repository and confirm deployed geometry
+  on a representative narrow route before closing the implementation issue.
+
 ## Semantic embedding contract
 
 The outer Omeka page remains the document. An embedded application may own an
