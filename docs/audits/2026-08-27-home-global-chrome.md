@@ -40,7 +40,7 @@ Mirador template contains the expected named application boundary.
 | Contract | Result | Evidence |
 | --- | --- | --- |
 | Functional read-only smoke | Partial: 16/17 | Search, Mirador canvas, research links, and visualization routes pass; the Mirador boundary alone is absent. |
-| Mirador semantic boundary | Fail | Production serves 2.30.1 assets but emits the pre-2.30.1 wrapper, indicating a stale/replaced PHP view file or server cache. |
+| Mirador semantic boundary | Fail | Production serves 2.30.1 assets but emits the pre-2.30.1 wrapper. The deployment image disables OPcache timestamp validation, so an in-place template update requires a PHP-container restart. |
 | Visualization semantics | Pass | Headings contain no toolbar buttons; named toolbars and the persistent polite atomic status are present; `aria-busy` reaches `false`. |
 | Theme mobile chrome | Pass | Four 44px controls remain on one row without horizontal overflow at 320 and 390px. |
 | MapLibre touch controls | Pass | Navigation and popup close controls measure at least 44px; popup content clears the enlarged close control. |
@@ -48,6 +48,10 @@ Mirador template contains the expected named application boundary.
 
 All browser checks were anonymous and mutation-blocked. The touch acceptance
 pass used only deployed assets; no local CSS was injected.
+
+Server acceptance action: verify
+`themes/DRE-theme/view/common/resource-page-block-layout/mirador.phtml` against
+the release ZIP, run `docker compose restart php`, and rerun the live workflow.
 
 ## Audit Health Score
 

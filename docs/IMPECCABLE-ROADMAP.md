@@ -332,7 +332,9 @@ suite passed 16 of 17 checks: search, visualization loading, canonical research
 links, and Mirador rendering are operational. The remaining failure is a stale
 server-rendered Mirador wrapper: the release ZIP contains the named application
 boundary, but production emits the preceding template while serving 2.30.1
-assets. Replace that template or clear the server PHP/view cache, then rerun.
+assets. The deployment image sets `opcache.validate_timestamps=0`, so an
+in-place PHP template update remains stale until the PHP container restarts.
+Replace the template if necessary, run `docker compose restart php`, then rerun.
 
 The deployed visual acceptance pass confirmed the 44px theme header at 320 and
 390px and the 44px MapLibre navigation/popup controls. DRESearch fields, sort,
