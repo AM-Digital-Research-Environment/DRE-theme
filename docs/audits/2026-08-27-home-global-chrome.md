@@ -243,6 +243,7 @@ the theme's explicit 44px control token.
 - [DRE Visualizations #12 — visualization headings, toolbars, and async status](https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/issues/12)
 - [DRE Visualizations #13 — post-deployment MapLibre touch validation](https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/issues/13)
 - [DRESearch #21 — shared search surface and state audit](https://github.com/AM-Digital-Research-Environment/DRESearch/issues/21)
+- [DRESearch #22 — complete 44px view-toggle width](https://github.com/AM-Digital-Research-Environment/DRESearch/issues/22)
 
 The next audit should use the canonical DRESearch, Mirador, and research-gateway
 routes recorded in the surface manifest and should repeat production evidence

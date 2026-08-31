@@ -496,6 +496,9 @@ repository that owns the work:
 9. [**Validate 44px MapLibre touch controls after
    deployment**](https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/issues/13)
    — DRE-Visualizations.
+10. [**Complete the 44px width of DRESearch view
+    toggles**](https://github.com/AM-Digital-Research-Environment/DRESearch/issues/22)
+    — DRESearch; post-deployment Priority B follow-up.
 
 The tracking issue links the implementation work and uses the phases in this
 document as its checklist. New visual fixes are opened only after Phase 2
