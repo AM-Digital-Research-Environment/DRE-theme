@@ -3,6 +3,7 @@ import { getSurface } from '../browser/surfaces.mjs';
 
 const enabled = process.env.RUN_VISUAL_EXPERIMENTS === '1';
 const expectedThemeVersion = process.env.EXPECTED_THEME_VERSION;
+const useDeployedAssets = process.env.USE_DEPLOYED_ASSETS === '1';
 
 async function expectTouchTarget(locator, name) {
     const box = await locator.boundingBox();
@@ -21,7 +22,7 @@ async function expectTouchTarget(locator, name) {
     expect(box.height, `${name} must be at least 44px high; computed ${JSON.stringify(styles)}`).toBeGreaterThanOrEqual(44);
 }
 
-test.describe('local-only mobile header experiment', () => {
+test.describe(`${useDeployedAssets ? 'deployed' : 'local-only'} mobile header audit`, () => {
     test.skip(!enabled, 'Set RUN_VISUAL_EXPERIMENTS=1 to opt into production markup experiments.');
 
     for (const width of [320, 390]) {
@@ -33,11 +34,13 @@ test.describe('local-only mobile header experiment', () => {
             const assets = await collectDreAssetVersions(page);
             expect(assets['DRE-theme'].versions).toContain(expectedThemeVersion);
 
-            await page.locator('body').evaluate((body) => {
-                body.setAttribute('data-impeccable-experiment', 'header-touch-targets');
-            });
-            await page.addStyleTag({ path: 'asset/css/style.css' });
-            await page.addStyleTag({ path: 'tests/visual-experiments/header-touch-targets.css' });
+            if (!useDeployedAssets) {
+                await page.locator('body').evaluate((body) => {
+                    body.setAttribute('data-impeccable-experiment', 'header-touch-targets');
+                });
+                await page.addStyleTag({ path: 'asset/css/style.css' });
+                await page.addStyleTag({ path: 'tests/visual-experiments/header-touch-targets.css' });
+            }
 
             // Exercise the densest supported state. Production normally reveals
             // this only when installation is available; removing [hidden] is a

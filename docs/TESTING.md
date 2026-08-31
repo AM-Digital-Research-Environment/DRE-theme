@@ -144,6 +144,26 @@ do not weaken or remove the guard to make an experiment pass. Rules in an
 experiment stylesheet must remain scoped below a body attribute installed by
 that experiment. They are disposable evidence, not theme source.
 
+After compatible releases are deployed, the header and module touch checks can
+measure the served CSS without adding any local stylesheet. Name every expected
+version and select only those acceptance files:
+
+```powershell
+$env:RUN_VISUAL_EXPERIMENTS = '1'
+$env:USE_DEPLOYED_ASSETS = '1'
+$env:EXPECTED_THEME_VERSION = '2.30.1'
+$env:EXPECTED_DRESEARCH_VERSION = '1.20.1'
+$env:EXPECTED_VISUALIZATIONS_VERSION = '2.28.1'
+npx playwright test --config=playwright.visual.config.mjs `
+  tests/visual-experiments/header-touch-targets.visual.mjs `
+  tests/visual-experiments/module-touch-targets.visual.mjs
+```
+
+`USE_DEPLOYED_ASSETS=1` disables all CSS injection in those files. A failure is
+therefore deployment evidence, not a prototype result. Keep it opt-in: the
+nightly suite remains a small functional and semantic monitor rather than a
+visual-release gate.
+
 ### Reporting findings
 
 Use `.github/ISSUE_TEMPLATE/design-audit-finding.yml` for Phase 2 and later

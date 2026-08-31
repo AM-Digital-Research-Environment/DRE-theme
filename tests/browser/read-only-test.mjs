@@ -11,6 +11,20 @@ export function watchErrors(page) {
     return errors;
 }
 
+export function versionAtLeast(version, minimum) {
+    const current = version.split('.').map((part) => Number.parseInt(part, 10) || 0);
+    const floor = minimum.split('.').map((part) => Number.parseInt(part, 10) || 0);
+    const length = Math.max(current.length, floor.length);
+
+    for (let index = 0; index < length; index += 1) {
+        const currentPart = current[index] || 0;
+        const floorPart = floor[index] || 0;
+        if (currentPart !== floorPart) return currentPart > floorPart;
+    }
+
+    return true;
+}
+
 export async function collectDreAssetVersions(page) {
     const assetUrls = await page.locator('link[href], script[src]').evaluateAll((elements) => elements
         .map((element) => element.href || element.src)

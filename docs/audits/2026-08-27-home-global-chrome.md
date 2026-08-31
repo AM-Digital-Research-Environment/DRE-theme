@@ -30,6 +30,25 @@ The additional routes supplied during the audit were also inspected:
 - Research gateway: `/s/amira/page/research` exposed stable links to research
   sections, projects, and items.
 
+## Post-deployment validation — 2026-08-31
+
+Production served DRE-theme 2.30.1, DRESearch 1.20.1, DRE Visualizations
+2.28.1, and Mirador 3.4.17. The published DRE-theme ZIP hash was
+`73c3329fed1c32074847475e9eb67eb68afb3b721789ffe8b415f5ed460b32a1` and its
+Mirador template contains the expected named application boundary.
+
+| Contract | Result | Evidence |
+| --- | --- | --- |
+| Functional read-only smoke | Partial: 16/17 | Search, Mirador canvas, research links, and visualization routes pass; the Mirador boundary alone is absent. |
+| Mirador semantic boundary | Fail | Production serves 2.30.1 assets but emits the pre-2.30.1 wrapper, indicating a stale/replaced PHP view file or server cache. |
+| Visualization semantics | Pass | Headings contain no toolbar buttons; named toolbars and the persistent polite atomic status are present; `aria-busy` reaches `false`. |
+| Theme mobile chrome | Pass | Four 44px controls remain on one row without horizontal overflow at 320 and 390px. |
+| MapLibre touch controls | Pass | Navigation and popup close controls measure at least 44px; popup content clears the enlarged close control. |
+| DRESearch touch controls | Partial | All measured controls pass except list/gallery toggles, whose width is 36.19px despite a 44px height. |
+
+All browser checks were anonymous and mutation-blocked. The touch acceptance
+pass used only deployed assets; no local CSS was injected.
+
 ## Audit Health Score
 
 | # | Dimension | Score | Key finding |
@@ -107,6 +126,10 @@ the theme's explicit 44px control token.
   the 44px MapLibre cascade under a coarse pointer. This is integration evidence,
   not deployed-release acceptance; keep the finding open until compatible
   releases are deployed and measured on the canonical routes.
+- **Deployment status (2026-08-31):** the theme header and MapLibre acceptance
+  checks pass against the released assets. DRESearch list/gallery view toggles
+  remain 36.19px wide; their source needs `min-width: var(--size-control-lg,
+  2.75rem)` in addition to the shipped minimum height.
 
 ### [P2] Visualization toolbar actions are part of heading names
 

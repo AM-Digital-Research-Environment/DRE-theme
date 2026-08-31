@@ -326,8 +326,22 @@ touch-target adaptation are implemented in source:
   popup-close controls on coarse pointers while preserving compact desktop
   geometry and clear popup text.
 
-Production still serves the older versions recorded above. Keep the remaining
-live acceptance checks open until coordinated releases are deployed.
+Post-deployment validation on 2026-08-31 observed DRE-theme 2.30.1, DRESearch
+1.20.1, DRE Visualizations 2.28.1, and Mirador 3.4.17. The read-only functional
+suite passed 16 of 17 checks: search, visualization loading, canonical research
+links, and Mirador rendering are operational. The remaining failure is a stale
+server-rendered Mirador wrapper: the release ZIP contains the named application
+boundary, but production emits the preceding template while serving 2.30.1
+assets. Replace that template or clear the server PHP/view cache, then rerun.
+
+The deployed visual acceptance pass confirmed the 44px theme header at 320 and
+390px and the 44px MapLibre navigation/popup controls. DRESearch fields, sort,
+export, copy, clear, and pagination controls passed; its list/gallery buttons
+remain only 36.19px wide because `ViewToggle.svelte` sets the 44px minimum
+height but no minimum width. DRE Visualizations also passed the deployed heading,
+toolbar, persistent status, and completed `aria-busy` contract. These results
+close the relevant evidence gaps but leave the Mirador server action and
+DRESearch view-toggle width as explicit follow-up work.
 
 Run `critique` and `audit` as separate passes over five groups:
 

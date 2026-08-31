@@ -5,6 +5,7 @@ import { getSurface } from '../browser/surfaces.mjs';
 const enabled = process.env.RUN_VISUAL_EXPERIMENTS === '1';
 const expectedSearchVersion = process.env.EXPECTED_DRESEARCH_VERSION;
 const expectedVisualizationsVersion = process.env.EXPECTED_VISUALIZATIONS_VERSION;
+const useDeployedAssets = process.env.USE_DEPLOYED_ASSETS === '1';
 const visualizationsCss =
     process.env.DRE_VISUALIZATIONS_CSS ||
     resolve(import.meta.dirname, '..', '..', '..', 'DREVisualizations', 'asset', 'css', 'dre-visualizations.css');
@@ -18,7 +19,7 @@ async function expectTouchTarget(locator, name) {
     expect(box.height, `${name} must be at least 44px high`).toBeGreaterThanOrEqual(44);
 }
 
-test.describe('local-only module touch-target experiments', () => {
+test.describe(`${useDeployedAssets ? 'deployed' : 'local-only'} module touch-target audit`, () => {
     test.skip(!enabled, 'Set RUN_VISUAL_EXPERIMENTS=1 to opt into production markup experiments.');
 
     test('DRESearch high-frequency controls use the shared 44px box', async ({ page }, testInfo) => {
@@ -28,10 +29,12 @@ test.describe('local-only module touch-target experiments', () => {
         const assets = await collectDreAssetVersions(page);
         expect(assets.DRESearch.versions).toContain(expectedSearchVersion);
         await page.locator('.dre-search').first().waitFor();
-        await page.locator('body').evaluate((body) => {
-            body.setAttribute('data-impeccable-experiment', 'module-touch-targets');
-        });
-        await page.addStyleTag({ path: 'tests/visual-experiments/module-touch-targets.css' });
+        if (!useDeployedAssets) {
+            await page.locator('body').evaluate((body) => {
+                body.setAttribute('data-impeccable-experiment', 'module-touch-targets');
+            });
+            await page.addStyleTag({ path: 'tests/visual-experiments/module-touch-targets.css' });
+        }
 
         await expectTouchTarget(page.locator('.dre-fed__search input').first(), 'federated search field');
         await expectTouchTarget(page.locator('.dre-sort__select').first(), 'sort selector');
@@ -72,7 +75,7 @@ test.describe('local-only module touch-target experiments', () => {
         expect(assets['DRE-Visualizations'].versions).toContain(expectedVisualizationsVersion);
         const navigation = page.locator('.resource-vis-block .maplibregl-ctrl button').first();
         await navigation.waitFor({ timeout: 30_000 });
-        await page.addStyleTag({ path: visualizationsCss });
+        if (!useDeployedAssets) await page.addStyleTag({ path: visualizationsCss });
         await expectTouchTarget(navigation, 'MapLibre navigation');
 
         const fixture = page.locator('.resource-vis-block').first();
