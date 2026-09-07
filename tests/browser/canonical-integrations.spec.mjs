@@ -52,6 +52,27 @@ test('the canonical item route mounts Mirador and its digitized canvas', async (
     expect(errors).toEqual([]);
 });
 
+test('the canonical item only mounts a dashboard published for that record', async ({ page, request }) => {
+    const root = '/modules/DreVisualizations/asset/data/';
+    const manifestResponse = await request.get(`${root}current.json`);
+    expect(manifestResponse.status(), 'The snapshot health check must remain explicit').toBe(200);
+    const manifest = await manifestResponse.json();
+    expect(manifest.generationId).toMatch(/^[0-9]{8}T[0-9]{6}Z-[a-f0-9]{12}$/);
+    const artifact = await request.get(`${root}generations/${manifest.generationId}/item-dashboards/32328.json`);
+    expect([200, 404]).toContain(artifact.status());
+    const errors = watchErrors(page);
+    await page.goto(getSurface('item-record').path, { waitUntil: 'domcontentloaded' });
+    const dashboard = page.locator('.dashboard-async-container[data-item-id="32328"]');
+    if (artifact.status() === 404) {
+        await expect(dashboard, 'A graph-only record must not request a nonexistent aggregate dashboard; install Visualizations 2.28.5+').toHaveCount(0);
+    } else {
+        await dashboard.scrollIntoViewIfNeeded();
+        await expect(dashboard).toHaveAttribute('aria-busy', 'false', { timeout: 30_000 });
+        await expect(dashboard).not.toHaveAttribute('data-state', 'error');
+    }
+    expect(errors).toEqual([]);
+});
+
 test('the research gateway links to the canonical research surfaces', async ({ page }) => {
     const errors = watchErrors(page);
     await page.goto(getSurface('research-gateway').path, { waitUntil: 'domcontentloaded' });
