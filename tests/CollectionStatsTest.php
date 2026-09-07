@@ -47,10 +47,13 @@ $api = new class {
     }
 };
 $view = new class($plugins, $api) {
+    public string $locale = 'en';
     public function __construct(private object $plugins, private object $api) {}
     public function getHelperPluginManager(): object { return $this->plugins; }
     public function api(): object { return $this->api; }
-    public function plugin(string $name): callable { return static fn(string $text): string => $text; }
+    public function plugin(string $name): callable {
+        return fn(string $text): string => $this->locale === 'fr' ? 'fr:' . $text : $text;
+    }
 };
 
 $singleSite = new CollectionStats();
@@ -60,6 +63,14 @@ dre_check($failures, $checks, 'legacy flat precompute is still read (pre-generat
     count($stats) === 3 && $stats[0]['n'] === 42);
 dre_check($failures, $checks, 'statistics are cached under a site-specific key',
     count($settings->values) === 1 && str_ends_with((string) array_key_first($settings->values), '_1'));
+
+$view->locale = 'fr';
+$translated = $singleSite(1);
+dre_check($failures, $checks, 'a cache hit translates labels for the current visitor',
+    $translated[0]['l'] === 'fr:Research items' && $translated[0]['n'] === 42);
+$view->locale = 'en';
+dre_check($failures, $checks, 'translation does not mutate shared cached labels',
+    $singleSite(1)[0]['l'] === 'Research items' && count($settings->values) === 1);
 
 // --- Generational snapshot layout ----------------------------------------
 // The module publishes atomically into generations/<id>/ and swaps

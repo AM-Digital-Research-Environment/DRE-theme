@@ -37,8 +37,9 @@ class CollectionStats extends AbstractHelper
     /**
      * Bump when the shape or metric set changes, to invalidate old caches.
      * v5: dropped Resource types, added Languages / Podcasts / YouTube videos.
+     * v6: cache source labels; translate them for each visitor after retrieval.
      */
-    private const CACHE_VERSION = 'v5';
+    private const CACHE_VERSION = 'v6';
 
     /** The visualizations module's data directory, relative to OMEKA_PATH. */
     private const PRECOMPUTE_DIR = '/modules/DreVisualizations/asset/data';
@@ -61,7 +62,7 @@ class CollectionStats extends AbstractHelper
 
         $cached = $this->readCache($cacheKey);
         if (null !== $cached) {
-            return $cached;
+            return $this->localize($cached);
         }
 
         $stats = $this->canUseGlobalPrecompute($siteId)
@@ -76,6 +77,29 @@ class CollectionStats extends AbstractHelper
 
         $this->writeCache($cacheKey, $stats);
 
+        return $this->localize($stats);
+    }
+
+    /** Counts are shared across locales; labels belong to the current request. */
+    private function localize(array $stats): array
+    {
+        $translate = $this->getView()->plugin('translate');
+        $labels = [
+            'researchItems' => $translate('Research items'),
+            'projects' => $translate('Projects'),
+            'people' => $translate('People'),
+            'organisations' => $translate('Organisations'),
+            'locations' => $translate('Locations'),
+            'languages' => $translate('Languages'),
+            'subjectsTags' => $translate('Subjects & tags'),
+            'publications' => $translate('Publications'),
+            'podcasts' => $translate('Podcasts'),
+            'youtube' => $translate('YouTube videos'),
+        ];
+        foreach ($stats as &$stat) {
+            $stat['l'] = $labels[$stat['k'] ?? ''] ?? $translate((string) ($stat['l'] ?? ''));
+        }
+        unset($stat);
         return $stats;
     }
 
@@ -236,7 +260,7 @@ class CollectionStats extends AbstractHelper
         try {
             $view = $this->getView();
             $api = $view->api();
-            $translate = $view->plugin('translate');
+
 
             // Resolve template + item-set labels to ids (these need real content);
             // the counts below use limit=0 + getTotalResults() — count only.
@@ -281,16 +305,16 @@ class CollectionStats extends AbstractHelper
             // being a corpus of its own — and it is the one key the masthead has
             // no route for, so it was the single dead row in the catalogue.
             return [
-                ['k' => 'researchItems', 'l' => $translate('Research items'),  'n' => $byTemplate('Research Items'), 's' => ''],
-                ['k' => 'projects',      'l' => $translate('Projects'),        'n' => $byTemplate('Projects'),       's' => ''],
-                ['k' => 'people',        'l' => $translate('People'),          'n' => $byTemplate('Persons'),        's' => ''],
-                ['k' => 'organisations', 'l' => $translate('Organisations'),   'n' => $byTemplate('Organisation'),   's' => ''],
-                ['k' => 'locations',     'l' => $translate('Locations'),       'n' => $byTemplate('Location'),       's' => ''],
-                ['k' => 'languages',     'l' => $translate('Languages'),       'n' => $bySet('Languages'),           's' => ''],
-                ['k' => 'subjectsTags',  'l' => $translate('Subjects & tags'), 'n' => $bySet('Subjects'),            's' => ''],
-                ['k' => 'publications',  'l' => $translate('Publications'),    'n' => $publications,                 's' => ''],
-                ['k' => 'podcasts',      'l' => $translate('Podcasts'),        'n' => $bySet('Podcasts'),            's' => ''],
-                ['k' => 'youtube',       'l' => $translate('YouTube videos'),  'n' => $bySet('YouTube videos'),      's' => ''],
+                ['k' => 'researchItems', 'l' => 'Research items',  'n' => $byTemplate('Research Items'), 's' => ''],
+                ['k' => 'projects',      'l' => 'Projects',        'n' => $byTemplate('Projects'),       's' => ''],
+                ['k' => 'people',        'l' => 'People',          'n' => $byTemplate('Persons'),        's' => ''],
+                ['k' => 'organisations', 'l' => 'Organisations',   'n' => $byTemplate('Organisation'),   's' => ''],
+                ['k' => 'locations',     'l' => 'Locations',       'n' => $byTemplate('Location'),       's' => ''],
+                ['k' => 'languages',     'l' => 'Languages',       'n' => $bySet('Languages'),           's' => ''],
+                ['k' => 'subjectsTags',  'l' => 'Subjects & tags', 'n' => $bySet('Subjects'),            's' => ''],
+                ['k' => 'publications',  'l' => 'Publications',    'n' => $publications,                 's' => ''],
+                ['k' => 'podcasts',      'l' => 'Podcasts',        'n' => $bySet('Podcasts'),            's' => ''],
+                ['k' => 'youtube',       'l' => 'YouTube videos',  'n' => $bySet('YouTube videos'),      's' => ''],
             ];
         } catch (\Throwable $e) {
             return null;

@@ -51,6 +51,15 @@ export const test = base.extend({
     productionRequestSafety: [async ({ page, baseURL }, use, testInfo) => {
         const blocked = [];
         const allowedReadOnlyPosts = [];
+        const failedRequests = [];
+        page.on('response', (response) => {
+            if (response.status() >= 400) {
+                failedRequests.push({ url: response.url(), status: response.status() });
+            }
+        });
+        page.on('requestfailed', (request) => {
+            failedRequests.push({ url: request.url(), failure: request.failure()?.errorText });
+        });
         await page.route('**/*', async (route) => {
             const request = route.request();
             const decision = productionRequestDecision(
@@ -71,6 +80,10 @@ export const test = base.extend({
         });
 
         await use({ blocked, allowedReadOnlyPosts });
+        await testInfo.attach('failed-requests.json', {
+            body: JSON.stringify(failedRequests, null, 2),
+            contentType: 'application/json',
+        });
         await testInfo.attach('production-request-safety.json', {
             body: JSON.stringify({ blocked, allowedReadOnlyPosts }, null, 2),
             contentType: 'application/json',

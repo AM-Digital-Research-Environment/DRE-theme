@@ -10,6 +10,7 @@ export default defineConfig({
     use: {
         baseURL: process.env.LIVE_BASE_URL || 'https://data.africamultiple.uni-bayreuth.de',
         trace: 'retain-on-failure',
+        screenshot: 'only-on-failure',
         ...devices['Desktop Chrome'],
     },
 });
