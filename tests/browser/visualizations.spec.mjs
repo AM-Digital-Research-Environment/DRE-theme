@@ -14,13 +14,14 @@ test('the published visualization snapshot contains its required datasets', asyn
         .toBe(200);
     const manifest = await response.json();
     expect(manifest.generationId).toMatch(/^[0-9]{8}T[0-9]{6}Z-[a-f0-9]{12}$/);
-    for (const path of ['item-dashboards/collection-overview.json', 'item-dashboards/projects-index.json', 'network-explorer.json']) {
+    for (const path of ['item-dashboards/collection-overview.json', 'item-dashboards/projects-index.json', 'network-explorer.json', 'communities/entity-graph.json']) {
         const url = `${root}generations/${manifest.generationId}/${path}`;
         const artifact = await request.get(url);
         expect(artifact.status(), `Required published dataset is unavailable: ${url}`).toBe(200);
         const data = await artifact.json();
         expect(data, `Expected a JSON dataset at ${url}`).toBeTruthy();
         if (path.endsWith('collection-overview.json')) expect(data.totalItems).toBeGreaterThan(0);
+        if (path.endsWith('entity-graph.json')) expect(data.nodes.length).toBeGreaterThan(0);
     }
 });
 
@@ -56,9 +57,13 @@ for (const surface of smokeSurfaces('visualizations')) {
         const readySelectors = {
             'project-explorer': '.explorer-select',
             'spatial-exploration': '.dre-spatial-exploration .maplibregl-canvas',
-            networks: '.network-type-switcher',
+            networks: '.dre-entity-graph .maplibregl-canvas',
         };
         await expect(page.locator(readySelectors[surface.id]).first()).toBeVisible({ timeout: 30_000 });
+        if (surface.id === 'networks') {
+            await expect(page.locator('.dre-entity-graph').getByRole('combobox', { name: 'Search entities' }))
+                .toBeVisible();
+        }
         await expect(page.locator('main .rv-error')).toHaveCount(0);
         expect(errors).toEqual([]);
     });
