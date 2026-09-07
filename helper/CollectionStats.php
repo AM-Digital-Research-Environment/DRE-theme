@@ -17,10 +17,11 @@ use Laminas\View\Helper\AbstractHelper;
  *      sys_get_temp_dir() meant each node recomputed and they could disagree,
  *      and an ephemeral tmpfs dropped it on every deploy. The key carries a
  *      schema version so a change to the metric set ignores a stale shape.
- *   2. The DRE Visualizations "Collection Overview" precompute on a
+ *   2. DRESearch public source counts for this site, when its service is available.
+ *   3. The DRE Visualizations "Collection Overview" precompute on a
  *      single-site installation, so the home band and that block agree.
  *      A global precompute is deliberately bypassed on multi-site installs.
- *   3. The theme's own API-computed counts, so a standalone DRE theme with no
+ *   4. The theme's own API-computed counts, so a standalone DRE theme with no
  *      visualizations module still grounds the hero.
  *
  * Every stage is wrapped in catch(\Throwable): this renders on the home page of
@@ -38,8 +39,9 @@ class CollectionStats extends AbstractHelper
      * Bump when the shape or metric set changes, to invalidate old caches.
      * v5: dropped Resource types, added Languages / Podcasts / YouTube videos.
      * v6: cache source labels; translate them for each visitor after retrieval.
+     * v7: prefer the shared DRESearch corpus definitions, with explicit public scope.
      */
-    private const CACHE_VERSION = 'v6';
+    private const CACHE_VERSION = 'v7';
 
     /** The visualizations module's data directory, relative to OMEKA_PATH. */
     private const PRECOMPUTE_DIR = '/modules/DreVisualizations/asset/data';
@@ -65,9 +67,10 @@ class CollectionStats extends AbstractHelper
             return $this->localize($cached);
         }
 
-        $stats = $this->canUseGlobalPrecompute($siteId)
-            ? $this->fromPrecompute()
-            : null;
+        $stats = $this->fromSearchProfiles($siteId);
+        if (null === $stats) {
+            $stats = $this->canUseGlobalPrecompute($siteId) ? $this->fromPrecompute() : null;
+        }
         if (null === $stats) {
             $stats = $this->fromApi($siteId);
         }
@@ -78,6 +81,18 @@ class CollectionStats extends AbstractHelper
         $this->writeCache($cacheKey, $stats);
 
         return $this->localize($stats);
+    }
+
+    /** Optional integration: source membership is owned by DRESearch's profiles. */
+    private function fromSearchProfiles(?int $siteId): ?array
+    {
+        try {
+            $services = $this->getView()->getHelperPluginManager()->getServiceLocator();
+            $service = 'DRESearch\Search\CorpusCounts';
+            return $services->has($service) ? $services->get($service)->forSite($siteId) : null;
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 
     /** Counts are shared across locales; labels belong to the current request. */
@@ -281,6 +296,7 @@ class CollectionStats extends AbstractHelper
                     $query['site_id'] = $siteId;
                 }
                 $query['limit'] = 0;
+                $query['is_public'] = true;
                 return (int) $api->search('items', $query)->getTotalResults();
             };
             $byTemplate = function (string $label) use ($templateId, $total) {

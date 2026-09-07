@@ -41,3 +41,10 @@
 /* Timeline
 --------------------------------------------- */
 @forward "timeline/timeline";
+
+// Keep editorial paragraphs readable without narrowing media or dashboards.
+.block-html > p,
+.block-html > ul,
+.block-html > ol {
+    max-inline-size: var(--measure-narrow);
+}

@@ -28,7 +28,9 @@ $settings = new class {
 };
 $services = new class($settings) {
     public function __construct(private object $settings) {}
-    public function get(string $name): object { return $this->settings; }
+    public ?object $counts = null;
+    public function has(string $name): bool { return $name === 'DRESearch\Search\CorpusCounts' && $this->counts !== null; }
+    public function get(string $name): object { return $name === 'DRESearch\Search\CorpusCounts' ? $this->counts : $this->settings; }
 };
 $plugins = new class($services) {
     public function __construct(private object $services) {}
@@ -165,6 +167,18 @@ dre_check($failures, $checks, 'API fallback emits the ten catalogue metrics in p
 // the catalogue has no dead rows. Resource Types was the one that never did.
 dre_check($failures, $checks, 'no metric without an authority page',
     !in_array('resourceTypes', $keys, true));
+
+$services->counts = new class {
+    public ?int $site = null;
+    public function forSite(?int $site): array {
+        $this->site = $site;
+        return [['k' => 'locations', 'l' => 'Locations', 'n' => 205, 's' => '']];
+    }
+};
+$settings->values = [];
+$stats = $singleSite(1);
+dre_check($failures, $checks, 'configured search corpora take priority over legacy totals',
+    $stats[0]['n'] === 205 && $services->counts->site === 1);
 
 unlink($dataDir . '/collection-overview.json');
 rmdir($dataDir);

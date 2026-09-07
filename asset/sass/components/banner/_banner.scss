@@ -404,14 +404,14 @@ a.site-banner__entry {
 // Interior masthead — slim, single concern: keep the title in view.
 // --------------------------------------------------------------------------
 .site-banner--page {
-    margin-bottom: var(--space-6);
+    margin-bottom: 0;
 
     .site-banner__inner {
         display: flex;
         align-items: center;
         gap: var(--space-5);
-        min-height: clamp(4.5rem, 11vh, 6.5rem);
-        padding-block: var(--space-5);
+        min-height: 0;
+        padding-block: var(--space-4);
     }
 
     // On the slim strip the flag becomes a short vertical mark beside the
@@ -424,15 +424,12 @@ a.site-banner__entry {
     }
 
     .site-banner__title {
-        font-size: var(--text-2xl);
-        font-weight: 700;
+        font-family: var(--font-body);
+        font-size: var(--text-lg);
+        font-weight: 600;
         line-height: var(--leading-snug);
         max-width: 52rem;
-        // Guard against an unusually long site title swamping the slim band.
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
+        overflow-wrap: anywhere;
     }
 }
 
