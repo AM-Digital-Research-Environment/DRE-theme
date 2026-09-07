@@ -41,7 +41,7 @@ class CollectionStats extends AbstractHelper
      * v6: cache source labels; translate them for each visitor after retrieval.
      * v7: prefer the shared DRESearch corpus definitions, with explicit public scope.
      */
-    private const CACHE_VERSION = 'v7';
+    private const CACHE_VERSION = 'v8';
 
     /** The visualizations module's data directory, relative to OMEKA_PATH. */
     private const PRECOMPUTE_DIR = '/modules/DreVisualizations/asset/data';
@@ -150,7 +150,7 @@ class CollectionStats extends AbstractHelper
         }
     }
 
-    private function readCache(string $key): ?array
+    private function readCache(string $key, int $ttl = self::TTL): ?array
     {
         $settings = $this->settings();
         if (!$settings) {
@@ -161,7 +161,7 @@ class CollectionStats extends AbstractHelper
             if (is_array($cached)
                 && isset($cached['t'], $cached['stats'])
                 && is_array($cached['stats'])
-                && (time() - (int) $cached['t']) < self::TTL
+                && (time() - (int) $cached['t']) < $ttl
             ) {
                 return $cached['stats'];
             }
@@ -277,18 +277,29 @@ class CollectionStats extends AbstractHelper
             $api = $view->api();
 
 
-            // Resolve template + item-set labels to ids (these need real content);
-            // the counts below use limit=0 + getTotalResults() — count only.
-            $templateId = [];
-            foreach ($api->search('resource_templates', ['limit' => 1000])->getContent() as $template) {
-                $templateId[$template->label()] = $template->id();
-            }
-            $setId = [];
-            foreach ($api->search('item_sets', ['limit' => 1000])->getContent() as $set) {
-                $title = (string) $set->displayTitle();
-                if ('' !== $title) {
-                    $setId[$title] = $set->id();
+            // Exact template-label predicates avoid hydrating the template catalogue.
+            // Resolve only the four public item-set titles needed by this fallback.
+            $setId = $this->readCache('dre_stats_set_ids_v1', 86400);
+            if (null === $setId) {
+                $setId = [];
+                foreach (['Languages', 'Subjects', 'Podcasts', 'YouTube videos'] as $title) {
+                    $setId[$title] = [];
+                    $page = 1;
+                    do {
+                        $response = $api->search('item_sets', [
+                            'is_public' => true,
+                            'property' => [['property' => 'dcterms:title', 'type' => 'eq', 'text' => $title]],
+                            'page' => $page,
+                            'per_page' => 100,
+                        ]);
+                        $sets = $response->getContent();
+                        foreach ($sets as $set) {
+                            $setId[$title][] = $set->id();
+                        }
+                        ++$page;
+                    } while ($sets && ($page - 1) * 100 < $response->getTotalResults());
                 }
+                $this->writeCache('dre_stats_set_ids_v1', $setId);
             }
 
             $total = function (array $query) use ($api, $siteId) {
@@ -299,11 +310,11 @@ class CollectionStats extends AbstractHelper
                 $query['is_public'] = true;
                 return (int) $api->search('items', $query)->getTotalResults();
             };
-            $byTemplate = function (string $label) use ($templateId, $total) {
-                return isset($templateId[$label]) ? $total(['resource_template_id' => $templateId[$label]]) : 0;
+            $byTemplate = function (string $label) use ($total) {
+                return $total(['resource_template_label' => $label]);
             };
             $bySet = function (string $label) use ($setId, $total) {
-                return isset($setId[$label]) ? $total(['item_set_id' => $setId[$label]]) : 0;
+                return !empty($setId[$label]) ? $total(['item_set_id' => $setId[$label]]) : 0;
             };
 
             $publications = 0;

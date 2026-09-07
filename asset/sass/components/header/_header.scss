@@ -271,3 +271,8 @@ body[data-theme="dark"] .theme-toggle {
         .theme-toggle__icon--moon { display: inline-flex; }
     }
 }
+
+// Keep state changes immediate without spatial animation.
+@media (prefers-reduced-motion: reduce) {
+    .main-header { transition: background-color var(--transition-base), border-color var(--transition-base); }
+}

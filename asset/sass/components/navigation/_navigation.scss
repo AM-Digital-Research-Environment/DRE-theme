@@ -443,3 +443,14 @@
     }
 
 }
+
+// Keep state changes immediate without spatial animation.
+@media (prefers-reduced-motion: reduce) {
+    .main-navigation__toggle,
+    .main-navigation__toggle span,
+    .main-navigation .navigation > li > .nav-panel,
+    .main-navigation .navigation > li.menu-item-has-children.open > .nav-panel,
+    .main-navigation .navigation > li.menu-item-has-children:hover > .nav-panel,
+    .main-navigation .navigation a::after,
+    .main-navigation .nav-panel__viewall-arrow { transition: none; }
+}

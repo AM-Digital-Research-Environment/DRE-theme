@@ -1,5 +1,18 @@
 # Impeccable Evaluation Roadmap
 
+## 7 September implementation checkpoint
+
+The September fixes are implemented in theme 2.30.3, Search 1.21.2 and
+Visualizations 2.28.4. See [the current review](REVIEW-2026-09-07.md) for
+acceptance results, spatial/attribution fixes, and performance evidence.
+The deployed preceding versions pass all 18 smoke tests.
+
+Release installation, actual server data persistence, and human screen-reader,
+Safari, print and forced-colors acceptance remain explicit completion gates.
+The command catalogue below guides future evidence-driven work; it does not
+require applying every design treatment. Chromium automation does not close
+manual assistive-technology checks.
+
 This roadmap applies Impeccable 4.1.2 to the three repositories that render
 AMIRA. It assumes there is no representative local Omeka S instance and treats
 the public site as a read-only integration target.

@@ -48,3 +48,9 @@
         }
     }
 }
+
+// Keep state changes immediate without spatial animation.
+@media (prefers-reduced-motion: reduce) {
+    .resource-list .resource:hover { transform: none; }
+    .resource-list .resource { transition: box-shadow var(--transition-base), border-color var(--transition-base); }
+}

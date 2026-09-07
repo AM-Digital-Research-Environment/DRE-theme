@@ -312,3 +312,9 @@
         }
     }
 }
+
+// Keep state changes immediate without spatial animation.
+@media (prefers-reduced-motion: reduce) {
+    .main-footer__social a:hover,
+    .main-footer__institution a:hover { transform: none; }
+}

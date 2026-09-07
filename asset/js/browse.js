@@ -50,6 +50,7 @@
                         columnWidth: '.grid-sizer',
                         gutter: '.gutter-sizer',
                         percentPosition: true,
+                        transitionDuration: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 0 : '0.4s',
                     });
                     resourcesSet.style.opacity = 1;
                 };

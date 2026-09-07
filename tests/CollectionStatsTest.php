@@ -38,8 +38,10 @@ $plugins = new class($services) {
 };
 $api = new class {
     public int $siteTotal = 1;
+    public array $queries = [];
     public function search(string $resource, array $query): object
     {
+        $this->queries[] = [$resource, $query];
         $total = $resource === 'sites' ? $this->siteTotal : 0;
         return new class($total) {
             public function __construct(private int $total) {}
@@ -167,6 +169,25 @@ dre_check($failures, $checks, 'API fallback emits the ten catalogue metrics in p
 // the catalogue has no dead rows. Resource Types was the one that never did.
 dre_check($failures, $checks, 'no metric without an authority page',
     !in_array('resourceTypes', $keys, true));
+
+$api->queries = [];
+$settings->values = [];
+$singleSite(101);
+$firstQueries = $api->queries;
+$api->queries = [];
+$singleSite(102);
+dre_check($failures, $checks, 'fallback does not hydrate the template catalogue',
+    !array_filter($firstQueries, fn($call) => $call[0] === 'resource_templates'));
+dre_check($failures, $checks, 'fallback resolves only four exact public item-set titles',
+    count(array_filter($firstQueries, fn($call) => $call[0] === 'item_sets'
+        && $call[1]['is_public'] === true
+        && $call[1]['property'][0]['type'] === 'eq')) === 4);
+dre_check($failures, $checks, 'item-set mappings are reused across site count caches',
+    !array_filter($api->queries, fn($call) => $call[0] === 'item_sets'));
+dre_check($failures, $checks, 'fallback count predicates retain public site scope and do not fetch content',
+    count(array_filter($api->queries, fn($call) => $call[0] === 'items'
+        && $call[1]['site_id'] === 102 && $call[1]['is_public'] === true
+        && $call[1]['limit'] === 0 && isset($call[1]['resource_template_label']))) === 14);
 
 $services->counts = new class {
     public ?int $site = null;

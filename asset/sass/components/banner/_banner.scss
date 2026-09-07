@@ -510,3 +510,10 @@ body[data-theme="dark"] .site-banner__art {
         width: 100%;
     }
 }
+
+// Keep state changes immediate without spatial animation.
+@media (prefers-reduced-motion: reduce) {
+    a.site-banner__link:hover .site-banner__link-arrow {
+        transform: none;
+    }
+}

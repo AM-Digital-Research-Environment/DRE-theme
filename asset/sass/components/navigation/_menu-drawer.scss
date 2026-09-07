@@ -244,3 +244,8 @@ body {
         overflow-y: hidden;
     }
 }
+
+// Keep state changes immediate without spatial animation.
+@media (prefers-reduced-motion: reduce) {
+    .menu-drawer { transition: none; }
+}

@@ -132,6 +132,7 @@ $icon-comment: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%2
         color: var(--primary-contrast);
         box-shadow: var(--glow-sm);
         transform: translateY(var(--lift-xs));
+        @media (prefers-reduced-motion: reduce) { transform: none; }
     }
 
     &:where(:active:not(.disabled):not(:disabled)) {

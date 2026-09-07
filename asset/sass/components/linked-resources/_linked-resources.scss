@@ -481,3 +481,8 @@
         select { flex: 1 1 auto; }
     }
 }
+
+// Keep state changes immediate without spatial animation.
+@media (prefers-reduced-motion: reduce) {
+    .resources-linked__chevron { transition: border-color var(--transition-fast); }
+}
