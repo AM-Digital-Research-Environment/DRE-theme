@@ -44,85 +44,7 @@ $isPaginated = $totalCount > $perPage;
 //     A record linked through several properties (e.g. author *and* editor)
 //     appears once, carrying every relationship. Facet counts are per
 //     relationship, so they may sum to more than the unique record count. ---
-$connections = []; // resourceId => [resource, heading, rels[], relIds[]]
-$facets      = []; // list of [id, label, count, groupOrder]
-$facetIndex  = []; // propertyId => position in $facets
-$groupOrder  = 0;
-
-foreach ($subjectValues as $values) {
-    if (!$values) {
-        continue;
-    }
-    $first = $values[0];
-    $propertyId = $first['property_id'];
-    $propertyLabel = ($first['property_alternate_label'] ?? '') ?: $translate($first['property_label']);
-
-    if (!isset($facetIndex[$propertyId])) {
-        $facetIndex[$propertyId] = count($facets);
-        $facets[] = [
-            'id' => $propertyId,
-            'label' => $propertyLabel,
-            'count' => 0,
-            'groupOrder' => $groupOrder,
-        ];
-    }
-    $fi = $facetIndex[$propertyId];
-
-    foreach ($values as $value) {
-        $resource = $value['val']->resource();
-        if (!$resource) {
-            continue;
-        }
-        $rid = $resource->id();
-        if (!isset($connections[$rid])) {
-            $heading = $headingTerm
-                ? $resource->value($headingTerm, ['default' => $resource->displayTitle(null, $valueLang), 'lang' => $valueLang])
-                : $resource->displayTitle(null, $valueLang);
-            $connections[$rid] = [
-                'resource' => $resource,
-                'heading'  => (string) $heading,
-                'rels'     => [],
-                'relIds'   => [],
-            ];
-        }
-        if (!in_array($propertyId, $connections[$rid]['relIds'], true)) {
-            $connections[$rid]['relIds'][] = $propertyId;
-            $connections[$rid]['rels'][]   = ['id' => $propertyId, 'label' => $propertyLabel];
-            $facets[$fi]['count']++;
-        }
-    }
-    $groupOrder++;
-}
-
-// Rank relationships by frequency (most-connected first), ties by server
-// order. Both the facet pills and the "relationship" sort follow this rank.
-$ranked = $facets;
-usort($ranked, function ($a, $b) {
-    return ($b['count'] <=> $a['count']) ?: ($a['groupOrder'] <=> $b['groupOrder']);
-});
-$rankById = [];
-foreach ($ranked as $i => $facet) {
-    $rankById[$facet['id']] = $i;
-}
-
-// Give each record a sort key (its highest-ranked relationship) and order its
-// own relationship chips by rank.
-foreach ($connections as &$c) {
-    $ranks = array_map(function ($id) use ($rankById) {
-        return $rankById[$id];
-    }, $c['relIds']);
-    $c['relOrder'] = $ranks ? min($ranks) : 0;
-    usort($c['rels'], function ($a, $b) use ($rankById) {
-        return $rankById[$a['id']] <=> $rankById[$b['id']];
-    });
-}
-unset($c);
-
-// Default render order = the "relationship" sort (rank, then title), so the
-// JS sort is a no-op on load and there is no reflow.
-uasort($connections, function ($a, $b) {
-    return ($a['relOrder'] <=> $b['relOrder']) ?: strcasecmp($a['heading'], $b['heading']);
-});
+['connections' => $connections, 'facets' => $facets, 'ranked' => $ranked] = $this->LinkedConnections($subjectValues, $headingTerm, $valueLang);
 
 $uniqueCount = count($connections);
 $hasFacets   = count($facets) > 1;
@@ -167,17 +89,21 @@ $baseUrl = $this->url(null, [], true);
 
     <div class="resources-linked__panel">
 
-        <?php if (count($typesWithValues) > 1): ?>
-        <nav class="resources-linked__types" aria-label="<?php echo $escapeAttr($translate('Linked resource type')); ?>">
-            <?php foreach ($typesWithValues as $type): ?>
-            <a class="lr-type"
-               href="<?php echo $escapeAttr($baseUrl . '?resource_property=' . rawurlencode($type . ':') . '#' . $fragment); ?>"
-               <?php echo ($type === $resourceType) ? 'aria-current="true"' : ''; ?>>
-                <?php echo $escape($typeLabels[$type]); ?>
-            </a>
-            <?php endforeach; ?>
-        </nav>
-        <?php endif; ?>
+        <form class="resources-linked__types" method="get" action="<?php echo $escapeAttr($baseUrl); ?>">
+            <label for="resource-property-select"><?php echo $translate('Filter all connections by relationship'); ?></label>
+            <select name="resource_property" id="resource-property-select">
+                <?php foreach ($typesWithValues as $type): ?>
+                    <optgroup label="<?php echo $escapeAttr($typeLabels[$type]); ?>">
+                        <?php $optionValue = $type . ':'; ?>
+                        <option value="<?php echo $escapeAttr($optionValue); ?>" <?php echo $resourceProperty === $optionValue ? 'selected' : ''; ?>><?php echo $escape($translate('All')); ?></option>
+                        <?php foreach ($resourcePropertiesAll[$type] as $propertyOption): ?>
+                            <option value="<?php echo $escapeAttr($propertyOption['compound_id']); ?>" <?php echo $resourceProperty === $propertyOption['compound_id'] ? 'selected' : ''; ?>><?php echo $escape($propertyOption['label_is_translatable'] ? $translate($propertyOption['label']) : $propertyOption['label']); ?></option>
+                        <?php endforeach; ?>
+                    </optgroup>
+                <?php endforeach; ?>
+            </select>
+            <button type="submit"><?php echo $translate('Apply'); ?></button>
+        </form>
 
         <?php if ($showControls): ?>
         <div class="resources-linked__controls">
@@ -185,14 +111,14 @@ $baseUrl = $this->url(null, [], true);
             <div class="resources-linked__search">
                 <svg class="lr-search__icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                 <input type="search" class="lr-search__input" data-lr-search
-                    placeholder="<?php echo $escapeAttr($translate('Search connections…')); ?>"
-                    aria-label="<?php echo $escapeAttr($translate('Search connections by name or type')); ?>"
+                    placeholder="<?php echo $escapeAttr($translate('Search this page…')); ?>"
+                    aria-label="<?php echo $escapeAttr($translate('Search this page by name or type')); ?>"
                     aria-controls="linked-resources-list" autocomplete="off" />
             </div>
             <?php endif; ?>
 
             <?php if ($hasFacets): ?>
-            <div class="resources-linked__facets" role="group" aria-label="<?php echo $escapeAttr($translate('Filter connections by relationship')); ?>">
+            <div class="resources-linked__facets" role="group" aria-label="<?php echo $escapeAttr($translate('Filter this page by relationship')); ?>">
                 <button type="button" class="lr-facet is-active" data-lr-facet="all" aria-pressed="true">
                     <span class="lr-facet__label"><?php echo $translate('All'); ?></span>
                     <span class="lr-facet__count"><?php echo $uniqueCount; ?></span>
@@ -208,7 +134,7 @@ $baseUrl = $this->url(null, [], true);
 
             <?php if ($showSort): ?>
             <div class="resources-linked__sort">
-                <label class="resources-linked__sort-label" for="linked-resources-sort"><?php echo $translate('Sort'); ?></label>
+                <label class="resources-linked__sort-label" for="linked-resources-sort"><?php echo $translate('Sort this page'); ?></label>
                 <select id="linked-resources-sort" data-lr-sort>
                     <option value="relationship"><?php echo $translate('Relationship'); ?></option>
                     <option value="title-asc"><?php echo $translate('Title (A–Z)'); ?></option>
@@ -240,7 +166,7 @@ $baseUrl = $this->url(null, [], true);
                 $searchText = mb_strtolower(trim($c['heading'] . ' ' . $typeLabel . ' ' . $relText));
                 // thumbnail() resolves an item's primary-media thumbnail (or an
                 // item set's / media's own) and returns '' when there is none.
-                $thumbnail = $this->thumbnail($resource, 'square', ['alt' => '']);
+                $thumbnail = $this->thumbnail($resource, 'square', ['alt' => '', 'loading' => 'lazy', 'decoding' => 'async']);
                 ?>
                 <li class="connection"
                     data-props="<?php echo $escapeAttr($propAttr); ?>"

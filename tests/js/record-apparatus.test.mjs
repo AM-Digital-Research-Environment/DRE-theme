@@ -23,7 +23,7 @@ function panelMarkup({ styles = ['curated', 'chicago', 'apa'], active = 'curated
     return `<!doctype html><html><body>
         <section class="record-apparatus">
             <div class="record-apparatus__cite" data-record-citation>
-                <div role="tablist">${tabs}</div>
+                ${styles.length > 1 ? `<div role="tablist">${tabs}</div>` : ''}
                 ${panels}
             </div>
             <div class="record-apparatus__actions" data-record-copy hidden>

@@ -35,7 +35,7 @@
 /gulpfile.js            export-ignore
 /package.json           export-ignore
 /package-lock.json      export-ignore
-/playwright.config.mjs  export-ignore
+/playwright*.config.mjs export-ignore
 /scripts/               export-ignore
 /asset/sass/            export-ignore
 
@@ -51,6 +51,7 @@
 /DESIGN-ROADMAP.md      export-ignore
 /.impeccable.md         export-ignore
 /docs/TESTING.md        export-ignore
+/docs/REVIEW-*.md        export-ignore
 
 # --- Repository metadata --------------------------------------------------
 # CITATION.cff deliberately stays IN the package: it tells whoever installed

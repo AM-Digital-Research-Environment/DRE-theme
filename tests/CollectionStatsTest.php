@@ -39,9 +39,11 @@ $plugins = new class($services) {
 $api = new class {
     public int $siteTotal = 1;
     public array $queries = [];
+    public bool $fail = false;
     public function search(string $resource, array $query): object
     {
         $this->queries[] = [$resource, $query];
+        if ($this->fail) throw new RuntimeException("Unavailable");
         $total = $resource === 'sites' ? $this->siteTotal : 0;
         return new class($total) {
             public function __construct(private int $total) {}
@@ -200,6 +202,19 @@ $settings->values = [];
 $stats = $singleSite(1);
 dre_check($failures, $checks, 'configured search corpora take priority over legacy totals',
     $stats[0]['n'] === 205 && $services->counts->site === 1);
+
+// Keep last good site counts during an outage, then throttle retries.
+$settings->values = ['dre_stats_v8_88' => json_encode(['t' => time() - 4000, 'stats' => [['k' => 'locations', 'n' => 123]]])];
+$services->counts = new class { public function forSite($site) { return [['invalid' => true]]; } };
+$api->fail = true;
+$stats = $singleSite(88);
+dre_check($failures, $checks, 'malformed upstream counts and API failure preserve stale values', $stats[0]['n'] === 123);
+$queries = count($api->queries);
+$singleSite(88);
+dre_check($failures, $checks, 'outage retries are throttled', count($api->queries) === $queries);
+dre_check($failures, $checks, 'failures record rate-limit markers', isset($settings->values['dre_stats_warning_search-counts'], $settings->values['dre_stats_warning_api-counts']));
+$stats = $singleSite(89);
+dre_check($failures, $checks, 'outage without cached values returns an empty band', $stats === []);
 
 unlink($dataDir . '/collection-overview.json');
 rmdir($dataDir);

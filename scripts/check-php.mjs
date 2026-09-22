@@ -29,9 +29,11 @@
  * scripts/check-resource-groups.mjs and tests/ResourceGroupsTest.php for the
  * behavioural half.
  */
-import { readdirSync, statSync, existsSync } from 'node:fs';
+import { readdirSync, existsSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { spawnSync } from 'node:child_process';
+
+import { walkFiles } from './files.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
 const REQUIRE_PHP = process.argv.includes('--require');
@@ -39,16 +41,7 @@ const DOCKER_IMAGE = process.env.DRE_PHP_IMAGE ?? 'php:8.3-cli';
 
 const SCAN_DIRS = ['view', 'helper', 'tests'];
 
-function* phpFiles(dir) {
-  if (!existsSync(dir)) return;
-  for (const name of readdirSync(dir)) {
-    const p = join(dir, name);
-    if (statSync(p).isDirectory()) yield* phpFiles(p);
-    else if (name.endsWith('.php') || name.endsWith('.phtml')) yield p;
-  }
-}
-
-const files = SCAN_DIRS.flatMap((d) => [...phpFiles(join(ROOT, d))]);
+const files = SCAN_DIRS.flatMap(d => [...walkFiles(join(ROOT, d), /\.(?:php|phtml)$/)]);
 
 // --- Find a PHP -----------------------------------------------------------
 function localPhp() {

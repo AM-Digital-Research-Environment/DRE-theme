@@ -17,7 +17,9 @@ class DreSearchUrl extends AbstractHelper
         try {
             $site = $this->getView()->currentSite();
             if ($site) {
-                return rtrim((string) $site->url(), '/') . '/dre-search';
+                $view = $this->getView();
+                $hasSearch = $view->getHelperPluginManager()->has('dreSearchBar');
+                return rtrim((string) $site->url(), '/') . ($hasSearch ? '/dre-search' : '/index/search');
             }
         } catch (\Throwable $e) {
             // A missing site context should not take a page down.

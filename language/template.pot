@@ -13,19 +13,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: view/hierarchy/site/index/hierarchy.phtml:76
+#: helper/HierarchyTree.php:55
 msgid " (Private)"
 msgstr ""
 
-#: view/hierarchy/site/index/hierarchy.phtml:76
-msgid "(Private)"
-msgstr ""
+#: view/common/hierarchy-tree.phtml:12
+msgid "(%s item)"
+msgid_plural "(%s items)"
+msgstr[0] ""
+msgstr[1] ""
 
-#: view/common/block-layout/browse-preview.phtml:49
-#: view/hierarchy/site/index/hierarchy.phtml:204
-#: view/hierarchy/site/index/hierarchy.phtml:242
-#: view/hierarchy/site/index/hierarchy.phtml:81
-#: view/omeka/site/item/browse.phtml:139
+#: helper/HierarchyTree.php:54
+#: view/hierarchy/site/index/hierarchy.phtml:47
+#: view/hierarchy/site/index/hierarchy.phtml:85
 msgid "[Untitled]"
 msgstr ""
 
@@ -41,7 +41,7 @@ msgstr ""
 msgid "Abstract"
 msgstr ""
 
-#: view/common/record-apparatus.phtml:135
+#: helper/RecordApparatus.php:121
 msgid "Access rights"
 msgstr ""
 
@@ -53,12 +53,17 @@ msgstr ""
 msgid "Africa's foremost music archive"
 msgstr ""
 
-#: view/common/linked-resources.phtml:197
+#: view/common/linked-resources.phtml:123
+#: view/common/linked-resources.phtml:98
 msgid "All"
 msgstr ""
 
 #: view/common/menu-drawer.phtml:3
 msgid "All sections"
+msgstr ""
+
+#: view/common/linked-resources.phtml:105
+msgid "Apply"
 msgstr ""
 
 #: view/common/nav-menu.phtml:57
@@ -69,11 +74,11 @@ msgstr ""
 msgid "Authors & named persons"
 msgstr ""
 
-#: view/layout/layout.phtml:296
+#: view/layout/layout.phtml:198
 msgid "Back to top"
 msgstr ""
 
-#: view/layout/layout.phtml:91
+#: helper/PwaManifest.php:53
 msgid "Browse"
 msgstr ""
 
@@ -86,7 +91,7 @@ msgstr ""
 msgid "Browse projects interactively"
 msgstr ""
 
-#: view/layout/layout.phtml:90
+#: helper/PwaManifest.php:52
 msgid "Browse the collection"
 msgstr ""
 
@@ -95,11 +100,11 @@ msgstr ""
 msgid "Check the spelling, or try another form of the word."
 msgstr ""
 
-#: view/common/record-apparatus.phtml:186
+#: view/common/record-apparatus.phtml:38
 msgid "Citation style"
 msgstr ""
 
-#: view/common/record-apparatus.phtml:101
+#: helper/RecordApparatus.php:87
 msgid "Cite this record"
 msgstr ""
 
@@ -111,27 +116,31 @@ msgstr ""
 msgid "Close menu"
 msgstr ""
 
-#: view/common/linked-resources.phtml:162
+#: view/common/linked-resources.phtml:84
 msgid "connections on this page"
 msgstr ""
 
-#: view/common/linked-resources.phtml:162
+#: view/common/linked-resources.phtml:84
 msgid "connections to this record"
+msgstr ""
+
+#: view/hierarchy/site/index/hierarchy.phtml:33
+msgid "Contains resources from:"
 msgstr ""
 
 #: view/common/dre-search-redirect.phtml:22
 msgid "Continue to %s."
 msgstr ""
 
-#: view/common/record-apparatus.phtml:238
+#: view/common/record-apparatus.phtml:90
 msgid "Copied"
 msgstr ""
 
-#: view/common/record-apparatus.phtml:102
+#: helper/RecordApparatus.php:88
 msgid "Copy citation"
 msgstr ""
 
-#: view/common/record-apparatus.phtml:102
+#: helper/RecordApparatus.php:88
 msgid "Copy link"
 msgstr ""
 
@@ -172,15 +181,15 @@ msgstr ""
 msgid "Document & media types"
 msgstr ""
 
-#: view/common/record-apparatus.phtml:126
+#: helper/RecordApparatus.php:112
 msgid "DOI"
 msgstr ""
 
-#: view/common/record-apparatus.phtml:245
+#: view/common/record-apparatus.phtml:97
 msgid "Download"
 msgstr ""
 
-#: view/common/record-apparatus.phtml:138
+#: helper/RecordApparatus.php:124
 msgid "DRE ID"
 msgstr ""
 
@@ -205,8 +214,12 @@ msgstr ""
 msgid "Fewer, broader terms cast a wider net."
 msgstr ""
 
-#: view/common/linked-resources.phtml:195
-msgid "Filter connections by relationship"
+#: view/common/linked-resources.phtml:93
+msgid "Filter all connections by relationship"
+msgstr ""
+
+#: view/common/linked-resources.phtml:121
+msgid "Filter this page by relationship"
 msgstr ""
 
 #: helper/ResourceGroups.php:148
@@ -219,10 +232,6 @@ msgstr ""
 
 #: view/common/browse-layout-toggle.phtml:23
 msgid "Grid"
-msgstr ""
-
-#: view/common/resource-values.phtml:133
-msgid "Has annotation"
 msgstr ""
 
 #: view/common/numeric-timestamp.phtml:25
@@ -260,7 +269,7 @@ msgid "Invalid value: %s"
 msgstr ""
 
 #: view/common/block-layout/item-with-metadata.phtml:65
-#: view/common/linked-resources.phtml:140
+#: view/common/linked-resources.phtml:62
 #: view/omeka/site/index/search.phtml:41
 #: view/omeka/site/item-set/browse.phtml:21
 msgid "Item sets"
@@ -270,8 +279,8 @@ msgstr ""
 msgid "Item: %s"
 msgstr ""
 
-#: view/common/linked-resources.phtml:139
-#: view/hierarchy/site/index/hierarchy.phtml:225
+#: view/common/linked-resources.phtml:61
+#: view/hierarchy/site/index/hierarchy.phtml:68
 #: view/omeka/site/index/search.phtml:40
 #: view/omeka/site/item/browse.phtml:83
 #: view/omeka/site/item/browse.phtml:85
@@ -282,7 +291,7 @@ msgstr ""
 msgid "Knowledge-graph links"
 msgstr ""
 
-#: helper/CollectionStats.php:108
+#: helper/CollectionStats.php:139
 msgid "Languages"
 msgstr ""
 
@@ -290,15 +299,11 @@ msgstr ""
 msgid "Languages represented"
 msgstr ""
 
-#: view/common/record-apparatus.phtml:132
+#: helper/RecordApparatus.php:118
 msgid "Licence"
 msgstr ""
 
-#: view/common/linked-resources.phtml:171
-msgid "Linked resource type"
-msgstr ""
-
-#: view/common/linked-resources.phtml:159
+#: view/common/linked-resources.phtml:81
 msgid "Linked resources"
 msgstr ""
 
@@ -306,12 +311,12 @@ msgstr ""
 msgid "List"
 msgstr ""
 
-#: helper/CollectionStats.php:107
+#: helper/CollectionStats.php:138
 msgid "Locations"
 msgstr ""
 
 #: view/common/block-layout/item-with-metadata.phtml:75
-#: view/common/linked-resources.phtml:141
+#: view/common/linked-resources.phtml:63
 #: view/common/resource-page-block-layout/media-list.phtml:8
 #: view/omeka/site/index/search.phtml:42
 msgid "Media"
@@ -350,7 +355,7 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
-#: view/common/linked-resources.phtml:270
+#: view/common/linked-resources.phtml:196
 msgid "No connections match this filter."
 msgstr ""
 
@@ -380,7 +385,7 @@ msgstr ""
 msgid "Open menu"
 msgstr ""
 
-#: helper/CollectionStats.php:106
+#: helper/CollectionStats.php:137
 msgid "Organisations"
 msgstr ""
 
@@ -409,7 +414,7 @@ msgstr ""
 msgid "Part of %s"
 msgstr ""
 
-#: helper/CollectionStats.php:105
+#: helper/CollectionStats.php:136
 msgid "People"
 msgstr ""
 
@@ -421,7 +426,7 @@ msgstr ""
 msgid "Peripheral memories of Capoeira Angola in Salvador"
 msgstr ""
 
-#: view/common/record-apparatus.phtml:129
+#: helper/RecordApparatus.php:115
 msgid "Permalink"
 msgstr ""
 
@@ -433,7 +438,7 @@ msgstr ""
 msgid "Places mapped & georeferenced"
 msgstr ""
 
-#: helper/CollectionStats.php:111
+#: helper/CollectionStats.php:142
 msgid "Podcasts"
 msgstr ""
 
@@ -445,11 +450,11 @@ msgstr ""
 msgid "Primary navigation"
 msgstr ""
 
-#: view/common/resource-values.phtml:129
+#: view/common/resource-values.phtml:130
 msgid "Private"
 msgstr ""
 
-#: helper/CollectionStats.php:104
+#: helper/CollectionStats.php:135
 msgid "Projects"
 msgstr ""
 
@@ -473,7 +478,7 @@ msgstr ""
 msgid "Publication trends & networks"
 msgstr ""
 
-#: helper/CollectionStats.php:110
+#: helper/CollectionStats.php:141
 msgid "Publications"
 msgstr ""
 
@@ -481,11 +486,11 @@ msgstr ""
 msgid "Read the metadata at a glance."
 msgstr ""
 
-#: view/common/linked-resources.phtml:213
+#: view/common/linked-resources.phtml:139
 msgid "Relationship"
 msgstr ""
 
-#: helper/CollectionStats.php:103
+#: helper/CollectionStats.php:134
 msgid "Research items"
 msgstr ""
 
@@ -493,19 +498,11 @@ msgstr ""
 msgid "Rights & access"
 msgstr ""
 
+#: helper/PwaManifest.php:58
+#: helper/PwaManifest.php:59
 #: view/common/banner.phtml:204
 #: view/common/main-header-search.phtml:5
-#: view/layout/layout.phtml:96
-#: view/layout/layout.phtml:97
 msgid "Search"
-msgstr ""
-
-#: view/common/linked-resources.phtml:189
-msgid "Search connections by name or type"
-msgstr ""
-
-#: view/common/linked-resources.phtml:188
-msgid "Search connections…"
 msgstr ""
 
 #: view/common/dre-search-redirect.phtml:27
@@ -523,10 +520,18 @@ msgstr ""
 #: view/common/banner.phtml:200
 #: view/common/dre-search-redirect.phtml:17
 #: view/common/dre-search-redirect.phtml:19
-#: view/hierarchy/site/index/hierarchy.phtml:231
+#: view/hierarchy/site/index/hierarchy.phtml:74
 #: view/omeka/site/item-set/browse.phtml:31
 #: view/omeka/site/item/browse.phtml:96
 msgid "Search the collection"
+msgstr ""
+
+#: view/common/linked-resources.phtml:115
+msgid "Search this page by name or type"
+msgstr ""
+
+#: view/common/linked-resources.phtml:114
+msgid "Search this page…"
 msgstr ""
 
 #: view/omeka/site/index/search.phtml:27
@@ -550,7 +555,7 @@ msgstr ""
 msgid "Site pages"
 msgstr ""
 
-#: view/layout/layout.phtml:283
+#: view/layout/layout.phtml:185
 msgid "Skip to main content"
 msgstr ""
 
@@ -558,8 +563,8 @@ msgstr ""
 msgid "Social media"
 msgstr ""
 
-#: view/common/linked-resources.phtml:211
-msgid "Sort"
+#: view/common/linked-resources.phtml:137
+msgid "Sort this page"
 msgstr ""
 
 #: view/common/nav-menu.phtml:48
@@ -570,7 +575,7 @@ msgstr ""
 msgid "Subjects"
 msgstr ""
 
-#: helper/CollectionStats.php:109
+#: helper/CollectionStats.php:140
 msgid "Subjects & tags"
 msgstr ""
 
@@ -594,7 +599,7 @@ msgstr ""
 msgid "The named entities that link every record together."
 msgstr ""
 
-#: view/common/record-apparatus.phtml:101
+#: helper/RecordApparatus.php:87
 msgid "This record"
 msgstr ""
 
@@ -603,11 +608,11 @@ msgstr ""
 msgid "Time"
 msgstr ""
 
-#: view/common/linked-resources.phtml:214
+#: view/common/linked-resources.phtml:140
 msgid "Title (A–Z)"
 msgstr ""
 
-#: view/common/linked-resources.phtml:215
+#: view/common/linked-resources.phtml:141
 msgid "Title (Z–A)"
 msgstr ""
 
@@ -627,7 +632,8 @@ msgstr ""
 msgid "Value"
 msgstr ""
 
-#: view/common/resource-values.phtml:136
+#: view/common/value-annotation.phtml:10
+#: view/common/value-annotation.phtml:7
 msgid "Value Annotations"
 msgstr ""
 
@@ -663,6 +669,6 @@ msgstr ""
 msgid "Years"
 msgstr ""
 
-#: helper/CollectionStats.php:112
+#: helper/CollectionStats.php:143
 msgid "YouTube videos"
 msgstr ""

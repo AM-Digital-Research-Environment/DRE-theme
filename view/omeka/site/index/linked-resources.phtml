@@ -37,7 +37,7 @@ foreach ($allowedTypes as $type) {
 // does — so we never default to (or land on) item_sets.
 $resourceProperty = null;
 $requested = $this->params()->fromQuery('resource_property');
-if ($requested && false !== strpos($requested, ':')) {
+if (is_string($requested) && preg_match('/^(items|media):(?:[1-9][0-9]*)?$/D', $requested)) {
     $requestedType = strstr($requested, ':', true);
     if (in_array($requestedType, $allowedTypes, true) && !empty($counts[$requestedType])) {
         $resourceProperty = $requested;
@@ -57,20 +57,17 @@ if ($resourceProperty === null) {
     return;
 }
 
-// Show every linked record on a single page — no pager. The card grid is
-// height-capped and scrolls internally (see `.connections` in
-// _linked-resources.scss), so even a hub record with hundreds of connections
-// stays a calm, fixed-size section while still surfacing the full total; the
-// facet/sort controls then act on the complete set rather than one page of 25.
-// perPage tracks the active type's full subject-value count, so the set always
-// fits a single page; shorter sets simply render in full with no scrollbar.
-// (The core Omeka pager never fit the theme, and the brief is to show the whole
-// set on the page, not 25 at a time.)
+// Bound both server hydration and the initial DOM. Every relationship remains
+// reachable using core's AJAX pagination and server-side property selector.
+$perPage = max(1, min(100, (int) $this->siteSetting('pagination_per_page', 50)));
+$requestedPage = $this->params()->fromQuery('page', 1);
+$page = is_scalar($requestedPage) ? filter_var($requestedPage, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) : false;
 $activeType = strstr($resourceProperty, ':', true);
-$perPage = max(1, (int) $counts[$activeType]);
-
+$propertyId = substr($resourceProperty, strlen($activeType) + 1);
+$total = $propertyId !== '' ? $resource->subjectValueTotalCount((int) $propertyId, $activeType, $siteId) : $counts[$activeType];
+$page = min($page ?: 1, max(1, (int) ceil($total / $perPage)));
 echo $resource->displaySubjectValues([
-    'page' => 1,
+    'page' => $page,
     'perPage' => $perPage,
     'resourceProperty' => $resourceProperty,
     'siteId' => $siteId,

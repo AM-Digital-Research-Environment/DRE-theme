@@ -10,6 +10,8 @@ deployed site is monitored separately.
 npm ci
 npm run build
 npm run test:unit
+npx playwright install chromium firefox webkit
+npm run test:browser
 npm run i18n:check
 npm audit --audit-level=high
 ```
@@ -26,6 +28,24 @@ downloads the official Omeka S 4.2.1 release, copies this checkout into its
 the theme. This catches invalid configuration, framework loading problems and an
 incorrect Omeka version constraint without bundling Omeka/Laminas dependencies
 inside the theme.
+
+## Local browser regressions
+
+`test:browser` uses `playwright.local.config.mjs` and actual PHP-rendered partials
+with the committed CSS and scripts. PHP must be on PATH. Chromium, Firefox and
+WebKit cover narrow/wide layouts, both themes, reduced motion, failed Masonry,
+keyboard disclosures and scoped axe accessibility checks. No production server
+or database is needed. On Windows, `DRE_BROWSER_CHANNEL=msedge` can select an
+installed Edge for the Chromium project. Screenshots are in `test-results/local`.
+
+PHP tests cover rendered block/citation output, bounded endpoint queries,
+manifest failures, hierarchy cycles/private sets, brand contrast and statistics
+outages. JavaScript tests cover history/pager synchronization, layout lifecycle,
+PWA prompt consumption, submenu Escape, linked filtering and theme adapters.
+The Sass regression deliberately compiles invalid input against stale CSS.
+
+Release validation reuses CI at the resolved tag SHA. Packaging waits for all
+jobs, archives that same SHA, and separately validates the installed archive.
 
 ## Production smoke test
 
@@ -52,7 +72,7 @@ DRE-theme, DRESearch, DRE-Visualizations, and Mirador asset URLs and query-strin
 versions. The suite checks:
 
 - one page-level `<h1>` (embedded application headings are tracked separately);
-- browser console/page errors;
+- browser console/page errors and failed first-party document/script/style requests;
 - the legacy advanced-search redirect;
 - mobile drawer state and horizontal overflow;
 - lazy-loaded visualization canvases.

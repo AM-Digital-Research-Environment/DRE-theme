@@ -32,6 +32,7 @@
 
     // Mirador's updateConfig action type (stable across Mirador 3 and 4).
     var UPDATE_CONFIG = 'mirador/UPDATE_CONFIG';
+    var appliedThemes = new WeakMap();
 
     function currentTheme() {
         return document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
@@ -43,8 +44,10 @@
         if (!store || typeof store.dispatch !== 'function') {
             return;
         }
+        if (appliedThemes.get(store) === theme) return;
         try {
             store.dispatch({ type: UPDATE_CONFIG, config: { selectedTheme: theme } });
+            appliedThemes.set(store, theme);
         } catch (e) {
             /* leave Mirador's own theme in place */
         }
@@ -67,7 +70,7 @@
         if (!map) {
             return false;
         }
-        return Object.keys(map).some(function (id) {
+        return Object.keys(map).length > 0 && Object.keys(map).every(function (id) {
             return map[id] && map[id].store;
         });
     }
@@ -77,9 +80,8 @@
     var tries = 0;
     var MAX_TRIES = 100; // ~15s at 150ms
     function syncWhenReady() {
-        if (viewersReady()) {
-            applyToAll(currentTheme());
-        } else if (tries++ < MAX_TRIES) {
+        applyToAll(currentTheme());
+        if (!viewersReady() && tries++ < MAX_TRIES) {
             window.setTimeout(syncWhenReady, 150);
         }
     }

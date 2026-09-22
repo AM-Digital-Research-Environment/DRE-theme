@@ -39,16 +39,10 @@ $bodyTruncate = $layout['truncate'];
     <div class="gutter-sizer"></div>
     <?php
     foreach ($itemSets as $itemSet):
-        $body = $bodyTerm ? $itemSet->value($bodyTerm, ['lang' => ($valueLang)]) : $itemSet->displayDescription(null, ($valueLang));
-        $altText = $itemSet->displayTitle() ?: '';
-        echo $this->partial('common/resource-card', [
-            'resource' => $itemSet,
-            'heading' => $itemSet->displayTitle(null, $valueLang),
-            'body' => $body,
+        echo $this->partial('common/resource-card', array_merge($this->ResourceCardData($itemSet), [
             'bodyTruncate' => $bodyTruncate,
-            'thumbnail' => $this->thumbnail($itemSet, 'large', ['alt' => $altText]),
             'isGrid' => $isGrid,
-        ]);
+        ]));
     endforeach; ?>
 
 </div>

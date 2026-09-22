@@ -34,7 +34,36 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      sha: ${{ steps.ref.outputs.sha }}
+      tag: ${{ steps.ref.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - id: ref
+        env:
+          REQUESTED_TAG: ${{ github.event.inputs.tag || github.ref_name }}
+        run: |
+          [[ "$REQUESTED_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || exit 1
+          SHA="$(git rev-parse --verify "refs/tags/$REQUESTED_TAG^{commit}")"
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          echo "tag=$REQUESTED_TAG" >> "$GITHUB_OUTPUT"
+
+  validate:
+    needs: resolve
+    uses: ./.github/workflows/ci.yml
+    with:
+      ref: ${{ needs.resolve.outputs.sha }}
+    permissions:
+      contents: read
+
   package:
+    needs: [resolve, validate]
     name: Package and attach DRE-theme.zip
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -44,7 +73,7 @@ jobs:
           # The tag has to be a real ref for `git archive <tag>`, and the
           # release notes step wants the history behind it.
           fetch-depth: 0
-          ref: ${{ github.event.inputs.tag || github.ref }}
+          ref: ${{ needs.resolve.outputs.sha }}
 
       - uses: actions/setup-node@v7
         with:
@@ -56,8 +85,10 @@ jobs:
           coverage: none
 
       - name: Resolve the tag
+        env:
+          RELEASE_TAG: ${{ needs.resolve.outputs.tag }}
         run: |
-          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          TAG="$RELEASE_TAG"
           echo "TAG=$TAG" >> "$GITHUB_ENV"
           echo "VERSION=${TAG#v}" >> "$GITHUB_ENV"
 
@@ -75,7 +106,7 @@ jobs:
           node scripts/check-theme-ini.mjs
 
       - name: Build the package
-        run: git archive --format=zip -9 --prefix=DRE-theme/ -o DRE-theme.zip "$TAG"
+        run: git archive --format=zip -9 --prefix=DRE-theme/ -o DRE-theme.zip HEAD
 
       # Everything below asserts against the ZIP, never the checkout.
       - name: The package contains a theme, and only a theme
@@ -119,7 +150,7 @@ jobs:
             'DRE-theme/package\.json' \
             'DRE-theme/package-lock\.json' \
             'DRE-theme/gulpfile\.js' \
-            'DRE-theme/playwright\.config\.mjs' \
+            'DRE-theme/playwright[^/]*\.config\.mjs' \
             'DRE-theme/\.editorconfig' \
             'DRE-theme/\.gitattributes'
           do

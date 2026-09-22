@@ -1,0 +1,19 @@
+<ul class="hierarchy-list">
+<?php foreach ($nodes as $node): ?>
+    <li>
+        <?php if ($node['active']): ?><strong><?php endif; ?>
+        <?php if ($node['url']): ?>
+            <a href="<?php echo $this->escapeHtmlAttr($node['url']); ?>"<?php echo $node['active'] ? ' aria-current="page"' : ''; ?>><?php echo $this->escapeHtml($node['label']); ?></a>
+        <?php else: ?>
+            <?php echo $this->escapeHtml($node['label']); ?>
+        <?php endif; ?>
+        <?php if ($node['active']): ?></strong><?php endif; ?>
+        <?php if ($node['count']): ?>
+            <span><?php echo $this->escapeHtml(sprintf($this->translatePlural('(%s item)', '(%s items)', $node['count']), $node['count'])); ?></span>
+        <?php endif; ?>
+        <?php if ($node['children']): ?>
+            <?php echo $this->partial('common/hierarchy-tree', ['nodes' => $node['children']]); ?>
+        <?php endif; ?>
+    </li>
+<?php endforeach; ?>
+</ul>

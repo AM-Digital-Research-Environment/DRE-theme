@@ -17,7 +17,7 @@
  *
  * Install flow:
  *   - `beforeinstallprompt` → preventDefault() (kills the browser's mini-infobar),
- *     stash the event, reveal the button. Click → prompt(). Re-arm on dismiss,
+ *     stash the event, reveal the button. Click → prompt(). Hide on dismissal until the next event,
  *     hide on `appinstalled`, and stay hidden when already in standalone mode.
  *   - iOS Safari → reveal the same button; click toggles a dismissible
  *     "Share → Add to Home Screen" hint (Esc / outside-click / re-click closes).
@@ -130,14 +130,10 @@
         }
         var promptEvent = deferredPrompt;
         deferredPrompt = null; // a beforeinstallprompt event is single-use
-        promptEvent.prompt();
-        promptEvent.userChoice.then(function (choice) {
-            if (choice && choice.outcome === 'accepted') {
-                hideButton(); // `appinstalled` will also fire and hide it
-            }
-            // Dismissed: leave the button in place, re-armed. The browser re-fires
-            // beforeinstallprompt on a later visit and we capture it again.
-        }).catch(function () { /* userChoice can reject if the UA aborts; ignore */ });
+        hideButton();
+        Promise.resolve().then(() => promptEvent.prompt())
+            .then(() => promptEvent.userChoice)
+            .catch(() => { /* A consumed or rejected prompt requires a new event. */ });
     }
 
     // -- iOS detection ---------------------------------------------------------

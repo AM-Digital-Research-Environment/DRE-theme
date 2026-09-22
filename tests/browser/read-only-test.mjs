@@ -54,11 +54,11 @@ export const test = base.extend({
         const failedRequests = [];
         page.on('response', (response) => {
             if (response.status() >= 400) {
-                failedRequests.push({ url: response.url(), status: response.status() });
+                failedRequests.push({ url: response.url(), status: response.status(), type: response.request().resourceType() });
             }
         });
         page.on('requestfailed', (request) => {
-            failedRequests.push({ url: request.url(), failure: request.failure()?.errorText });
+            failedRequests.push({ url: request.url(), failure: request.failure()?.errorText, type: request.resourceType() });
         });
         await page.route('**/*', async (route) => {
             const request = route.request();
@@ -88,6 +88,10 @@ export const test = base.extend({
             body: JSON.stringify({ blocked, allowedReadOnlyPosts }, null, 2),
             contentType: 'application/json',
         });
+        const critical = failedRequests.filter(r => new URL(r.url).origin === new URL(baseURL).origin
+            && ['document', 'script', 'stylesheet'].includes(r.type)
+            && !/ERR_ABORTED|NS_BINDING_ABORTED/.test(r.failure || ''));
+        expect(critical, 'first-party documents and executable assets must load').toEqual([]);
         expect(blocked, 'production tests must never attempt a mutating request').toEqual([]);
     }, { auto: true }],
 });

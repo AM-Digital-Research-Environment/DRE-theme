@@ -1,0 +1,25 @@
+<?php
+require_once __DIR__ . '/bootstrap.php';
+require_once __DIR__ . '/support/ThemeView.php';
+$failures = []; $checks = 0;
+$v = new ThemeTestView();
+$v->callbacks['url'] = fn($route) => 'https://example.test/s/a/' . ($route === 'site' ? '' : 'item');
+$v->callbacks['DreSearchUrl'] = fn() => 'https://example.test/s/a/index/search';
+$site = new class { public function slug() { return 'a'; } public function title() { return '</script>Archive'; } };
+$m = $v->PwaManifest($site); $data = json_decode($m['json'], true);
+dre_check($failures, $checks, 'manifest safely encodes site titles', $m['enabled'] && !str_contains($m['json'], '</script>') && $data['name'] === $site->title());
+dre_check($failures, $checks, 'manifest scope and launch URL agree', $data['scope'] === $data['start_url'] && $data['id'] === $data['scope']);
+dre_check($failures, $checks, 'manifest contains install icons and shortcuts', count($data['icons']) === 5 && count($data['shortcuts']) === 2);
+$v->callbacks['DreSearchUrl'] = fn() => throw new RuntimeException();
+$m = $v->PwaManifest($site);
+dre_check($failures, $checks, 'optional shortcuts can fail without disabling install', $m['enabled'] && !isset(json_decode($m['json'], true)['shortcuts']));
+$v->callbacks['url'] = fn() => throw new RuntimeException();
+dre_check($failures, $checks, 'failed base routing disables install', !$v->PwaManifest($site)['enabled']);
+$v->settings['pwa_enable'] = false;
+dre_check($failures, $checks, 'disabled manifest is empty', $v->PwaManifest($site)['json'] === '');
+$row = function ($id, $resource) { return ['property_id' => $id, 'property_label' => 'Relation ' . $id, 'val' => new class($resource) { public function __construct(private $r) {} public function resource() { return $this->r; } }]; };
+$a = new ThemeTestResource('Zulu', 1); $b = new ThemeTestResource('Alpha', 2);
+$result = $v->LinkedConnections([[$row(4, $a), $row(4, $a), $row(4, $b)], [$row(5, $a), $row(5, null)]]);
+dre_check($failures, $checks, 'connections deduplicate records and relationship counts', count($result['connections']) === 2 && $result['facets'][0]['count'] === 2 && count($result['connections'][1]['rels']) === 2);
+dre_check($failures, $checks, 'connections sort by rank then title', array_keys($result['connections']) === [2, 1] && $result['ranked'][0]['id'] === 4);
+dre_report('ManifestConnections', $failures, $checks);

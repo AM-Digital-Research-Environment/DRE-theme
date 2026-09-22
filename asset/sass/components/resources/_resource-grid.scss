@@ -1,7 +1,16 @@
 @use "../../abstracts" as *;
 
 .resource-grid {
-    opacity: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+    @media (min-width: $md) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-sizer, .gutter-sizer { display: none; }
+    &:not(.is-masonry) .resource { width: auto; position: relative; margin-bottom: 0; }
+    &.is-masonry {
+        display: block;
+        .grid-sizer, .gutter-sizer { display: block; }
+    }
     list-style: none;
     padding-left: 0;
     position: relative;
@@ -50,7 +59,7 @@
         // Thumbnail inset from the card edge — a matted-print look.
         &__thumbnail {
             line-height: 1;
-            width: 100%;
+            width: calc(100% - 2 * var(--space-3));
             margin: var(--space-3) 0 0 var(--space-3);
 
             @media (min-width: $md) {

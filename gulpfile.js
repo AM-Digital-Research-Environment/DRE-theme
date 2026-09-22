@@ -6,6 +6,7 @@ const postcss = require('gulp-postcss');
 const autoprefixer = require('autoprefixer');
 const fs = require('fs');
 const { Transform } = require('stream');
+const { pipeline } = require('stream/promises');
 
 // Single source of truth for the theme's metadata: config/theme.ini [info]
 // (the values Omeka actually reads — `version` is what it appends to
@@ -94,16 +95,21 @@ function prependHeader() {
 // which silently ignores unknown keys — so `outputStyle: 'compressed'` did
 // nothing and the theme shipped 168.5 KiB of expanded CSS instead of 141.0 KiB
 // on every page load. Don't "restore" the old key.
-function css() {
-    return gulp.src('./asset/sass/*.scss')
-        .pipe(sass({ style: 'compressed' }).on('error', sass.logError))
-        .pipe(postcss([autoprefixer()]))
-        .pipe(prependHeader())
-        .pipe(gulp.dest('./asset/css'));
+function compileCss(recover = false) {
+    const compiler = sass({ style: 'compressed' });
+    if (recover) compiler.on('error', sass.logError);
+    const stages = [gulp.src('./asset/sass/*.scss'), compiler,
+        postcss([autoprefixer()]), prependHeader(), gulp.dest('./asset/css')];
+    // pipeline forwards errors from every stage to the task's returned promise.
+    // The watcher alone keeps its stream alive after a reported Sass error.
+    return recover ? stages.reduce((stream, next) => stream.pipe(next)) : pipeline(...stages);
 }
 
+function css() { return compileCss(); }
+function watchCss() { return compileCss(true); }
+
 function watch() {
-    gulp.watch('./asset/sass/**/*.scss', css);
+    gulp.watch('./asset/sass/**/*.scss', watchCss);
 }
 
 exports.css = css;

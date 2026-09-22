@@ -5,10 +5,6 @@ $escape = $this->plugin('escapeHtml');
 $this->inlineScript()->appendFile($this->assetUrl('js/masonry.pkgd.min.js'));
 $this->inlineScript()->appendFile($this->assetUrl('js/browse.js'));
 
-$filterLocale = (bool) $this->siteSetting('filter_locale_values');
-$lang = $this->lang();
-$valueLang = $filterLocale ? [$lang, ''] : null;
-
 // See helper/BrowseLayout.php — resolves grid/list, the ?view= override, and
 // the body-property settings that used to be duplicated in every browse template.
 $layout = $this->BrowseLayout();
@@ -21,8 +17,6 @@ $queryUrl = $this->url(
 $showThumbnail = in_array('thumbnail', $this->components);
 $showHeading = in_array('resource-heading', $this->components);
 $showBody = in_array('resource-body', $this->components);
-$headingTerm = $this->siteSetting('browse_heading_property_term');
-$bodyTerm = $this->siteSetting('browse_body_property_term');
 
 ?>
 
@@ -46,17 +40,10 @@ $bodyTerm = $this->siteSetting('browse_body_property_term');
         <div class="gutter-sizer"></div>
         <?php
         foreach ($this->resources as $resource):
-            $heading = $headingTerm ? $resource->value($headingTerm, ['default' => $translate('[Untitled]'), 'lang' => $valueLang]) : $resource->displayTitle(null, ($valueLang));
-            $body = $bodyTerm ? $resource->value($bodyTerm) : $resource->displayDescription(null, ($valueLang));
-            $media = ($resource instanceof \Omeka\Api\Representation\ItemRepresentation) ? ($resource->media()[0] ?? null) : null;
-            $altText = $media ? ($media->altText() ?: $resource->displayTitle()) : $resource->displayTitle();
-            $thumbnail = $this->thumbnail($resource, 'large', ['alt' => $altText]);
-            echo $this->partial('common/resource-card', [
-                'resource' => $resource,
-                'heading' => $heading,
-                'body' => $showBody ? $body : null,
+            echo $this->partial('common/resource-card', array_merge($this->ResourceCardData($resource, [
+                'showBody' => $showBody, 'showThumbnail' => $showThumbnail,
+            ]), [
                 'bodyTruncate' => $bodyTruncate,
-                'thumbnail' => $showThumbnail ? $thumbnail : '',
                 'isGrid' => $isGrid,
                 'showHeading' => $showHeading,
                 'showTags' => $showHeading,
@@ -64,7 +51,7 @@ $bodyTerm = $this->siteSetting('browse_body_property_term');
                 // the plural API name; let the partial derive the class from the
                 // resource so it matches every other browse surface.
                 'typeClass' => null,
-            ]);
+            ]));
         endforeach; ?>
     </div>
 

@@ -7,6 +7,12 @@ for (const surface of smokeSurfaces('core')) {
         await page.goto(surface.path, { waitUntil: 'domcontentloaded' });
         const pageHeading = surface.id === 'item-record' ? '#content > h1' : 'h1';
         await expect(page.locator(pageHeading)).toHaveCount(1);
+        await page.waitForLoadState('load');
+        for (const selector of surface.selectors) await expect(page.locator(selector).first()).toBeVisible();
+        if (surface.id === 'item-record') {
+            await expect.poll(() => page.evaluate(() => Object.values(window.miradors || {}).filter(v => v?.store).length)).toBeGreaterThan(0);
+        }
+        await expect(page.locator('[data-theme-toggle]')).toHaveAttribute('aria-label', /.+/);
         expect(errors).toEqual([]);
     });
 }
@@ -22,6 +28,7 @@ test('an API-resolved media page has one document heading and no runtime errors'
     const path = surface.path.replace('{id}', media[surface.resolve.idProperty]);
     await page.goto(path, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('h1')).toHaveCount(1);
+    await page.waitForLoadState('load');
     expect(errors).toEqual([]);
 });
 

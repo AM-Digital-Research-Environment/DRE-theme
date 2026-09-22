@@ -1,128 +1,86 @@
-/**
- * Browse layout — masonry grid and the grid/list toggle.
- *
- * The card markup this drives is emitted by common/resource-card.phtml, so the
- * class names below must stay in step with that partial. (They previously did
- * not: this file queried `.resource-meta` and `.resource-image`, neither of
- * which any template has ever rendered — the real names are `.resource__meta`
- * and `.resource__thumbnail` — so two branches of the toggle silently did
- * nothing.)
- */
+/** Grid/list state, history and one Masonry lifecycle per resource container. */
 (function () {
     'use strict';
-
-    const browseScripts = () => {
-        const resources = document.querySelectorAll('.resources');
-
-        // Where the browser lays out masonry natively (grid-template-rows: masonry,
-        // matched by the @supports block in _resource-grid.scss), skip the JS engine
-        // entirely — the grid reveals and positions the cards itself, so we never
-        // load-fight masonry.pkgd over CSS. Falls back to the JS masonry below.
-        const nativeMasonry = typeof CSS !== 'undefined'
-            && typeof CSS.supports === 'function'
-            && CSS.supports('grid-template-rows', 'masonry');
-
-        resources.forEach((resourcesSet) => {
-            const resourceItems = resourcesSet.querySelectorAll('.resource');
-            const toggleContainer = resourcesSet.parentElement;
-            const layoutToggles = toggleContainer
-                ? toggleContainer.querySelectorAll('.layout-toggle button')
-                : [];
-
-            const initMasonryGrid = () => {
-                if (nativeMasonry) {
-                    return; // CSS handles grid layout + reveal; see _resource-grid.scss
-                }
-                if (!resourcesSet.classList.contains('resource-grid')) {
-                    return;
-                }
-                // masonry.pkgd is loaded alongside this file by the browse
-                // templates; guard anyway so a load failure degrades to a plain
-                // grid instead of throwing.
-                if (typeof Masonry !== 'function') {
-                    resourcesSet.style.opacity = 1;
-                    return;
-                }
-
-                const createMasonryInstance = () => {
-                    new Masonry(resourcesSet, {
-                        itemSelector: '.resource',
-                        columnWidth: '.grid-sizer',
-                        gutter: '.gutter-sizer',
-                        percentPosition: true,
+    function init() {
+        const nativeMasonry = window.CSS && CSS.supports('grid-template-rows', 'masonry');
+        const states = Array.from(document.querySelectorAll('.resources')).map(root => ({
+            root,
+            initial: root.classList.contains('resource-grid') ? 'grid' : 'list',
+            masonry: null,
+            toggles: root.parentElement.querySelectorAll('.layout-toggle button'),
+        }));
+        function layout(state, view) {
+            const grid = view === 'grid';
+            const root = state.root;
+            if (!grid && state.masonry) {
+                state.masonry.destroy();
+                state.masonry = null;
+                root.classList.remove('is-masonry');
+            }
+            root.classList.toggle('resource-grid', grid);
+            root.classList.toggle('resource-list', !grid);
+            root.querySelectorAll('.resource').forEach(card => {
+                card.classList.toggle('media-object', !grid);
+                card.querySelector('.resource__meta')?.classList.toggle('media-object-section', !grid);
+                const thumb = card.querySelector('.resource__thumbnail.decoration');
+                thumb?.classList.toggle('decoration--thumbnail', !grid);
+            });
+            state.toggles.forEach(button => { button.disabled = button.classList.contains(view); });
+            if (grid && !nativeMasonry && !state.masonry && typeof window.Masonry === 'function') {
+                root.classList.add('is-masonry');
+                try {
+                    state.masonry = new window.Masonry(root, {
+                        itemSelector: '.resource', columnWidth: '.grid-sizer',
+                        gutter: '.gutter-sizer', percentPosition: true,
                         transitionDuration: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 0 : '0.4s',
                     });
-                    resourcesSet.style.opacity = 1;
-                };
-
-                if (document.readyState === 'complete') {
-                    createMasonryInstance();
-                } else {
-                    window.addEventListener('load', createMasonryInstance, { once: true });
+                } catch (_) {
+                    // A failed engine must leave the visible CSS grid usable.
+                    window.Masonry.data?.(root)?.destroy();
+                    root.classList.remove('is-masonry');
                 }
-            };
-
-            initMasonryGrid();
-
-            layoutToggles.forEach((layoutToggle) => {
-                layoutToggle.addEventListener('click', (e) => {
-                    const button = e.currentTarget;
-                    // Read the target view from the button's own identity. This
-                    // used to pass `button.classList` (a DOMTokenList) straight
-                    // into searchParams.set(), which stringifies to the WHOLE
-                    // class list — it only produced "grid"/"list" because these
-                    // buttons happened to carry exactly one class.
-                    const view = button.classList.contains('list') ? 'list' : 'grid';
-
-                    const currentlyDisabled = toggleContainer
-                        && toggleContainer.querySelector('.layout-toggle button:disabled');
-                    if (currentlyDisabled) {
-                        currentlyDisabled.removeAttribute('disabled');
-                    }
-
-                    const url = new URL(window.location.href);
-                    url.searchParams.set('view', view);
-                    window.history.pushState({}, '', url);
-
-                    document
-                        .querySelectorAll('.pager-wrapper a.previous, .pager-wrapper a.next')
-                        .forEach((navLink) => {
-                            const navLinkUrl = new URL(navLink.href);
-                            navLinkUrl.searchParams.set('view', view);
-                            navLink.href = navLinkUrl.toString();
-                        });
-
-                    button.setAttribute('disabled', 'disabled');
-                    resourcesSet.classList.toggle('resource-list');
-                    resourcesSet.classList.toggle('resource-grid');
-
-                    resourceItems.forEach((resource) => {
-                        resource.classList.toggle('media-object');
-
-                        const thumbnail = resource.querySelector('.resource__thumbnail');
-                        if (thumbnail && thumbnail.classList.contains('decoration')) {
-                            thumbnail.classList.toggle('decoration--thumbnail');
-                        }
-
-                        // Mirrors the server-side `$isGrid ? '' : 'media-object-section'`
-                        // in common/resource-card.phtml.
-                        const resourceMeta = resource.querySelector('.resource__meta');
-                        if (resourceMeta) {
-                            resourceMeta.classList.toggle('media-object-section');
-                        }
-                    });
-
-                    initMasonryGrid();
-                });
+            }
+        }
+        function apply(view) {
+            states.forEach(state => layout(state, view || state.initial));
+            document.querySelectorAll('.pager-wrapper a.previous, .pager-wrapper a.next').forEach(link => {
+                const url = new URL(link.href);
+                if (view) url.searchParams.set('view', view);
+                else url.searchParams.delete('view');
+                link.href = url.href;
             });
-        });
-    };
-
-    if (window.DREUtils && typeof window.DREUtils.onReady === 'function') {
-        window.DREUtils.onReady(browseScripts);
-    } else if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', browseScripts, { once: true });
-    } else {
-        browseScripts();
+            document.querySelectorAll('.pager').forEach(form => {
+                let field = form.querySelector('input[name="view"]');
+                if (!view) { field?.remove(); return; }
+                if (!field) {
+                    field = document.createElement('input');
+                    field.type = 'hidden'; field.name = 'view'; form.appendChild(field);
+                }
+                field.value = view;
+            });
+        }
+        function fromUrl() {
+            const view = new URL(location.href).searchParams.get('view');
+            apply(view === 'grid' || view === 'list' ? view : null);
+        }
+        const buttons = new Set(states.flatMap(state => Array.from(state.toggles)));
+        buttons.forEach(button => button.addEventListener('click', () => {
+            const view = button.classList.contains('list') ? 'list' : 'grid';
+            const url = new URL(location.href);
+            url.searchParams.set('view', view);
+            window.history.pushState({}, '', url);
+            apply(view);
+        }));
+        states.forEach(state => state.root.querySelectorAll('img').forEach(img => {
+            const relayout = () => state.masonry?.layout();
+            img.addEventListener('load', relayout);
+            img.addEventListener('error', relayout);
+        }));
+        document.fonts?.ready.then(() => states.forEach(state => state.masonry?.layout()));
+        window.addEventListener('popstate', fromUrl);
+        fromUrl();
     }
+    if (window.DREUtils) window.DREUtils.onReady(init);
+    else if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once:true});
+    else init();
 })();

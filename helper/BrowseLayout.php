@@ -68,7 +68,8 @@ class BrowseLayout extends AbstractHelper
             if (!$view->getHelperPluginManager()->has('params')) {
                 return '';
             }
-            return (string) $view->params()->fromQuery('view', '');
+            $requested = $view->params()->fromQuery('view', '');
+            return is_string($requested) ? $requested : '';
         } catch (\Throwable $e) {
             return '';
         }

@@ -67,6 +67,12 @@ class CollectionStats extends AbstractHelper
             return $this->localize($cached);
         }
 
+        // Retain last good counts during transient upstream failures, and avoid
+        // retrying expensive fallbacks on every request during an outage.
+        $stale = $this->readCache($cacheKey, 86400);
+        if ($this->readCache($cacheKey . '_retry', 60) !== null) {
+            return $this->localize($stale ?? []);
+        }
         $stats = $this->fromSearchProfiles($siteId);
         if (null === $stats) {
             $stats = $this->canUseGlobalPrecompute($siteId) ? $this->fromPrecompute() : null;
@@ -75,7 +81,8 @@ class CollectionStats extends AbstractHelper
             $stats = $this->fromApi($siteId);
         }
         if (null === $stats) {
-            return [];
+            $this->writeCache($cacheKey . '_retry', []);
+            return $this->localize($stale ?? []);
         }
 
         $this->writeCache($cacheKey, $stats);
@@ -89,10 +96,34 @@ class CollectionStats extends AbstractHelper
         try {
             $services = $this->getView()->getHelperPluginManager()->getServiceLocator();
             $service = 'DRESearch\Search\CorpusCounts';
-            return $services->has($service) ? $services->get($service)->forSite($siteId) : null;
+            if (!$services->has($service)) return null;
+            $stats = $services->get($service)->forSite($siteId);
+            if ($stats === null) return null;
+            if (!is_array($stats)) throw new \UnexpectedValueException('Invalid corpus counts');
+            foreach ($stats as $stat) {
+                if (!is_array($stat) || !isset($stat['k'], $stat['n']) || !is_string($stat['k']) || !is_numeric($stat['n'])) {
+                    throw new \UnexpectedValueException('Invalid corpus count');
+                }
+            }
+            return $stats;
         } catch (\Throwable $e) {
+            $this->reportFailure('search-counts', $e);
             return null;
         }
+    }
+
+    /** Rate-limited operational diagnostics, without metadata or visitor input. */
+    private function reportFailure(string $stage, \Throwable $error): void
+    {
+        try {
+            $key = 'dre_stats_warning_' . $stage;
+            if ($this->readCache($key, 3600) !== null) return;
+            $this->writeCache($key, []);
+            $services = $this->getView()->getHelperPluginManager()->getServiceLocator();
+            if ($services->has('Omeka\Logger')) {
+                $services->get('Omeka\Logger')->warn('DRE statistics fallback: ' . $stage . ' (' . get_class($error) . ')');
+            }
+        } catch (\Throwable $ignored) { /* Diagnostics must not prevent rendering. */ }
     }
 
     /** Counts are shared across locales; labels belong to the current request. */
@@ -344,6 +375,7 @@ class CollectionStats extends AbstractHelper
                 ['k' => 'youtube',       'l' => 'YouTube videos',  'n' => $bySet('YouTube videos'),      's' => ''],
             ];
         } catch (\Throwable $e) {
+            $this->reportFailure('api-counts', $e);
             return null;
         }
     }

@@ -35,12 +35,12 @@
 
   // --- Primary (Uni-Grün). Darkened from the raw brand hex so white text
   //     clears AA on the fill; --primary-text is darker still for links. ---
-  --primary:         color-mix(in oklab, var(--primary-base), black 12%);
-  --primary-hover:   color-mix(in oklab, var(--primary-base), black 22%);
-  --primary-active:  color-mix(in oklab, var(--primary-base), black 32%);
+  --primary:         var(--brand-light-primary, color-mix(in oklab, var(--primary-base), black 12%));
+  --primary-hover:   var(--brand-light-primary-hover, color-mix(in oklab, var(--primary-base), black 22%));
+  --primary-active:  var(--brand-light-primary-active, color-mix(in oklab, var(--primary-base), black 32%));
   --primary-muted:   color-mix(in oklab, var(--primary-base) 12%, var(--surface));
-  --primary-text:    color-mix(in oklab, var(--primary-base), black 24%);
-  --primary-contrast: oklch(99% 0.004 95);   // near-white text on the green fill
+  --primary-text:    var(--brand-light-primary-text, color-mix(in oklab, var(--primary-base), black 24%));
+  --primary-contrast: var(--brand-light-primary-contrast, oklch(99% 0.004 95));   // near-white text on the green fill
 
   // --- Accent (Braun — earth warmth) ---
   --accent-base: #d57912;
@@ -161,12 +161,12 @@
 @mixin am-dark-theme {
   color-scheme: dark;
 
-  --primary:         color-mix(in oklab, var(--primary-base), white 18%);
-  --primary-hover:   color-mix(in oklab, var(--primary-base), white 30%);
-  --primary-active:  color-mix(in oklab, var(--primary-base), white 42%);
+  --primary:         var(--brand-dark-primary, color-mix(in oklab, var(--primary-base), white 18%));
+  --primary-hover:   var(--brand-dark-primary-hover, color-mix(in oklab, var(--primary-base), white 30%));
+  --primary-active:  var(--brand-dark-primary-active, color-mix(in oklab, var(--primary-base), white 42%));
   --primary-muted:   color-mix(in oklab, var(--primary-base) 24%, var(--surface));
-  --primary-text:    color-mix(in oklab, var(--primary-base), white 34%);
-  --primary-contrast: oklch(16% 0.022 165);  // dark text on the lifted green fill
+  --primary-text:    var(--brand-dark-primary-text, color-mix(in oklab, var(--primary-base), white 34%));
+  --primary-contrast: var(--brand-dark-primary-contrast, oklch(16% 0.022 165));  // dark text on the lifted green fill
 
   --accent-base: #d57912;
   --accent:        color-mix(in oklab, var(--accent-base), white 12%);

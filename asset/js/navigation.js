@@ -258,8 +258,9 @@
 
         item.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' || e.key === 'Esc') {
-                closeSubmenu();
                 itemButton.focus();
+                closeSubmenu();
+                e.stopPropagation();
             }
         });
 
@@ -381,14 +382,15 @@
             if (ul) {
                 const submenuHeader = document.createElement('li');
                 submenuHeader.setAttribute('class', 'menu-header');
-                submenuHeader.innerHTML = item.innerHTML;
+                const parentLink = item.querySelector(':scope > a');
+                if (parentLink) submenuHeader.appendChild(parentLink.cloneNode(true));
                 ul.prepend(submenuHeader);
             }
 
+            item.querySelectorAll('li:not(.menu-item-has-children)').forEach(child => {
+                child.addEventListener('click', e => e.stopPropagation());
+            });
             item.addEventListener('click', function (event) {
-                item.querySelectorAll('li:not(.menu-item-has-children)').forEach((child) => {
-                    child.addEventListener('click', (e) => e.stopPropagation());
-                });
 
                 item.classList.add('expanded');
 

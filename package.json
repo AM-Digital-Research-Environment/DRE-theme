@@ -1,13 +1,13 @@
 {
   "name": "dre-theme",
-  "version": "2.30.3",
+  "version": "2.31.0",
   "description": "Africa Multiple — Digital Research Environment. An Omeka S theme for the Africa Multiple Cluster of Excellence (University of Bayreuth), built on a modern OKLCH design-token system with light/dark modes.",
   "main": "gulpfile.js",
   "scripts": {
     "start": "gulp",
-    "build": "npm run lint && gulp css && npm run lint:css",
+    "build": "npm run lint:source && gulp css && npm run lint:css",
     "watch": "gulp css:watch",
-    "lint": "npm run lint:tokens && npm run lint:touch && npm run lint:css && npm run lint:ini && npm run lint:templates && npm run lint:groups && npm run lint:js && npm run lint:php",
+    "lint": "npm run lint:source && npm run lint:css",
     "lint:tokens": "node scripts/gen-token-fallbacks.mjs --check && node scripts/check-design-tokens.mjs",
     "lint:touch": "node scripts/check-touch-targets.mjs",
     "lint:css": "node scripts/check-compiled-css.mjs",
@@ -26,7 +26,9 @@
     "i18n:check": "node scripts/extract-translations.mjs --check",
     "build:icons": "node scripts/gen-pwa-icons.mjs",
     "build:tokens": "node scripts/gen-token-fallbacks.mjs",
-    "vendor:lint": "node scripts/vendor-lint.mjs"
+    "vendor:lint": "node scripts/vendor-lint.mjs",
+    "lint:source": "npm run lint:tokens && npm run lint:touch && npm run lint:ini && npm run lint:templates && npm run lint:groups && npm run lint:js && npm run lint:php",
+    "test:browser": "playwright test --config=playwright.local.config.mjs"
   },
   "repository": {
     "type": "git",
@@ -48,6 +50,7 @@
     "node": ">=24.15.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.62.1",
     "autoprefixer": "^10.5.4",
     "gulp": "^5.0.1",
@@ -55,7 +58,7 @@
     "gulp-sass": "^6.0.1",
     "jsdom": "^30.0.1",
     "sass": "^1.102.0",
-    "sharp": "^0.35.3"
+    "sharp": "^0.35.4"
   },
   "browserslist": [
     "last 2 versions",

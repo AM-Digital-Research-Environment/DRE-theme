@@ -24,8 +24,8 @@ dre_check($failures, $checks, 'invalid base input falls back safely',
     $contrast('var(--hostile)', ['#ffffff', '#1a1a1a']) === '#1a1a1a');
 
 $params = new class {
-    public string $view = 'list';
-    public function fromQuery(string $key, string $default = ''): string
+    public $view = 'list';
+    public function fromQuery(string $key, string $default = '')
     {
         return $key === 'view' ? $this->view : $default;
     }
@@ -67,8 +67,20 @@ $notHome->setView($homeView);
 dre_check($failures, $checks, 'an item route is not the home page', $notHome() === false);
 
 $search = new DreSearchUrl();
-$search->setView($homeView);
+$searchView = new class($site) {
+    public bool $module = true;
+    public function __construct(private object $site) {}
+    public function currentSite(): object { return $this->site; }
+    public function getHelperPluginManager(): object { return $this; }
+    public function has(string $name): bool { return $this->module; }
+};
+$search->setView($searchView);
 dre_check($failures, $checks, 'DRE Search URL is derived from the current site',
     $search() === 'https://example.test/s/archive/dre-search');
+
+$searchView->module = false;
+dre_check($failures, $checks, 'module absence falls back to nonredirecting core search', $search() === 'https://example.test/s/archive/index/search');
+$params->view = ['grid'];
+dre_check($failures, $checks, 'array browse input falls back without warnings', $browse()['isGrid']);
 
 dre_report('Helpers', $failures, $checks);

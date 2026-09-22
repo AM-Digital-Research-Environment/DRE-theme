@@ -1,24 +1,16 @@
 #!/usr/bin/env node
+import { walkFiles } from './files.mjs';
 /** Parse every maintained JavaScript file with the current Node grammar. */
-import { existsSync, readdirSync, statSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 const ROOT = join(import.meta.dirname, '..');
-const SCAN = ['asset/js', 'scripts', 'tests/js', 'tests/browser'];
-const ROOT_FILES = ['gulpfile.js', 'playwright.config.mjs'];
-
-function* walk(dir) {
-    if (!existsSync(dir)) return;
-    for (const name of readdirSync(dir)) {
-        const file = join(dir, name);
-        if (statSync(file).isDirectory()) yield* walk(file);
-        else if (/\.(?:js|mjs)$/.test(name)) yield file;
-    }
-}
+const SCAN = ['asset/js', 'scripts', 'tests'];
+const ROOT_FILES = ['gulpfile.js', 'playwright.config.mjs', 'playwright.visual.config.mjs', 'playwright.local.config.mjs'];
 
 const files = [
-    ...SCAN.flatMap((dir) => [...walk(join(ROOT, dir))]),
+    ...SCAN.flatMap((dir) => [...walkFiles(join(ROOT, dir), /\.(?:js|mjs)$/)]),
     ...ROOT_FILES.map((file) => join(ROOT, file)).filter(existsSync),
 ];
 const failures = [];

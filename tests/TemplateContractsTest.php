@@ -43,7 +43,7 @@ dre_check($failures, $checks, 'the Mirador application boundary has an escaped a
 // The rail once printed `https://…/item/10297` where the licence should read
 // "CC-BY-NC-SA-4.0": casting a linked value to string yields the linked item's
 // URL. These pin the reading idiom, not the markup.
-$apparatus = $read('view/common/record-apparatus.phtml');
+$apparatus = $read('view/common/record-apparatus.phtml') . $read('helper/RecordApparatus.php');
 dre_check($failures, $checks, 'the apparatus resolves linked values through the linked record',
     str_contains($apparatus, '$value->valueResource()->displayTitle()'));
 dre_check($failures, $checks, 'the apparatus reads every value, not only the first',

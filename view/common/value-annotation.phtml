@@ -1,0 +1,14 @@
+<?php
+$translate = $this->plugin('translate');
+$escape = $this->plugin('escapeHtml');
+$escapeAttr = $this->plugin('escapeHtmlAttr');
+?>
+<details class="annotation-btn">
+                                <summary class="has-annotation o-icon-annotation" aria-label="<?php echo $escapeAttr($translate('Value Annotations')); ?>"><span class="sr-only"><?php echo $escape($translate('Value Annotations')); ?></span></summary>
+                                <div class="annotation-tooltip">
+                                    <div class="annotation-tooltip__wrapper">
+                                        <h6 class="annotation-tooltip__heading"><?php echo $this->escapeHtml($translate('Value Annotations')); ?></h6>
+                                        <?php echo $valueAnnotation->displayValues(); ?>
+                                    </div>
+                                </div>
+                            </details>

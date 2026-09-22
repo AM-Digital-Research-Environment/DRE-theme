@@ -105,7 +105,7 @@ $bodyTruncate = $layout['truncate'];
     // this is where a fruitless sitewide search actually lands. A quiet pause
     // with a path onward; the active-filter chips above already restate the
     // query, so don't repeat it.
-    $fulltext = trim((string) ($query['fulltext_search'] ?? ''));
+    $fulltext = (is_string($query['fulltext_search'] ?? null) ? trim($query['fulltext_search']) : '');
     ?>
     <div class="search-empty">
         <?php if ($fulltext !== ''): ?>
@@ -136,23 +136,11 @@ $bodyTruncate = $layout['truncate'];
     <?php
     $revealIndex = 0;
     foreach ($items as $item):
-        $heading = $headingTerm ? $item->value($headingTerm, ['default' => $translate('[Untitled]')]) : $item->displayTitle(null, $valueLang);
-        $body = $bodyTerm ? $item->value($bodyTerm, ['lang' => ($valueLang)]) : $item->displayDescription(null, ($valueLang));
-        $media = $item->primaryMedia();
-        $altText = $media ? ($media->altText() ?: $item->displayTitle()) : $item->displayTitle();
-        // The first row of cards rises in on entry — the DRE's shared reveal
-        // grammar (F11, asset/js/reveal.js + utilities/_reveal.scss), a gentle
-        // stagger echoing the home hero's arrival. Only the first few are tagged
-        // so a long list doesn't animate end to end.
-        echo $this->partial('common/resource-card', [
-            'resource' => $item,
-            'heading' => $heading,
-            'body' => $body,
+        echo $this->partial('common/resource-card', array_merge($this->ResourceCardData($item), [
             'bodyTruncate' => $bodyTruncate,
-            'thumbnail' => $this->thumbnail($item, 'large', ['alt' => $altText]),
             'isGrid' => $isGrid,
             'reveal' => $revealIndex < 6 ? $revealIndex * 70 : null,
-        ]);
+        ]));
         $revealIndex++;
     endforeach; ?>
 

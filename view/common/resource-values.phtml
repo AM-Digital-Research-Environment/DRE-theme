@@ -42,6 +42,7 @@ $filterLocaleCallback = function ($value) use ($lang) {
     return $valueLang == '' || strcasecmp($valueLang, $lang) === 0;
 };
 
+$this->inlineScript()->appendFile($this->assetUrl('js/annotations.js'));
 $groups = $this->ResourceGroups($values);
 ?>
 
@@ -101,7 +102,7 @@ $groups = $this->ResourceGroups($values);
                     $isResource = ('resource' == $valueType || strpos($valueType, 'resource') !== false);
                     if ($isResource) {
                         $class[] = 'resource';
-                        $class[] = $value->valueResource()->resourceName();
+                        if ($value->valueResource()) $class[] = $value->valueResource()->resourceName();
                     } elseif ('uri' == $valueType) {
                         $class[] = 'uri';
                     }
@@ -129,15 +130,7 @@ $groups = $this->ResourceGroups($values);
                             <span class="o-icon-private" role="img" title="<?php echo $this->escapeHtmlAttr($translate('Private')); ?>" aria-label="<?php echo $this->escapeHtmlAttr($translate('Private')); ?>"></span>
                         <?php endif; ?>
                         <?php if ($valueAnnotation && $showValueAnnotations) : ?>
-                            <div class="annotation-btn">
-                                <span class="has-annotation o-icon-annotation" role="img" title="<?php echo $this->escapeHtmlAttr($translate('Has annotation')); ?>" aria-label="<?php echo $this->escapeHtmlAttr($translate('Has annotation')); ?>"></span>
-                                <div class="annotation-tooltip">
-                                    <div class="annotation-tooltip__wrapper">
-                                        <h6 class="annotation-tooltip__heading"><?php echo $this->escapeHtml($translate('Value Annotations')); ?></h6>
-                                        <?php echo $valueAnnotation->displayValues(); ?>
-                                    </div>
-                                </div>
-                            </div>
+                            <?php echo $this->partial('common/value-annotation', ['valueAnnotation' => $valueAnnotation]); ?>
                         <?php endif; ?>
                         <?php $this->trigger('view.show.value', ['value' => $value]); ?>
                     </dd>

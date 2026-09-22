@@ -29,7 +29,6 @@ const dreScripts = () => {
     // nothing once .main-header__top-bar stopped rendering by default — nothing
     // here may require that bar.)
 
-    const DESKTOP_MENU_MIN_WIDTH = 1200; // keep in sync with $xl in _breakpoints.scss
     const AUTO_HIDE_AFTER = 200;         // scroll depth before the header may hide
     const DIRECTION_JITTER = 4;          // px of trackpad wobble to ignore
 
@@ -48,7 +47,7 @@ const dreScripts = () => {
 
         const drawerOpen = menuToggle && menuToggle.getAttribute('aria-expanded') === 'true';
         const megaMenuInUse = mainHeader.querySelector('.menu-item-has-children.open, .menu-item-has-children:hover') !== null;
-        const mayHide = window.innerWidth >= DESKTOP_MENU_MIN_WIDTH
+        const mayHide = mainHeader.getAttribute('data-nav') !== 'drawer'
             && scrollDirection === 'down'
             && scrollPos > AUTO_HIDE_AFTER
             && !drawerOpen
@@ -129,9 +128,7 @@ const dreScripts = () => {
         refreshScrollPadding();
         onScroll(lastKnownScrollPosition);
 
-        if (menuToggle && window.innerWidth >= DESKTOP_MENU_MIN_WIDTH && menuToggle.getAttribute('aria-expanded') === 'true') {
-            menuToggle.click();
-        }
+
     }
 
     onResize();
@@ -145,53 +142,6 @@ const dreScripts = () => {
             };
         });
     window.addEventListener('resize', debounce(onResize, RESIZE_DELAY));
-
-    // Annotations tooltip position
-
-    const annotationBtns = document.querySelectorAll('.annotation-btn');
-
-    annotationBtns.forEach((annotationBtn) => {
-        const annotationTooltip = annotationBtn.querySelector('.annotation-tooltip');
-        // Guarded: an .annotation-btn without its tooltip markup used to throw
-        // here, and because everything in this file shares one function scope,
-        // that took out the header search, the form fixes and the tooltips below.
-        if (!annotationTooltip) {
-            return;
-        }
-        const annotationTooltipWrapper = annotationTooltip.querySelector('.annotation-tooltip__wrapper');
-        if (!annotationTooltipWrapper || !mainHeader) {
-            return;
-        }
-
-        const eventList = ['click', 'mouseover'];
-        eventList.forEach((event) => {
-            annotationBtn.addEventListener(event, setAnnotationTooltipPos);
-        });
-
-        function setAnnotationTooltipPos() {
-            const annotationBtnOffset = annotationBtn.getBoundingClientRect();
-            const { top, left } = annotationBtnOffset;
-            const distanceToRightEdge = window.innerWidth - (left + annotationBtn.offsetWidth);
-
-            if (distanceToRightEdge < (annotationTooltipWrapper.offsetWidth + 15)) {
-                annotationTooltip.style.left = (distanceToRightEdge - annotationTooltipWrapper.offsetWidth - 15) + 'px';
-            } else {
-                annotationTooltip.style.left = '0px';
-            }
-
-            if ((top - mainHeader.offsetHeight - mainHeader.offsetTop) < (annotationTooltipWrapper.offsetHeight + 15)) {
-                annotationTooltip.style.bottom = (- annotationTooltipWrapper.offsetHeight - 20) + 'px';
-                annotationTooltipWrapper.classList.add('below-button');
-            } else {
-                annotationTooltip.style.bottom = '10px';
-                annotationTooltipWrapper.classList.remove('below-button');
-
-                if (annotationTooltip.style.left == '0px') {
-                    annotationTooltip.style.bottom = '5px';
-                }
-            }
-        }
-    });
 
     // Main Header Search
     document.addEventListener('click', onDocumentClick, true);

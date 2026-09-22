@@ -5,7 +5,7 @@
 //
 // Omeka can attach a small property list to an individual metadata *value*
 // (resource-values.phtml renders the trigger when `show_value_annotations` is
-// on). The trigger is a quiet comment glyph; hovering it reveals a floating
+// on). The trigger is a quiet comment glyph; opening it reveals a floating
 // popover holding the annotation's own properties.
 //
 // Restyled onto the design tokens (was a Lively-era dashed box with an
@@ -13,7 +13,7 @@
 // soft-shadowed surface popover, theme-aware in both modes. The width is now
 // intrinsic and viewport-capped, and the inner property list stacks and wraps,
 // so a long URI or resource link no longer pushes the popover off-screen on
-// mobile (the long-standing overflow). `script.js` still nudges the popover
+// mobile (the long-standing overflow). `annotations.js` still nudges the popover
 // horizontally near the right edge and flips it below the trigger near the top.
 // ==========================================================================
 
@@ -29,9 +29,16 @@
 
     // The trigger glyph (o-icon-annotation, painted by base/elements/_icons.scss):
     // a quiet indicator at rest that picks up the brand accent on interaction.
-    .has-annotation {
+    summary.has-annotation {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: var(--size-control-lg);
+        min-height: var(--size-control-lg);
+        list-style: none;
+        &::-webkit-details-marker { display: none; }
         color: var(--ink-subtle);
-        cursor: help;
+        cursor: pointer;
         transition: color var(--transition-fast);
     }
 
@@ -40,14 +47,13 @@
         color: var(--primary);
     }
 
-    &:hover .annotation-tooltip,
-    &:focus-within .annotation-tooltip {
+    &[open] .annotation-tooltip {
         opacity: 1;
         visibility: visible;
     }
 
     // The positioned shell. `left` / `bottom` are fine-tuned inline by
-    // script.js (edge avoidance + below-trigger flip); opacity/visibility drive
+    // annotations.js (edge avoidance + below-trigger flip); opacity/visibility drive
     // the reveal so the popover's shadow is never clipped.
     .annotation-tooltip {
         position: absolute;
