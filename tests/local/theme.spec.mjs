@@ -8,10 +8,13 @@ async function fixture(page, width, mode) {
     await page.setViewportSize({width, height:900});
     await page.route('https://theme.test/**', route => route.fulfill({contentType:'text/html',body:html}));
     await page.goto('https://theme.test/');
-    await page.addStyleTag({content: css});
-    await page.locator('body').evaluate((body, theme) => body.dataset.theme = theme, mode);
-    // Keep the fixture independent of remote fonts and services.
+    // Match the real layout: resolve both theme attributes before CSS can paint.
     await page.emulateMedia({reducedMotion:'reduce'});
+    await page.evaluate(theme => {
+        document.documentElement.dataset.theme = theme;
+        document.body.dataset.theme = theme;
+    }, mode);
+    await page.addStyleTag({content: css});
 }
 for (const width of [375, 1280]) for (const mode of ['light', 'dark']) {
     test(`fallback grid and keyboard annotations ${width} ${mode}`, async ({page}) => {
