@@ -17,7 +17,18 @@ $config['entity_manager']['is_dev_mode'] = true;
 $services->setService('ApplicationConfig', ['connection' => []]);
 $services->setService('Config', $config);
 $services->setService('EventManager', new Laminas\EventManager\EventManager());
-$services->setService('Omeka\Connection', Doctrine\DBAL\DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]));
+// DBAL 2's SQLite driver calls PDO methods deprecated in PHP 8.5. Supply the
+// isolated native connection and register its helpers using the current API.
+$sqlite = method_exists(PDO::class, 'connect') ? PDO::connect('sqlite::memory:') : new PDO('sqlite::memory:');
+$createFunction = method_exists($sqlite, 'createFunction') ? 'createFunction' : 'sqliteCreateFunction';
+foreach (['sqrt' => ['udfSqrt', 1], 'mod' => ['udfMod', 2], 'locate' => ['udfLocate', -1]] as $name => [$method, $arguments]) {
+    $sqlite->$createFunction($name, [Doctrine\DBAL\Platforms\SqlitePlatform::class, $method], $arguments);
+}
+$createCollation = method_exists($sqlite, 'createCollation') ? 'createCollation' : 'sqliteCreateCollation';
+$sqlite->$createCollation('utf8mb4_bin', 'strcmp');
+$services->setService('Omeka\Connection', Doctrine\DBAL\DriverManager::getConnection([
+    'pdo' => $sqlite, 'platform' => new Doctrine\DBAL\Platforms\SqlitePlatform(),
+]));
 $services->setService('Omeka\Acl', new class { public function userIsAllowed(...$args) { return false; } });
 $services->setService('Omeka\AuthenticationService', new class { public function getIdentity() { return null; } });
 $emConfig = Doctrine\ORM\Tools\Setup::createAnnotationMetadataConfiguration($config['entity_manager']['mapping_classes_paths'], true);
@@ -31,7 +42,6 @@ $em->getEventManager()->addEventListener(Doctrine\ORM\Events::loadClassMetadata,
     new Omeka\Db\Event\Listener\ResourceDiscriminatorMap($config['entity_manager']['resource_discriminator_map']));
 foreach (['resource_visibility', 'value_visibility'] as $name) $em->getFilters()->enable($name)->setServiceLocator($services);
 $services->setService('Omeka\EntityManager', $em);
-$em->getConnection()->getWrappedConnection()->sqliteCreateCollation('utf8mb4_bin', 'strcmp');
 $schema = (new Doctrine\ORM\Tools\SchemaTool($em))->getSchemaFromMetadata($em->getMetadataFactory()->getAllMetadata());
 // SQLite shares table/index names globally; Omeka's MySQL names are per table.
 foreach ($schema->getTables() as $table) foreach ($table->getIndexes() as $index) {
