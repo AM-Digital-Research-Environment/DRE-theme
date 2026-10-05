@@ -162,9 +162,7 @@ if ($userBar) {
 
 	<?php echo $this->htmlElement('body'); ?>
 		<script>
-		// Mark JS-capable up front so the header can gate the inline menu's
-		// visibility until navigation.js classifies it (menu-flash fix #06);
-		// without JS the class is absent and the no-JS wrap fallback applies.
+		// General enhancement marker; navigation has its own successful-init gate.
 		document.documentElement.classList.add('js');
 		// Apply the saved theme synchronously, before first paint, to prevent a
 		// flash of the wrong theme. Mirrors getPreferredTheme() in theme-toggle.js.
@@ -193,6 +191,7 @@ if ($userBar) {
 		</main>
 
 		<?php echo $this->partial('common/footer', ['site' => $site]); ?>
+        <?php echo $this->partial('common/shortlist'); ?>
 
 		<button type="button" class="back-to-top" data-back-to-top
 			aria-label="<?php echo $this->escapeHtmlAttr($this->translate('Back to top')); ?>">
@@ -205,7 +204,8 @@ if ($userBar) {
 
 		<?php
 		echo $this->inlineScript()
-			->prependFile($this->assetUrl('js/theme-toggle.js'))
+			->prependFile($this->assetUrl('js/shortlist.js'))
+            ->prependFile($this->assetUrl('js/theme-toggle.js'))
 			->prependFile($this->assetUrl('js/navigation.js'))
 			->prependFile($this->assetUrl('js/back-to-top.js'))
 			->prependFile($this->assetUrl('js/script.js'))

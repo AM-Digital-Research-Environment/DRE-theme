@@ -32,10 +32,11 @@
 # without it: shipping sources the package has no way to compile is worse
 # than pointing at the repository, which carries both under the same GPLv3
 # (see README, "License").
-/gulpfile.js            export-ignore
 /package.json           export-ignore
 /package-lock.json      export-ignore
-/playwright*.config.mjs export-ignore
+/playwright.config.mjs  export-ignore
+/playwright.local.config.mjs export-ignore
+/playwright.visual.config.mjs export-ignore
 /scripts/               export-ignore
 /asset/sass/            export-ignore
 
@@ -50,6 +51,9 @@
 /AUDIT.md               export-ignore
 /DESIGN-ROADMAP.md      export-ignore
 /.impeccable.md         export-ignore
+/.impeccable/           export-ignore
+/docs/audits/           export-ignore
+/docs/IMPECCABLE-ROADMAP.md export-ignore
 /docs/TESTING.md        export-ignore
 /docs/REVIEW-*.md        export-ignore
 

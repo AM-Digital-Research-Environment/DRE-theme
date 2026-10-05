@@ -68,6 +68,7 @@ class RecordApparatus extends AbstractHelper
                 $cite = $view->dreCitation($resource);
             }
         } catch (\Throwable $e) {
+            $view->IntegrationWarning($resource, 'citation', $e);
             $cite = null;
         }
         $citeStyles = is_array($cite) && !empty($cite['styles']) ? $cite['styles'] : [];
@@ -161,6 +162,6 @@ class RecordApparatus extends AbstractHelper
             return count($row['values']) > 1;
         };
 
-        return compact('citation', 'citeStyles', 'citeDefault', 'citeDownloads', 'citeId', 'panelTitle', 'copyLabel', 'copyText', 'rows', 'isLongRow');
+        return compact('citation', 'citeStyles', 'citeDefault', 'citeDownloads', 'citeId', 'panelTitle', 'copyLabel', 'copyText', 'permalink', 'rows', 'isLongRow');
     }
 }

@@ -1,20 +1,99 @@
-/**
- * File linked-resources.js.
- *
- * Progressive enhancement for the consolidated "Linked resources" block:
- *  - relationship facet pills filter the list (aria-pressed, live count),
- *  - the sort control reorders it (relationship / title A-Z / Z-A).
- *
- * Uses event delegation on `document` rather than binding on load. The item
- * page also loads heavy resource-visualizations scripts, and binding at
- * DOMContentLoaded proved unreliable there (the listeners could attach before
- * the block was matchable, or be lost if the subtree was re-rendered).
- * Delegating from `document` is immune to script order and DOM re-rendering,
- * and the DOM is re-queried on each interaction so state always reflects what
- * is actually on the page. The list is fully usable without JS.
- */
+/** Connection pages progressively enhance ordinary GET forms and links. */
 (function () {
     'use strict';
+
+    const requests = new WeakMap();
+    const stateKeys = ['lr_property', 'lr_q', 'lr_page'];
+
+    function connectionState(url) {
+        const params = new URLSearchParams(url.search);
+        for (const [current, legacy] of [['lr_property', 'resource_property'], ['lr_page', 'page']]) {
+            if (!params.has(current) && params.has(legacy)) params.set(current, params.get(legacy));
+        }
+        return params;
+    }
+
+    function clearState(url) {
+        [...stateKeys, 'resource_property', 'page'].forEach(key => url.searchParams.delete(key));
+    }
+
+    async function loadPage(container, destination, push = true) {
+        const previous = requests.get(container);
+        if (previous) previous.controller.abort();
+        const state = { controller: new AbortController(), destination, push, timedOut: false };
+        const timeout = setTimeout(() => { state.timedOut = true; state.controller.abort(); }, 30000);
+        requests.set(container, state);
+        const status = container.querySelector('[data-connection-status]');
+        const recovery = container.querySelector('[data-connection-recovery]');
+        status.textContent = container.dataset.loading;
+        recovery.hidden = true;
+        container.setAttribute('aria-busy', 'true');
+        const endpoint = new URL(container.dataset.connectionEndpoint, location.href);
+        const params = connectionState(destination);
+        stateKeys.forEach(key => {
+            if (params.has(key)) endpoint.searchParams.set(key, params.get(key));
+        });
+        try {
+            const response = await fetch(endpoint, { signal: state.controller.signal, headers: { Accept: 'text/html' } });
+            if (!response.ok) throw new Error('Connection request failed');
+            const doc = new DOMParser().parseFromString(await response.text(), 'text/html');
+            const replacement = doc.querySelector('.resources-linked');
+            if (!replacement) throw new Error('Connection response missing');
+            if (requests.get(container) !== state) return;
+            const hadFocus = container.contains(document.activeElement);
+            container.querySelector('.resources-linked').replaceWith(replacement);
+            document.dispatchEvent(new CustomEvent('dre:connections-loaded'));
+            if (push) history.pushState(null, '', destination);
+            status.textContent = replacement.querySelector('.resources-linked__summary').textContent.trim();
+            if (hadFocus) {
+                const heading = replacement.querySelector('summary');
+                heading.focus();
+            }
+        } catch (error) {
+            if ((error.name === 'AbortError' && !state.timedOut) || requests.get(container) !== state) return;
+            status.textContent = container.dataset.failed;
+            recovery.hidden = false;
+            recovery.querySelector('[data-connection-continue]').href = destination.href;
+        } finally {
+            clearTimeout(timeout);
+            if (requests.get(container) === state) container.removeAttribute('aria-busy');
+        }
+    }
+
+    document.addEventListener('submit', event => {
+        const form = event.target.closest?.('[data-connection-form]');
+        const container = form?.closest('[data-connection-endpoint]');
+        if (!container || typeof fetch !== 'function') return;
+        event.preventDefault();
+        const destination = new URL(location.href);
+        clearState(destination);
+        new FormData(form).forEach((value, key) => destination.searchParams.set(key, value));
+        destination.hash = 'linked-resources';
+        loadPage(container, destination);
+    });
+    document.addEventListener('click', event => {
+        const control = event.target.closest?.('[data-connection-page], [data-connection-retry]');
+        const container = control?.closest('[data-connection-endpoint]');
+        if (!container || typeof fetch !== 'function') return;
+        if (control.hasAttribute('data-connection-page')) {
+            if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+            event.preventDefault();
+            const link = new URL(control.href);
+            const destination = new URL(location.href);
+            clearState(destination);
+            stateKeys.forEach(key => {
+                if (link.searchParams.has(key)) destination.searchParams.set(key, link.searchParams.get(key));
+            });
+            destination.hash = 'linked-resources';
+            loadPage(container, destination);
+        } else {
+            const state = requests.get(container);
+            if (state) loadPage(container, state.destination, state.push);
+        }
+    });
+    window.addEventListener('popstate', () => {
+        document.querySelectorAll('[data-connection-endpoint]').forEach(container => loadPage(container, new URL(location.href), false));
+    });
 
     function activeFacet(root) {
         var btn = root.querySelector('[data-lr-facet].is-active');

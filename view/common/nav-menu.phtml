@@ -1,28 +1,5 @@
 <?php
-/**
- * Primary navigation — designed mega-dropdown renderer.
- *
- * Replaces `$site->publicNav()->menu()->renderMenu()` with a custom walk of the
- * SAME navigation container, so depth/order/visibility stay driven by the site's
- * nav config — but each parent emits a two-region panel (a Spectral section
- * title + framing line + “View all” rail, beside a grid of child links that each
- * carry a short description) instead of a bare link list. See DESIGN.md §8 and
- * GitHub issue #09.
- *
- * Output contract for asset/js/navigation.js + the menu drawer:
- *   - the menu is a single `<ul class="navigation">` (the script adds `nav-menu`
- *     and clones this ul into the drawer);
- *   - parents with children carry `.menu-item-has-children` (the script injects
- *     the `.submenu-btn` caret toggle after the parent link);
- *   - each parent's children live in a child `<ul class="nav-panel">` so the
- *     drawer's clone-and-slide keeps working unchanged (the `<li> > <ul>` shape);
- *   - the active branch carries `.active`.
- * No-JS: the panel is a normal nested list (the wrap fallback still applies).
- *
- * Descriptions are hard-coded here, keyed by page slug (stable, accent-free),
- * and remain trivially editable. A slug with no entry simply renders title-only
- * — the panel still works (issue #09: “falling back to no-description”).
- */
+// Two-region desktop panels; nested lists retain every configured level.
 
 $translate = $this->plugin('translate');
 $escapeHtml = $this->plugin('escapeHtml');
@@ -81,8 +58,7 @@ $container = $site->publicNav()->getContainer();
 $topPages = $container->getPages();
 
 // "Top Navigation Depth" theme setting, passed in by common/header.phtml.
-// 0 (or absent) means "all levels"; this renderer walks two levels, so a depth
-// of 1 renders top-level links only and suppresses the mega-panels.
+// 0 means all levels; 1 suppresses the panels.
 $navDepth = isset($navDepth) ? max(0, (int) $navDepth) : 0;
 $showChildren = (0 === $navDepth || $navDepth >= 2);
 
@@ -120,7 +96,7 @@ $arrowSvg = '<svg class="nav-panel__viewall-arrow" width="15" height="15" viewBo
               // be set — navigation.js injects its caret <button> on the strength
               // of it, and the CSS opens a panel that would not exist. ?>
         <li class="nav-item<?php echo $children ? ' menu-item-has-children' : ''; ?><?php echo $isActive ? ' active' : ''; ?>">
-            <a class="nav-item__link" href="<?php echo $escapeAttr($href); ?>"><?php echo $escapeHtml($label); ?></a>
+            <?php echo $this->partial('common/nav-link', ['page' => $page, 'class' => 'nav-item__link']); ?>
 
             <?php if ($children): ?>
             <ul class="nav-panel">
@@ -133,20 +109,7 @@ $arrowSvg = '<svg class="nav-panel__viewall-arrow" width="15" height="15" viewBo
                         <?php echo $escapeHtml($translate('View all')); ?><?php echo $arrowSvg; ?>
                     </a>
                 </li>
-                <?php foreach ($children as $child): ?>
-                    <?php
-                    $descRaw = $descMap[$slugOf($child)] ?? null;
-                    $desc = $descRaw ? $translate($descRaw) : null;
-                    ?>
-                    <li class="nav-panel__cell<?php echo $child->isActive(true) ? ' active' : ''; ?>">
-                        <a href="<?php echo $escapeAttr((string) $child->getHref()); ?>">
-                            <span class="nav-panel__cell-title"><?php echo $escapeHtml((string) $child->getLabel()); ?></span>
-                            <?php if ($desc): ?>
-                                <span class="nav-panel__cell-desc"><?php echo $escapeHtml($desc); ?></span>
-                            <?php endif; ?>
-                        </a>
-                    </li>
-                <?php endforeach; ?>
+                <?php echo $this->partial('common/nav-children', ['pages' => $children, 'level' => 2, 'navDepth' => $navDepth, 'descMap' => $descMap]); ?>
             </ul>
             <?php endif; ?>
         </li>

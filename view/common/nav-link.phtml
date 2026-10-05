@@ -1,0 +1,8 @@
+<a<?php echo empty($class) ? '' : ' class="' . $this->escapeHtmlAttr($class) . '"'; ?> href="<?php echo $this->escapeHtmlAttr($page->getHref()); ?>"<?php
+    if ($page->getTarget()) {
+        echo ' target="' . $this->escapeHtmlAttr($page->getTarget()) . '"';
+        if ($page->getTarget() === '_blank') echo ' rel="noopener"';
+    }
+    if ($page->getTitle()) echo ' title="' . $this->escapeHtmlAttr($page->getTitle()) . '"';
+    if ($page->isActive(false)) echo ' aria-current="page"';
+?>><?php echo $this->escapeHtml($page->getLabel()); ?><?php if (!empty($description)): ?><span class="nav-panel__cell-desc"><?php echo $this->escapeHtml($description); ?></span><?php endif; ?></a>

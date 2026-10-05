@@ -1,7 +1,7 @@
 // Africa Multiple — DRE — compiled entry point.
 //
 // The CSS file header (Theme Name / Version / license) is prepended AFTER
-// compilation by gulpfile.js, not emitted from here: under the Dart Sass module
+// compilation by scripts/build-css.mjs, not emitted from here: under the Dart Sass module
 // system a loud `/* */` comment that precedes `@use "abstracts"` is re-emitted
 // at every one of the ~50 files that load the abstracts module, so the header is
 // kept out of the Sass graph entirely.

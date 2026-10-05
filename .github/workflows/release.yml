@@ -42,7 +42,7 @@ jobs:
       sha: ${{ steps.ref.outputs.sha }}
       tag: ${{ steps.ref.outputs.tag }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
       - id: ref
@@ -68,18 +68,18 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # The tag has to be a real ref for `git archive <tag>`, and the
           # release notes step wants the history behind it.
           fetch-depth: 0
           ref: ${{ needs.resolve.outputs.sha }}
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 24
 
-      - uses: shivammathur/setup-php@v2
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
           php-version: '8.5'
           coverage: none
@@ -151,6 +151,9 @@ jobs:
             'DRE-theme/package-lock\.json' \
             'DRE-theme/gulpfile\.js' \
             'DRE-theme/playwright[^/]*\.config\.mjs' \
+            'DRE-theme/\.impeccable/' \
+            'DRE-theme/docs/audits/' \
+            'DRE-theme/docs/IMPECCABLE-ROADMAP\.md' \
             'DRE-theme/\.editorconfig' \
             'DRE-theme/\.gitattributes'
           do

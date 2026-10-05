@@ -77,5 +77,6 @@ $classes = array_filter([
                     echo $escape($body); ?></div>
             <?php endif; ?>
         </div>
+        <?php echo $this->partial('common/shortlist-button', ['resource' => $resource]); ?>
     </div>
 </<?php echo $tag; ?>>

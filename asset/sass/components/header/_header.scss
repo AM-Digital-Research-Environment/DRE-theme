@@ -156,29 +156,31 @@
         }
     }
 
-    // --- Tier 2: primary navigation on its own full-width row -------------
-    // Hidden on mobile/tablet (the drawer takes over) and when an over-wide
-    // menu collapses to the drawer at desktop (data-nav="drawer"). Giving the
-    // nav its own row means it (almost) always fits inline at $xl+, so the
-    // overflow→drawer safety net rarely fires — and the flash it caused is
-    // gated below until navigation.js classifies the menu before first paint.
     &__nav-row {
-        display: none;
+        display: block;
         border-top: 1px solid var(--border-light);
-
-        @media (min-width: $xl) {
-            .main-header:not([data-nav="drawer"]) & {
-                display: block;
-            }
-        }
     }
 }
 
-// Menu-flash fix (#06): with JS, keep the nav row invisible until the inline
-// pre-paint script (header.phtml) sets data-nav, so the desktop menu never
-// paints then snaps to the drawer. No-JS: <html> lacks `.js`, this is inert.
-html.js .main-header:not([data-nav]) .main-header__nav-row {
-    visibility: hidden;
+// Hide the usable baseline only after the drawer has initialized successfully.
+.main-header.nav-ready[data-nav="drawer"] .main-header__nav-row { display: none; }
+.main-header:not(.nav-ready) {
+    position: relative;
+    .main-navigation__toggle { display: none; }
+    .main-navigation .navigation, .main-navigation .navigation ul {
+        display: block;
+        position: static;
+        visibility: visible;
+        opacity: 1;
+        transform: none;
+        width: auto;
+        max-height: none;
+        pointer-events: auto;
+        padding: var(--space-2);
+    }
+    .main-navigation li { display: block; }
+    .main-navigation a { display: block; padding: var(--space-2); min-height: var(--size-control-lg); }
+    .nav-panel__rail { display: none; }
 }
 
 // --- Brand lockup ---------------------------------------------------------

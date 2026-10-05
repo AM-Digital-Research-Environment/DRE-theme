@@ -1,25 +1,25 @@
 <?php
-/**
- * "Linked resources" resource-page block.
- *
- * Thin wrapper: render only when the resource is referenced by others, then
- * defer the whole consolidated, faceted view to common/linked-resources.phtml
- * (via the core linkedResources helper). The facet/sort behaviour lives in
- * js/linked-resources.js — no accordion, no expand/collapse control.
- */
-$siteId = $this->siteSetting('exclude_resources_not_in_site')
-    ? $this->currentSite()->id()
-    : null;
-
-// Linked resources are shown only as items (and media) — never item sets, which
-// dead-end on an unstyled item-set page. Gate the whole block on whether any
-// *item or media* links here, so a resource linked solely by item sets shows no
-// empty "Linked resources" shell (and skips the wasted AJAX round-trip). Keep in
-// sync with the resource-type guard in view/omeka/site/index/linked-resources.phtml.
-$linkedCount = $resource->subjectValueTotalCount(null, 'items', $siteId)
-    + $resource->subjectValueTotalCount(null, 'media', $siteId);
-
-if ($linkedCount):
-    echo $this->linkedResources($resource);
+// Render the initial page on the server: filtering and pagination work without JS.
+try {
+    $data = $this->ConnectionPage($resource, $this->params()->fromQuery());
+} catch (\Throwable $e) {
+    $this->IntegrationWarning($resource, 'connections', $e);
+    echo '<p id="linked-resources" role="status">' . $this->escapeHtml($this->translate('Connections could not be loaded.')) . ' '
+        . '<a href="' . $this->escapeHtmlAttr($resource->url()) . '#linked-resources">' . $this->escapeHtml($this->translate('Reload page')) . '</a></p>';
+    return;
+}
+if (array_filter($data['resourcePropertiesAll'])):
+    $endpoint = $this->url('site/resource-id', ['controller' => 'index', 'action' => 'linked-resources', 'id' => $resource->id()], [], true);
     $this->inlineScript()->appendFile($this->assetUrl('js/linked-resources.js'));
-endif;
+?>
+<div id="linked-resources-container" data-connection-endpoint="<?php echo $this->escapeHtmlAttr($endpoint); ?>"
+    data-loading="<?php echo $this->escapeHtmlAttr($this->translate('Loading connections…')); ?>"
+    data-failed="<?php echo $this->escapeHtmlAttr($this->translate('Connections could not be loaded. Your previous results are still shown.')); ?>">
+    <p data-connection-status role="status" aria-live="polite"></p>
+    <div data-connection-recovery hidden>
+        <button type="button" class="btn--secondary" data-connection-retry><?php echo $this->translate('Try again'); ?></button>
+        <a data-connection-continue href="<?php echo $this->escapeHtmlAttr($resource->url()); ?>#linked-resources"><?php echo $this->translate('Open results as a page'); ?></a>
+    </div>
+    <?php echo $this->partial('common/linked-resources', $data); ?>
+</div>
+<?php endif; ?>

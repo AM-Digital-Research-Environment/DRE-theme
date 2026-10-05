@@ -1,20 +1,7 @@
 @use "../../abstracts" as *;
 
-// ==========================================================================
-// Inline menu vs. drawer — two switches, not one:
-//
-//   1. The $xl media query (no-JS baseline): below $xl the hamburger/drawer,
-//      at $xl+ the inline pill menu.
-//   2. data-nav on .main-header (set by navigation.js): at $xl+ the script
-//      measures the menu's one-line width against the space between the
-//      lockup and the utilities cluster and sets data-nav="inline" or
-//      "drawer". A menu that would WRAP onto a second row (half-screen
-//      windows, long menus, large font settings) collapses to the drawer
-//      instead — wrapping is only the no-JS fallback.
-//
-// Every "desktop menu" rule below is therefore gated on
-// `.main-header:not([data-nav="drawer"])` so drawer mode can win at any width.
-// ==========================================================================
+// The rendered list remains the baseline until .nav-ready enables the drawer.
+// data-nav then selects inline or drawer mode at every viewport width.
 .main-navigation {
     // Tier 2: the nav is the sole child of .main-header__nav-row and carries the
     // `.container` class, so it centres to the page width. The desktop/mobile
@@ -36,7 +23,7 @@
     // While the script is in charge (data-nav present) the menu never wraps:
     // the drawer takes over before a second row can paint. Without JS the
     // attribute is absent and the wrap below remains the graceful fallback.
-    .main-header[data-nav] & .navigation {
+    .main-header.nav-ready[data-nav] & .navigation {
         flex-wrap: nowrap;
     }
 
@@ -453,4 +440,19 @@
     .main-navigation .navigation > li.menu-item-has-children:hover > .nav-panel,
     .main-navigation .navigation a::after,
     .main-navigation .nav-panel__viewall-arrow { transition: none; }
+}
+
+// Deeper branches remain readable within a desktop panel; the drawer slides
+// the same nested lists one level at a time.
+.main-navigation .nav-panel .nav-branch {
+    position: static;
+    display: block;
+    visibility: inherit;
+    opacity: inherit;
+    transform: none;
+    box-shadow: none;
+    border: 0;
+    padding-inline-start: var(--space-4);
+    .nav-panel__cell { display: block; }
+    a { font-size: var(--text-sm); }
 }

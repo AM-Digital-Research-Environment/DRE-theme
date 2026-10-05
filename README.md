@@ -7,10 +7,11 @@
 
 The **Digital Research Environment** theme for the [Africa Multiple Cluster of Excellence](https://www.africamultiple.uni-bayreuth.de/) (University of Bayreuth) — a *“Scholarly Modernism”* design system for the Cluster’s Omeka S archive. Warm and scholarly, built on a modern **OKLCH design-token** foundation with first-class **light and dark modes** and the Cluster’s Uni-Grün brand identity.
 
-> 📐 Product context: **[`PRODUCT.md`](PRODUCT.md)** · portable design system: **[`DESIGN.md`](DESIGN.md)** · cross-module contract: **[`docs/DESIGN-INTEGRATION.md`](docs/DESIGN-INTEGRATION.md)** · Impeccable evaluation programme: **[`docs/IMPECCABLE-ROADMAP.md`](docs/IMPECCABLE-ROADMAP.md)** · design/token audit and breaking-change register: **[`AUDIT.md`](AUDIT.md)**
+> 📐 Product context: **[`PRODUCT.md`](PRODUCT.md)** · portable design system: **[`DESIGN.md`](DESIGN.md)** · cross-module contract: **[`docs/DESIGN-INTEGRATION.md`](docs/DESIGN-INTEGRATION.md)** · Impeccable evaluation programme: **[`docs/IMPECCABLE-ROADMAP.md`](https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/docs/IMPECCABLE-ROADMAP.md)** · design/token audit and breaking-change register: **[`AUDIT.md`](AUDIT.md)**
 
 ## Features
 
+- **Research tools** — shareable connection filters and title searches, record contents with section permalinks, and an optional browser-local shortlist with citation details, Undo clear, and Markdown/CSV/JSON exports. See [2.32.0 release notes](docs/RELEASE-2.32.0.md).
 - **Single-seed brand engine** — one Uni-Grün seed (`#009260`) drives every accent, hover, focus ring and tint via `color-mix(in oklab, …)`. Change the **Brand colour** setting and the whole theme re-tints, AA-legible in both modes.
 - **Light & dark modes** — respects the visitor’s system preference, with a manual sun/moon toggle that persists; a synchronous head-script prevents any flash of the wrong theme.
 - **Distinctive typography** — Spectral (display serif) + Hanken Grotesk (body/UI), sourced from Bunny Fonts and **self-hosted by the theme**. No visitor request is made to a font CDN.
@@ -35,7 +36,10 @@ npm run build     # lint, then compile asset/sass → asset/css/style.css (compr
 npm run watch     # recompile on change
 ```
 
-Build toolchain: gulp 5, Dart Sass 1.x, gulp-postcss, autoprefixer.
+Build toolchain: Node.js, Dart Sass, PostCSS and Autoprefixer. `npm run build:css`
+compiles styles directly; `npm run watch` (or `npm start`) builds once and watches
+Sass, theme metadata and browser targets. A failed compilation leaves the last
+successful CSS intact, and watch mode recovers after the source is corrected.
 
 ### Checks
 
@@ -49,7 +53,8 @@ Build toolchain: gulp 5, Dart Sass 1.x, gulp-postcss, autoprefixer.
 | `npm run lint:groups` | Every property of the live *Research Items* template lands in a named metadata group, and the ones the record design depends on (Author, Abstract, Subject, DOI…) land in the *right* one |
 | `npm run lint:js` | Every maintained `.js`/`.mjs` file parses with the supported Node runtime |
 | `npm run lint:php` | **Real `php -l`** over every `.php`/`.phtml`, then the theme's PHP tests |
-| `npm run test:unit` | jsdom behavior tests for dark mode, translated labels, storage failures, mobile navigation and the PWA manifest/install prompt |
+| `npm run test:unit` | JavaScript behavior tests plus CSS compilation, metadata/prefixing, failed-build output preservation and watch-mode recovery |
+| `npm run test:browser` | Actual PHP-rendered fixtures in Chromium, Firefox and WebKit: navigation, keyboard access, no-JS fallback, shortlist exports, record sections and browse layouts |
 | `npm run i18n:check` | `language/template.pot` is up to date (regenerate with `npm run i18n:extract`) |
 
 ### PHP verification
@@ -103,7 +108,7 @@ To add a locale, copy it to `<locale>.po`, translate the `msgstr` values, compil
 
 ## Theme settings
 
-- **General** — *Brand colour* (single seed; default Uni-Grün `#009260`).
+- **General** — *Brand colour* (single seed; default Uni-Grün `#009260`) and *Research shortlist* (default on; saves records in the visitor's browser).
 - **Contact info** — location, phone, email; show in top header and/or footer.
 - **Header** — top-navigation depth; optional custom *Logo* (overrides the bundled Africa Multiple lockup).
 - **Banner** — the masthead: *brand presence* (quiet / balanced / bold), eyebrow, title (defaults to the site title), tagline, two optional text links, the catalogue column (heading + corpus counts), an optional standing note beneath it, the optional earth-tone wash, and a toggle to show the slim strip on interior pages.
@@ -132,9 +137,9 @@ With the **Progressive Web App** setting enabled (the default), the site becomes
 
 The visual language — palette, typography, layout, depth, shapes, components and guardrails — is documented in the canonical **[`DESIGN.md`](DESIGN.md)** format, with machine-readable tokens in its frontmatter and a renderable Impeccable sidecar at `.impeccable/design.json`. Durable audience, purpose and operating constraints live separately in **[`PRODUCT.md`](PRODUCT.md)**.
 
-The theme’s design tokens are the shared API for **DRE Search** and **DRE Visualizations**. Their mode, JavaScript, fallback, data-colour, stacking and coordinated-release rules live in **[`docs/DESIGN-INTEGRATION.md`](docs/DESIGN-INTEGRATION.md)**. The phased Impeccable 4.1.2 audit, representative live routes and safe browser-local CSS/JavaScript experiment protocol are documented in **[`docs/IMPECCABLE-ROADMAP.md`](docs/IMPECCABLE-ROADMAP.md)**.
+The theme’s design tokens are the shared API for **DRE Search** and **DRE Visualizations**. Their mode, JavaScript, fallback, data-colour, stacking and coordinated-release rules live in **[`docs/DESIGN-INTEGRATION.md`](docs/DESIGN-INTEGRATION.md)**. The phased Impeccable 4.1.2 audit, representative live routes and safe browser-local CSS/JavaScript experiment protocol are documented in **[`docs/IMPECCABLE-ROADMAP.md`](https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/docs/IMPECCABLE-ROADMAP.md)**.
 
-For design work without a local Omeka database, use the editable, sanitized **[`tests/fixtures/design-system/`](tests/fixtures/design-system/README.md)** catalogue first. The grouped read-only production tests, explicit deployed-version guard, and disposable CSS-injection workflow are documented in **[`docs/TESTING.md`](docs/TESTING.md)**.
+For design work without a local Omeka database, use the editable, sanitized **[`tests/fixtures/design-system/`](tests/fixtures/design-system/README.md)** catalogue first. The grouped read-only production tests, explicit deployed-version guard, and disposable CSS-injection workflow are documented in **[`docs/TESTING.md`](https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/docs/TESTING.md)**.
 
 **Upgrading to v2.22** — the token layer grew beyond colour (type, rhythm and layout families) and a handful of tokens were retired or renamed. Only one rename affects the modules: `--dre-hl-bg` → `--highlight-bg`, shipped with a deprecated compatibility alias and already updated in DRE Search. The full register, with impact and mitigation per change, is in [`AUDIT.md` §4](https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/AUDIT.md).
 

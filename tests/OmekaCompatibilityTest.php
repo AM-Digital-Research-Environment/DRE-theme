@@ -6,10 +6,8 @@ if ($omekaPath === '' || !is_file($omekaPath . '/vendor/autoload.php')) {
     exit(2);
 }
 
-if (!defined('OMEKA_PATH')) {
-    define('OMEKA_PATH', $omekaPath);
-}
-require $omekaPath . '/vendor/autoload.php';
+// Omeka's bootstrap also installs its PHP 8.5 framework compatibility overrides.
+require $omekaPath . '/bootstrap.php';
 require_once $omekaPath . '/application/Module.php';
 require_once __DIR__ . '/bootstrap.php';
 
@@ -22,7 +20,7 @@ $checks = 0;
 $services = new ServiceManager();
 $services->setService('Config', ['page_templates' => [], 'block_templates' => []]);
 $manager = (new ThemeManagerFactory())($services, 'Omeka\Site\ThemeManager');
-$theme = $manager->getTheme('dre');
+$theme = $manager->getTheme(getenv('OMEKA_THEME') ?: 'dre');
 
 dre_check($failures, $checks, 'Omeka discovers the theme', false !== $theme);
 dre_check($failures, $checks, 'Omeka accepts theme.ini and its version constraint',

@@ -43,6 +43,8 @@ $hasRail = ($apparatus !== '') || $rightSidebarHasBlocks;
 <?php echo $this->ResourceTags($item); ?>
 <?php echo $this->pageTitle($item->displayTitle(null, $valueLang), 1); ?>
 
+<?php echo $this->partial('common/shortlist-button', ['resource' => $item, 'detail' => true]); ?>
+
 <?php $this->trigger('view.show.before'); ?>
 
 <?php if ($mainHasBlocks || $leftSidebarHasBlocks || $hasRail): ?>

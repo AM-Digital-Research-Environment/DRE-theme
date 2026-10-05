@@ -1,9 +1,22 @@
 <?php
-$class = isset($class) ? (string) $class : '';
+$class = (string) ($class ?? '');
+$searchId = (string) ($searchId ?? 'header-search');
 $translate = $this->plugin('translate');
+$action = $this->siteSetting('search_type', 'sitewide') === 'cross-site'
+    ? $this->url('site/cross-site-search', ['action' => 'results'], [], true)
+    : $this->url('site/resource', ['controller' => 'index', 'action' => 'search'], [], true);
+$query = $this->params()->fromQuery('fulltext_search', '');
+$query = is_string($query) ? $query : '';
 ?>
-<button type="button" class="o-icon-search main-search-button button <?php echo $this->escapeHtmlAttr($class); ?>" aria-label="<?php echo $this->escapeHtmlAttr($translate('Search')); ?>"></button>
-
-<div class="main-header-search">
-    <?php echo $this->partial('common/search-form'); ?>
+<div class="core-search <?php echo $this->escapeHtmlAttr($class); ?>" data-core-search>
+    <button type="button" hidden class="main-search-button button"
+        aria-label="<?php echo $this->escapeHtmlAttr($translate('Search')); ?>"
+        aria-expanded="false" aria-controls="<?php echo $this->escapeHtmlAttr($searchId); ?>-panel"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg></button>
+    <div class="main-header-search" id="<?php echo $this->escapeHtmlAttr($searchId); ?>-panel">
+        <form role="search" method="get" action="<?php echo $this->escapeHtmlAttr($action); ?>" aria-label="<?php echo $this->escapeHtmlAttr($translate('Search')); ?>">
+            <label class="sr-only" for="<?php echo $this->escapeHtmlAttr($searchId); ?>-query"><?php echo $translate('Query'); ?></label>
+            <input type="search" id="<?php echo $this->escapeHtmlAttr($searchId); ?>-query" name="fulltext_search" value="<?php echo $this->escapeHtmlAttr($query); ?>">
+            <button type="submit" aria-label="<?php echo $this->escapeHtmlAttr($translate('Submit')); ?>"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg></button>
+        </form>
+    </div>
 </div>

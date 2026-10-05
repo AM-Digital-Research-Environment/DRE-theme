@@ -29,7 +29,7 @@ extract($apparatus, EXTR_SKIP);
 
 $this->inlineScript()->appendFile($this->assetUrl('js/record.js'));
 ?>
-<section class="record-apparatus" aria-labelledby="<?php echo $escAttr($citeId . '-title'); ?>">
+<section class="record-apparatus" data-shortlist-record-url="<?php echo $escAttr($permalink); ?>" aria-labelledby="<?php echo $escAttr($citeId . '-title'); ?>">
     <h2 class="record-apparatus__title" id="<?php echo $escAttr($citeId . '-title'); ?>"><?php echo $escHtml($panelTitle); ?></h2>
 
     <?php if ($citeStyles): ?>

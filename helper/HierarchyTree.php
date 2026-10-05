@@ -2,7 +2,7 @@
 namespace OmekaTheme\Helper;
 use Laminas\View\Helper\AbstractHelper;
 
-/** Indexed, cycle-safe hierarchy data with one read per distinct item set. */
+/** Indexed, cycle-safe hierarchy data with bounded batches of authorized item sets. */
 class HierarchyTree extends AbstractHelper
 {
     public function __invoke($selected, $valueLang = null): array
@@ -16,7 +16,9 @@ class HierarchyTree extends AbstractHelper
                 'page' => $page, 'per_page' => 100,
             ]);
             $batch = $response->getContent();
+            $previousCount = count($groupings);
             foreach ($batch as $grouping) $groupings[$grouping->id()] = $grouping;
+            if (count($groupings) === $previousCount) break;
             ++$page;
         } while ($batch && ($page - 1) * 100 < $response->getTotalResults());
         $siteSets = [];
@@ -34,6 +36,20 @@ class HierarchyTree extends AbstractHelper
             $parent = (int) $grouping->getParentGrouping();
             $children[isset($byId[$parent]) && $parent !== $id ? $parent : 0][] = $id;
         }
+        $wanted = [];
+        foreach ($byId as $grouping) {
+            $reference = $grouping->getItemSet();
+            if ($reference) {
+                $setId = (int) $reference->id();
+                $sets[$setId] = null;
+                if (!$allowed || isset($allowed[$setId])) $wanted[$setId] = $setId;
+            }
+        }
+        foreach (array_chunk(array_values($wanted), 100) as $batch) {
+            try {
+                foreach ($view->api()->search('item_sets', ['id' => $batch, 'per_page' => 100])->getContent() as $set) $sets[$set->id()] = $set;
+            } catch (\Throwable $e) { /* Unavailable sets remain unlinked. */ }
+        }
         $build = function (int $id) use (&$build, &$visited, &$sets, &$counts, $byId, $children, $allowed, $view, $activeId, $valueLang): ?array {
             if (isset($visited[$id])) return null;
             $visited[$id] = true;
@@ -42,17 +58,10 @@ class HierarchyTree extends AbstractHelper
             $set = null;
             if ($reference) {
                 $setId = (int) $reference->id();
-                if (!array_key_exists($setId, $sets)) {
-                    $sets[$setId] = null;
-                    if (!$allowed || isset($allowed[$setId])) {
-                        try { $sets[$setId] = $view->api()->read('item_sets', $setId)->getContent(); }
-                        catch (\Throwable $e) { /* Unavailable sets remain unlinked. */ }
-                    }
-                }
                 $set = $sets[$setId];
             }
             $label = $grouping->getLabel() ?: ($set ? $set->displayTitle(null, $valueLang) : $view->translate('[Untitled]'));
-            if ($reference && !$set) $label .= $view->translate(' (Private)');
+            if ($reference && !$set) $label .= $view->translate(' (Unavailable)');
             $nodes = [];
             $ids = $set ? [$set->id() => true] : [];
             foreach ($children[$id] ?? [] as $childId) {

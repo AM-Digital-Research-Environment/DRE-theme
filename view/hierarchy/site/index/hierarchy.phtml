@@ -1,7 +1,6 @@
 <?php
 $translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
-$thumbnail = $this->plugin('thumbnail');
 $filterLocale = (bool) $this->siteSetting('filter_locale_values');
 $lang = $this->lang();
 $valueLang = $filterLocale ? [$lang, ''] : null;
@@ -42,17 +41,14 @@ if ($hierarchyGrouping->getLabel()) {
         <?php
         // If hierarchy_show_itemset_metadata checked, display item set metadata
         if ($this->siteSetting('hierarchy_show_itemSet_metadata') && $itemSet):
-            $headingTerm = $this->siteSetting('browse_heading_property_term');
-            $bodyTerm = $this->siteSetting('browse_body_property_term');
-            $heading = $headingTerm ? $itemSet->value($headingTerm, ['default' => $translate('[Untitled]'), 'lang' => $valueLang]) : $itemSet->displayTitle(null, $valueLang);
-            $body = $bodyTerm ? $itemSet->value($bodyTerm, ['lang' => $valueLang]) : $itemSet->displayDescription(null, $valueLang);
+            ['heading' => $heading, 'body' => $body, 'thumbnail' => $setThumbnail] = $this->ResourceCardData($itemSet, ['thumbnailSize' => 'medium']);
         ?>
         <ul class="resource-list">
         <li class="item-set resource">
             <div class="hierarchy-itemset-metadata">
                 <?php
                 $linkContent = sprintf('%s<span class="resource-name">%s</span>',
-                    $thumbnail($itemSet, 'medium'),
+                    $setThumbnail,
                     $escape($heading));
                 echo $itemSet->linkRaw($linkContent, null, ['class' => 'resource-link']);
                 ?>
@@ -78,24 +74,10 @@ if ($hierarchyGrouping->getLabel()) {
             <?php $this->trigger('view.browse.before'); ?>
             <ul class="resource-list">
                 <?php
-                $headingTerm = $this->siteSetting('browse_heading_property_term');
-                $bodyTerm = $this->siteSetting('browse_body_property_term');
                 $bodyTruncate = $this->themeSetting('truncate_body_property');
                 foreach ($items as $item):
-                    $heading = $headingTerm ? $item->value($headingTerm, ['default' => $translate('[Untitled]'), 'lang' => $valueLang]) : $item->displayTitle(null, $valueLang);
-                    $body = $bodyTerm ? $item->value($bodyTerm, ['lang' => $valueLang]) : $item->displayDescription(null, $valueLang);
-                    $primaryMedia = $item->primaryMedia();
-                    $thumbnail = '';
-                    if ($primaryMedia) {
-                        $altText = $primaryMedia->altText() ?: $primaryMedia->displayTitle() ?: '';
-                        $thumbnail = $this->thumbnail($primaryMedia, 'square', ['alt' => $altText]);
-                    }
-                    echo $this->partial('common/resource-card', [
-                        'resource' => $item,
-                        'heading' => $heading,
-                        'body' => $body,
+                    echo $this->partial('common/resource-card', $this->ResourceCardData($item, ['thumbnailSize' => 'square']) + [
                         'bodyTruncate' => $bodyTruncate,
-                        'thumbnail' => $thumbnail,
                         'tag' => 'li',
                         'isGrid' => false,
                     ]);

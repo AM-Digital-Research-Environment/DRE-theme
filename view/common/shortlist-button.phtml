@@ -1,0 +1,5 @@
+<?php if (!($this->themeSetting('research_shortlist') ?? true)) return; ?>
+<button type="button" class="shortlist-save" hidden data-shortlist-save<?php echo !empty($detail) ? ' data-shortlist-detail' : ''; ?>
+    data-url="<?php echo $this->escapeHtmlAttr($resource->url(null, true)); ?>"
+    data-title="<?php echo $this->escapeHtmlAttr($resource->displayTitle()); ?>"
+    aria-pressed="false"><?php echo $this->translate('Save record'); ?></button>

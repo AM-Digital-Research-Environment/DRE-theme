@@ -1,67 +1,48 @@
 <?php
-/**
- * Theme override of the Mirador module's resource-page block partial.
- *
- * Module default (Mirador/view/common/resource-page-block-layout/mirador.phtml):
- *
- *     <div class="block resource-block block-mirador">
- *         <?= $this->mirador($resource) ?>
- *     </div>
- *
- * Mirador renders an item's media from its IIIF manifest, but an external
- * *embed* (YouTube, oEmbed, raw HTML) is not a IIIF canvas, so the generated
- * manifest has zero canvases and the viewer has nothing to show. The amira site
- * uses the Mirador block as its item-page media region, so for embed-bearing
- * items we render the media's own native player (e.g. the YouTube iframe)
- * instead. Image / AV-file items fall through to Mirador unchanged, keeping IIIF
- * deep-zoom.
- *
- * Ported from the former universal-viewer.phtml override when the site moved
- * from Universal Viewer to Mirador: the IIIF-vs-embed split is identical — only
- * the fallback viewer changed. (Mirador cannot play a YouTube/oEmbed media for
- * the same reason UV could not: it is not a IIIF canvas.)
- *
- * @var \Laminas\View\Renderer\PhpRenderer $this
- * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
- */
-
-// Ingesters whose media are external embeds rather than IIIF-renderable files.
-$embedIngesters = ['youtube', 'oembed', 'html'];
+// External embeds and IIIF files can coexist on the same record.
 $viewerLabel = $this->translate('Image viewer');
-
-$embedMedia = [];
-if (method_exists($resource, 'media')) {
-    foreach ($resource->media() as $media) {
-        if (in_array($media->ingester(), $embedIngesters, true)) {
-            $embedMedia[] = $media;
-        }
-    }
+$embeds = [];
+$viewerMedia = [];
+$allMedia = method_exists($resource, 'media') ? $resource->media() : [];
+foreach ($allMedia as $media) {
+    if (in_array($media->ingester(), ['youtube', 'oembed', 'html'], true)) $embeds[] = $media;
+    else $viewerMedia[] = $media;
 }
 ?>
-<?php if ($embedMedia): ?>
+<?php if ($embeds): ?>
 <div class="block resource-block block-mirador block-media-embed">
-    <?php foreach ($embedMedia as $media): ?>
-        <?php $altText = $media->altText() ?: $media->displayTitle() ?: ''; ?>
-        <div class="media-embed media-embed--video">
-            <?= $media->render(['thumbnailAttribs' => ['alt' => $altText]]) ?>
-        </div>
+    <?php foreach ($embeds as $media): ?>
+    <div class="media-embed media-embed--video">
+        <?php try {
+            echo $media->render(['thumbnailAttribs' => ['alt' => $media->altText() ?: $media->displayTitle() ?: '']]);
+        } catch (\Throwable $e) {
+            $this->IntegrationWarning($media, 'embed', $e);
+            echo '<p>' . $this->escapeHtml($this->translate('Media is unavailable.')) . '</p>';
+        } ?>
+        <p><?php echo $media->link($this->translate('Open media record')); ?></p>
+    </div>
     <?php endforeach; ?>
 </div>
-<?php else: ?>
+<?php endif; ?>
 <?php
-// Make the IIIF viewer follow the site's light/dark toggle. Loaded only on
-// pages that actually render Mirador; see asset/js/mirador-theme.js.
-$this->headScript()->appendFile(
-    $this->assetUrl('js/mirador-theme.js'),
-    'text/javascript',
-    ['defer' => 'defer']
-);
+// Mirador owns manifest discovery and supported media checks. In particular,
+// remote manifests and item-set collections need no attached local media.
+$viewer = '';
+try {
+    $viewer = trim((string) $this->mirador($resource));
+} catch (\Throwable $e) {
+    $this->IntegrationWarning($resource, 'mirador', $e);
+    echo '<p role="status">' . $this->escapeHtml($this->translate('The viewer is unavailable. Please try reloading the page.')) . '</p>';
+}
+if ($viewer !== ''):
+    $this->headScript()->appendFile($this->assetUrl('js/mirador-theme.js'), 'text/javascript', ['defer' => 'defer']);
 ?>
-<?php // Mirador owns a nested main landmark and h1 by design. The application
-      // boundary gives that workspace its own semantic scope inside the Omeka
-      // record's main landmark without rewriting React-owned DOM after mount. ?>
-<div class="block resource-block block-mirador" role="application"
-    aria-label="<?php echo $this->escapeHtmlAttr($viewerLabel); ?>">
-    <?= $this->mirador($resource) ?>
+<div class="block resource-block block-mirador" role="application" aria-label="<?php echo $this->escapeHtmlAttr($viewerLabel); ?>">
+    <?php echo $viewer; ?>
 </div>
+<?php endif; ?>
+<?php if ($viewerMedia): ?>
+<details class="viewer-media-links"><summary><?php echo $this->translate('Media records'); ?></summary>
+    <ul><?php foreach ($viewerMedia as $media): ?><li><?php echo $media->link($media->displayTitle()); ?></li><?php endforeach; ?></ul>
+</details>
 <?php endif; ?>

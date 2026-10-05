@@ -7,12 +7,14 @@ $view = new ThemeTestView();
 $api = new class {
     public array $reads = [];
     public array $queries = [];
-    public function read($type, $id) {
-        $this->reads[] = $id;
-        if ($id === 2) throw new RuntimeException('Private');
-        return new class($id) { public function __construct(private int $id) {} public function getContent() { return new ThemeTestResource('Set ' . $this->id, $this->id); } };
-    }
     public function search($type, $query) {
+        if ($type === 'item_sets') {
+            $this->reads[] = $query;
+            return new class($query['id']) {
+                public function __construct(private array $ids) {}
+                public function getContent() { return array_map(fn($id) => new ThemeTestResource('Set ' . $id, $id), array_filter($this->ids, fn($id) => $id !== 2)); }
+            };
+        }
         $this->queries[] = $query;
         return new class { public function getTotalResults(): int { return 123; } };
     }
@@ -35,7 +37,7 @@ $html = $view->render('common/hierarchy-tree', ['nodes' => $result['nodes']]);
 dre_check($failures, $checks, 'all nodes including orphan and cycle components render once', substr_count($html, '<li>') === 7);
 dre_check($failures, $checks, 'labels are escaped', !str_contains($html, '<Group') && str_contains($html, '&lt;Group 1&gt;'));
 dre_check($failures, $checks, 'private and excluded sets remain unlinked', !str_contains($html, 'href="/s/a/item/2"') && !str_contains($html, 'href="/s/a/item/3"'));
-dre_check($failures, $checks, 'distinct accessible sets are read once and excluded sets not read', $api->reads === [1, 2]);
+dre_check($failures, $checks, 'distinct allowed sets are batched and excluded sets never requested', $api->reads === [['id' => [1, 2], 'per_page' => 100]]);
 dre_check($failures, $checks, 'reused subtree membership shares a count-only query', count($api->queries) === 1 && $api->queries[0]['limit'] === 0);
 dre_check($failures, $checks, 'collected sets contain only available distinct records', count($result['itemSets']) === 1);
 $view->settings['hierarchy_link_itemSet'] = false;

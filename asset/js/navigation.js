@@ -50,9 +50,9 @@
     // ---------------------------------------------------------------- focus
 
     function getFocusableElements(container) {
-        return container.querySelectorAll(
+        return Array.from(container.querySelectorAll(
             '.main-navigation__toggle, #menu-backer, .in-viewport > li > a'
-        );
+        )).filter(el => el.tabIndex >= 0 && !el.inert && el.getAttribute('aria-hidden') !== 'true');
     }
 
     function trapFocus(container) {
@@ -177,7 +177,7 @@
         cleanupTrap = trapFocus(header);
     }
 
-    function closeMenuDrawer() {
+    function closeMenuDrawer(restoreFocus = true) {
         expandedTargets = [];
 
         drawer.querySelectorAll('.expanded').forEach((item) => item.classList.remove('expanded'));
@@ -197,7 +197,7 @@
         if (toggleSrText) {
             toggleSrText.textContent = labels.open;
         }
-        toggle.focus();
+        if (restoreFocus) toggle.focus();
 
         releaseTrap();
     }
@@ -353,7 +353,7 @@
 
         document
             .querySelectorAll('.main-navigation .nav-menu > li.menu-item-has-children')
-            .forEach((item) => {
+            .forEach((item, index) => {
                 const itemLink = item.querySelector('a');
                 const itemSubmenu = item.querySelector('ul');
                 if (!itemLink || !itemSubmenu) {
@@ -363,6 +363,8 @@
                 const itemButton = buildSubmenuButton(itemLink.textContent.trim());
                 itemLink.insertAdjacentElement('afterend', itemButton);
 
+                itemSubmenu.id = itemSubmenu.id || 'primary-submenu-' + index;
+                itemButton.setAttribute('aria-controls', itemSubmenu.id);
                 itemLink.setAttribute('aria-expanded', 'false');
                 itemButton.setAttribute('aria-expanded', 'false');
 
@@ -401,10 +403,6 @@
                 }
                 setFocusableToElementsInViewPort();
 
-                if (navigationInDrawer) {
-                    navigationInDrawer.querySelectorAll('a').forEach((a) => a.setAttribute('aria-hidden', 'true'));
-                }
-                item.querySelectorAll('ul a').forEach((a) => a.removeAttribute('aria-hidden'));
 
                 releaseTrap();
                 cleanupTrap = trapFocus(header);
@@ -449,17 +447,7 @@
             }
         });
 
-        // ------------------------------------------------------------------
-        // Collapse-on-overflow (menu-flash fix #06): the nav owns a full-width
-        // row (tier 2), so it almost always fits inline at $xl+, but the safety
-        // net stays. The INITIAL classification runs synchronously BEFORE first
-        // paint in header.phtml (window.__dreClassifyNav), so the desktop menu
-        // never paints then snaps to the drawer. Here we only re-run it on
-        // resize and once webfonts settle (both change the menu width), and
-        // retire an open drawer when the inline menu takes back over. Every
-        // desktop-menu rule is gated on .main-header:not([data-nav="drawer"]);
-        // with no JS the attribute is absent and the no-JS wrap is the fallback.
-        // ------------------------------------------------------------------
+        // One mode owner for mobile, desktop overflow and font/viewport changes.
         const navHeader = document.querySelector('.main-header');
         if (!navHeader) {
             return;
@@ -471,11 +459,14 @@
             }
             // Widening past the threshold while the drawer is open: the inline
             // menu takes over, so retire the open drawer cleanly.
-            if (navHeader.getAttribute('data-nav') !== 'drawer' && drawer.classList.contains('toggled')) {
-                closeMenuDrawer();
+            if (navHeader.getAttribute('data-nav') === 'inline' && drawer.classList.contains('toggled')) {
+                const hadFocus = drawer.contains(document.activeElement) || document.activeElement === toggle;
+                closeMenuDrawer(false);
+                if (hadFocus) navHeader.querySelector('.main-navigation a')?.focus();
             }
         }
 
+        navHeader.classList.add('nav-ready');
         refreshNavMode();
 
         // Debounced with a timeout, not requestAnimationFrame — rAF stalls in

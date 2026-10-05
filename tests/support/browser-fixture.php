@@ -9,7 +9,7 @@ echo $v->render('common/record-apparatus', ['resource' => $r]);
 echo $v->render('common/value-annotation', ['valueAnnotation' => new class { public function displayValues() { return '<p>Editorial note <a href="#record">Related record</a></p>'; } }]);
 echo '<div class="browse-controls">';
 echo $v->render('common/browse-layout-toggle', ['layout' => ['hasToggle' => true, 'gridState' => true, 'listState' => false]]);
-echo '</div><div class="resources resource-grid">';
+echo '</div><div class="resources resource-grid"><div class="grid-sizer"></div><div class="gutter-sizer"></div>';
 foreach (range(1, 6) as $n) {
     echo $v->render('common/resource-card', ['resource' => new ThemeTestResource('Record ' . $n, $n), 'body' => 'Collection description for browsing.', 'showTags' => false, 'isGrid' => true]);
 }

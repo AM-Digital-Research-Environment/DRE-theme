@@ -4,10 +4,6 @@ $hyperlink = $this->plugin('hyperlink');
 $url = $this->plugin('url');
 $this->htmlElement('body')->appendAttribute('class', 'index search');
 
-$filterLocale = (bool) $this->siteSetting('filter_locale_values');
-$lang = $this->lang();
-$valueLang = $filterLocale ? [$lang, ''] : null;
-
 ?>
 
 <?php echo $this->pageTitle(sprintf($translate('Search results for “%s”'), $query), 1); ?>
@@ -65,16 +61,7 @@ $valueLang = $filterLocale ? [$lang, ''] : null;
                             </div>
                         </li>
                     <?php else:
-                        $primaryMedia = $resource->primaryMedia();
-                        $thumbnail = '';
-                        if ($primaryMedia) {
-                            $altText = $primaryMedia->altText() ?: $primaryMedia->displayTitle() ?: '';
-                            $thumbnail = $this->thumbnail($primaryMedia, 'large', ['alt' => $altText]);
-                        }
-                        echo $this->partial('common/resource-card', [
-                            'resource' => $resource,
-                            'heading' => $resource->displayTitle(null, $valueLang),
-                            'thumbnail' => $thumbnail,
+                        echo $this->partial('common/resource-card', $this->ResourceCardData($resource, ['showBody' => false]) + [
                             'tag' => 'li',
                             // Search results are a compact title list — no tag chips.
                             'showTags' => false,

@@ -1,23 +1,5 @@
 <?php
-/**
- * Resource property values — GROUPED, never a database-order dump.
- *
- * Omeka hands this partial one flat map of properties in the order the database
- * returned them, and the theme used to render exactly that: a single <dl> of
- * ~25 rows in which the Abstract sat below a twelve-link Subject run, and
- * `DRE ID` / `WissKI URL` / `Format` carried the same weight as `Author`.
- *
- * helper/ResourceGroups.php partitions the same map into reading-order sets —
- * Abstract · Description · Subjects · Origins & context · Rights & access ·
- * Identifiers & sources · Further details — each with a layout hint. Any term
- * the map does not name falls through to "Further details" in its original
- * order, so nothing is ever hidden.
- *
- * The INNER markup of each value is deliberately unchanged: the same
- * `.property` / `<dt>` / `<dd class="value …">` / `.annotation-btn` structure,
- * because the uri-dereferencer, the annotation tooltips, the language tags and
- * the sibling modules all select against it.
- */
+// Group metadata without changing Omeka value/annotation rendering contracts.
 
 $translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
@@ -43,36 +25,38 @@ $filterLocaleCallback = function ($value) use ($lang) {
 };
 
 $this->inlineScript()->appendFile($this->assetUrl('js/annotations.js'));
-$groups = $this->ResourceGroups($values);
-?>
-
-<div class="record">
-<?php foreach ($groups as $group):
-    // Resolve each group's real content first: a group whose only properties
-    // are locale-filtered away must not leave a heading behind.
+$groups = [];
+$prefix = $this->SectionPrefix(isset($resource) ? $resource->id() : 0);
+foreach ($this->ResourceGroups($values) as $group) {
     $rendered = [];
     foreach ($group['values'] as $term => $propertyData) {
-        $propertyValues = $propertyData['values'];
-        if ($filterLocale) {
-            $propertyValues = array_filter($propertyValues, $filterLocaleCallback);
-        }
-        if (!$propertyValues) {
-            continue;
-        }
-        $rendered[$term] = [$propertyData, $propertyValues];
+        $propertyValues = $filterLocale ? array_filter($propertyData['values'], $filterLocaleCallback) : $propertyData['values'];
+        if ($propertyValues) $rendered[$term] = [$propertyData, $propertyValues];
     }
-    if (!$rendered) {
-        continue;
-    }
-
+    if ($rendered) $groups[] = $group + ['rendered' => $rendered, 'id' => $prefix . '-' . $group['key']];
+}
+$this->inlineScript()->appendFile($this->assetUrl('js/section-links.js'));
+?>
+<div class="record">
+<?php if (count($groups) > 1): ?>
+<nav class="record-contents" aria-label="<?php echo $escapeAttr($translate('Record contents')); ?>">
+    <span><?php echo $translate('On this record'); ?></span>
+    <ul><?php foreach ($groups as $group): ?><li><a href="#<?php echo $escapeAttr($group['id']); ?>"><?php echo $escape($group['title']); ?></a></li><?php endforeach; ?></ul>
+</nav>
+<?php endif; ?>
+<?php foreach ($groups as $group):
+    $rendered = $group['rendered'];
     // In the prose and chip groups the section heading already names the
     // property ("Abstract", "Subjects"), so the <dt> would repeat it. Keep it in
     // the DOM for assistive technology and hide it visually — unless the group
     // holds more than one property, where the labels do distinguish.
     $hideLabels = in_array($group['layout'], ['prose', 'chips'], true) && count($rendered) === 1;
     ?>
-    <section class="record__group record__group--<?php echo $escapeAttr($group['layout']); ?>" data-group="<?php echo $escapeAttr($group['key']); ?>">
-        <h2 class="record__group-title"><?php echo $escape($group['title']); ?></h2>
+    <section id="<?php echo $escapeAttr($group['id']); ?>" class="record__group record__group--<?php echo $escapeAttr($group['layout']); ?>" data-group="<?php echo $escapeAttr($group['key']); ?>">
+        <h2 class="record__group-title"><a class="record-section-link" href="#<?php echo $escapeAttr($group['id']); ?>"><?php echo $escape($group['title']); ?></a></h2>
+        <button type="button" class="section-copy" hidden data-section-copy="<?php echo $escapeAttr($group['id']); ?>"
+            data-copied="<?php echo $escapeAttr($translate('Copied')); ?>"
+            data-failed="<?php echo $escapeAttr($translate('Copy failed. Use the section heading link.')); ?>"><?php echo $translate('Copy section link'); ?></button>
 
         <dl class="record__list">
         <?php foreach ($rendered as $term => [$propertyData, $propertyValues]):

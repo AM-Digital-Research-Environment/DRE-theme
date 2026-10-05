@@ -11,33 +11,33 @@ class LinkedConnections extends AbstractHelper
         $translate = $view->plugin('translate');
         $connections = []; // resourceId => [resource, heading, rels[], relIds[]]
         $facets      = []; // list of [id, label, count, groupOrder]
-        $facetIndex  = []; // propertyId => position in $facets
+        $facetIndex  = []; // semantic key => position in $facets
         $groupOrder  = 0;
 
         foreach ($subjectValues as $values) {
             if (!$values) {
                 continue;
             }
-            $first = $values[0];
-            $propertyId = $first['property_id'];
-            $propertyLabel = ($first['property_alternate_label'] ?? '') ?: $translate($first['property_label']);
-
-            if (!isset($facetIndex[$propertyId])) {
-                $facetIndex[$propertyId] = count($facets);
-                $facets[] = [
-                    'id' => $propertyId,
-                    'label' => $propertyLabel,
-                    'count' => 0,
-                    'groupOrder' => $groupOrder,
-                ];
-            }
-            $fi = $facetIndex[$propertyId];
-
             foreach ($values as $value) {
-                $resource = $value['val']->resource();
+                $resource = $value['resource'] ?? $value['val']->resource();
                 if (!$resource) {
                     continue;
                 }
+                $propertyId = (int) $value['property_id'];
+                $rawLabel = ($value['property_alternate_label'] ?? '') ?: $value['property_label'];
+                $propertyLabel = ($value['property_alternate_label'] ?? '') ?: $translate($rawLabel);
+                // Identity uses the untranslated label and vocabulary property,
+                // independently of Omeka's outer (label-only) grouping.
+                $key = 'p' . $propertyId . '-' . hash('sha256', $rawLabel);
+                if (!isset($facetIndex[$key])) {
+                    $facetIndex[$key] = count($facets);
+                    $facets[] = [
+                        'id' => $key, 'propertyId' => $propertyId,
+                        'label' => $propertyLabel, 'count' => 0,
+                        'groupOrder' => $groupOrder++,
+                    ];
+                }
+                $fi = $facetIndex[$key];
                 $rid = $resource->id();
                 if (!isset($connections[$rid])) {
                     $heading = $headingTerm
@@ -50,13 +50,12 @@ class LinkedConnections extends AbstractHelper
                         'relIds'   => [],
                     ];
                 }
-                if (!in_array($propertyId, $connections[$rid]['relIds'], true)) {
-                    $connections[$rid]['relIds'][] = $propertyId;
-                    $connections[$rid]['rels'][]   = ['id' => $propertyId, 'label' => $propertyLabel];
+                if (!in_array($key, $connections[$rid]['relIds'], true)) {
+                    $connections[$rid]['relIds'][] = $key;
+                    $connections[$rid]['rels'][]   = ['id' => $key, 'propertyId' => $propertyId, 'label' => $propertyLabel];
                     $facets[$fi]['count']++;
                 }
             }
-            $groupOrder++;
         }
 
         // Rank relationships by frequency (most-connected first), ties by server

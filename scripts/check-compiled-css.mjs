@@ -62,7 +62,7 @@ function checkFile(name, css) {
       const ctx = JSON.stringify(css.slice(i, i + 40));
       findings.push(
         `${name}:${line}  U+FEFF BOM at offset ${i} — Dart Sass emits one instead of ` +
-        `@charset in compressed output; gulpfile prependHeader() must strip it ` +
+        `@charset in compressed output; scripts/build-css.mjs must strip it ` +
         `before prepending the header. Context: ${ctx}`
       );
       break; // one report is enough; they all have the same cause
@@ -112,7 +112,7 @@ function checkFile(name, css) {
 
 const files = readdirSync(CSS_DIR).filter((f) => f.endsWith('.css'));
 if (!files.length) {
-  console.error(`Compiled CSS: no .css files in asset/css — run \`gulp css\` first.`);
+  console.error(`Compiled CSS: no .css files in asset/css — run \`npm run build:css\` first.`);
   process.exit(1);
 }
 for (const f of files) checkFile(f, readFileSync(join(CSS_DIR, f), 'utf8'));

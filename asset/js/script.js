@@ -47,7 +47,7 @@ const dreScripts = () => {
 
         const drawerOpen = menuToggle && menuToggle.getAttribute('aria-expanded') === 'true';
         const megaMenuInUse = mainHeader.querySelector('.menu-item-has-children.open, .menu-item-has-children:hover') !== null;
-        const mayHide = mainHeader.getAttribute('data-nav') !== 'drawer'
+        const mayHide = mainHeader.getAttribute('data-nav') === 'inline'
             && scrollDirection === 'down'
             && scrollPos > AUTO_HIDE_AFTER
             && !drawerOpen
@@ -143,37 +143,48 @@ const dreScripts = () => {
         });
     window.addEventListener('resize', debounce(onResize, RESIZE_DELAY));
 
-    // Main Header Search
-    document.addEventListener('click', onDocumentClick, true);
-
-    function onDocumentClick(e) {
-        if (e.target.classList.contains('main-search-button')) {
-            const nextSibling = e.target.nextElementSibling;
-            if (nextSibling && nextSibling.classList.contains('main-header-search')) {
-                mainHeaderSearch = nextSibling;
-                mainHeaderSearch.classList.toggle('visible');
-                if (mainHeaderSearch.classList.contains('visible')) {
-                    const mainSearchInput = mainHeaderSearch.querySelector('input[name="fulltext_search"]');
-                    if (mainSearchInput) {
-                        mainSearchInput.focus();
-                    }
-                    document.addEventListener('focusin', onFocusInOutside, true);
-                } else {
-                    document.removeEventListener('focusin', onFocusInOutside, true);
-                }
-            }
-        } else if (mainHeaderSearch && !mainHeaderSearch.contains(e.target)) {
-            mainHeaderSearch.classList.remove('visible');
-            document.removeEventListener('focusin', onFocusInOutside, true);
-        }
+    // Enhance only successfully initialized core search disclosures.
+    let searchToggle = null;
+    function closeSearch(restoreFocus) {
+        if (!mainHeaderSearch) return;
+        mainHeaderSearch.classList.remove('visible');
+        mainHeaderSearch.hidden = true;
+        searchToggle.setAttribute('aria-expanded', 'false');
+        if (restoreFocus) searchToggle.focus();
+        mainHeaderSearch = null;
+        searchToggle = null;
     }
-
-    function onFocusInOutside(e) {
-        if (mainHeaderSearch && !mainHeaderSearch.contains(e.target)) {
-            mainHeaderSearch.classList.remove('visible');
-            document.removeEventListener('focusin', onFocusInOutside, true);
+    document.querySelectorAll('[data-core-search]').forEach(root => {
+        const button = root.querySelector('.main-search-button');
+        const panel = root.querySelector('.main-header-search');
+        if (!button || !panel) return;
+        panel.hidden = true;
+        root.classList.add('search-ready');
+        button.hidden = false;
+        button.addEventListener('click', () => {
+            const wasOpen = searchToggle === button;
+            closeSearch(false);
+            if (wasOpen) return;
+            mainHeaderSearch = panel;
+            searchToggle = button;
+            panel.hidden = false;
+            panel.classList.add('visible');
+            button.setAttribute('aria-expanded', 'true');
+            panel.querySelector('input[type="search"]').focus();
+        });
+    });
+    document.addEventListener('click', e => {
+        if (mainHeaderSearch && !mainHeaderSearch.contains(e.target) && !searchToggle.contains(e.target)) closeSearch(false);
+    });
+    document.addEventListener('focusin', e => {
+        if (mainHeaderSearch && !mainHeaderSearch.contains(e.target) && !searchToggle.contains(e.target)) closeSearch(false);
+    });
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && mainHeaderSearch) {
+            e.preventDefault();
+            closeSearch(true);
         }
-    }
+    });
 
     // Forms
     //

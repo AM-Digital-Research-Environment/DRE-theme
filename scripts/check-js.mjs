@@ -7,7 +7,7 @@ import { spawnSync } from 'node:child_process';
 
 const ROOT = join(import.meta.dirname, '..');
 const SCAN = ['asset/js', 'scripts', 'tests'];
-const ROOT_FILES = ['gulpfile.js', 'playwright.config.mjs', 'playwright.visual.config.mjs', 'playwright.local.config.mjs'];
+const ROOT_FILES = ['playwright.config.mjs', 'playwright.visual.config.mjs', 'playwright.local.config.mjs'];
 
 const files = [
     ...SCAN.flatMap((dir) => [...walkFiles(join(ROOT, dir), /\.(?:js|mjs)$/)]),

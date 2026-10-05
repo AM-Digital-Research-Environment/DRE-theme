@@ -18,9 +18,8 @@ use Laminas\View\Helper\AbstractHelper;
  *      and an ephemeral tmpfs dropped it on every deploy. The key carries a
  *      schema version so a change to the metric set ignores a stale shape.
  *   2. DRESearch public source counts for this site, when its service is available.
- *   3. The DRE Visualizations "Collection Overview" precompute on a
- *      single-site installation, so the home band and that block agree.
- *      A global precompute is deliberately bypassed on multi-site installs.
+ *   3. A DRE Visualizations precompute explicitly matching the requested site.
+ *      Unscoped snapshots are used only for unscoped requests.
  *   4. The theme's own API-computed counts, so a standalone DRE theme with no
  *      visualizations module still grounds the hero.
  *
@@ -41,7 +40,7 @@ class CollectionStats extends AbstractHelper
      * v6: cache source labels; translate them for each visitor after retrieval.
      * v7: prefer the shared DRESearch corpus definitions, with explicit public scope.
      */
-    private const CACHE_VERSION = 'v8';
+    private const CACHE_VERSION = 'v9';
 
     /** The visualizations module's data directory, relative to OMEKA_PATH. */
     private const PRECOMPUTE_DIR = '/modules/DreVisualizations/asset/data';
@@ -75,7 +74,7 @@ class CollectionStats extends AbstractHelper
         }
         $stats = $this->fromSearchProfiles($siteId);
         if (null === $stats) {
-            $stats = $this->canUseGlobalPrecompute($siteId) ? $this->fromPrecompute() : null;
+            $stats = $this->fromPrecompute($siteId);
         }
         if (null === $stats) {
             $stats = $this->fromApi($siteId);
@@ -147,25 +146,6 @@ class CollectionStats extends AbstractHelper
         }
         unset($stat);
         return $stats;
-    }
-
-    /**
-     * The module precompute describes the archive as a whole. It is safe for
-     * this deployment's one-site installation, but must not leak those totals
-     * into an unrelated site on a multi-site Omeka instance.
-     */
-    private function canUseGlobalPrecompute(?int $siteId): bool
-    {
-        if (null === $siteId) {
-            return true;
-        }
-        try {
-            $response = $this->getView()->api()->search('sites', ['limit' => 0]);
-            return 1 === (int) $response->getTotalResults();
-        } catch (\Throwable $e) {
-            // When scope cannot be proven, prefer the site-filtered API path.
-            return false;
-        }
     }
 
     // ------------------------------------------------------------------ cache
@@ -259,7 +239,7 @@ class CollectionStats extends AbstractHelper
         return is_readable($legacy) ? $legacy : null;
     }
 
-    private function fromPrecompute(): ?array
+    private function fromPrecompute(?int $siteId): ?array
     {
         try {
             if (!defined('OMEKA_PATH')) {
@@ -271,6 +251,11 @@ class CollectionStats extends AbstractHelper
             }
             $data = json_decode((string) file_get_contents($path), true);
             if (!is_array($data) || empty($data['stats']) || !is_array($data['stats'])) {
+                return null;
+            }
+
+            // A snapshot must describe exactly the requested scope, even on one-site installations.
+            if (($data['siteId'] ?? null) !== $siteId) {
                 return null;
             }
 

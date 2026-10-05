@@ -47,6 +47,48 @@ The Sass regression deliberately compiles invalid input against stale CSS.
 Release validation reuses CI at the resolved tag SHA. Packaging waits for all
 jobs, archives that same SHA, and separately validates the installed archive.
 
+## Local browser and relationship integration tests
+
+The local suite renders actual PHP partials and loads the theme's checked-in
+assets against a routed fixture origin. It covers navigation without JavaScript,
+partial script failures, nested menus, focus restoration, search submission,
+enlarged text/forced colors, shortlist persistence and exports, record anchors,
+and the browse grid's fallback and Masonry behavior. It runs in Chromium,
+Firefox and WebKit, independently of production:
+
+```sh
+npm ci
+npx playwright install --with-deps chromium firefox webkit
+npm run build
+npm run test:unit
+npm run test:browser
+npm run i18n:check
+```
+
+PHP must be on `PATH` for the browser fixtures. `test-results/local/` contains
+failure traces and the representative desktop/mobile screenshots. The PHP
+behavior suites additionally check hierarchy batching and cycles, site-scoped
+statistics, compound relationship selections and optional viewer fallbacks.
+
+To exercise the real Omeka query builder, unpack the official Omeka S 4.2.1
+release including its vendor libraries, enable PHP's `pdo_sqlite` and `mbstring`
+extensions, and run:
+
+```sh
+OMEKA_PATH=/path/to/omeka-s php tests/integration/connections.php
+```
+
+In PowerShell, set `$env:OMEKA_PATH` before running `php`. The integration test
+creates an in-memory SQLite database. It checks distinct counts/pagination,
+compound template-property filters, item/media relations, literal title search,
+visibility and site restrictions. It does not use a live Omeka database.
+
+CI also runs `npm audit --audit-level=high`. The direct Node/Sass/PostCSS build
+replaces Gulp and removes its vulnerable `braces` dependency chain. Build tests
+exercise metadata headers, prefixing, failed-compilation output preservation and
+watch-mode recovery. Dependabot checks npm, Composer and GitHub Actions weekly;
+dependency updates still have to pass the build, tests and audit gate.
+
 ## Production smoke test
 
 `.github/workflows/live-smoke.yml` runs nightly and can also be dispatched

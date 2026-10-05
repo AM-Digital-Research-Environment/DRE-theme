@@ -1,26 +1,6 @@
 <?php
-/**
- * Consolidated, faceted "Linked resources" view.
- *
- * Renders every record that links to the current resource as a dense,
- * scannable card grid — one card per connected record, showing its type and
- * how it relates — inside a collapsible disclosure. Relationship facet pills
- * filter the grid and a control sorts it. Replaces the old per-property
- * accordion stack.
- *
- * Variables provided by the core LinkedResources view helper:
- *   $subjectValues          array  groups of subject values, one per property
- *   $totalCount             int    total subject values (across all pages)
- *   $page, $perPage         int    pagination
- *   $resourceType           string current type: items | item_sets | media
- *   $resourcePropertiesAll  array  every linking property, grouped by type
- *   $resourceProperty       string active "type:propertyId" filter (if any)
- *   $objectResource                the resource being viewed
- *
- * Facets and sorting are client-side (linked-resources.js) and act on the
- * records loaded into the current page; collapse is native <details>. The list
- * is fully usable without JS.
- */
+// Shared server-rendered connection page. Local facets/sorting refine this page;
+// the GET form searches the entire bounded, authorized relationship result set.
 
 $escape     = $this->plugin('escapeHtml');
 $escapeAttr = $this->plugin('escapeHtmlAttr');
@@ -36,8 +16,6 @@ $headingTerm = $this->siteSetting('browse_heading_property_term');
 
 // Pagination (only used when the linked set spans more than one page).
 $fragment = 'linked-resources';
-$pagination = $this->pagination(null, $totalCount, $page, $perPage);
-$pagination->setFragment($fragment);
 $isPaginated = $totalCount > $perPage;
 
 // --- Merge the per-property groups into one list, keyed by connected record.
@@ -49,12 +27,7 @@ $isPaginated = $totalCount > $perPage;
 $uniqueCount = count($connections);
 $hasFacets   = count($facets) > 1;
 $showSort    = $uniqueCount > 1;
-// Offer a text filter once the set is large enough that scanning the grid (or
-// its scroll panel) gets tedious. It runs purely client-side over the already-
-// loaded cards (linked-resources.js) — no extra request — so it adds nothing to
-// page load. Threshold ≈ one screenful of cards.
-$showSearch  = $uniqueCount > 12;
-$showControls = $hasFacets || $showSort || $showSearch;
+$showControls = $hasFacets || $showSort;
 
 // Resource-type switch (only when more than one type links here).
 $typeLabels = [
@@ -72,7 +45,11 @@ foreach (['items', 'media'] as $type) {
         $typesWithValues[] = $type;
     }
 }
-$baseUrl = $this->url(null, [], true);
+$baseUrl = $objectResource->url();
+$connectionSearch = $connectionSearch ?? '';
+$pageUrl = function (int $number) use ($baseUrl, $resourceProperty, $connectionSearch, $fragment) {
+    return $baseUrl . '?' . http_build_query(['lr_property' => $resourceProperty, 'lr_q' => $connectionSearch, 'lr_page' => $number]) . '#' . $fragment;
+};
 ?>
 <details class="resources-linked" id="<?php echo $fragment; ?>" open>
 
@@ -89,34 +66,35 @@ $baseUrl = $this->url(null, [], true);
 
     <div class="resources-linked__panel">
 
-        <form class="resources-linked__types" method="get" action="<?php echo $escapeAttr($baseUrl); ?>">
+        <form class="resources-linked__types" method="get" action="<?php echo $escapeAttr($baseUrl); ?>#linked-resources" data-connection-form>
             <label for="resource-property-select"><?php echo $translate('Filter all connections by relationship'); ?></label>
-            <select name="resource_property" id="resource-property-select">
+            <select name="lr_property" id="resource-property-select">
+                <?php
+                $knownOptions = [$resourceType . ':'];
+                foreach ($resourcePropertiesAll as $options) {
+                    foreach ($options as $option) $knownOptions[] = $option['compound_id'];
+                }
+                if (!in_array($resourceProperty, $knownOptions, true)):
+                ?>
+                <option value="<?php echo $escapeAttr($resourceProperty); ?>" selected><?php echo $escape($translate('Selected relationship')); ?></option>
+                <?php endif; ?>
                 <?php foreach ($typesWithValues as $type): ?>
                     <optgroup label="<?php echo $escapeAttr($typeLabels[$type]); ?>">
                         <?php $optionValue = $type . ':'; ?>
-                        <option value="<?php echo $escapeAttr($optionValue); ?>" <?php echo $resourceProperty === $optionValue ? 'selected' : ''; ?>><?php echo $escape($translate('All')); ?></option>
-                        <?php foreach ($resourcePropertiesAll[$type] as $propertyOption): ?>
-                            <option value="<?php echo $escapeAttr($propertyOption['compound_id']); ?>" <?php echo $resourceProperty === $propertyOption['compound_id'] ? 'selected' : ''; ?>><?php echo $escape($propertyOption['label_is_translatable'] ? $translate($propertyOption['label']) : $propertyOption['label']); ?></option>
+                        <option value="<?php echo $escapeAttr($optionValue); ?>"<?php echo $resourceProperty === $optionValue ? ' selected' : ''; ?>><?php echo $translate('All'); ?></option>
+                        <?php foreach ($resourcePropertiesAll[$type] as $option): ?>
+                        <option value="<?php echo $escapeAttr($option['compound_id']); ?>"<?php echo $resourceProperty === $option['compound_id'] ? ' selected' : ''; ?>><?php echo $escape($option['label_is_translatable'] ? $translate($option['label']) : $option['label']); ?></option>
                         <?php endforeach; ?>
                     </optgroup>
                 <?php endforeach; ?>
             </select>
-            <button type="submit"><?php echo $translate('Apply'); ?></button>
+            <label for="linked-resources-query"><?php echo $translate('Search all connections by title'); ?></label>
+            <input type="search" id="linked-resources-query" name="lr_q" value="<?php echo $escapeAttr($connectionSearch); ?>" maxlength="200">
+            <button type="submit" class="button"><?php echo $translate('Apply'); ?></button>
         </form>
 
         <?php if ($showControls): ?>
         <div class="resources-linked__controls">
-            <?php if ($showSearch): ?>
-            <div class="resources-linked__search">
-                <svg class="lr-search__icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                <input type="search" class="lr-search__input" data-lr-search
-                    placeholder="<?php echo $escapeAttr($translate('Search this page…')); ?>"
-                    aria-label="<?php echo $escapeAttr($translate('Search this page by name or type')); ?>"
-                    aria-controls="linked-resources-list" autocomplete="off" />
-            </div>
-            <?php endif; ?>
-
             <?php if ($hasFacets): ?>
             <div class="resources-linked__facets" role="group" aria-label="<?php echo $escapeAttr($translate('Filter this page by relationship')); ?>">
                 <button type="button" class="lr-facet is-active" data-lr-facet="all" aria-pressed="true">
@@ -124,7 +102,7 @@ $baseUrl = $this->url(null, [], true);
                     <span class="lr-facet__count"><?php echo $uniqueCount; ?></span>
                 </button>
                 <?php foreach ($ranked as $facet): ?>
-                <button type="button" class="lr-facet" data-lr-facet="p<?php echo (int) $facet['id']; ?>" aria-pressed="false">
+                <button type="button" class="lr-facet" data-lr-facet="<?php echo $escapeAttr($facet['id']); ?>" aria-pressed="false">
                     <span class="lr-facet__label"><?php echo $escape($facet['label']); ?></span>
                     <span class="lr-facet__count"><?php echo (int) $facet['count']; ?></span>
                 </button>
@@ -149,9 +127,7 @@ $baseUrl = $this->url(null, [], true);
             <?php foreach ($connections as $c): ?>
                 <?php
                 $resource = $c['resource'];
-                $propAttr = implode(' ', array_map(function ($id) {
-                    return 'p' . (int) $id;
-                }, $c['relIds']));
+                $propAttr = implode(' ', $c['relIds']);
                 // Item type = the record's resource class label (e.g. Person,
                 // Still Image, Bibliographic Resource); empty when unclassed.
                 $resourceClass = $resource->resourceClass();
@@ -166,7 +142,7 @@ $baseUrl = $this->url(null, [], true);
                 $searchText = mb_strtolower(trim($c['heading'] . ' ' . $typeLabel . ' ' . $relText));
                 // thumbnail() resolves an item's primary-media thumbnail (or an
                 // item set's / media's own) and returns '' when there is none.
-                $thumbnail = $this->thumbnail($resource, 'square', ['alt' => '', 'loading' => 'lazy', 'decoding' => 'async']);
+                $thumbnail = $this->thumbnail($resource, 'square', ['alt' => '']);
                 ?>
                 <li class="connection"
                     data-props="<?php echo $escapeAttr($propAttr); ?>"
@@ -189,13 +165,20 @@ $baseUrl = $this->url(null, [], true);
                             </span>
                         </span>
                     </a>
+                    <?php echo $this->partial('common/shortlist-button', ['resource' => $resource]); ?>
                 </li>
             <?php endforeach; ?>
         </ul>
 
-        <p class="connections__empty" data-lr-empty hidden><?php echo $translate('No connections match this filter.'); ?></p>
+        <p class="connections__empty" data-lr-empty<?php echo $uniqueCount ? ' hidden' : ''; ?>><?php echo $translate('No connections match this filter.'); ?></p>
 
-        <?php echo $isPaginated ? '<div class="linked-footer">' . $pagination . '</div>' : ''; ?>
+        <?php if ($isPaginated): ?>
+        <nav class="linked-footer pagination" aria-label="<?php echo $escapeAttr($translate('Connection pages')); ?>">
+            <?php if ($page > 1): ?><a data-connection-page href="<?php echo $escapeAttr($pageUrl($page - 1)); ?>"><?php echo $translate('Previous'); ?></a><?php endif; ?>
+            <span><?php echo $escape(sprintf($translate('Page %1$s of %2$s'), $page, (int) ceil($totalCount / $perPage))); ?></span>
+            <?php if ($page * $perPage < $totalCount): ?><a data-connection-page href="<?php echo $escapeAttr($pageUrl($page + 1)); ?>"><?php echo $translate('Next'); ?></a><?php endif; ?>
+        </nav>
+        <?php endif; ?>
 
     </div>
 

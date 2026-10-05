@@ -21,5 +21,5 @@ $row = function ($id, $resource) { return ['property_id' => $id, 'property_label
 $a = new ThemeTestResource('Zulu', 1); $b = new ThemeTestResource('Alpha', 2);
 $result = $v->LinkedConnections([[$row(4, $a), $row(4, $a), $row(4, $b)], [$row(5, $a), $row(5, null)]]);
 dre_check($failures, $checks, 'connections deduplicate records and relationship counts', count($result['connections']) === 2 && $result['facets'][0]['count'] === 2 && count($result['connections'][1]['rels']) === 2);
-dre_check($failures, $checks, 'connections sort by rank then title', array_keys($result['connections']) === [2, 1] && $result['ranked'][0]['id'] === 4);
+dre_check($failures, $checks, 'connections sort by rank then title', array_keys($result['connections']) === [2, 1] && $result['ranked'][0]['propertyId'] === 4);
 dre_report('ManifestConnections', $failures, $checks);

@@ -1,10 +1,6 @@
 <?php
 $translate = $this->plugin('translate');
-// "Top Navigation Depth": how many levels the menu shows. 0 / empty = all.
-// This was computed here and then never used — the setting appeared in the
-// admin with help text and did nothing. It is now passed to nav-menu.phtml,
-// which honours it (and the drawer inherits it, since navigation.js clones the
-// rendered menu).
+// Zero depth retains all configured levels in the inline menu and drawer.
 $navDepth = max(0, (int) $this->themeSetting('nav_depth'));
 $logo = $this->themeSetting('logo');
 $hasSearchBar = $this->getHelperPluginManager()->has('dreSearchBar');
@@ -44,7 +40,7 @@ $pwaEnabled = isset($pwaEnabled) ? (bool) $pwaEnabled : false;
 		<?php if ($hasSearchBar): ?>
 			<?php echo $this->dreSearchBar('header-mobile', 'd-block d-xl-none', true); ?>
 		<?php else: ?>
-			<?php echo $this->partial('common/main-header-search', ['class' => 'd-block d-xl-none', 'site' => $site]); ?>
+			<?php echo $this->partial('common/main-header-search', ['class' => 'd-block d-xl-none', 'searchId' => 'header-mobile', 'site' => $site]); ?>
 		<?php endif; ?>
 
 		<?php // Desktop: the federated search now owns the centre of the bar — its own
@@ -53,11 +49,14 @@ $pwaEnabled = isset($pwaEnabled) ? (bool) $pwaEnabled : false;
 			<?php if ($hasSearchBar): ?>
 				<?php echo $this->dreSearchBar('header-desktop', 'main-header__search-field', false); ?>
 			<?php else: ?>
-				<?php echo $this->partial('common/main-header-search', ['class' => 'main-header__search-field', 'site' => $site]); ?>
+				<?php echo $this->partial('common/main-header-search', ['class' => 'main-header__search-field', 'searchId' => 'header-desktop', 'site' => $site]); ?>
 			<?php endif; ?>
 		</div>
 
 		<div class="main-header__utilities">
+            <button type="button" class="shortlist-open" data-shortlist-open hidden aria-label="<?php echo $this->escapeHtmlAttr($translate('Research shortlist')); ?>" aria-haspopup="dialog" aria-controls="research-shortlist">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg><span data-shortlist-count>0</span>
+            </button>
 				<?php if ($pwaEnabled): ?>
 				<?php // Install-app button — ships hidden ([hidden] wins because the
 				      // component scopes `display` to :not([hidden])). pwa-install.js
@@ -128,12 +127,7 @@ $pwaEnabled = isset($pwaEnabled) ? (bool) $pwaEnabled : false;
 		</nav>
 	</div>
 
-	<?php // ===== Menu-flash fix (#06) — classify BEFORE first paint ===========
-	      // Mirrors the theme FOUC pattern: at $xl+ measure the menu's one-line
-	      // width against its (now full-width) row and set data-nav synchronously,
-	      // so the desktop menu never paints then snaps to the drawer. Exposed as
-	      // window.__dreClassifyNav so navigation.js reuses it on resize/fonts.
-	      // No-JS: html lacks `.js`, the visibility gate is inert, the wrap falls back. ?>
+	<?php // Resolve mode before paint; navigation.js reuses this on resize and font readiness. ?>
 	<script>
 	(function () {
 		var XL = 1200;
@@ -145,17 +139,22 @@ $pwaEnabled = isset($pwaEnabled) ? (bool) $pwaEnabled : false;
 		function naturalWidth() {
 			var pc = container.style.cssText, pm = menu.style.cssText;
 			container.style.cssText = 'display:block;position:absolute;visibility:hidden;left:-9999px;top:0;width:max-content';
-			menu.style.cssText = 'flex-wrap:nowrap;width:max-content';
+			menu.style.cssText = 'display:flex;flex-wrap:nowrap;width:max-content';
 			var w = menu.getBoundingClientRect().width;
 			container.style.cssText = pc; menu.style.cssText = pm;
 			return w;
 		}
 
 		function classify() {
-			if (window.innerWidth < XL) { header.removeAttribute('data-nav'); return; }
-			// The nav owns a full-width row, so the envelope is the row itself.
+			if (window.innerWidth < XL) { header.setAttribute('data-nav', 'drawer'); return; }
+			// Measure the real inline rules even when arriving from drawer mode.
+			// The successful-init gate is restored within this same task.
+			var ready = header.classList.contains('nav-ready');
+			header.classList.add('nav-ready');
+			header.setAttribute('data-nav', 'inline');
 			var avail = container.clientWidth || header.clientWidth;
 			var need = naturalWidth() + 8;
+			if (!ready) header.classList.remove('nav-ready');
 			header.setAttribute('data-nav', need > avail ? 'drawer' : 'inline');
 		}
 

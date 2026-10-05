@@ -1,0 +1,28 @@
+<?php if (!($this->themeSetting('research_shortlist') ?? true)) return; ?>
+<dialog id="research-shortlist" class="research-shortlist" data-shortlist-dialog aria-labelledby="shortlist-title"
+    data-save="<?php echo $this->escapeHtmlAttr($this->translate('Save record')); ?>"
+    data-saved="<?php echo $this->escapeHtmlAttr($this->translate('Saved')); ?>"
+    data-remove="<?php echo $this->escapeHtmlAttr($this->translate('Remove')); ?>"
+    data-empty="<?php echo $this->escapeHtmlAttr($this->translate('No saved records yet.')); ?>"
+    data-undo-limit="<?php echo $this->escapeHtmlAttr($this->translate('The shortlist is full. Export or remove records, then choose Undo clear again to restore the remaining records.')); ?>"
+    data-storage-error="<?php echo $this->escapeHtmlAttr($this->translate('Browser storage is unavailable. This list will last for this page only. Export it to keep a copy.')); ?>"
+    data-limit="<?php echo $this->escapeHtmlAttr($this->translate('The shortlist is full (200 records). Export or remove records before saving more.')); ?>">
+    <form method="dialog" class="research-shortlist__head">
+        <h2 id="shortlist-title"><?php echo $this->translate('Research shortlist'); ?></h2>
+        <button type="submit"><?php echo $this->translate('Close'); ?></button>
+    </form>
+    <p><?php echo $this->translate('Saved in this browser only. Export your list to keep or share it.'); ?></p>
+    <p data-shortlist-status role="status" aria-live="polite"></p>
+    <ul data-shortlist-list></ul>
+    <div class="research-shortlist__actions">
+        <label for="shortlist-format"><?php echo $this->translate('Export format'); ?></label>
+        <select id="shortlist-format" data-shortlist-format>
+            <option value="md">Markdown</option>
+            <option value="csv">CSV</option>
+            <option value="json">JSON</option>
+        </select>
+        <button type="button" data-shortlist-export><?php echo $this->translate('Export list'); ?></button>
+        <button type="button" data-shortlist-clear><?php echo $this->translate('Clear list'); ?></button>
+        <button type="button" data-shortlist-undo hidden><?php echo $this->translate('Undo clear'); ?></button>
+    </div>
+</dialog>

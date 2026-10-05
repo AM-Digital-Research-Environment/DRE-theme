@@ -1,0 +1,16 @@
+<?php foreach ($pages as $page):
+    if (!$page->isVisible()) continue;
+    $children = [];
+    if (!$navDepth || $level < $navDepth) {
+        foreach ($page->getPages() as $child) if ($child->isVisible()) $children[] = $child;
+    }
+    $slug = basename((string) parse_url((string) $page->getHref(), PHP_URL_PATH));
+    $description = isset($descMap[$slug]) ? $this->translate($descMap[$slug]) : '';
+?>
+<li class="nav-panel__cell<?php echo $children ? ' menu-item-has-children' : ''; ?><?php echo $page->isActive(true) ? ' active' : ''; ?>">
+    <?php echo $this->partial('common/nav-link', ['page' => $page, 'description' => $description]); ?>
+    <?php if ($children): ?>
+    <ul class="nav-branch"><?php echo $this->partial('common/nav-children', ['pages' => $children, 'level' => $level + 1, 'navDepth' => $navDepth, 'descMap' => $descMap]); ?></ul>
+    <?php endif; ?>
+</li>
+<?php endforeach; ?>

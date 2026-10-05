@@ -11,6 +11,7 @@ $root = sys_get_temp_dir() . '/dre-collection-stats-' . getmypid();
 $dataDir = $root . '/modules/DreVisualizations/asset/data/item-dashboards';
 mkdir($dataDir, 0777, true);
 file_put_contents($dataDir . '/collection-overview.json', json_encode([
+    'siteId' => 1,
     'stats' => [
         ['key' => 'researchItems', 'label' => 'Research items', 'value' => 42],
         ['key' => 'projects', 'label' => 'Projects', 'value' => 7],
@@ -89,6 +90,7 @@ $generationDir = $root . '/modules/DreVisualizations/asset/data/generations/'
     . $generationId . '/item-dashboards';
 mkdir($generationDir, 0777, true);
 file_put_contents($generationDir . '/collection-overview.json', json_encode([
+    'siteId' => 3,
     'stats' => [
         ['key' => 'researchItems', 'label' => 'Research items', 'value' => 3975],
         ['key' => 'languages', 'label' => 'Languages', 'value' => 28],
@@ -134,7 +136,8 @@ file_put_contents($root . '/modules/DreVisualizations/asset/data/current.json', 
 ]));
 $traversal = new CollectionStats();
 $traversal->setView($view);
-$stats = $traversal(5);
+$settings->values = [];
+$stats = $traversal(1);
 dre_check($failures, $checks, 'a malformed generation id is rejected, not resolved as a path',
     count($stats) === 3 && $stats[0]['n'] === 42);
 
@@ -144,6 +147,12 @@ rmdir($generationDir);
 rmdir(dirname($generationDir));
 rmdir(dirname(dirname($generationDir)));
 
+$settings->values = [];
+$stats = $singleSite(5);
+dre_check($failures, $checks, 'one site cannot reuse a different site snapshot', $stats[0]['n'] === 0);
+$settings->values = [];
+$stats = $singleSite(null);
+dre_check($failures, $checks, 'unscoped requests cannot reuse site-specific snapshots', $stats[0]['n'] === 0);
 $api->siteTotal = 2;
 $multiSite = new CollectionStats();
 $multiSite->setView($view);
@@ -204,7 +213,7 @@ dre_check($failures, $checks, 'configured search corpora take priority over lega
     $stats[0]['n'] === 205 && $services->counts->site === 1);
 
 // Keep last good site counts during an outage, then throttle retries.
-$settings->values = ['dre_stats_v8_88' => json_encode(['t' => time() - 4000, 'stats' => [['k' => 'locations', 'n' => 123]]])];
+$settings->values = ['dre_stats_v9_88' => json_encode(['t' => time() - 4000, 'stats' => [['k' => 'locations', 'n' => 123]]])];
 $services->counts = new class { public function forSite($site) { return [['invalid' => true]]; } };
 $api->fail = true;
 $stats = $singleSite(88);

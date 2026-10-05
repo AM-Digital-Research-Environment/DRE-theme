@@ -11,19 +11,21 @@ const dom = html => new JSDOM(html, { url: 'https://example.test/?view=grid', ru
 const start = (d, file) => { d.window.eval(source(file)); d.window.document.dispatchEvent(new d.window.Event('DOMContentLoaded')); };
 
 test('invalid Sass rejects compilation even when valid old CSS exists', () => {
-    // Under the repository so gulp resolves the installed node_modules portably.
+    // Under the repository so the copied CLI resolves installed dependencies.
     mkdirSync(join(root, 'test-results'), {recursive:true});
     const folder = mkdtempSync(join(root, 'test-results', 'sass-'));
     try {
-        for (const path of ['config', 'asset/sass', 'asset/css']) mkdirSync(join(folder, path), { recursive: true });
-        copyFileSync(join(root, 'gulpfile.js'), join(folder, 'gulpfile.js'));
+        for (const path of ['config', 'asset/sass', 'asset/css', 'scripts']) mkdirSync(join(folder, path), { recursive: true });
+        copyFileSync(join(root, 'scripts/build-css.mjs'), join(folder, 'scripts/build-css.mjs'));
+        copyFileSync(join(root, 'package.json'), join(folder, 'package.json'));
         copyFileSync(join(root, 'config/theme.ini'), join(folder, 'config/theme.ini'));
         writeFileSync(join(folder, 'asset/css/style.css'), 'body{color:red}');
         writeFileSync(join(folder, 'asset/sass/style.scss'), '.broken { color: ;');
-        const run = spawnSync(process.execPath, [join(root, 'node_modules/gulp/bin/gulp.js'), '--cwd', folder, 'css'], { encoding: 'utf8', timeout: 60000 });
+        const run = spawnSync(process.execPath, [join(folder, 'scripts/build-css.mjs')], { encoding: 'utf8', timeout: 60000 });
         assert.equal(run.error, undefined, String(run.error));
         assert.notEqual(run.status, 0, run.stdout + run.stderr);
         assert.match(run.stdout + run.stderr, /Expected expression/);
+        assert.equal(readFileSync(join(folder, 'asset/css/style.css'), 'utf8'), 'body{color:red}');
     } finally { rmSync(folder, { recursive: true, force: true }); }
 });
 
