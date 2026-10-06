@@ -46,10 +46,14 @@ $api = new class {
         $this->queries[] = [$resource, $query];
         if ($this->fail) throw new RuntimeException("Unavailable");
         $total = $resource === 'sites' ? $this->siteTotal : 0;
-        return new class($total) {
-            public function __construct(private int $total) {}
+        // Only the Publications set resolves, so its count predicate is observable.
+        $content = $resource === 'item_sets' && ($query['property'][0]['text'] ?? '') === 'Publications'
+            ? [new class { public function id(): int { return 29918; } }]
+            : [];
+        return new class($total, $content) {
+            public function __construct(private int $total, private array $content) {}
             public function getTotalResults(): int { return $this->total; }
-            public function getContent(): array { return []; }
+            public function getContent(): array { return $this->content; }
         };
     }
 };
@@ -189,16 +193,25 @@ $api->queries = [];
 $singleSite(102);
 dre_check($failures, $checks, 'fallback does not hydrate the template catalogue',
     !array_filter($firstQueries, fn($call) => $call[0] === 'resource_templates'));
-dre_check($failures, $checks, 'fallback resolves only four exact public item-set titles',
+dre_check($failures, $checks, 'fallback resolves only five exact public item-set titles',
     count(array_filter($firstQueries, fn($call) => $call[0] === 'item_sets'
         && $call[1]['is_public'] === true
-        && $call[1]['property'][0]['type'] === 'eq')) === 4);
+        && $call[1]['property'][0]['type'] === 'eq')) === 5);
 dre_check($failures, $checks, 'item-set mappings are reused across site count caches',
     !array_filter($api->queries, fn($call) => $call[0] === 'item_sets'));
 dre_check($failures, $checks, 'fallback count predicates retain public site scope and do not fetch content',
     count(array_filter($api->queries, fn($call) => $call[0] === 'items'
         && $call[1]['site_id'] === 102 && $call[1]['is_public'] === true
-        && $call[1]['limit'] === 0 && isset($call[1]['resource_template_label']))) === 14);
+        && $call[1]['limit'] === 0 && isset($call[1]['resource_template_label']))) === 5);
+// Publications span a growing, non-contiguous template range, and records
+// detached from the set keep their publication template. Like DRESearch and the
+// precompute, the fallback counts set membership, never a sum of template labels.
+dre_check($failures, $checks, 'publications are counted by the Publications item set',
+    count(array_filter($api->queries, fn($call) => $call[0] === 'items'
+        && ($call[1]['item_set_id'] ?? null) === [29918]
+        && !isset($call[1]['resource_template_label'])
+        && $call[1]['site_id'] === 102 && $call[1]['is_public'] === true
+        && $call[1]['limit'] === 0)) === 1);
 
 $services->counts = new class {
     public ?int $site = null;
@@ -213,7 +226,7 @@ dre_check($failures, $checks, 'configured search corpora take priority over lega
     $stats[0]['n'] === 205 && $services->counts->site === 1);
 
 // Keep last good site counts during an outage, then throttle retries.
-$settings->values = ['dre_stats_v9_88' => json_encode(['t' => time() - 4000, 'stats' => [['k' => 'locations', 'n' => 123]]])];
+$settings->values = ['dre_stats_v10_88' => json_encode(['t' => time() - 4000, 'stats' => [['k' => 'locations', 'n' => 123]]])];
 $services->counts = new class { public function forSite($site) { return [['invalid' => true]]; } };
 $api->fail = true;
 $stats = $singleSite(88);

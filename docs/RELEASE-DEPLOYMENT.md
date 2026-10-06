@@ -41,7 +41,8 @@ the last indexing run; visualization totals reflect the manifest's `createdAt`;
 theme totals are cached for at most one hour. These are separate refresh clocks.
 Regenerate/reindex after membership changes rather than changing labels to conceal
 stale totals. Standalone theme installations use exact template labels and public
-item sets; their four title-to-ID mappings expire after 24 hours. Renaming an item
+item sets (Publications is counted by its item set, like DRESearch and the
+precompute); their five title-to-ID mappings expire after 24 hours. Renaming an item
 set can therefore take up to a day to affect that fallback (plus the one-hour
 count cache). It is not the shared-profile deployment's count source.
 

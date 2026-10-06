@@ -39,8 +39,11 @@ class CollectionStats extends AbstractHelper
      * v5: dropped Resource types, added Languages / Podcasts / YouTube videos.
      * v6: cache source labels; translate them for each visitor after retrieval.
      * v7: prefer the shared DRESearch corpus definitions, with explicit public scope.
+     * v8: stale-on-error values and retry markers.
+     * v9: snapshots must match the requested site scope exactly.
+     * v10: API-fallback Publications counts the Publications item set, not template labels.
      */
-    private const CACHE_VERSION = 'v9';
+    private const CACHE_VERSION = 'v10';
 
     /** The visualizations module's data directory, relative to OMEKA_PATH. */
     private const PRECOMPUTE_DIR = '/modules/DreVisualizations/asset/data';
@@ -50,12 +53,6 @@ class CollectionStats extends AbstractHelper
 
     /** A published generation id, e.g. 20260803T085234Z-964ff56b9f5c. */
     private const GENERATION_ID = '/^[0-9]{8}T[0-9]{6}Z-[a-f0-9]{12}$/';
-
-    /** Templates summed into the "Publications" figure in the API fallback. */
-    private const PUBLICATION_TEMPLATES = [
-        'Article', 'Working paper', 'Conference paper', 'Book chapter',
-        'Book', 'Doctoral thesis', 'Journal issue', 'Book review', 'Online post',
-    ];
 
     public function __invoke(?int $siteId = null): array
     {
@@ -294,11 +291,13 @@ class CollectionStats extends AbstractHelper
 
 
             // Exact template-label predicates avoid hydrating the template catalogue.
-            // Resolve only the four public item-set titles needed by this fallback.
-            $setId = $this->readCache('dre_stats_set_ids_v1', 86400);
+            // Resolve only the five public item-set titles needed by this fallback.
+            // The key is versioned with that title list: a mapping cached before a
+            // title was added would count it as 0 until the entry expired.
+            $setId = $this->readCache('dre_stats_set_ids_v2', 86400);
             if (null === $setId) {
                 $setId = [];
-                foreach (['Languages', 'Subjects', 'Podcasts', 'YouTube videos'] as $title) {
+                foreach (['Languages', 'Subjects', 'Publications', 'Podcasts', 'YouTube videos'] as $title) {
                     $setId[$title] = [];
                     $page = 1;
                     do {
@@ -315,7 +314,7 @@ class CollectionStats extends AbstractHelper
                         ++$page;
                     } while ($sets && ($page - 1) * 100 < $response->getTotalResults());
                 }
-                $this->writeCache('dre_stats_set_ids_v1', $setId);
+                $this->writeCache('dre_stats_set_ids_v2', $setId);
             }
 
             $total = function (array $query) use ($api, $siteId) {
@@ -333,11 +332,6 @@ class CollectionStats extends AbstractHelper
                 return !empty($setId[$label]) ? $total(['item_set_id' => $setId[$label]]) : 0;
             };
 
-            $publications = 0;
-            foreach (self::PUBLICATION_TEMPLATES as $label) {
-                $publications += $byTemplate($label);
-            }
-
             // Same metrics, same ORDER as the module precompute's
             // buildOverviewStats(), so the masthead does not silently reshuffle
             // when an install gains or loses the visualizations module.
@@ -347,6 +341,12 @@ class CollectionStats extends AbstractHelper
             // page, but Type of Resource describes the other records rather than
             // being a corpus of its own — and it is the one key the masthead has
             // no route for, so it was the single dead row in the catalogue.
+            //
+            // Publications is the Publications item set, as in DRESearch and the
+            // precompute, never a sum of template labels. The publication
+            // templates grow with every new upstream type, and the set is also
+            // curated: records detached from it keep their publication template,
+            // so a label sum both missed new types and counted removed records.
             return [
                 ['k' => 'researchItems', 'l' => 'Research items',  'n' => $byTemplate('Research Items'), 's' => ''],
                 ['k' => 'projects',      'l' => 'Projects',        'n' => $byTemplate('Projects'),       's' => ''],
@@ -355,7 +355,7 @@ class CollectionStats extends AbstractHelper
                 ['k' => 'locations',     'l' => 'Locations',       'n' => $byTemplate('Location'),       's' => ''],
                 ['k' => 'languages',     'l' => 'Languages',       'n' => $bySet('Languages'),           's' => ''],
                 ['k' => 'subjectsTags',  'l' => 'Subjects & tags', 'n' => $bySet('Subjects'),            's' => ''],
-                ['k' => 'publications',  'l' => 'Publications',    'n' => $publications,                 's' => ''],
+                ['k' => 'publications',  'l' => 'Publications',    'n' => $bySet('Publications'),        's' => ''],
                 ['k' => 'podcasts',      'l' => 'Podcasts',        'n' => $bySet('Podcasts'),            's' => ''],
                 ['k' => 'youtube',       'l' => 'YouTube videos',  'n' => $bySet('YouTube videos'),      's' => ''],
             ];
