@@ -13,6 +13,24 @@ to create.
 
 <!-- Summarise user-visible changes here (Added / Changed / Fixed / Removed / Security). -->
 
+### Development
+
+- **Layout test:** `tests/LayoutTest.php` renders the real `layout.phtml`, the
+  page every request goes through, with its header, banner, footer and
+  shortlist partials and the theme's own helpers. It covers:
+  - brand and colour fallbacks, including CSS injection
+  - PWA on and off, and shortlist off
+  - script order and the font preload
+  - home vs interior masthead, and a single h1
+  - banner stat rows
+- **Header and reveal tests:** `tests/js/chrome.test.mjs` covers scroll
+  padding and header auto-hide, and that `reveal.js` leaves on-screen cards
+  alone and hides nothing under reduced motion or without
+  IntersectionObserver.
+- **PHPStan in CI:** PHPStan 2.3.0 (level 5, PHP 8.1–8.5) analyses `helper/`
+  against the unpacked Omeka S release. Its first finding, an unused closure
+  variable in `HierarchyTree`, is fixed.
+
 ## [2.33.0] - 2026-10-06
 
 ### Fixed
