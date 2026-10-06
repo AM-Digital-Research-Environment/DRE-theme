@@ -44,7 +44,7 @@
     function absolutize(url) {
         try {
             return new URL(url, document.baseURI).href;
-        } catch (e) {
+        } catch {
             return url;
         }
     }
@@ -58,7 +58,7 @@
         var manifest;
         try {
             manifest = JSON.parse(island.textContent);
-        } catch (e) {
+        } catch {
             return;
         }
 

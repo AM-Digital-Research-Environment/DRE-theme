@@ -173,7 +173,7 @@ test('CSV exports escape quotes and neutralize formula prefixes without altering
     w.eval(source('utils.js'));w.eval(source('shortlist.js'));
     w.document.querySelector('[data-shortlist-export]').click();
     assert.equal(filename, 'research-shortlist.csv');
-    assert.match(content, /"'  =HYPERLINK\(""https:\/\/example.test""\)"/);
+    assert.match(content, /"' {2}=HYPERLINK\(""https:\/\/example.test""\)"/);
     assert.match(content, /"A ""quoted"" citation"/);
     assert.equal(JSON.parse(w.localStorage.getItem(key)).records[0].title, title);
     w.close();

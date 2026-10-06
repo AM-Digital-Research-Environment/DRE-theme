@@ -86,7 +86,7 @@
             el.style.color = '';
             el.style.color = 'var(' + name + ', ' + fallback + ')';
             return ns.toRGB(window.getComputedStyle(el).color || fallback) || fallback;
-        } catch (e) {
+        } catch {
             return fallback;
         }
     };
@@ -102,7 +102,7 @@
             el.style.fontFamily = '';
             el.style.fontFamily = 'var(' + name + ', ' + fallback + ')';
             return window.getComputedStyle(el).fontFamily || fallback;
-        } catch (e) {
+        } catch {
             return fallback;
         }
     };
@@ -113,7 +113,7 @@
             var el = getProbe();
             var value = window.getComputedStyle(el).getPropertyValue(name);
             return (value && value.trim()) || fallback || '';
-        } catch (e) {
+        } catch {
             return fallback || '';
         }
     };
@@ -152,7 +152,7 @@
                 for (var i = 0; i < listeners.length; i++) {
                     try {
                         listeners[i](ns.isDark());
-                    } catch (e) {
+                    } catch {
                         /* one bad listener must not stop the others */
                     }
                 }

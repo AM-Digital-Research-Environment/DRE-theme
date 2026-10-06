@@ -15,6 +15,13 @@ to create.
 
 ### Development
 
+- **ESLint:** ESLint 10 (`eslint.config.mjs`, the recommended rules) replaces
+  the parse-only `scripts/check-js.mjs` as `npm run lint:js`, so it runs in
+  `build`, `verify` and CI. Theme scripts are linted as ES2022 browser scripts
+  (the Safari 16.2 floor), the tooling and tests as Node modules. Its first
+  run found unused catch bindings (now ES2019 `catch {}`), redundant regex
+  escapes in the shortlist export, ambiguous regex spaces and literal BOM
+  bytes in a script comment. None changed behaviour.
 - **Layout test:** `tests/LayoutTest.php` renders the real `layout.phtml`, the
   page every request goes through, with its header, banner, footer and
   shortlist partials and the theme's own helpers. It covers:

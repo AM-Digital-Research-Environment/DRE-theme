@@ -21,9 +21,9 @@
  *   CSS parser strips it) and landed mid-file, welded to the first selector:
  *
  *       /* …theme header… *_/
- *       ﻿:root{--space-1: .25rem; … 63 declarations … }
+ *       <U+FEFF>:root{--space-1: .25rem; … 63 declarations … }
  *
- *   `﻿:root` matches no element. The entire spacing scale and both
+ *   `<U+FEFF>:root` matches no element. The entire spacing scale and both
  *   --container-* tokens silently evaluated to empty, so `max-width:
  *   var(--container-max)` computed to `none` and every page went full-bleed with
  *   zero gutters. One invisible character, whole layout flattened, and not one

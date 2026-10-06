@@ -51,7 +51,7 @@ successful CSS intact, and watch mode recovers after the source is corrected.
 | `npm run lint:ini` | `theme.ini` structure, `.info` vs `.options.info`, dead `Zend\…` types, settings declared but never read, helper registration, one version across `theme.ini`/`package.json`/`package-lock.json`/`CITATION.cff`, and the same Omeka range in `theme.ini` and `composer.json` |
 | `npm run lint:templates` | `<?php`/`?>` and bracket balance, unresolved `partial()` paths, helper call sites whose casing doesn't match `theme.ini` |
 | `npm run lint:groups` | Every property of the live *Research Items* template lands in a named metadata group, and the ones the record design depends on (Author, Abstract, Subject, DOI…) land in the *right* one |
-| `npm run lint:js` | Every maintained `.js`/`.mjs` file parses with the supported Node runtime |
+| `npm run lint:js` | ESLint (`eslint.config.mjs`, the recommended rules) over the theme scripts as ES2022 browser scripts — the Safari 16.2 floor — and the tooling and tests as Node modules: undefined globals, unused variables, unreachable code, suspicious regular expressions |
 | `npm run lint:php` | **Real `php -l`** over every `.php`/`.phtml`, then the theme's PHP tests |
 | `npm run test:unit` | JavaScript behavior tests plus CSS compilation, metadata/prefixing, failed-build output preservation and watch-mode recovery |
 | `npm run test:browser` | Actual PHP-rendered fixtures in Chromium, Firefox and WebKit: navigation, keyboard access, no-JS fallback, shortlist exports, record sections and browse layouts |

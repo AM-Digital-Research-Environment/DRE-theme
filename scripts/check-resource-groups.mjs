@@ -41,7 +41,7 @@ const findings = [];
 const php = readFileSync(HELPER, 'utf8');
 
 const groups = [];
-const groupRe = /\[\s*(?:\/\/[^\n]*\n\s*)*'key'\s*=>\s*'([\w-]+)'[\s\S]*?'layout'\s*=>\s*self::LAYOUT_(\w+),([\s\S]*?)\n        \],/g;
+const groupRe = /\[\s*(?:\/\/[^\n]*\n\s*)*'key'\s*=>\s*'([\w-]+)'[\s\S]*?'layout'\s*=>\s*self::LAYOUT_(\w+),([\s\S]*?)\n {8}\],/g;
 for (const m of php.matchAll(groupRe)) {
   const [, key, layout, body] = m;
   const termsBlock = /'terms'\s*=>\s*\[([\s\S]*?)\]/.exec(body);

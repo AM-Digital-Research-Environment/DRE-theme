@@ -18,7 +18,7 @@
         try {
             const stored = window.localStorage.getItem(STORAGE_KEY);
             return stored === 'light' || stored === 'dark' ? stored : null;
-        } catch (error) {
+        } catch {
             return null;
         }
     }
@@ -26,7 +26,7 @@
     function rememberTheme(theme) {
         try {
             window.localStorage.setItem(STORAGE_KEY, theme);
-        } catch (error) {
+        } catch {
             // Storage can be unavailable in private/sandboxed contexts. The
             // current-page toggle must continue to work without persistence.
         }

@@ -48,7 +48,7 @@
         try {
             store.dispatch({ type: UPDATE_CONFIG, config: { selectedTheme: theme } });
             appliedThemes.set(store, theme);
-        } catch (e) {
+        } catch {
             /* leave Mirador's own theme in place */
         }
     }

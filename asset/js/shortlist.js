@@ -174,8 +174,8 @@
     });
     dialog.querySelector('[data-shortlist-export]').addEventListener('click', () => {
         const format = dialog.querySelector('[data-shortlist-format]').value;
-        const csv = value => '"' + String(value).replace(/^(?=[\s]*[=+@\-]|[\t\r\n])/, "'").replaceAll('"', '""') + '"';
-        const md = value => value.replace(/[\\`*_{}\[\]<>]/g, '\\$&').replace(/\s+/g, ' ');
+        const csv = value => '"' + String(value).replace(/^(?=\s*[=+@-]|[\t\r\n])/, "'").replaceAll('"', '""') + '"';
+        const md = value => value.replace(/[\\`*_{}[\]<>]/g, '\\$&').replace(/\s+/g, ' ');
         const content = format === 'json' ? JSON.stringify({version: 1, records}, null, 2)
             // The BOM makes Excel read the CSV as UTF-8 rather than the legacy
             // code page, which would garble accented titles.

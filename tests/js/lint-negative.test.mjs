@@ -150,3 +150,14 @@ test('the custom lints pass on the repository tree', () => {
         assert.equal(result.status, 0, `${script} on the repository:\n${result.output}`);
     }
 });
+
+test('ESLint flags undefined globals and syntax newer than the Safari 16.2 floor', async () => {
+    const { ESLint } = await import('eslint');
+    const eslint = new ESLint({ cwd: join(import.meta.dirname, '..', '..') });
+    const lint = async (code, filePath) => (await eslint.lintText(code, { filePath }))[0].messages;
+    assert.deepEqual(await lint('(function () { window.DREUtils.onReady(() => {}); })();\n', 'asset/js/ok.js'), []);
+    assert.ok((await lint('undefinedHelper();\n', 'asset/js/bad.js')).some(m => m.ruleId === 'no-undef'));
+    // A regular expression with the ES2024 v flag is a parse error in Safari 16.2.
+    assert.ok((await lint(String.raw`const re = /[\p{L}--[a-z]]/v;` + '\n', 'asset/js/new-syntax.js')).some(m => m.fatal));
+    assert.ok((await lint('const unused = 1;\n', 'scripts/bad.mjs')).some(m => m.ruleId === 'no-unused-vars'));
+});

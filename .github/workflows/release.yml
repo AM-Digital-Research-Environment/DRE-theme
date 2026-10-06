@@ -161,6 +161,7 @@ jobs:
             'DRE-theme/package-lock\.json' \
             'DRE-theme/playwright[^/]*\.config\.mjs' \
             'DRE-theme/phpstan\.neon' \
+            'DRE-theme/eslint\.config\.mjs' \
             'DRE-theme/\.impeccable/' \
             'DRE-theme/docs/history/' \
             'DRE-theme/docs/TESTING\.md' \
