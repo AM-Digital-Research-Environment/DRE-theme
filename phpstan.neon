@@ -17,7 +17,9 @@ parameters:
     paths:
         - helper
     bootstrapFiles:
-        - %env.OMEKA_PATH%/vendor/autoload.php
+        # OMEKA_PATH and Omeka's Composer autoloader, as Omeka's bootstrap.php
+        # provides them at runtime.
+        - tests/phpstan-bootstrap.php
     ignoreErrors:
         # View helpers are reached through PhpRenderer's plugin broker (__call),
         # which AbstractHelper::getView() types as the bare RendererInterface.

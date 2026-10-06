@@ -50,7 +50,7 @@ class HierarchyTree extends AbstractHelper
                 foreach ($view->api()->search('item_sets', ['id' => $batch, 'per_page' => 100])->getContent() as $set) $sets[$set->id()] = $set;
             } catch (\Throwable $e) { /* Unavailable sets remain unlinked. */ }
         }
-        $build = function (int $id) use (&$build, &$visited, &$sets, &$counts, $byId, $children, $allowed, $view, $activeId, $valueLang): ?array {
+        $build = function (int $id) use (&$build, &$visited, &$sets, &$counts, $byId, $children, $view, $activeId, $valueLang): ?array {
             if (isset($visited[$id])) return null;
             $visited[$id] = true;
             $grouping = $byId[$id];
