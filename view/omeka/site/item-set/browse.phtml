@@ -1,19 +1,12 @@
 <?php
 $translate = $this->plugin('translate');
-$escape = $this->plugin('escapeHtml');
-$this->inlineScript()->appendFile($this->assetUrl('js/masonry.pkgd.min.js'));
 $this->inlineScript()->appendFile($this->assetUrl('js/browse.js'));
 $this->htmlElement('body')->appendAttribute('class', 'item-set resource browse');
-
-$filterLocale = (bool) $this->siteSetting('filter_locale_values');
-$lang = $this->lang();
-$valueLang = $filterLocale ? [$lang, ''] : null;
 
 // See helper/BrowseLayout.php — resolves grid/list, the ?view= override, and
 // the body-property settings that used to be duplicated in every browse template.
 $layout = $this->BrowseLayout();
 $isGrid = $layout['isGrid'];
-$bodyTerm = $layout['bodyTerm'];
 $bodyTruncate = $layout['truncate'];
 
 ?>

@@ -17,6 +17,12 @@ a {
     &:focus-visible {
         outline: 2px solid var(--focus-color);
         outline-offset: 2px;
+    }
+
+    // Only a bare prose link, which has no shape of its own, gets a softened
+    // ring. A classed link (a.button, a chip, a card title) keeps its own radius
+    // on focus instead of being reshaped by it.
+    &:not([class]):focus-visible {
         border-radius: var(--radius-sm);
     }
 }

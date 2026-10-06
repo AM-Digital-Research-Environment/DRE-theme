@@ -18,6 +18,8 @@ colors:
   forest-raised: "oklch(22% 0.014 165)"
   light-ink: "oklch(91% 0.008 92)"
   primary-contrast: "oklch(99% 0.004 95)"
+  field-border: "oklch(62% 0.012 70)"
+  forest-field-border: "oklch(54% 0.016 165)"
 typography:
   display:
     fontFamily: "Spectral, Georgia, Times New Roman, serif"
@@ -179,6 +181,11 @@ resolve per mode and from an administrator-overridable `--primary-base`.
   material stack; **Light Ink** carries the corresponding text.
 - `--muted` and `--ink-subtle` are reserved for non-essential text at 15px or
   larger. Their worst-case surface contrast is checked by `npm run lint:tokens`.
+- **Field Border** (`--field-border`; `field-border` light, `forest-field-border`
+  dark) is the outline of a form control. It is darker than the hairline family
+  because it is what identifies the control: it clears 3:1 non-text contrast on
+  every surface in both modes. `--border`, `--border-light`, and
+  `--border-strong` remain separators and are not control boundaries.
 
 ### Mode and state rules
 
@@ -199,7 +206,9 @@ every divider, heading, or card.
 
 **The Measured-contrast Rule.** Contrast claims belong in executable checks.
 When a pairing changes, update the test rather than asserting compliance in
-prose alone.
+prose alone. Text pairs are held to 4.5:1; control boundaries (`--field-border`)
+and the focus outline (`--focus-color`) to the 3:1 non-text floor (WCAG 1.4.11),
+on the page and card grounds of both modes.
 
 ## Typography
 
@@ -233,9 +242,16 @@ results may use `--measure-wide`. Page-builder HTML blocks are not globally
 measure-capped: previous attempts created an unusable blank half-page and were
 reverted.
 
+The Headline tier is applied to the record page's own `<h1>` (item, media, and
+item-set pages): record titles are long, and the Display tier set them over four
+lines at desktop width. The home masthead title remains Display.
+
 Tabular numerals belong on corpus counts, dates in aligned lists, pagination,
 metadata values, and visualization summaries. `text-wrap: balance` is suitable
-for short display headings, not for body paragraphs.
+for short display headings, not for body paragraphs; long-form prose (abstracts,
+page-builder HTML paragraphs) uses `text-wrap: pretty`. Within that prose a
+heading that follows running text takes `--space-10` above it, twice its space
+below, so it binds to the text it introduces.
 
 **The Two-voice Rule.** Spectral speaks when content asks to be read; Hanken
 Grotesk speaks when the interface asks to be operated.
@@ -278,7 +294,12 @@ determines its composition.
 - Touch controls target at least `--size-control-lg` (44px) where they are the
   primary interaction.
 - Print removes sticky chrome and interactive controls, exposes essential URLs,
-  and preserves record hierarchy.
+  and preserves record hierarchy. The apparatus (citation, DOI, licence,
+  permalink) prints linearised after the record without its controls, and the
+  masthead prints as ink on paper under every brand treatment and mode.
+- Forced-colors mode (Windows High Contrast) keeps icon glyphs, control states,
+  and focus outlines visible: mask icons paint in the system colour of their
+  host, and a box-shadow focus ring is always paired with a transparent outline.
 
 **The One-ladder Rule.** Use the five shared breakpoints or a component query.
 Do not add a near-duplicate breakpoint to solve a local spacing problem.
@@ -334,7 +355,8 @@ than pillowy, with consistent borders and no ornamental asymmetry.
 
 Cards use a complete border. Blockquotes use a full frame and a quotation mark.
 Titles may use a short underline accent. Side stripes, arbitrarily missing
-corners, and extreme mixed radii are not part of the system.
+corners, and extreme mixed radii are not part of the system. Focus never
+reshapes a control: the outline follows the element's own radius.
 
 **The Complete-frame Rule.** If a component needs a boundary, draw the whole
 boundary or use a tonal change. Do not signal importance with a coloured side
@@ -378,10 +400,13 @@ header search collapses, the masthead supplies a full field.
 
 ### Inputs and search fields
 
-Fields use a surface or sunken ground, a complete `--border-strong` outline,
+Fields use a surface or sunken ground, a complete `--field-border` outline,
 the body font, and the shared focus ring. Labels remain visible; placeholders
 are hints rather than labels. Search controls preserve the query in navigation
 and expose clear, translated empty, loading, error, and unavailable states.
+Checkboxes and radios are the native controls tinted with
+`accent-color: var(--primary)`, so their states survive dark mode and
+forced-colors mode without a redrawn substitute.
 
 ### Chips and tags
 
@@ -393,7 +418,10 @@ must remain distinguishable by text, not color alone.
 ### Cards and resource lists
 
 Resource cards use the panel surface, a full hairline border, `--radius-lg`, and
-quiet shadow. Hover may lift slightly when the whole card is actionable. Lists
+quiet shadow. Hover may lift slightly when the whole card is actionable. A card
+places its thumbnail beside its text only when the card itself is at least
+28rem wide (a container query), so sidebars and narrow columns keep the stacked
+form. Lists
 remain available where dense comparison is more important than image-forward
 browsing. Pagination, sorting, and layout toggles form one coherent control
 cluster.

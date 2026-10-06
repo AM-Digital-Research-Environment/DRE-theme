@@ -233,23 +233,6 @@
 body[data-theme="dark"]  { @include am-dark-tokens; }
 body[data-theme="light"] { @include am-light-tokens; }
 
-// ==========================================================================
-// Sass aliases — for use where var() can't reach (e.g. @media composition).
-// ==========================================================================
-$space-xs: var(--space-xs);
-$space-sm: var(--space-sm);
-$space-md: var(--space-md);
-$space-lg: var(--space-lg);
-$space-xl: var(--space-xl);
-$space-2xl: var(--space-2xl);
-$space-3xl: var(--space-3xl);
-
-$radius-sm: var(--radius-sm);
-$radius-md: var(--radius-md);
-$radius-lg: var(--radius-lg);
-$radius-xl: var(--radius-xl);
-$radius-full: var(--radius-full);
-
-$transition-fast: var(--transition-fast);
-$transition-base: var(--transition-base);
-$transition-slow: var(--transition-slow);
+// No Sass aliases of these tokens ($space-*, $radius-*, $transition-*): none was
+// ever referenced, and var() works everywhere they could have been used. A
+// media query cannot take var() — compose those from abstracts/_breakpoints.

@@ -19,7 +19,10 @@ export async function routeFixture(page, html) {
             try { return route.fulfill({contentType: types[extname(file)] || 'application/octet-stream', body: readFileSync(file)}); }
             catch { return route.fulfill({status: 404, body: ''}); }
         }
+        // utils.js is on every real page before any theme script (layout.phtml);
+        // the specs then add the scripts under test.
         return route.fulfill({contentType: 'text/html', body: html.replace('</head>',
-            '<link rel="stylesheet" href="/themes/dre/asset/css/style.css"></head>')});
+            '<link rel="stylesheet" href="/themes/dre/asset/css/style.css">'
+            + '<script src="/themes/dre/asset/js/utils.js"></script></head>')});
     });
 }

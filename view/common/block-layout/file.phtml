@@ -2,10 +2,6 @@
 $hyperlink  = $this->plugin('hyperlink');
 $decoration = $this->themeSetting('image_decoration');
 $classes    = $classes ?? [];
-if (isset($alignmentClass)) {
-    $classes[] = $alignmentClass;
-    $classes[] = 'file';
-}
 ?>
 
 <div class="<?php echo $this->escapeHtml(implode(' ', $classes)); ?>">

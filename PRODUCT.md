@@ -100,8 +100,8 @@ providing a connected discovery layer and a consistent public interface.
 - The grouped specs in `tests/browser/` and `.github/workflows/live-smoke.yml`
   provide a nightly production smoke-test baseline.
 - `DESIGN.md` records the visual system; `docs/DESIGN-INTEGRATION.md` records the
-  cross-repository contract; `docs/IMPECCABLE-ROADMAP.md` records the evaluation
-  programme and representative routes.
+  cross-repository contract; `docs/history/IMPECCABLE-ROADMAP.md` records the
+  evaluation programme and representative routes.
 - No testimonials, adoption metrics, performance claims, or accessibility
   conformance beyond the tested design-token pairings should be invented.
 

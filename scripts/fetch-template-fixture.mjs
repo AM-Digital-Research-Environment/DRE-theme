@@ -23,7 +23,7 @@ import { join, dirname } from 'node:path';
 const ROOT = join(import.meta.dirname, '..');
 const API = process.env.DRE_API ?? 'https://data.africamultiple.uni-bayreuth.de/api';
 const TEMPLATE_ID = 10; // Research Items
-const SAMPLE_ITEM_ID = 32324; // the journal article AUDIT.md reviews
+const SAMPLE_ITEM_ID = 32324; // the journal article docs/history/AUDIT.md reviews
 const OUT = join(ROOT, 'tests', 'fixtures', 'research-items-template.json');
 
 async function getJson(path) {

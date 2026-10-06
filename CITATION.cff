@@ -5,9 +5,10 @@
 # needs the citation is usually the moment they are looking at the installed
 # theme, not at GitHub.
 #
-# `version` and `date-released` are checked against config/theme.ini and
-# package.json by `npm run lint:ini` — a citation that names a version the
-# theme never shipped is worse than one that names none.
+# `version` is checked against config/theme.ini and package.json by
+# `npm run lint:ini` — a citation that names a version the theme never shipped
+# is worse than one that names none. `npm version <bump>` rewrites both
+# `version` and `date-released` (scripts/sync-version.mjs).
 cff-version: 1.2.0
 title: "Africa Multiple — DRE: an Omeka S theme for the Digital Research Environment"
 message: "If you use this theme, or its design system, please cite it as below."

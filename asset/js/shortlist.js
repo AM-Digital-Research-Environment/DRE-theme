@@ -87,9 +87,9 @@
         document.querySelectorAll('[data-shortlist-save]').forEach(button => {
             if (!safeUrl(button.dataset.url)) return;
             button.hidden = false;
+            // A toggle keeps one name; only its pressed state changes.
             const saved = records.some(record => record.url === safeUrl(button.dataset.url));
             button.setAttribute('aria-pressed', String(saved));
-            button.textContent = saved ? dialog.dataset.saved : dialog.dataset.save;
         });
         document.querySelectorAll('[data-shortlist-count]').forEach(node => { node.textContent = records.length; });
     }
@@ -177,7 +177,9 @@
         const csv = value => '"' + String(value).replace(/^(?=[\s]*[=+@\-]|[\t\r\n])/, "'").replaceAll('"', '""') + '"';
         const md = value => value.replace(/[\\`*_{}\[\]<>]/g, '\\$&').replace(/\s+/g, ' ');
         const content = format === 'json' ? JSON.stringify({version: 1, records}, null, 2)
-            : format === 'csv' ? ['Title,URL,Citation', ...records.map(r => [r.title, r.url, r.citation].map(csv).join(','))].join('\r\n')
+            // The BOM makes Excel read the CSV as UTF-8 rather than the legacy
+            // code page, which would garble accented titles.
+            : format === 'csv' ? '﻿' + ['Title,URL,Citation', ...records.map(r => [r.title, r.url, r.citation].map(csv).join(','))].join('\r\n')
                 : records.map(r => '- ' + md(r.citation || r.title) + ' — ' + r.url).join('\n');
         const url = URL.createObjectURL(new Blob([content], {type: format === 'json' ? 'application/json' : 'text/plain;charset=utf-8'}));
         const link = document.createElement('a');
@@ -186,9 +188,8 @@
         setTimeout(() => URL.revokeObjectURL(url), 1000);
     });
     window.addEventListener('storage', event => { if (event.key === key || event.key === null) { read(); enrichSavedRecord(); render(); } });
-    document.addEventListener('click', event => {
-        if (event.target.closest?.('[data-citation-style]')) setTimeout(enrichSavedRecord, 0);
-    });
+    // record.js announces every style change, pointer or arrow key alike.
+    document.addEventListener('dre:citation-style', () => enrichSavedRecord());
     // Connection pages replace their cards without reloading the document.
     document.addEventListener('dre:connections-loaded', syncButtons);
 })();

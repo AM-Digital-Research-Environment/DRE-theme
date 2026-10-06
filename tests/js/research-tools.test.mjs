@@ -14,7 +14,7 @@ function connectionFixture() {
 test('connection requests preserve compound filters, ignore stale results, and retain unrelated URL state', async()=>{
     const d=connectionFixture(), w=d.window, pending=[];
     w.fetch=(url,options)=>new Promise(resolve=>pending.push({url:new URL(url),options,resolve}));
-    w.eval(source('linked-resources.js'));
+    w.eval(source('utils.js'));w.eval(source('linked-resources.js'));
     const form=w.document.querySelector('form');
     form.dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));
     assert.equal(pending[0].url.searchParams.get('lr_property'),'media:7-0,234');
@@ -32,7 +32,7 @@ test('failed connections preserve results, provide a real continuation and retry
     const d=connectionFixture(), w=d.window;
     let fail=true,calls=0;
     w.fetch=async()=>{calls++; if(fail) throw Error('Offline'); return {ok:true,text:async()=>result('Recovered')};};
-    w.eval(source('linked-resources.js'));
+    w.eval(source('utils.js'));w.eval(source('linked-resources.js'));
     w.document.querySelector('[data-connection-page]').click(); await tick();
     assert.equal(w.document.querySelector('[data-connection-recovery]').hidden,false);
     assert.ok(w.document.querySelector('form'));
@@ -52,7 +52,7 @@ function shortlistFixture() {
 test('shortlist validates stored URLs, escapes titles and keeps working when storage fails',()=>{
     const d=shortlistFixture(), w=d.window;
     w.localStorage.setItem('dre-research-shortlist-v1',JSON.stringify({version:1,records:[{title:'<img src=x onerror=alert(1)>',url:'/item/3'},{title:'Bad',url:'javascript:alert(1)'},{title:'Foreign',url:'https://other.test/'}]}));
-    w.eval(source('shortlist.js'));
+    w.eval(source('utils.js'));w.eval(source('shortlist.js'));
     assert.equal(w.document.querySelectorAll('[data-shortlist-list] li').length,1);
     assert.equal(w.document.querySelector('[data-shortlist-list] img'),null);
     Object.defineProperty(w,'localStorage',{get(){throw Error('Blocked');}});
@@ -66,7 +66,7 @@ test('shortlist validates stored URLs, escapes titles and keeps working when sto
 test('section copy keeps shareable query state and uses the stable section anchor',async()=>{
     const d=dom('<button hidden data-section-copy="record-1-people" data-copied="Copied">Copy</button>'),w=d.window;
     let copied;Object.defineProperty(w.navigator,'clipboard',{value:{writeText:async text=>{copied=text;}}});
-    w.eval(source('section-links.js'));const button=w.document.querySelector('button');assert.equal(button.hidden,false);button.click();await tick();
+    w.eval(source('utils.js'));w.eval(source('section-links.js'));const button=w.document.querySelector('button');assert.equal(button.hidden,false);button.click();await tick();
     assert.equal(copied,'https://example.test/item/1?view=list#record-1-people');assert.equal(button.textContent,'Copied');w.close();
 });
 
@@ -77,7 +77,7 @@ test('history restores legacy connection filters and a new search resets legacy 
         requests.push(new URL(url));
         return {ok: true, text: async () => w.document.querySelector('.resources-linked').outerHTML};
     };
-    w.eval(source('linked-resources.js'));
+    w.eval(source('utils.js'));w.eval(source('linked-resources.js'));
     w.dispatchEvent(new w.PopStateEvent('popstate'));
     await tick();
     assert.equal(requests[0].searchParams.get('lr_property'), 'media:7-0,234');
@@ -94,7 +94,7 @@ test('history restores legacy connection filters and a new search resets legacy 
 test('undo clear merges with later saves', () => {
     const d = shortlistFixture(), w = d.window, key = 'dre-research-shortlist-v1';
     w.localStorage.setItem(key, JSON.stringify({version: 1, records: [{url: '/item/3', title: 'Original'}]}));
-    w.eval(source('shortlist.js'));
+    w.eval(source('utils.js'));w.eval(source('shortlist.js'));
     w.document.querySelector('[data-shortlist-clear]').click();
     w.document.querySelector('[data-shortlist-save]').click();
     w.document.querySelector('[data-shortlist-undo]').click();
@@ -107,7 +107,7 @@ test('undo clear merges with later saves', () => {
 
 test('quota errors preserve in-memory additions for export instead of rereading stale storage', () => {
     const d = shortlistFixture(), w = d.window;
-    w.eval(source('shortlist.js'));
+    w.eval(source('utils.js'));w.eval(source('shortlist.js'));
     w.Storage.prototype.setItem = () => { throw Error('Quota exceeded'); };
     w.document.querySelector('[data-shortlist-save]').click();
     w.document.querySelector('[data-shortlist-open]').click();
@@ -125,7 +125,7 @@ test('visiting a saved detail page enriches only that record with its displayed 
     w.document.body.insertAdjacentHTML('beforeend', `<section class="record-apparatus" data-shortlist-record-url="/item/2">
         <p data-citation-panel="chicago">Displayed citation</p><p data-citation-panel="apa" hidden>Other citation</p>
         <div class="record-apparatus__downloads"><a href="/citation/2.ris">RIS</a></div></section>`);
-    w.eval(source('shortlist.js'));
+    w.eval(source('utils.js'));w.eval(source('shortlist.js'));
     const [saved] = JSON.parse(w.localStorage.getItem(key)).records;
     assert.equal(saved.citation, 'Displayed citation');
     assert.equal(saved.downloads[0].label, 'RIS');
@@ -136,7 +136,7 @@ test('visiting a saved detail page enriches only that record with its displayed 
 test('undo respects the limit and retains unrestored records for a later undo', () => {
     const d = shortlistFixture(), w = d.window, key = 'dre-research-shortlist-v1';
     w.localStorage.setItem(key, JSON.stringify({version: 1, records: Array.from({length: 200}, (_, i) => ({url: '/item/' + (i + 3), title: 'Record ' + i}))}));
-    w.eval(source('shortlist.js'));
+    w.eval(source('utils.js'));w.eval(source('shortlist.js'));
     w.document.querySelector('[data-shortlist-clear]').click();
     w.document.querySelector('[data-shortlist-save]').click();
     w.document.querySelector('[data-shortlist-undo]').click();
@@ -152,7 +152,7 @@ test('undo respects the limit and retains unrestored records for a later undo', 
 test('invalid stored entries are ignored and a cross-tab clear updates the list', () => {
     const d = shortlistFixture(), w = d.window, key = 'dre-research-shortlist-v1';
     w.localStorage.setItem(key, JSON.stringify({version: 1, records: [null, {}, {url: '/item/3', title: 'Valid', downloads: [null, {}, {url: '/cite.ris', label: 'RIS'}]}]}));
-    w.eval(source('shortlist.js'));
+    w.eval(source('utils.js'));w.eval(source('shortlist.js'));
     assert.equal(w.document.querySelectorAll('[data-shortlist-list] li').length, 1);
     w.localStorage.clear();
     w.dispatchEvent(new w.StorageEvent('storage', {key: null}));
@@ -170,11 +170,109 @@ test('CSV exports escape quotes and neutralize formula prefixes without altering
     w.URL.createObjectURL = () => 'blob:fixture';
     w.URL.revokeObjectURL = () => {};
     w.HTMLAnchorElement.prototype.click = function () { filename = this.download; };
-    w.eval(source('shortlist.js'));
+    w.eval(source('utils.js'));w.eval(source('shortlist.js'));
     w.document.querySelector('[data-shortlist-export]').click();
     assert.equal(filename, 'research-shortlist.csv');
     assert.match(content, /"'  =HYPERLINK\(""https:\/\/example.test""\)"/);
     assert.match(content, /"A ""quoted"" citation"/);
     assert.equal(JSON.parse(w.localStorage.getItem(key)).records[0].title, title);
+    w.close();
+});
+
+test('fragment jumps do not reload connections or reset their facet; real state changes still do', async () => {
+    const d = connectionFixture(), w = d.window;
+    let calls = 0;
+    w.fetch = async () => { calls++; return {ok: true, text: async () => result('Loaded')}; };
+    w.eval(source('utils.js'));w.eval(source('linked-resources.js'));
+    w.document.dispatchEvent(new w.Event('DOMContentLoaded'));
+    // Skip link, Record contents, section anchors: only the URL's hash changes.
+    w.history.pushState(null, '', '#content');
+    w.dispatchEvent(new w.PopStateEvent('popstate'));
+    w.history.pushState(null, '', '#record-1-description');
+    w.dispatchEvent(new w.PopStateEvent('popstate'));
+    await tick();
+    assert.equal(calls, 0, 'no refetch for a fragment-only history change');
+    w.history.pushState(null, '', '?view=list&lr_page=2#linked-resources');
+    w.dispatchEvent(new w.PopStateEvent('popstate'));
+    await tick();
+    assert.equal(calls, 1, 'a different connection page still loads');
+    w.history.pushState(null, '', '?view=list&lr_page=2#content');
+    w.dispatchEvent(new w.PopStateEvent('popstate'));
+    await tick();
+    assert.equal(calls, 1, 'the page already shown is not fetched again');
+    w.close();
+});
+
+test('re-applying the shown connection filters adds no history entry', async () => {
+    const d = connectionFixture(), w = d.window;
+    w.history.replaceState(null, '', '?view=list&lr_property=media%3A7-0%2C234');
+    w.fetch = async () => ({ok: true, text: async () => result('Loaded')});
+    w.eval(source('utils.js'));w.eval(source('linked-resources.js'));
+    w.document.dispatchEvent(new w.Event('DOMContentLoaded'));
+    const entries = w.history.length;
+    w.document.querySelector('form').dispatchEvent(new w.Event('submit', {bubbles: true, cancelable: true}));
+    await tick(); await tick();
+    assert.equal(w.history.length, entries);
+    w.close();
+});
+
+test('a second copy inside the feedback window restores the original label', async () => {
+    const d = dom('<button hidden data-section-copy="record-1-people" data-copied="Copied" data-failed="Failed">Copy section link</button>'), w = d.window;
+    Object.defineProperty(w.navigator, 'clipboard', {value: {writeText: async () => {}}});
+    const timers = [];
+    w.setTimeout = (callback, delay) => { timers.push({callback, delay}); return timers.length; };
+    w.clearTimeout = () => {};
+    w.eval(source('utils.js'));w.eval(source('section-links.js'));
+    const button = w.document.querySelector('button');
+    button.click(); await tick();
+    button.click(); await tick();
+    assert.equal(button.textContent, 'Copied');
+    timers.filter(timer => timer.delay === 3000).forEach(timer => timer.callback());
+    assert.equal(button.textContent, 'Copy section link');
+    w.close();
+});
+
+test('CSV export starts with a UTF-8 byte-order mark and neutralises formulas', async () => {
+    const d = shortlistFixture(), w = d.window;
+    w.document.querySelector('[data-shortlist-format]').insertAdjacentHTML('beforeend', '<option value="csv">CSV</option>');
+    w.document.querySelector('[data-shortlist-save]').dataset.title = '=Orixás — Fundação';
+    let blob = null;
+    w.URL.createObjectURL = value => { blob = value; return 'blob:test'; };
+    w.URL.revokeObjectURL = () => {};
+    w.HTMLAnchorElement.prototype.click = () => {};
+    w.eval(source('utils.js'));w.eval(source('shortlist.js'));
+    w.document.querySelector('[data-shortlist-save]').click();
+    w.document.querySelector('[data-shortlist-format]').value = 'csv';
+    w.document.querySelector('[data-shortlist-export]').click();
+    // Blob.text() decodes as UTF-8, which strips a BOM: read the bytes.
+    const bytes = new Uint8Array(await blob.arrayBuffer());
+    assert.deepEqual([...bytes.slice(0, 3)], [0xEF, 0xBB, 0xBF]);
+    const text = await blob.text();
+    assert.match(text, /"'=Orixás — Fundação"/);
+    w.close();
+});
+
+test('saving keeps one accessible name and changes only the pressed state', () => {
+    const d = shortlistFixture(), w = d.window;
+    const button = w.document.querySelector('[data-shortlist-save]');
+    w.eval(source('utils.js'));w.eval(source('shortlist.js'));
+    const name = button.textContent;
+    button.click();
+    assert.equal(button.getAttribute('aria-pressed'), 'true');
+    assert.equal(button.textContent, name);
+    w.close();
+});
+
+test('a keyboard citation-style switch updates the saved citation', () => {
+    const d = shortlistFixture(), w = d.window, key = 'dre-research-shortlist-v1';
+    w.localStorage.setItem(key, JSON.stringify({version: 1, records: [{url: '/item/2', title: 'Record'}]}));
+    w.document.querySelector('[data-shortlist-save]').setAttribute('data-shortlist-detail', '');
+    w.document.body.insertAdjacentHTML('beforeend', `<section class="record-apparatus" data-shortlist-record-url="/item/2" data-record-citation>
+        <div role="tablist"><button data-citation-style="chicago" aria-selected="true">Chicago</button><button data-citation-style="apa" tabindex="-1">APA</button></div>
+        <p data-citation-panel="chicago">Chicago citation</p><p data-citation-panel="apa" hidden>APA citation</p></section>`);
+    w.eval(source('utils.js'));w.eval(source('record.js'));w.eval(source('shortlist.js'));
+    const first = w.document.querySelector('[data-citation-style=chicago]');
+    first.dispatchEvent(new w.KeyboardEvent('keydown', {key: 'ArrowRight', bubbles: true}));
+    assert.equal(JSON.parse(w.localStorage.getItem(key)).records[0].citation, 'APA citation');
     w.close();
 });

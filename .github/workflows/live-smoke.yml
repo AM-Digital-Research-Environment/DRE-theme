@@ -20,6 +20,29 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      # Advisory only: CI and the release package are tested against the Omeka
+      # S release pinned as OMEKA_S_VERSION in ci.yml/release.yml. This says
+      # when upstream has moved on, so the pin (and its SHA-256) get updated
+      # deliberately rather than discovered from a failing install.
+      - name: Omeka S release check
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pinned="$(sed -n 's/^  OMEKA_S_VERSION: *//p' .github/workflows/ci.yml)"
+          packaged="$(sed -n 's/^  OMEKA_S_VERSION: *//p' .github/workflows/release.yml)"
+          if [ "$pinned" != "$packaged" ]; then
+            echo "::warning::OMEKA_S_VERSION differs: ci.yml tests $pinned, release.yml packages against $packaged."
+          fi
+          latest="$(gh api repos/omeka/omeka-s/releases/latest --jq .tag_name)"
+          latest="${latest#v}"
+          newest="$(printf '%s\n%s\n' "$pinned" "$latest" | sort -V | tail -1)"
+          if [ "$latest" != "$pinned" ] && [ "$newest" = "$latest" ]; then
+            echo "::warning::Omeka S $latest is available; CI and release packaging still test $pinned. Update OMEKA_S_VERSION and OMEKA_S_SHA256 in ci.yml and release.yml (and omeka_version_constraint if the range changes)."
+          else
+            echo "Omeka S $pinned is the latest release."
+          fi
+
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 24
@@ -38,5 +61,5 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: live-smoke-failure-${{ github.run_id }}
-          path: test-results/
+          path: test-results/live/
           retention-days: 7

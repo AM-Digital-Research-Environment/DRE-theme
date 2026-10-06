@@ -22,10 +22,10 @@ function matchMedia(matches = false) {
 test('theme toggle uses translated labels and persists a valid preference', () => {
     const dom = new JSDOM(`<!doctype html><html><body>
         <button data-theme-toggle data-label-light="Mode clair" data-label-dark="Mode sombre"
-            aria-label="Basculer" aria-pressed="false"></button>
+            aria-label="Basculer"></button>
     </body></html>`, { url: 'https://example.test/', runScripts: 'outside-only' });
     dom.window.matchMedia = () => matchMedia(false);
-    dom.window.eval(source('theme-toggle.js'));
+    dom.window.eval(source('utils.js'));dom.window.eval(source('theme-toggle.js'));
     ready(dom);
 
     const button = dom.window.document.querySelector('[data-theme-toggle]');
@@ -33,11 +33,9 @@ test('theme toggle uses translated labels and persists a valid preference', () =
     button.click();
     assert.equal(dom.window.document.body.dataset.theme, 'dark');
     assert.equal(button.getAttribute('aria-label'), 'Mode clair');
-    assert.equal(button.getAttribute('aria-pressed'), 'true');
+    assert.equal(button.hasAttribute('aria-pressed'), false, 'an action label is not also a pressed toggle');
     assert.equal(dom.window.localStorage.getItem('dre-theme-preference'), 'dark');
 
-    dom.window.DRETheme.set('sepia');
-    assert.equal(dom.window.document.body.dataset.theme, 'dark');
     dom.window.close();
 });
 
@@ -50,7 +48,7 @@ test('theme toggle still works when storage is blocked', () => {
         configurable: true,
         get() { throw new dom.window.DOMException('Blocked', 'SecurityError'); },
     });
-    dom.window.eval(source('theme-toggle.js'));
+    dom.window.eval(source('utils.js'));dom.window.eval(source('theme-toggle.js'));
     ready(dom);
 
     const button = dom.window.document.querySelector('[data-theme-toggle]');
@@ -77,7 +75,7 @@ test('mobile navigation opens and closes with synchronized ARIA state', () => {
     </body></html>`, { url: 'https://example.test/', runScripts: 'outside-only', pretendToBeVisual: true });
     dom.window.HTMLElement.prototype.scrollTo = function () {};
     dom.window.eval(source('utils.js'));
-    dom.window.eval(source('navigation.js'));
+    dom.window.eval(source('utils.js'));dom.window.eval(source('navigation.js'));
     ready(dom);
 
     const button = dom.window.document.querySelector('.main-navigation__toggle');

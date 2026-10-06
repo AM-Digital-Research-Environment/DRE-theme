@@ -1,7 +1,5 @@
 <?php if (!($this->themeSetting('research_shortlist') ?? true)) return; ?>
 <dialog id="research-shortlist" class="research-shortlist" data-shortlist-dialog aria-labelledby="shortlist-title"
-    data-save="<?php echo $this->escapeHtmlAttr($this->translate('Save record')); ?>"
-    data-saved="<?php echo $this->escapeHtmlAttr($this->translate('Saved')); ?>"
     data-remove="<?php echo $this->escapeHtmlAttr($this->translate('Remove')); ?>"
     data-empty="<?php echo $this->escapeHtmlAttr($this->translate('No saved records yet.')); ?>"
     data-undo-limit="<?php echo $this->escapeHtmlAttr($this->translate('The shortlist is full. Export or remove records, then choose Undo clear again to restore the remaining records.')); ?>"

@@ -8,11 +8,6 @@
     margin-right: auto;
 }
 
-// Column width with margin
-@mixin column-width($numberColumns: 3) {
-    width: map-get($columns, $numberColumns) - ( ( $columns__margin * ( $numberColumns - 1 ) ) / $numberColumns );
-}
-
 // Container mixin — page geometry from the layout tokens. The width used to be
 // a bare 1440px here while $wrap-max-width said 1300px and the search page
 // hard-coded 1160px: three container widths, none of them readable from CSS.
@@ -41,8 +36,8 @@
 // The theme draws all of its own iconography as Lucide-style inline SVG
 // (stroke-based, currentColor; see asset/img/*.svg), so
 // the chrome had no reason to keep pulling in Omeka's FontAwesome webfont just
-// for a handful of CSS ::before / ::after decorations (checkbox tick, menu
-// chevrons, carousel arrows, ToC markers). Each is now painted by masking a
+// for a handful of CSS ::before / ::after decorations (menu chevrons, carousel
+// arrows, ToC markers, Omeka's o-icon-* glyphs). Each is now painted by masking a
 // small inline SVG: the glyph shape comes from the SVG `mask`, the colour from
 // `background-color`, so it still recolours with the surrounding token exactly
 // as the font glyph did — but with no external font request.
@@ -50,7 +45,35 @@
 // `$svg` must be a pre-URL-encoded `data:image/svg+xml` value (spaces as %20,
 // `#` as %23). `$size` controls the rendered box; `$color` the fill (a token,
 // `currentColor`, …). Pseudo-elements that use this still need `content: ""`.
+//
+// Forced colours (Windows High Contrast): the UA resets `background-color` to
+// Canvas, which painted the glyph in the page colour — every icon-only control
+// became an empty box. The pseudo-element opts out and paints the glyph in a
+// system colour instead. `preserve-parent-color` (Chromium) lets it inherit the
+// colour the UA forced onto the host, so the glyph matches the control's label
+// (ButtonText in a button, LinkText in a link); a plain `none` would inherit the
+// UNforced theme colour (cream on white), so engines without it get CanvasText.
+//
+// Every include @extends one placeholder, so the compiled CSS is a single
+// selector list instead of a copy per icon; the `:root` prefix lifts each
+// selector one class above the icon's own background-color, wherever that is
+// declared in the cascade.
+@media (forced-colors: active) {
+    :root %svg-icon-forced {
+        forced-color-adjust: none;
+        background-color: CanvasText;
+    }
+
+    @supports (forced-color-adjust: preserve-parent-color) {
+        :root %svg-icon-forced {
+            forced-color-adjust: preserve-parent-color;
+            background-color: currentColor;
+        }
+    }
+}
+
 @mixin svg-icon($svg, $size: 1em, $color: currentColor) {
+    @extend %svg-icon-forced;
     content: "";
     display: inline-block;
     width: $size;
@@ -66,9 +89,6 @@
 $icon-chevron-left: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%23000'%20stroke-width='2.5'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='m15%2018-6-6%206-6'/%3E%3C/svg%3E";
 $icon-chevron-right: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%23000'%20stroke-width='2.5'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='m9%2018%206-6-6-6'/%3E%3C/svg%3E";
 $icon-chevron-down: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%23000'%20stroke-width='2.5'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='m6%209%206%206%206-6'/%3E%3C/svg%3E";
-// Solid check — matches Lucide `check` but filled is unnecessary (stroke reads
-// as a crisp tick at the small checkbox size).
-$icon-check: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%23000'%20stroke-width='3'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M20%206%209%2017l-5-5'/%3E%3C/svg%3E";
 // Solid filled disc — the nested ToC bullet (was FA circle \f111).
 $icon-circle: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='%23000'%3E%3Ccircle%20cx='12'%20cy='12'%20r='10'/%3E%3C/svg%3E";
 // Solid filled triangles — the collapse widget carets (were FA caret \f0da/\f0d7).

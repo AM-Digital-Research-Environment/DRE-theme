@@ -7,6 +7,7 @@
     "build": "npm run lint:source && npm run build:css && npm run lint:css",
     "build:css": "node scripts/build-css.mjs",
     "watch": "node scripts/build-css.mjs --watch",
+    "verify": "npm run build && npm run i18n:check && npm run test:unit && npm audit --audit-level=high && node scripts/check-stale-css.mjs",
     "lint": "npm run lint:source && npm run lint:css",
     "lint:source": "npm run lint:tokens && npm run lint:touch && npm run lint:ini && npm run lint:templates && npm run lint:groups && npm run lint:js && npm run lint:php",
     "lint:tokens": "node scripts/gen-token-fallbacks.mjs --check && node scripts/check-design-tokens.mjs",
@@ -18,17 +19,20 @@
     "lint:js": "node scripts/check-js.mjs",
     "lint:php": "node scripts/check-php.mjs",
     "lint:php:require": "node scripts/check-php.mjs --require",
-    "test": "npm run test:unit",
+    "test": "npm run test:unit && npm run test:browser",
     "test:unit": "node --test tests/js/*.test.mjs",
     "test:live": "playwright test",
     "test:browser": "playwright test --config=playwright.local.config.mjs",
     "test:visual:experiment": "playwright test --config=playwright.visual.config.mjs",
+    "audit:roadmap": "node scripts/audit-roadmap.mjs",
+    "audit:surfaces": "node scripts/audit-live-surfaces.mjs",
     "fixtures:refresh": "node scripts/fetch-template-fixture.mjs",
     "i18n:extract": "node scripts/extract-translations.mjs",
     "i18n:check": "node scripts/extract-translations.mjs --check",
     "build:icons": "node scripts/gen-pwa-icons.mjs",
     "build:tokens": "node scripts/gen-token-fallbacks.mjs",
-    "vendor:lint": "node scripts/vendor-lint.mjs"
+    "vendor:lint": "node scripts/vendor-lint.mjs",
+    "version": "node scripts/sync-version.mjs"
   },
   "repository": {
     "type": "git",
@@ -63,6 +67,10 @@
     "> 1%",
     "not dead",
     "safari >= 16.2",
-    "ios >= 16.2"
+    "ios >= 16.2",
+    "not op_mini all",
+    "not kaios > 0",
+    "not and_uc > 0",
+    "not and_qq > 0"
   ]
 }

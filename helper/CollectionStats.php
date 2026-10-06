@@ -90,7 +90,7 @@ class CollectionStats extends AbstractHelper
     private function fromSearchProfiles(?int $siteId): ?array
     {
         try {
-            $services = $this->getView()->getHelperPluginManager()->getServiceLocator();
+            $services = $this->services();
             $service = 'DRESearch\Search\CorpusCounts';
             if (!$services->has($service)) return null;
             $stats = $services->get($service)->forSite($siteId);
@@ -112,14 +112,22 @@ class CollectionStats extends AbstractHelper
     private function reportFailure(string $stage, \Throwable $error): void
     {
         try {
-            $key = 'dre_stats_warning_' . $stage;
-            if ($this->readCache($key, 3600) !== null) return;
-            $this->writeCache($key, []);
-            $services = $this->getView()->getHelperPluginManager()->getServiceLocator();
-            if ($services->has('Omeka\Logger')) {
-                $services->get('Omeka\Logger')->warn('DRE statistics fallback: ' . $stage . ' (' . get_class($error) . ')');
-            }
+            $this->getView()->IntegrationWarning($this->getView()->currentSite(), 'statistics ' . $stage, $error);
         } catch (\Throwable $ignored) { /* Diagnostics must not prevent rendering. */ }
+    }
+
+    /**
+     * The application's services, reached through the current site. The helper
+     * plugin manager's getServiceLocator() is deprecated in laminas-servicemanager
+     * 3 and raises E_USER_DEPRECATED on every call.
+     */
+    private function services()
+    {
+        $site = $this->getView()->currentSite();
+        if (!$site) {
+            throw new \RuntimeException('Statistics need a current site.');
+        }
+        return $site->getServiceLocator();
     }
 
     /** Counts are shared across locales; labels belong to the current request. */
@@ -150,7 +158,7 @@ class CollectionStats extends AbstractHelper
     private function settings()
     {
         try {
-            return $this->getView()->getHelperPluginManager()->getServiceLocator()->get('Omeka\Settings');
+            return $this->services()->get('Omeka\Settings');
         } catch (\Throwable $e) {
             // An unavailable service, a deprecation-as-exception dev config, even
             // an undefined-method Error — none of it may take the home page down.
@@ -192,12 +200,8 @@ class CollectionStats extends AbstractHelper
         }
     }
 
-    // ------------------------------------------------------- source 1: module
+    // ------------------------------------------------------- source: module
 
-    /**
-     * Read the visualizations module's precompute. Returns null when the module,
-     * the file or a usable `stats` array is absent.
-     */
     /**
      * Resolve the precompute through the module's generation pointer.
      *
@@ -213,8 +217,12 @@ class CollectionStats extends AbstractHelper
      * thinner API fallback instead. That is exactly what happened between the
      * module adopting generations and theme 2.24.1 — the band lost Languages,
      * Podcasts and YouTube videos and nothing anywhere reported an error.
+     *
+     * Returns [artifact path, site id the snapshot was built for]. The module
+     * records that scope in the pointer (`scope.siteId`), not in the artifact —
+     * as its own DataController checks — so a legacy flat file is unscoped.
      */
-    private function precomputePath(): ?string
+    private function precomputeSource(): ?array
     {
         $dataDir = OMEKA_PATH . self::PRECOMPUTE_DIR;
 
@@ -226,14 +234,15 @@ class CollectionStats extends AbstractHelper
             // concatenated into a filesystem path.
             if (preg_match(self::GENERATION_ID, $generationId)) {
                 $published = $dataDir . '/generations/' . $generationId . '/' . self::PRECOMPUTE_FILE;
-                return is_readable($published) ? $published : null;
+                $scope = $manifest['scope']['siteId'] ?? null;
+                return is_readable($published) ? [$published, is_int($scope) && $scope > 0 ? $scope : null] : null;
             }
         }
 
         // Upgrade compatibility: a module older than the generations layout, or
         // one that has not regenerated since upgrading, still writes it flat.
         $legacy = $dataDir . '/' . self::PRECOMPUTE_FILE;
-        return is_readable($legacy) ? $legacy : null;
+        return is_readable($legacy) ? [$legacy, null] : null;
     }
 
     private function fromPrecompute(?int $siteId): ?array
@@ -242,17 +251,22 @@ class CollectionStats extends AbstractHelper
             if (!defined('OMEKA_PATH')) {
                 return null;
             }
-            $path = $this->precomputePath();
-            if (null === $path) {
+            $source = $this->precomputeSource();
+            if (null === $source) {
                 return null;
             }
+            [$path, $scope] = $source;
             $data = json_decode((string) file_get_contents($path), true);
             if (!is_array($data) || empty($data['stats']) || !is_array($data['stats'])) {
                 return null;
             }
 
-            // A snapshot must describe exactly the requested scope, even on one-site installations.
-            if (($data['siteId'] ?? null) !== $siteId) {
+            // A snapshot must describe exactly the requested scope, even on
+            // one-site installations. Older artifacts carried their own siteId.
+            if (isset($data['siteId'])) {
+                $scope = (int) $data['siteId'];
+            }
+            if ($scope !== $siteId) {
                 return null;
             }
 
@@ -277,7 +291,7 @@ class CollectionStats extends AbstractHelper
         }
     }
 
-    // ---------------------------------------------------------- source 2: API
+    // ---------------------------------------------------------- source: API
 
     /**
      * The theme's own counts — a smaller set, no subtitles. 'k' selects the

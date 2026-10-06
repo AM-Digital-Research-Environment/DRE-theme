@@ -45,7 +45,7 @@ $this->htmlElement('body')->appendAttribute('class', 'index search');
     ];
     ?>
     <?php foreach ($results as $resourceName => $result): ?>
-        <div class="<?php echo $resourceName; ?> results">
+        <div class="<?php echo $this->escapeHtmlAttr($resourceName); ?> results">
             <h2><?php echo $translate($resourceLabels[$resourceName]); ?></h2>
             <ul class="resources resource-list">
                 <?php foreach ($result['resources'] as $resource): ?>
@@ -69,14 +69,20 @@ $this->htmlElement('body')->appendAttribute('class', 'index search');
                     endif; ?>
                 <?php endforeach; ?>
             </ul>
+                <?php // Site pages have their own browse route: through site/resource,
+                      // /page/browse is matched by site/page as a page slug and 404s.
+                      // (The same slip is in core 4.2.1's template; its controller
+                      // redirect uses site/page-browse.) ?>
                 <?php echo $hyperlink(
                     sprintf($translate('View all results (%s total)'), $result['total']),
-                    $url(
-                        'site/resource',
-                        ['controller' => $resourceControllers[$resourceName], 'action' => 'browse'],
-                        ['query' => ['fulltext_search' => $query]],
-                        true
-                    )
+                    'site_pages' === $resourceName
+                        ? $url('site/page-browse', [], ['query' => ['fulltext_search' => $query]], true)
+                        : $url(
+                            'site/resource',
+                            ['controller' => $resourceControllers[$resourceName], 'action' => 'browse'],
+                            ['query' => ['fulltext_search' => $query]],
+                            true
+                        )
                 ); ?>
         </div>
     <?php endforeach; ?>

@@ -56,7 +56,7 @@
   //     --dre-hl-bg is the DEPRECATED former name (the only token that ever
   //     carried a product prefix and an abbreviation, on the one token whose
   //     whole purpose is to be shared). It remains a compatibility alias;
-  //     removing it requires a coordinated breaking release — see AUDIT.md §4.
+  //     removing it requires a coordinated breaking release — see docs/history/AUDIT.md §4.
   --highlight-bg: color-mix(in oklab, var(--accent) 28%, transparent);
   --dre-hl-bg:    var(--highlight-bg);
 
@@ -79,6 +79,10 @@
   --border-light:  oklch(93% 0.007 85);
   --border:        oklch(88% 0.009 80);
   --border-strong: oklch(79% 0.011 72);
+  // The boundary of a form control is what identifies it as one, so it is a
+  // non-text contrast case (WCAG 1.4.11, 3:1). --border-strong was 1.9:1 on
+  // --surface; this clears 3:1 on every surface and is asserted by lint:tokens.
+  --field-border:  oklch(62% 0.012 70);
 
   // --- Links ---
   --link:        var(--primary-text);
@@ -196,6 +200,7 @@
   --border-light:  oklch(26% 0.013 165);
   --border:        oklch(32% 0.014 165);
   --border-strong: oklch(43% 0.015 165);
+  --field-border:  oklch(54% 0.016 165);    // ≥3:1 on every forest surface
 
   --link:        var(--primary-text);
   --link-hover:  var(--primary-active);
@@ -220,7 +225,7 @@
   // A distinctly lifted forest band. The previous "ride the surface scale"
   // value sat at ~--background, so the footer vanished into the page in dark
   // mode; lifting it (and a brighter divider) reads as its own grounding panel.
-  // Literal values, matching how light authors them (see B6 in AUDIT.md).
+  // Literal values, matching how light authors them (see B6 in docs/history/AUDIT.md).
   --footer-surface:     oklch(24% 0.024 165);
   --footer-surface-alt: oklch(20% 0.022 165);
   --footer-divider:     oklch(40% 0.020 165);
@@ -467,9 +472,8 @@ $color__headings:       var(--ink-strong);
 $color__main-text:      var(--ink);
 $color__secondary-text: var(--ink-light);
 $color__buttons:        var(--primary);
-$color__link:           var(--link);
 $color__menu-drawer:    var(--surface);
 $color__hr:             var(--border);
 $color__disabled:       var(--muted);
 $color__placeholder:    var(--ink-subtle);
-$color__field-border:   var(--border-strong);
+$color__field-border:   var(--field-border);

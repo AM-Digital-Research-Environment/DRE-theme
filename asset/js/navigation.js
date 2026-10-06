@@ -15,8 +15,8 @@
  * Cross-file contract (all optional — each is feature-detected):
  *   • `window.__dreClassifyNav`  — set by the inline script in common/header.phtml,
  *     which classifies inline-vs-drawer synchronously before first paint.
- *   • `closeText` / `previousText` — declared by the inline script in
- *     common/menu-drawer.phtml; the translated labels for the drawer's back control.
+ *   • `data-label-close` / `data-label-previous` on `#menu-backer` — the
+ *     translated labels for the drawer's back control (common/menu-drawer.phtml).
  *   • `data-label-open` / `data-label-close` on `.main-navigation__toggle` and
  *     `data-submenu-label` on `.main-navigation` — translated strings from the
  *     server (these used to be hardcoded English here).
@@ -321,9 +321,9 @@
         labels.close = toggle.dataset.labelClose || labels.close;
         const navEl = collection[0];
         labels.submenu = navEl.dataset.submenuLabel || labels.submenu;
-        // Declared by the inline script in common/menu-drawer.phtml.
-        labels.backerClose = typeof closeText === 'string' ? closeText : 'Close';
-        labels.backerPrevious = typeof previousText === 'string' ? previousText : 'All sections';
+        const backerLabels = document.getElementById('menu-backer')?.dataset || {};
+        labels.backerClose = backerLabels.labelClose || 'Close';
+        labels.backerPrevious = backerLabels.labelPrevious || 'All sections';
 
         // <button> already activates on Enter/Space and fires click, so no
         // keydown handler is needed (the old one duplicated native behaviour).
@@ -437,11 +437,12 @@
         });
 
         // Anchors need an explicit Space activation (Enter is native for links,
-        // Space is not). #menu-backer is deliberately NOT in this selector any
-        // more: it is a <button>, which activates on both keys natively, so
-        // including it would fire click twice.
+        // Space is not). Enter is left alone so Ctrl/Shift/Cmd+Enter keep
+        // opening a new tab or window. #menu-backer is deliberately NOT in this
+        // selector: it is a <button>, which activates on both keys natively.
         header.addEventListener('keydown', function (e) {
-            if ((e.code === 'Enter' || e.code === 'Space') && e.target.matches('.navigation a')) {
+            if (e.code === 'Space' && !e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey
+                && e.target.matches('.navigation a')) {
                 e.preventDefault();
                 e.target.click();
             }
@@ -471,15 +472,7 @@
 
         // Debounced with a timeout, not requestAnimationFrame — rAF stalls in
         // hidden/background tabs and the mode must track window changes there too.
-        const debounce = (window.DREUtils && window.DREUtils.debounce)
-            || ((fn, wait) => {
-                let t = null;
-                return (...args) => {
-                    clearTimeout(t);
-                    t = setTimeout(() => fn(...args), wait);
-                };
-            });
-        window.addEventListener('resize', debounce(refreshNavMode, NAV_MODE_DEBOUNCE));
+        window.addEventListener('resize', window.DREUtils.debounce(refreshNavMode, NAV_MODE_DEBOUNCE));
 
         // Webfonts change the menu's width — re-measure once they're in.
         if (document.fonts && document.fonts.ready) {
@@ -487,11 +480,5 @@
         }
     }
 
-    if (window.DREUtils && typeof window.DREUtils.onReady === 'function') {
-        window.DREUtils.onReady(init);
-    } else if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init, { once: true });
-    } else {
-        init();
-    }
+    window.DREUtils.onReady(init);
 })();

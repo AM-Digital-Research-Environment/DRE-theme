@@ -1,9 +1,10 @@
 name: CI
 
-# The theme is developed on a machine with no PHP binary, so `npm run lint:php`
-# SKIPS locally when it cannot find one. This workflow is where that asymmetry is
-# paid for: PHP is always present here, so the check runs with `--require` and a
-# syntax error or a broken metadata grouping cannot reach a release.
+# A contributor's machine may have no PHP, or a different one from production
+# (8.5), so `npm run lint:php` SKIPS locally when it cannot find one. This
+# workflow is where that asymmetry is paid for: PHP is always present here, so
+# the check runs with `--require` on every supported version, and a syntax
+# error, an 8.5 deprecation or a broken metadata grouping cannot reach a release.
 
 on:
   push:
@@ -19,6 +20,15 @@ on:
 
 permissions:
   contents: read
+
+env:
+  # The Omeka S release the compatibility job installs the theme into. Keep it
+  # equal to OMEKA_S_VERSION in release.yml; live-smoke.yml warns when a newer
+  # one exists.
+  OMEKA_S_VERSION: 4.2.1
+  # The release asset's published digest:
+  #   gh api repos/omeka/omeka-s/releases/tags/v<version> --jq '.assets[].digest'
+  OMEKA_S_SHA256: cc27d1c7aca0209523d19aa285f4a08e29e34950dcc446951a7c1311de348e82
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -41,29 +51,23 @@ jobs:
 
       - run: npm ci
 
-      # lint:tokens (incl. computed WCAG contrast), lint:ini, lint:templates,
-      # lint:groups, lint:php — then the Sass build.
-      - name: Build
-        run: npm run build
-
-      - name: Translations are up to date
-        run: npm run i18n:check
-
-      - name: JavaScript and CSS build tests
-        run: npm run test:unit
-
-      - name: Dependency audit
-        run: npm audit --audit-level=high
-
-      # A stale asset/css/style.css is a real failure mode: the compiled CSS is
-      # committed, so a Sass change that was never rebuilt ships the old styles.
-      - name: Compiled CSS matches the Sass sources
-        run: |
-          if ! git diff --quiet -- asset/css/style.css; then
-            echo "::error::asset/css/style.css is out of date — run 'npm run build' and commit the result."
-            git diff --stat -- asset/css/style.css
-            exit 1
-          fi
+      # The same command a contributor runs before pushing. In order:
+      #   build       lint:tokens (incl. computed WCAG contrast), lint:touch,
+      #               lint:ini, lint:templates, lint:groups, lint:js, then the
+      #               Sass build and the compiled-CSS integrity lint
+      #   i18n:check  language/template.pot is up to date
+      #   test:unit   JavaScript, CSS build and lint-negative tests
+      #   npm audit --audit-level=high
+      #   scripts/check-stale-css.mjs — a stale asset/css/style.css is a real
+      #               failure mode: the compiled CSS is committed, so a Sass
+      #               change that was never rebuilt ships the old styles. It
+      #               reports `::error::… run 'npm run build' and commit`.
+      # lint:php is skipped here: the PHP jobs below run it on every supported
+      # version with --require.
+      - name: Build, lint, test, audit and check the compiled CSS
+        env:
+          DRE_SKIP_PHP_LINT: '1'
+        run: npm run verify
 
   local-browsers:
     name: Local browser and accessibility regressions
@@ -82,7 +86,24 @@ jobs:
           php-version: '8.3'
           coverage: none
       - run: npm ci
-      - run: npx playwright install --with-deps chromium firefox webkit
+      # The three browsers are ~500 MB and only change with @playwright/test,
+      # so they are cached per installed version. The system libraries they
+      # need live outside the cache and are installed on every run.
+      - name: Resolve the Playwright version
+        id: playwright
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}-chromium-firefox-webkit
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium firefox webkit
+      - name: Install Playwright system dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium firefox webkit
       - run: npm run test:browser
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: failure()
@@ -99,7 +120,7 @@ jobs:
       matrix:
         # Both ends of the supported range, because local development happens at
         # ONE version and the theme is published for any of them:
-        #   8.1 — the floor. theme.ini allows Omeka S ^4.2.0, and 4.2.0 runs on
+        #   8.1 — the floor. theme.ini allows Omeka S ^4.2.1, and 4.2.1 runs on
         #         PHP 8.1+, so a GPL theme installed from GitHub can land on an
         #         8.1 host. 8.2+ syntax parses happily on a newer local PHP and
         #         fatals there.
@@ -129,7 +150,8 @@ jobs:
         run: npm run lint:php:require
 
   omeka-compatibility:
-    name: Omeka S 4.2.1 + PHP 8.5
+    # A job name cannot read `env`; the version is in the step names below.
+    name: Omeka S release + PHP 8.5
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -146,10 +168,11 @@ jobs:
       - name: Validate Composer metadata
         run: composer validate --strict --no-check-publish
 
-      - name: Download official Omeka S release
+      - name: Download official Omeka S ${{ env.OMEKA_S_VERSION }} release (SHA-256 verified)
         run: |
           mkdir -p "$RUNNER_TEMP/omeka"
-          curl -fsSL "https://github.com/omeka/omeka-s/releases/download/v4.2.1/omeka-s-4.2.1.zip" -o "$RUNNER_TEMP/omeka.zip"
+          curl -fsSL "https://github.com/omeka/omeka-s/releases/download/v$OMEKA_S_VERSION/omeka-s-$OMEKA_S_VERSION.zip" -o "$RUNNER_TEMP/omeka.zip"
+          echo "$OMEKA_S_SHA256  $RUNNER_TEMP/omeka.zip" | sha256sum --check --strict
           unzip -q "$RUNNER_TEMP/omeka.zip" -d "$RUNNER_TEMP/omeka"
           OMEKA_ROOT="$(find "$RUNNER_TEMP/omeka" -maxdepth 2 -name bootstrap.php -printf '%h\n' -quit)"
           test -n "$OMEKA_ROOT"

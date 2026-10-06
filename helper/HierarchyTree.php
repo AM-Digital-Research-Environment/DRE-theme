@@ -61,7 +61,7 @@ class HierarchyTree extends AbstractHelper
                 $set = $sets[$setId];
             }
             $label = $grouping->getLabel() ?: ($set ? $set->displayTitle(null, $valueLang) : $view->translate('[Untitled]'));
-            if ($reference && !$set) $label .= $view->translate(' (Unavailable)');
+            if ($reference && !$set) $label = sprintf($view->translate('%s (unavailable)'), $label);
             $nodes = [];
             $ids = $set ? [$set->id() => true] : [];
             foreach ($children[$id] ?? [] as $childId) {

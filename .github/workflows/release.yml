@@ -29,6 +29,14 @@ on:
 permissions:
   contents: write
 
+env:
+  # The Omeka S release the packaged theme is installed into. Keep it equal to
+  # OMEKA_S_VERSION in ci.yml; live-smoke.yml warns when a newer one exists.
+  OMEKA_S_VERSION: 4.2.1
+  # The release asset's published digest:
+  #   gh api repos/omeka/omeka-s/releases/tags/v<version> --jq '.assets[].digest'
+  OMEKA_S_SHA256: cc27d1c7aca0209523d19aa285f4a08e29e34950dcc446951a7c1311de348e82
+
 concurrency:
   group: release-${{ github.event.inputs.tag || github.ref }}
   cancel-in-progress: false
@@ -129,6 +137,7 @@ jobs:
             DRE-theme/view/layout/layout.phtml \
             DRE-theme/theme.jpg \
             DRE-theme/README.md \
+            DRE-theme/CHANGELOG.md \
             DRE-theme/LICENSE \
             DRE-theme/CITATION.cff \
             DRE-theme/composer.json
@@ -140,7 +149,8 @@ jobs:
             grep -q "^$dir" paths.txt || { echo "::error::missing from package: $dir"; fail=1; }
           done
 
-          # What has no business being installed on someone else's server.
+          # What has no business being installed on someone else's server:
+          # every .gitattributes export-ignore entry, plus node_modules/.
           for forbidden in \
             'DRE-theme/scripts/' \
             'DRE-theme/tests/' \
@@ -149,13 +159,14 @@ jobs:
             'DRE-theme/node_modules/' \
             'DRE-theme/package\.json' \
             'DRE-theme/package-lock\.json' \
-            'DRE-theme/gulpfile\.js' \
             'DRE-theme/playwright[^/]*\.config\.mjs' \
             'DRE-theme/\.impeccable/' \
-            'DRE-theme/docs/audits/' \
-            'DRE-theme/docs/IMPECCABLE-ROADMAP\.md' \
+            'DRE-theme/docs/history/' \
+            'DRE-theme/docs/TESTING\.md' \
             'DRE-theme/\.editorconfig' \
-            'DRE-theme/\.gitattributes'
+            'DRE-theme/\.gitattributes' \
+            'DRE-theme/\.gitignore' \
+            'DRE-theme/language/[^/]*\.pot?$'
           do
             if grep -qE "^$forbidden" paths.txt; then
               echo "::error::development file leaked into the package: $forbidden"
@@ -175,10 +186,11 @@ jobs:
       # The artefact people install, through Omeka's own theme manager. Same
       # test ci.yml runs against the working tree; here the theme under test is
       # the unpacked zip, so anything export-ignore removed by mistake fails.
-      - name: Omeka S 4.2.1 discovers the packaged theme
+      - name: Omeka S ${{ env.OMEKA_S_VERSION }} discovers the packaged theme
         run: |
           mkdir -p "$RUNNER_TEMP/omeka"
-          curl -fsSL "https://github.com/omeka/omeka-s/releases/download/v4.2.1/omeka-s-4.2.1.zip" -o "$RUNNER_TEMP/omeka.zip"
+          curl -fsSL "https://github.com/omeka/omeka-s/releases/download/v$OMEKA_S_VERSION/omeka-s-$OMEKA_S_VERSION.zip" -o "$RUNNER_TEMP/omeka.zip"
+          echo "$OMEKA_S_SHA256  $RUNNER_TEMP/omeka.zip" | sha256sum --check --strict
           unzip -q "$RUNNER_TEMP/omeka.zip" -d "$RUNNER_TEMP/omeka"
           OMEKA_ROOT="$(find "$RUNNER_TEMP/omeka" -maxdepth 2 -name bootstrap.php -printf '%h\n' -quit)"
           test -n "$OMEKA_ROOT"
@@ -194,16 +206,25 @@ jobs:
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "\`$(du -h DRE-theme.zip | cut -f1)\` · $(unzip -qq -l DRE-theme.zip | wc -l) files · \`sha256:$(sha256sum DRE-theme.zip | cut -c1-16)…\`" >> "$GITHUB_STEP_SUMMARY"
 
-      # An existing release keeps its hand-written notes and just gets the
-      # asset. A tag pushed without one gets a DRAFT, because the notes on this
-      # repo's releases are written, not generated.
+      # An existing release keeps its notes and just gets the asset. A tag
+      # pushed without one gets a DRAFT whose notes are that version's section
+      # of CHANGELOG.md as committed at the tag, because the notes on this
+      # repo's releases are written, not generated. Only a version with no
+      # changelog section falls back to GitHub's generated notes.
       - name: Attach to the release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" DRE-theme.zip --clobber
+          elif node scripts/changelog-section.mjs "$VERSION" > "$RUNNER_TEMP/release-notes.md"; then
+            gh release create "$TAG" DRE-theme.zip \
+              --draft \
+              --title "$TAG" \
+              --notes-file "$RUNNER_TEMP/release-notes.md"
+            echo "::notice::No release existed for $TAG — created a DRAFT with the package and the CHANGELOG.md notes for $VERSION. Review and publish it."
           else
+            echo "::warning::CHANGELOG.md has no section for $VERSION — the draft gets generated notes instead."
             gh release create "$TAG" DRE-theme.zip \
               --draft \
               --title "$TAG" \

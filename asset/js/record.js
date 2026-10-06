@@ -36,6 +36,9 @@
                     panel.setAttribute('hidden', '');
                 }
             });
+            // Pointer and arrow-key changes alike: the shortlist re-reads the
+            // citation the reader is now looking at.
+            root.dispatchEvent(new CustomEvent('dre:citation-style', {bubbles: true, detail: {style: style}}));
         }
 
         tabs.forEach(function (tab, index) {
@@ -108,18 +111,7 @@
         navigator.clipboard.writeText(text).then(function () {
             // Swap the label briefly, and announce it: a silent state change is
             // no confirmation at all for a screen-reader user.
-            if (button.dataset.busy) {
-                return;
-            }
-            var original = button.textContent;
-            button.dataset.busy = '1';
-            button.textContent = button.getAttribute('data-copied-label') || 'Copied';
-            button.setAttribute('aria-live', 'polite');
-            window.setTimeout(function () {
-                button.textContent = original;
-                button.removeAttribute('aria-live');
-                delete button.dataset.busy;
-            }, 2000);
+            window.DREUtils.flashLabel(button, button.getAttribute('data-copied-label') || 'Copied', 2000);
         }).catch(function () {
             // A denied clipboard permission is not worth a console error.
         });

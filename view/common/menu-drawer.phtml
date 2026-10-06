@@ -20,6 +20,8 @@ $escHtml = $this->plugin('escapeHtml');
 				aria-hidden="true"
 				tabindex="-1"
 				title="<?php echo $escAttr($closeText); ?>"
+				data-label-close="<?php echo $escAttr($closeText); ?>"
+				data-label-previous="<?php echo $escAttr($previousText); ?>"
 			><?php echo $escHtml($closeText); ?></button>
 		</div><!-- .navigation-controls -->
 
@@ -34,18 +36,3 @@ $escHtml = $this->plugin('escapeHtml');
 	</div><!-- .wrap -->
 </nav><!-- menu-drawer -->
 
-<script>
-	// Consumed by asset/js/navigation.js (backerContext). JSON_HEX_TAG escapes
-	// "<" so a translated string can't emit a closing script tag and break out
-	// of this block — the same guard the PWA manifest island uses in
-	// view/layout/layout.phtml.
-	//
-	// Never write a literal closing script tag anywhere inside a script element,
-	// not even in a comment or a string: the HTML parser scans for that byte
-	// sequence without understanding JavaScript, ends the element there, and
-	// dumps the remainder onto the page as visible text. Doing exactly that,
-	// in a comment warning about it, broke this block in v2.21.0. Escape the
-	// slash if it is ever unavoidable.
-	const closeText = <?php echo json_encode($closeText, JSON_HEX_TAG | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>;
-	const previousText = <?php echo json_encode($previousText, JSON_HEX_TAG | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>;
-</script>

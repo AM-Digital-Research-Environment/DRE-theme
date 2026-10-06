@@ -2,6 +2,9 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
     testDir: './tests/browser',
+    // Own subdirectory: Playwright empties outputDir before a run, and the
+    // default (test-results/) would also wipe the local suite's traces.
+    outputDir: 'test-results/live',
     timeout: 45_000,
     expect: { timeout: 10_000 },
     retries: 1,

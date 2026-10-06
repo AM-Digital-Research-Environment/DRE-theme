@@ -21,8 +21,10 @@
  * Pass --check to fail (exit 1) when template.pot is out of date instead of
  * rewriting it — useful in CI.
  */
-import { readFileSync, writeFileSync, readdirSync, statSync, existsSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
+
+import { walkFiles } from './files.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
 const OUT_DIR = join(ROOT, 'language');
@@ -41,14 +43,7 @@ function record(key, ref) {
     entries.get(key).add(ref);
 }
 
-function* walk(dir) {
-    if (!existsSync(dir)) return;
-    for (const name of readdirSync(dir)) {
-        const p = join(dir, name);
-        if (statSync(p).isDirectory()) yield* walk(p);
-        else if (/\.(phtml|php)$/.test(name)) yield p;
-    }
-}
+const walk = (dir) => walkFiles(dir, /\.(?:phtml|php)$/);
 
 /** Unescape a PHP single- or double-quoted literal into its runtime value. */
 function phpString(raw, quote) {

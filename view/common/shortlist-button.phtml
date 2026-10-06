@@ -2,4 +2,5 @@
 <button type="button" class="shortlist-save" hidden data-shortlist-save<?php echo !empty($detail) ? ' data-shortlist-detail' : ''; ?>
     data-url="<?php echo $this->escapeHtmlAttr($resource->url(null, true)); ?>"
     data-title="<?php echo $this->escapeHtmlAttr($resource->displayTitle()); ?>"
-    aria-pressed="false"><?php echo $this->translate('Save record'); ?></button>
+    aria-label="<?php echo $this->escapeHtmlAttr(sprintf($this->translate('Save record: %s'), $resource->displayTitle())); ?>"
+    aria-pressed="false"><?php echo $this->escapeHtml($this->translate('Save record')); ?></button>

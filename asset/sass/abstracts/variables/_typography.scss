@@ -68,7 +68,6 @@ $font__pre: $font__code;
 // CSS tokens, not independent values. There is deliberately NO $font__h*-size
 // set: headings are authored from --text-* in base/typography/_headings.scss.
 // ==========================================================================
-$font__xxs-size:  var(--text-2xs);
 $font__xs-size:   var(--text-xs);
 $font__sm-size:   var(--text-sm);
 $font__base-size: var(--text-base);

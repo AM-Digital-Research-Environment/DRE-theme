@@ -10,16 +10,15 @@ object {
 img:not(.leaflet-marker-icon) {
     height: auto; // Make sure images are scaled correctly.
     max-width: 100%; // Adhere to container width.
-
-    #main-content & {
-        border-radius: 20px 0;
-    }
 }
 
 figure {
     margin: 1em 0; // Extra wide images within figure tags don't overflow the content area.
 }
 
+// The optional "image decoration" theme setting: a dashed gold frame offset
+// behind the image. Symmetric radii from the scale — the inherited 20px/0
+// leaf corners were exactly the ornamental asymmetry DESIGN.md §Shapes rules out.
 .decoration {
     display: inline-block;
     font-size: 0;
@@ -30,7 +29,7 @@ figure {
         content: "";
         width: calc(100% - 10px);
         height: calc(100% - 10px);
-        border-radius: 20px 0;
+        border-radius: var(--radius-lg);
         position: absolute;
         left: 0;
         top: 0;
@@ -40,18 +39,11 @@ figure {
         border: 1px dashed var(--brand-gold);
         z-index: 2;
         pointer-events: none;
-    } 
-
-    img {
-
-
-        @media(min-width: $md) {
-        }
     }
 
     &--thumbnail {
         img {
-            border-radius: 10px 0;
+            border-radius: var(--radius-md);
         }
     }
 }

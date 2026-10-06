@@ -1,17 +1,55 @@
 <?php
 /**
- * Redirect legacy Omeka advanced-search endpoints to DRE Search.
+ * Legacy Omeka advanced-search routes (/item/search, /item-set/search,
+ * /media/search).
  *
- * Theme view scripts are rendered before the layout is emitted, so the normal
- * path can still send an HTTP Location header. The small HTML/JS fallback only
- * appears if another extension sent output prematurely.
+ * With DRE Search installed they redirect there, carrying any full-text query
+ * across as `q`. The redirect goes through the MVC response rather than
+ * header() + exit, so the request still completes normally; the short body
+ * below is only seen if a client does not follow the Location header. Without
+ * the module, core's advanced-search form renders instead, so the route keeps
+ * working rather than landing on an empty "Search results for “”" page.
+ *
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var string $resourceType  'item', 'itemSet' or 'media' (core's advanced-search names)
  */
 $translate = $this->plugin('translate');
-$target = $this->DreSearchUrl();
+$searchUrl = $this->plugin('DreSearchUrl');
+$resourceType = $resourceType ?? 'item';
 
-if ($target !== '' && !headers_sent()) {
-    header('Location: ' . $target, true, 302);
-    exit;
+if (!$searchUrl->hasModule()):
+    $headings = [
+        'item' => 'Advanced item search', // @translate
+        'itemSet' => 'Advanced item set search', // @translate
+        'media' => 'Advanced media search', // @translate
+    ];
+    $this->htmlElement('body')->appendAttribute('class', 'search advanced-search-page');
+?>
+<?php echo $this->pageTitle($translate($headings[$resourceType] ?? $headings['item']), 1); ?>
+<form id="advanced-search" method="get" action="<?php echo $this->escapeHtmlAttr($this->url(null, ['action' => 'browse'], true)); ?>">
+    <?php echo $this->partial('common/advanced-search', [
+        'query' => $this->params()->fromQuery(),
+        'resourceType' => $resourceType,
+    ]); ?>
+    <div id="page-actions">
+        <button type="submit"><?php echo $this->escapeHtml($translate('Search')); ?></button>
+    </div>
+</form>
+<?php
+    return;
+endif;
+
+$query = $this->params()->fromQuery('fulltext_search');
+$target = $searchUrl(is_string($query) ? $query : null);
+
+if ($target !== '') {
+    try {
+        $response = $this->currentSite()->getServiceLocator()->get('Application')->getMvcEvent()->getResponse();
+        $response->getHeaders()->addHeaderLine('Location', $target);
+        $response->setStatusCode(302);
+    } catch (\Throwable $e) {
+        // The link and script below still take the visitor there.
+    }
 }
 
 $this->headTitle($translate('Search the collection'));

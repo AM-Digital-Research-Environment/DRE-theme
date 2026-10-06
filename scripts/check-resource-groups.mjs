@@ -14,7 +14,7 @@
  * This asserts the map against tests/fixtures/research-items-template.json —
  * the real property list of the live "Research Items" template (99 properties)
  * and the terms on a real record. It is deliberately a NODE check, not a PHP
- * one: it has to run in the same `npm run lint` chain as everything else, on a
+ * one: it has to run in the same `npm run lint` chain as everything else, even on a
  * machine with no PHP binary. `npm run lint:php` and CI cover the PHP side.
  *
  * Two rules:
@@ -103,7 +103,7 @@ for (const term of fixture.sampleItem.terms) {
 // --- Rule 2: the placements the design actually depends on --------------
 //
 // Coverage alone is not correctness: every term could be "covered" by landing
-// in one giant group. These are the placements AUDIT.md §A5 names.
+// in one giant group. These are the placements docs/history/AUDIT.md §A5 names.
 const MUST_LAND_IN = {
   'marcrel:aut': 'people',       // the Author — the property the audit says must not read like an identifier
   'marcrel:cre': 'people',

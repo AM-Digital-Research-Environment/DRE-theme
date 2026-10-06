@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 // Bounded read-only acceptance pass. --local-assets previews sibling Search
 // and theme builds in this browser only; the production HTML/data stay intact.
+//   npm run audit:roadmap [-- --local-assets]
+// Screenshots and report.json go to artifacts/roadmap-acceptance/ (Git-ignored).
 import { chromium, expect } from '@playwright/test';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { resolve, extname } from 'node:path';

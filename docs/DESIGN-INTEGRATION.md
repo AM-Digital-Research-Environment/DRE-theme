@@ -26,7 +26,7 @@ this table is a cross-repository breaking change.
 | Brand and action | `--primary-base`, `--primary`, `--primary-hover`, `--primary-active`, `--primary-muted`, `--primary-text`, `--primary-contrast`, `--accent`, `--accent-hover`, `--accent-muted`, `--accent-text` |
 | Text | `--ink-strong`, `--ink`, `--ink-light`, `--ink-subtle`, `--muted`, `--ink-on-pastel` |
 | Surfaces | `--background`, `--surface`, `--surface-raised`, `--surface-sunken`, `--surface-overlay`, `--panel-bg`, `--panel-border`, `--panel-radius`, `--panel-shadow` |
-| Lines and focus | `--border-light`, `--border`, `--border-strong`, `--focus-color`, `--focus-ring`, `--ring-focus`, `--selection-bg` |
+| Lines and focus | `--border-light`, `--border`, `--border-strong`, `--field-border`, `--focus-color`, `--focus-ring`, `--ring-focus`, `--selection-bg` |
 | Status | `--success`, `--success-bg`, `--warning`, `--warning-bg`, `--error`, `--error-bg`, `--info`, `--info-bg` |
 | Typography | `--font-display`, `--font-body`, `--font-mono`, `--text-2xs` through `--text-4xl`, `--leading-tight`, `--leading-snug`, `--leading-normal`, `--leading-relaxed` |
 | Spacing and geometry | `--space-1` through `--space-24`, semantic `--space-*` aliases, `--radius-sm`, `--radius-md`, `--radius-lg`, `--radius-xl`, `--radius-full`, `--size-control-sm` through `--size-control-xl` |
@@ -223,7 +223,8 @@ understandable in isolation.
 1. Add the new token and keep the previous name as `var(--new-name)` for at
    least one compatible release.
 2. Record the old name, new name, affected repositories, mitigation, and planned
-   removal in `AUDIT.md` and the changelog.
+   removal in the breaking-change register (`docs/history/AUDIT.md` §4) and
+   under `[Unreleased]` in `CHANGELOG.md`.
 3. Update DRE Search and DRE Visualizations independently.
 4. Verify all representative live surfaces after the deployed versions align.
 5. Remove the alias only in an explicitly coordinated breaking release.
@@ -248,4 +249,4 @@ Every cross-repository visual change should cover:
 
 The detailed route inventory, browser-injection protocol, Impeccable command
 sequence, and phased work programme are in
-[`IMPECCABLE-ROADMAP.md`](IMPECCABLE-ROADMAP.md).
+[`history/IMPECCABLE-ROADMAP.md`](history/IMPECCABLE-ROADMAP.md).

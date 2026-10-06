@@ -58,7 +58,7 @@ check(
     $uncovered ? count($uncovered) . ' fall through to "Further details": ' . implode(', ', array_slice($uncovered, 0, 8)) . (count($uncovered) > 8 ? ' …' : '') : ''
 );
 
-// The placements AUDIT.md §A5 actually depends on.
+// The placements docs/history/AUDIT.md §A5 actually depends on.
 $mustLandIn = [
     'marcrel:aut' => 'people',
     'dcterms:creator' => 'people',

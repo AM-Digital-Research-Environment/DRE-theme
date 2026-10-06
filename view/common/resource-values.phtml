@@ -1,5 +1,10 @@
 <?php
 // Group metadata without changing Omeka value/annotation rendering contracts.
+//
+// $recordChrome (a displayValues() option, default true) is the record page's
+// apparatus: the "On this record" contents, h2 section headings with anchor
+// links and copy buttons. Blocks that embed a record's values under their own
+// heading (item-with-metadata) pass false: plain h4 group titles, no chrome.
 
 $translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
@@ -11,14 +16,21 @@ if ($this->status()->isSiteRequest()) {
     $showLocale = (bool) $this->siteSetting('show_locale_label', true);
     $filterLocale = $this->siteSetting('filter_locale_values');
     $lang = $this->lang();
-    $showValueAnnotations = (bool) $this->siteSetting('show_value_annotations', false);
+    // Core's select: '' hides, 'collapsed' / 'expanded' show. Unset means
+    // shown, as in core's own resource-values template.
+    $annotationMode = $this->siteSetting('show_value_annotations');
+    $annotationMode = null === $annotationMode ? 'collapsed' : (string) $annotationMode;
+    $showValueAnnotations = '' !== $annotationMode;
+    $expandAnnotations = 'expanded' === $annotationMode;
 } else {
     $labelInfo = $this->setting('property_label_information');
     $showLocale = true;
     $filterLocale = false;
     $lang = null;
     $showValueAnnotations = true;
+    $expandAnnotations = false;
 }
+$recordChrome = $recordChrome ?? true;
 $filterLocaleCallback = function ($value) use ($lang) {
     $valueLang = $value->lang();
     return $valueLang == '' || strcasecmp($valueLang, $lang) === 0;
@@ -35,10 +47,12 @@ foreach ($this->ResourceGroups($values) as $group) {
     }
     if ($rendered) $groups[] = $group + ['rendered' => $rendered, 'id' => $prefix . '-' . $group['key']];
 }
-$this->inlineScript()->appendFile($this->assetUrl('js/section-links.js'));
+if ($recordChrome) {
+    $this->inlineScript()->appendFile($this->assetUrl('js/section-links.js'));
+}
 ?>
 <div class="record">
-<?php if (count($groups) > 1): ?>
+<?php if ($recordChrome && count($groups) > 1): ?>
 <nav class="record-contents" aria-label="<?php echo $escapeAttr($translate('Record contents')); ?>">
     <span><?php echo $translate('On this record'); ?></span>
     <ul><?php foreach ($groups as $group): ?><li><a href="#<?php echo $escapeAttr($group['id']); ?>"><?php echo $escape($group['title']); ?></a></li><?php endforeach; ?></ul>
@@ -53,10 +67,14 @@ $this->inlineScript()->appendFile($this->assetUrl('js/section-links.js'));
     $hideLabels = in_array($group['layout'], ['prose', 'chips'], true) && count($rendered) === 1;
     ?>
     <section id="<?php echo $escapeAttr($group['id']); ?>" class="record__group record__group--<?php echo $escapeAttr($group['layout']); ?>" data-group="<?php echo $escapeAttr($group['key']); ?>">
+        <?php if ($recordChrome): ?>
         <h2 class="record__group-title"><a class="record-section-link" href="#<?php echo $escapeAttr($group['id']); ?>"><?php echo $escape($group['title']); ?></a></h2>
         <button type="button" class="section-copy" hidden data-section-copy="<?php echo $escapeAttr($group['id']); ?>"
             data-copied="<?php echo $escapeAttr($translate('Copied')); ?>"
             data-failed="<?php echo $escapeAttr($translate('Copy failed. Use the section heading link.')); ?>"><?php echo $translate('Copy section link'); ?></button>
+        <?php else: ?>
+        <h4 class="record__group-title"><?php echo $escape($group['title']); ?></h4>
+        <?php endif; ?>
 
         <dl class="record__list">
         <?php foreach ($rendered as $term => [$propertyData, $propertyValues]):
@@ -114,7 +132,7 @@ $this->inlineScript()->appendFile($this->assetUrl('js/section-links.js'));
                             <span class="o-icon-private" role="img" title="<?php echo $this->escapeHtmlAttr($translate('Private')); ?>" aria-label="<?php echo $this->escapeHtmlAttr($translate('Private')); ?>"></span>
                         <?php endif; ?>
                         <?php if ($valueAnnotation && $showValueAnnotations) : ?>
-                            <?php echo $this->partial('common/value-annotation', ['valueAnnotation' => $valueAnnotation]); ?>
+                            <?php echo $this->partial('common/value-annotation', ['valueAnnotation' => $valueAnnotation, 'expanded' => $expandAnnotations]); ?>
                         <?php endif; ?>
                         <?php $this->trigger('view.show.value', ['value' => $value]); ?>
                     </dd>

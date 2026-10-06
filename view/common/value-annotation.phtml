@@ -3,7 +3,7 @@ $translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
 $escapeAttr = $this->plugin('escapeHtmlAttr');
 ?>
-<details class="annotation-btn">
+<details class="annotation-btn"<?php echo !empty($expanded) ? ' open' : ''; ?>>
                                 <summary class="has-annotation o-icon-annotation" aria-label="<?php echo $escapeAttr($translate('Value Annotations')); ?>"><span class="sr-only"><?php echo $escape($translate('Value Annotations')); ?></span></summary>
                                 <div class="annotation-tooltip">
                                     <div class="annotation-tooltip__wrapper">

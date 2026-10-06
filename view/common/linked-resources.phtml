@@ -25,6 +25,14 @@ $isPaginated = $totalCount > $perPage;
 ['connections' => $connections, 'facets' => $facets, 'ranked' => $ranked] = $this->LinkedConnections($subjectValues, $headingTerm, $valueLang);
 
 $uniqueCount = count($connections);
+// The summary noun follows the visible count; the facet filter swaps between
+// the one/many forms client-side as the count changes.
+$translatePlural = $this->plugin('translatePlural');
+$summaryLabel = function (int $count) use ($translatePlural, $isPaginated): string {
+    return $isPaginated
+        ? $translatePlural('connection on this page', 'connections on this page', $count)
+        : $translatePlural('connection to this record', 'connections to this record', $count);
+};
 $hasFacets   = count($facets) > 1;
 $showSort    = $uniqueCount > 1;
 $showControls = $hasFacets || $showSort;
@@ -58,7 +66,10 @@ $pageUrl = function (int $number) use ($baseUrl, $resourceProperty, $connectionS
             <h2 class="resources-linked__heading" id="linked-resources-heading"><?php echo $translate('Linked resources'); ?></h2>
             <span class="resources-linked__summary" aria-live="polite">
                 <b data-lr-count><?php echo $uniqueCount; ?></b>
-                <?php echo $isPaginated ? $translate('connections on this page') : $translate('connections to this record'); ?>
+                <span data-lr-label
+                    data-one="<?php echo $escapeAttr($summaryLabel(1)); ?>"
+                    data-many="<?php echo $escapeAttr($summaryLabel(2)); ?>"><?php
+                    echo $escape($summaryLabel($uniqueCount)); ?></span>
             </span>
         </span>
         <span class="resources-linked__chevron" aria-hidden="true"></span>
@@ -136,10 +147,6 @@ $pageUrl = function (int $number) use ($baseUrl, $resourceProperty, $connectionS
                 $relText = implode(' · ', array_map(function ($rel) {
                     return $rel['label'];
                 }, $c['rels']));
-                // Haystack for the client-side search: everything legible on the
-                // card (title + type + relationship), lower-cased once here so the
-                // JS filter is a plain substring test.
-                $searchText = mb_strtolower(trim($c['heading'] . ' ' . $typeLabel . ' ' . $relText));
                 // thumbnail() resolves an item's primary-media thumbnail (or an
                 // item set's / media's own) and returns '' when there is none.
                 $thumbnail = $this->thumbnail($resource, 'square', ['alt' => '']);
@@ -147,8 +154,7 @@ $pageUrl = function (int $number) use ($baseUrl, $resourceProperty, $connectionS
                 <li class="connection"
                     data-props="<?php echo $escapeAttr($propAttr); ?>"
                     data-rel-order="<?php echo (int) $c['relOrder']; ?>"
-                    data-title="<?php echo $escapeAttr(mb_strtolower($c['heading'])); ?>"
-                    data-search="<?php echo $escapeAttr($searchText); ?>">
+                    data-title="<?php echo $escapeAttr(mb_strtolower($c['heading'])); ?>">
                     <a class="connection__card" href="<?php echo $escapeAttr($resource->url()); ?>">
                         <?php if ($thumbnail): ?>
                         <span class="connection__thumb" aria-hidden="true"><?php echo $thumbnail; ?></span>

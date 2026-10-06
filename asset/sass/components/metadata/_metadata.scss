@@ -15,6 +15,23 @@
 // ==========================================================================
 
 // --------------------------------------------------------------------------
+// Record title — the Headline tier (DESIGN.md › Hierarchy: 700, --text-3xl,
+// --leading-tight), not the Display tier a bare h1 gets. Record titles are long
+// ("Volume 8: Yoruba Architecture and Wall Painting. Digitaler Scan im
+// Beier-Nachlass"): at 800 / 44–68px one ran to four lines and 275px at 1280px
+// and seven at 390px, pushing the record itself below the fold. Item and media
+// show pages and the item-set page (item/browse with an item set) all emit
+// Omeka's pageTitle() h1 as the first heading of #content; the home masthead
+// title lives outside #content and keeps the display tier.
+// --------------------------------------------------------------------------
+:is(.resource.show, .item-set) #content > h1 {
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    line-height: var(--leading-tight);
+    text-wrap: balance;
+}
+
+// --------------------------------------------------------------------------
 // Page layout
 // --------------------------------------------------------------------------
 .item-record {
@@ -197,6 +214,8 @@
         font-size: var(--text-lg);
         line-height: var(--leading-relaxed);
         color: var(--ink);
+        // Long-form reading: avoid one-word last lines (a no-op where unsupported).
+        text-wrap: pretty;
 
         &:last-child {
             margin-bottom: 0;
@@ -204,6 +223,13 @@
 
         p:last-child {
             margin-bottom: 0;
+        }
+
+        // An HTML-valued abstract can carry its own sub-headings; give them the
+        // space above that binds them to the text they introduce (headings carry
+        // no top margin globally, see _headings.scss).
+        :is(p, ul, ol, blockquote, table) + :is(h2, h3, h4) {
+            margin-block-start: var(--space-8);
         }
     }
 }

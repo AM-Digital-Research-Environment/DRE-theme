@@ -8,7 +8,7 @@ import { JSDOM } from 'jsdom';
 const root = resolve(import.meta.dirname, '../..');
 const source = file => readFileSync(join(root, 'asset/js', file), 'utf8');
 const dom = html => new JSDOM(html, { url: 'https://example.test/?view=grid', runScripts: 'outside-only', pretendToBeVisual: true });
-const start = (d, file) => { d.window.eval(source(file)); d.window.document.dispatchEvent(new d.window.Event('DOMContentLoaded')); };
+const start = (d, file) => { d.window.eval(source('utils.js')); d.window.eval(source(file)); d.window.document.dispatchEvent(new d.window.Event('DOMContentLoaded')); };
 
 test('invalid Sass rejects compilation even when valid old CSS exists', () => {
     // Under the repository so the copied CLI resolves installed dependencies.
@@ -30,11 +30,12 @@ test('invalid Sass rejects compilation even when valid old CSS exists', () => {
 });
 
 test('browse transitions retire layout engines and synchronize every pager and history state', () => {
-    const d = dom(`<main><div class="layout-toggle"><button class="grid" disabled>Grid</button><button class="list">List</button></div>
+    const d = dom(`<main><div class="layout-toggle"><button class="grid" aria-pressed="true">Grid</button><button class="list">List</button></div>
         <div class="resources resource-grid"><div class="resource"><div class="resource__meta"></div></div></div>
         <div class="pager-wrapper"><a class="next" href="/?page=2&view=grid">Next</a><form class="pager"><input name="view" value="grid"></form></div></main>`);
     let active = 0;
     d.window.matchMedia = () => ({ matches: false });
+    d.window.CSS.supports = () => false;
     d.window.Masonry = class { constructor() { active++; } destroy() { active--; } layout() {} };
     start(d, 'browse.js');
     const doc = d.window.document;
@@ -48,7 +49,7 @@ test('browse transitions retire layout engines and synchronize every pager and h
     d.window.dispatchEvent(new d.window.PopStateEvent('popstate'));
     assert.equal(active, 0);
     assert.ok(doc.querySelector('.resource-list'));
-    assert.equal(doc.querySelector('.list').disabled, true);
+    assert.equal(doc.querySelector('.list').getAttribute('aria-pressed'), 'true');
     d.window.close();
 });
 
@@ -99,24 +100,33 @@ test('consumed or rejected PWA prompts stay hidden until a fresh event', async (
     d.window.close();
 });
 
-test('linked-resource filters compose and sorting preserves visible state', async () => {
-    const d = dom(`<div class="resources-linked"><button data-lr-facet="all" class="is-active">All</button><button data-lr-facet="p1">Author</button>
-        <input data-lr-search><select data-lr-sort><option value="title-desc">Title</option></select><b data-lr-count></b><p data-lr-empty hidden></p>
-        <ul data-lr-list><li class="connection" data-title="alpha" data-search="alpha person" data-props="p1"></li><li class="connection" data-title="beta" data-search="beta book" data-props="p2"></li></ul></div>`);
+test('linked-resource facets update the pluralised count and sorting preserves visible state', () => {
+    const d = dom(`<details class="resources-linked"><summary><span class="resources-linked__summary"><b data-lr-count>2</b>
+        <span data-lr-label data-one="connection to this record" data-many="connections to this record">connections to this record</span></span></summary>
+        <button data-lr-facet="all" class="is-active">All</button><button data-lr-facet="p1">Author</button>
+        <select data-lr-sort><option value="title-desc">Title</option></select><p data-lr-empty hidden></p>
+        <ul data-lr-list><li class="connection" data-title="alpha" data-props="p1"></li><li class="connection" data-title="beta" data-props="p2"></li></ul></details>`);
     start(d, 'linked-resources.js');
     const doc = d.window.document;
     doc.querySelector('[data-lr-facet=p1]').click();
     assert.equal(doc.querySelector('[data-lr-count]').textContent, '1');
-    const input = doc.querySelector('input'); input.value = 'book';
-    input.dispatchEvent(new d.window.Event('input', { bubbles: true }));
-    await new Promise(resolve => d.window.requestAnimationFrame(resolve));
-    assert.equal(doc.querySelector('[data-lr-empty]').hidden, false);
-    input.dispatchEvent(new d.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    assert.equal(doc.querySelector('[data-lr-label]').textContent, 'connection to this record');
+    assert.equal(doc.querySelector('[data-lr-facet=p1]').getAttribute('aria-pressed'), 'true');
     doc.querySelector('select').dispatchEvent(new d.window.Event('change', { bubbles: true }));
     assert.equal(doc.querySelector('li').dataset.title, 'beta');
     assert.equal(doc.querySelector('li').hidden, true);
-    assert.equal(doc.querySelector('[data-lr-count]').textContent, '1');
+    doc.querySelector('[data-lr-facet=all]').click();
+    assert.equal(doc.querySelector('[data-lr-label]').textContent, 'connections to this record');
+    assert.equal(doc.querySelector('[data-lr-empty]').hidden, true);
     d.window.close();
+});
+
+test('every data-lr hook the connection script reads is rendered by the partial', () => {
+    const script = source('linked-resources.js');
+    const partial = readFileSync(join(root, 'view/common/linked-resources.phtml'), 'utf8');
+    const hooks = new Set([...script.matchAll(/\[(data-lr-[a-z-]+)/g)].map(match => match[1]));
+    assert.ok(hooks.size >= 5, 'the scan found the script hooks');
+    for (const hook of hooks) assert.ok(partial.includes(hook), `${hook} is used by the script but not rendered`);
 });
 
 test('Mirador themes early and late viewers once, then follows theme changes', async () => {

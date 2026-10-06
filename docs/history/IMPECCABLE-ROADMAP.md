@@ -1,3 +1,5 @@
+> Historical record — the September 2026 checkpoint shipped in v2.30.3; kept for rationale and its audit method. Current contract: [`DESIGN.md`](../../DESIGN.md) and [`docs/DESIGN-INTEGRATION.md`](../DESIGN-INTEGRATION.md); current test commands: [`docs/TESTING.md`](../TESTING.md).
+
 # Impeccable Evaluation Roadmap
 
 ## 7 September implementation checkpoint

@@ -10,22 +10,33 @@ import autoprefixer from 'autoprefixer';
 
 const ROOT = resolve(import.meta.dirname, '..');
 
+// The PHP floor is not declared anywhere in the theme: it is inherited from the
+// Omeka S release theme.ini's omeka_version_constraint admits (4.2.1's
+// composer.json requires php >=8.1). Raise it together with that constraint.
+const REQUIRES_PHP = '8.1';
+
+/**
+ * The stylesheet header restates config/theme.ini [info], which is what Omeka
+ * shows an admin. Every value is read from there on each build, so the two
+ * cannot drift (the hand-written description already had).
+ */
 function cssHeader(ini) {
     const info = ini.split(/^\[info\]\s*$/m)[1]?.split(/^\[/m)[0];
     const value = key => {
         const match = info?.match(new RegExp(`^\\s*${key}\\s*=\\s*"([^"]+)"`, 'm'));
         if (!match) throw new Error(`CSS build: missing [info] ${key} in config/theme.ini`);
+        if (match[1].includes('*/')) throw new Error(`CSS build: [info] ${key} must not contain "*/"`);
         return match[1];
     };
     return `/*
-Theme Name: Africa Multiple — DRE
-Theme URI: https://github.com/AM-Digital-Research-Environment/DRE-theme
-Author: Frédérick Madore
-Author URI: https://www.frederickmadore.com/
-Description: Digital Research Environment theme for the Africa Multiple Cluster of Excellence (University of Bayreuth). Scholarly Modernism on an OKLCH design-token foundation, with light and dark modes.
+Theme Name: ${value('name')}
+Theme URI: ${value('theme_link')}
+Author: ${value('author')}
+Author URI: ${value('author_link')}
+Description: ${value('description')}
 Version: ${value('version')}
 Omeka Version Constraint: ${value('omeka_version_constraint')}
-Requires PHP: 8.1
+Requires PHP: ${REQUIRES_PHP}
 License: GNU General Public License v3 or later
 License URI: LICENSE
 Text Domain: dre-theme

@@ -1,27 +1,15 @@
 <?php
 require_once __DIR__ . '/bootstrap.php';
 require_once __DIR__ . '/../helper/BrowseLayout.php';
-require_once __DIR__ . '/../helper/ContrastColor.php';
 require_once __DIR__ . '/../helper/DreSearchUrl.php';
 require_once __DIR__ . '/../helper/IsHomePage.php';
 
 use OmekaTheme\Helper\BrowseLayout;
-use OmekaTheme\Helper\ContrastColor;
 use OmekaTheme\Helper\DreSearchUrl;
 use OmekaTheme\Helper\IsHomePage;
 
 $failures = [];
 $checks = 0;
-
-$contrast = new ContrastColor();
-dre_check($failures, $checks, 'near-black wins against the brand green',
-    $contrast('#009260', ['#ffffff', '#1a1a1a']) === '#1a1a1a');
-dre_check($failures, $checks, 'three-digit colours are normalized',
-    $contrast('#fff', ['#000']) === '#000000');
-dre_check($failures, $checks, 'invalid candidates are ignored',
-    $contrast('#ffffff', ['not-a-color', '#000000']) === '#000000');
-dre_check($failures, $checks, 'invalid base input falls back safely',
-    $contrast('var(--hostile)', ['#ffffff', '#1a1a1a']) === '#1a1a1a');
 
 $params = new class {
     public $view = 'list';
@@ -78,8 +66,12 @@ $search->setView($searchView);
 dre_check($failures, $checks, 'DRE Search URL is derived from the current site',
     $search() === 'https://example.test/s/archive/dre-search');
 
+dre_check($failures, $checks, 'a query is carried in the module parameter',
+    $search('orixá & co') === 'https://example.test/s/archive/dre-search?q=orix%C3%A1+%26+co' && $search->queryParam() === 'q');
 $searchView->module = false;
 dre_check($failures, $checks, 'module absence falls back to nonredirecting core search', $search() === 'https://example.test/s/archive/index/search');
+dre_check($failures, $checks, 'core fallback uses the core full-text parameter',
+    $search('x') === 'https://example.test/s/archive/index/search?fulltext_search=x' && $search->queryParam() === 'fulltext_search');
 $params->view = ['grid'];
 dre_check($failures, $checks, 'array browse input falls back without warnings', $browse()['isGrid']);
 

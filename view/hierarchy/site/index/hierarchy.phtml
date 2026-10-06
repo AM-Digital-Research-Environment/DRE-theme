@@ -4,23 +4,39 @@ $escape = $this->plugin('escapeHtml');
 $filterLocale = (bool) $this->siteSetting('filter_locale_values');
 $lang = $this->lang();
 $valueLang = $filterLocale ? [$lang, ''] : null;
-$query = $this->params()->fromQuery();
-
 
 $this->headLink()->appendStylesheet($this->assetUrl('css/hierarchy.css', 'Hierarchy'));
 $this->headLink()->appendStylesheet($this->assetUrl('css/resource-page-blocks.css', 'Omeka'));
 $this->htmlElement('body')->appendAttribute('class', 'item resource browse hierarchy-module');
 ?>
 <?php
-if ($hierarchyGrouping->getLabel()) {
-    echo $this->pageTitle($hierarchyGrouping->getLabel(), 1);
-} else if ($hierarchyGrouping->getItemSet()) {
-    echo $this->pageTitle($hierarchyGrouping->getItemSet()->displayTitle(null, $valueLang), 1);
+$tree = $this->HierarchyTree($hierarchyGrouping, $valueLang);
+// Title the page from the authorized sets the tree already read: the grouping's
+// raw item-set association is a lazy proxy, and initialising it for a set the
+// visitor may not see throws instead of rendering.
+$title = $hierarchyGrouping->getLabel();
+if (!$title && ($reference = $hierarchyGrouping->getItemSet())) {
+    $setId = (int) $reference->id();
+    foreach ($tree['itemSets'] as $set) {
+        if ($set->id() === $setId) {
+            $title = $set->displayTitle(null, $valueLang);
+            break;
+        }
+    }
+    if (!$title) {
+        try {
+            $title = $reference->displayTitle(null, $valueLang);
+        } catch (\Throwable $e) {
+            $title = $translate('[Untitled]');
+        }
+    }
+}
+if ($title) {
+    echo $this->pageTitle($title, 1);
 }
 ?>
 
 <div class="hierarchy-row">
-    <?php $tree = $this->HierarchyTree($hierarchyGrouping, $valueLang); ?>
     <div class="hierarchy-sidebar-content"><div class="hierarchy-metadata"><div class="hierarchy-filters">
         <?php if ($this->siteSetting('hierarchy_show_label') && $hierarchyGrouping->getHierarchy()->getLabel()): ?>
             <h2><?php echo $escape($hierarchyGrouping->getHierarchy()->getLabel()); ?></h2>

@@ -1,8 +1,10 @@
 <?php
 require_once __DIR__ . '/bootstrap.php';
 require_once __DIR__ . '/../helper/CollectionStats.php';
+require_once __DIR__ . '/../helper/IntegrationWarning.php';
 
 use OmekaTheme\Helper\CollectionStats;
+use OmekaTheme\Helper\IntegrationWarning;
 
 $failures = [];
 $checks = 0;
@@ -27,13 +29,26 @@ $settings = new class {
     public function get(string $key, string $default = '') { return $this->values[$key] ?? $default; }
     public function set(string $key, string $value): void { $this->values[$key] = $value; }
 };
-$services = new class($settings) {
-    public function __construct(private object $settings) {}
+$logger = new class {
+    public array $warnings = [];
+    public function warn(string $message): void { $this->warnings[] = $message; }
+};
+$services = new class($settings, $logger) {
+    public function __construct(private object $settings, private object $logger) {}
     public ?object $counts = null;
     public function has(string $name): bool { return $name === 'DRESearch\Search\CorpusCounts' && $this->counts !== null; }
-    public function get(string $name): object { return $name === 'DRESearch\Search\CorpusCounts' ? $this->counts : $this->settings; }
+    public function get(string $name): object
+    {
+        return match ($name) {
+            'DRESearch\Search\CorpusCounts' => $this->counts,
+            'Omeka\Logger' => $this->logger,
+            default => $this->settings,
+        };
+    }
 };
-$plugins = new class($services) {
+// The helper reaches services through the current site, never through the
+// helper plugin manager's deprecated getServiceLocator().
+$site = new class($services) {
     public function __construct(private object $services) {}
     public function getServiceLocator(): object { return $this->services; }
 };
@@ -57,10 +72,17 @@ $api = new class {
         };
     }
 };
-$view = new class($plugins, $api) {
+$view = new class($site, $api) {
     public string $locale = 'en';
-    public function __construct(private object $plugins, private object $api) {}
-    public function getHelperPluginManager(): object { return $this->plugins; }
+    private ?IntegrationWarning $warning = null;
+    public function __construct(private object $site, private object $api) {}
+    public function getHelperPluginManager(): object { throw new LogicException('Deprecated service locator path used'); }
+    public function currentSite(): object { return $this->site; }
+    public function IntegrationWarning($resource, string $component, Throwable $error): void
+    {
+        if (!$this->warning) { $this->warning = new IntegrationWarning(); $this->warning->setView($this); }
+        ($this->warning)($resource, $component, $error);
+    }
     public function api(): object { return $this->api; }
     public function plugin(string $name): callable {
         return fn(string $text): string => $this->locale === 'fr' ? 'fr:' . $text : $text;
@@ -93,8 +115,8 @@ $generationId = '20260803T085234Z-964ff56b9f5c';
 $generationDir = $root . '/modules/DreVisualizations/asset/data/generations/'
     . $generationId . '/item-dashboards';
 mkdir($generationDir, 0777, true);
+// The real module artifact carries no siteId: the scope lives in the pointer.
 file_put_contents($generationDir . '/collection-overview.json', json_encode([
-    'siteId' => 3,
     'stats' => [
         ['key' => 'researchItems', 'label' => 'Research items', 'value' => 3975],
         ['key' => 'languages', 'label' => 'Languages', 'value' => 28],
@@ -106,6 +128,7 @@ file_put_contents($root . '/modules/DreVisualizations/asset/data/current.json', 
     'schemaVersion' => 1,
     'generationId' => $generationId,
     'basePath' => 'generations/' . $generationId,
+    'scope' => ['type' => 'canonical-site', 'siteId' => 3, 'itemCount' => 3975],
 ]));
 
 $published = new CollectionStats();
@@ -115,6 +138,11 @@ dre_check($failures, $checks, 'current.json pointer resolves the published gener
     count($stats) === 4 && $stats[0]['n'] === 3975);
 dre_check($failures, $checks, 'the generation wins over a stale flat precompute',
     array_column($stats, 'k') === ['researchItems', 'languages', 'podcasts', 'youtube']);
+$otherSite = new CollectionStats();
+$otherSite->setView($view);
+$stats = $otherSite(6);
+dre_check($failures, $checks, 'a generation scoped to another site is not reused',
+    $stats && $stats[0]['n'] === 0);
 
 // A pointer naming a generation that was pruned must NOT silently fall back to
 // the stale flat file — that would serve figures from an unknown vintage.
@@ -234,7 +262,11 @@ dre_check($failures, $checks, 'malformed upstream counts and API failure preserv
 $queries = count($api->queries);
 $singleSite(88);
 dre_check($failures, $checks, 'outage retries are throttled', count($api->queries) === $queries);
-dre_check($failures, $checks, 'failures record rate-limit markers', isset($settings->values['dre_stats_warning_search-counts'], $settings->values['dre_stats_warning_api-counts']));
+dre_check($failures, $checks, 'failures record rate-limit markers through IntegrationWarning',
+    isset($settings->values['dre_theme_warning_' . hash('sha256', 'statistics search-counts')],
+        $settings->values['dre_theme_warning_' . hash('sha256', 'statistics api-counts')]));
+dre_check($failures, $checks, 'failures are logged once per stage',
+    count($logger->warnings) === 2 && str_contains($logger->warnings[0], 'statistics search-counts'));
 $stats = $singleSite(89);
 dre_check($failures, $checks, 'outage without cached values returns an empty band', $stats === []);
 

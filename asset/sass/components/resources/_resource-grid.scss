@@ -31,9 +31,22 @@
         width: 2%;
     }
 
+    // A card is its own query container. Whether it can afford the thumbnail
+    // beside its text depends on the CARD's width, not the viewport's: with both
+    // browse sidebars open a ≥768px viewport still leaves ~300px cards, and the
+    // old viewport switch squeezed their text into a 142–157px column and pushed
+    // the card 14px past its own edge. The card's inline size is always set from
+    // outside (a grid track, a lane, or Masonry's 49%), never from its content,
+    // so inline-size containment changes nothing that Masonry measures.
+    //
+    // A two-column grid on the card itself, because a container cannot restyle
+    // its own box from a container query: both children span the full width
+    // until the card is wide enough, then take a column each.
     .resource {
-        display: flex;
-        flex-direction: column;
+        container: resource-card / inline-size;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        align-content: start;
         background-color: var(--surface);
         border: 1px solid var(--border);
         border-radius: var(--radius-lg);
@@ -42,8 +55,8 @@
         margin-bottom: var(--space-6);   // row rhythm; masonry measures it
         transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
 
-        &::before {
-            content: none !important;
+        > * {
+            grid-column: 1 / -1;
         }
 
         &:hover {
@@ -52,21 +65,11 @@
             transform: translateY(var(--lift-xs));
         }
 
-        @media (min-width: $md) {
-            flex-direction: row;
-        }
-
         // Thumbnail inset from the card edge — a matted-print look.
         &__thumbnail {
             line-height: 1;
             width: calc(100% - 2 * var(--space-3));
             margin: var(--space-3) 0 0 var(--space-3);
-
-            @media (min-width: $md) {
-                width: 50%;
-                flex-shrink: 0;
-                margin: var(--space-3) 0 calc(-1 * var(--space-4)) var(--space-3);
-            }
 
             img {
                 max-height: 20.25rem;
@@ -76,6 +79,7 @@
         }
 
         &__content {
+            min-width: 0;
             padding: var(--space-4);
         }
 
@@ -83,28 +87,45 @@
             padding: var(--space-1) var(--space-2);
         }
     }
+
+    // Wide card: the thumbnail takes the first half and the text the second.
+    // 28rem leaves the text column ≥ ~190px — a readable title measure.
+    @container resource-card (min-width: 28rem) {
+        .resource__thumbnail {
+            grid-column: 1;
+            align-self: start;
+            width: auto;
+            margin: var(--space-3) 0 var(--space-3) var(--space-3);
+        }
+
+        .resource__thumbnail + .resource__content {
+            grid-column: 2;
+        }
+    }
 }
 
 // --------------------------------------------------------------------------
-// Native CSS masonry — progressive enhancement. Where the engine supports
-// `grid-template-rows: masonry`, the grid lays the cards out itself and the
-// ~24 KiB masonry.pkgd.min.js is never initialised (browse.js gates on the same
-// feature query). Most engines still take the JS fallback above today; this is
-// the no-dependency path that takes over as support lands. The .grid-sizer /
-// .gutter-sizer percentages stay the JS inputs and are simply hidden here.
+// Native masonry ("grid lanes") — progressive enhancement. Where the engine
+// supports `display: grid-lanes` (the CSS Grid Level 3 syntax; WebKit ships it),
+// the grid lays the cards out itself and browse.js never fetches the ~24 KiB
+// masonry.pkgd.min.js (it gates on the same CSS.supports() query). Elsewhere
+// Masonry takes over above via `.is-masonry`, and without JS the plain grid
+// above is the readable fallback. The .grid-sizer / .gutter-sizer percentages
+// stay Masonry's inputs and are simply hidden here.
+//
+// (This used to test `grid-template-rows: masonry`, the superseded draft syntax
+// that no engine ever shipped, so the branch could never apply.)
 // --------------------------------------------------------------------------
-@supports (grid-template-rows: masonry) {
+@supports (display: grid-lanes) {
     .resource-grid {
-        opacity: 1;                      // CSS reveals it; no JS opacity flip
         display: flex;
         flex-direction: column;
         gap: var(--space-6);
 
         @media (min-width: $md) {
-            display: grid;
+            display: grid-lanes;
             grid-template-columns: repeat(2, 1fr);
-            grid-template-rows: masonry;
-            gap: var(--space-6) 2%;      // row rhythm · 2% gutter → 49% columns
+            gap: var(--space-6) 2%;      // row rhythm · 2% gutter → 49% lanes
         }
 
         .grid-sizer,
@@ -113,9 +134,9 @@
         }
 
         .resource {
-            position: static;            // the grid places it, no absolute offsets
+            position: static;            // the lanes place it, no absolute offsets
             width: auto;
-            margin: 0;                   // the grid/flex gap owns the spacing now
+            margin: 0;                   // the lane/flex gap owns the spacing now
         }
     }
 }

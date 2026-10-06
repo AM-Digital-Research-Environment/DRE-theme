@@ -42,7 +42,9 @@ class ConnectionPage extends AbstractHelper
                 ->setParameter('dre_connection_title', '%' . strtr(mb_strtolower($state['search']), ['!' => '!!', '%' => '!%', '_' => '!_']) . '%');
         }
         $total = (int) (clone $base)->select('COUNT(DISTINCT resource.id)')->getQuery()->getSingleScalarResult();
-        $perPage = max(1, min(100, (int) $view->siteSetting('pagination_per_page', 50)));
+        // As core: the site's page size, else the global one.
+        $perPage = (int) $view->siteSetting('pagination_per_page') ?: (int) $view->setting('pagination_per_page', 25);
+        $perPage = max(1, min(100, $perPage));
         $page = min($state['page'], max(1, (int) ceil($total / $perPage)));
         $ids = (clone $base)->select(['resource.id id', 'resource.title title'])->distinct()
             ->orderBy('resource.title')->addOrderBy('resource.id')->setFirstResult(($page - 1) * $perPage)

@@ -55,12 +55,12 @@
         const toggle = document.querySelector('[data-theme-toggle]');
         if (!toggle) return;
 
-        const isDark = theme === 'dark';
-        const label = isDark ? toggle.dataset.labelLight : toggle.dataset.labelDark;
+        // The label names the action ("Switch to light mode"). It carries no
+        // aria-pressed: "Switch to light mode, pressed" contradicts itself.
+        const label = theme === 'dark' ? toggle.dataset.labelLight : toggle.dataset.labelDark;
         if (label) {
             toggle.setAttribute('aria-label', label);
         }
-        toggle.setAttribute('aria-pressed', isDark.toString());
     }
 
     function toggleTheme() {
@@ -92,23 +92,5 @@
         }
     }
 
-    if (window.DREUtils && typeof window.DREUtils.onReady === 'function') {
-        window.DREUtils.onReady(init);
-    } else if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init, { once: true });
-    } else {
-        init();
-    }
-
-    window.DRETheme = {
-        toggle: toggleTheme,
-        get: getPreferredTheme,
-        set: function (theme) {
-            if (theme !== 'light' && theme !== 'dark') {
-                return;
-            }
-            rememberTheme(theme);
-            applyTheme(theme);
-        }
-    };
+    window.DREUtils.onReady(init);
 })();

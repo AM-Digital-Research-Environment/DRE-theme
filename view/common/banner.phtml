@@ -58,25 +58,10 @@ $variant = $isHome ? 'home' : 'page';
 // (see components/header/_header.scss `&__search { display: none }`), so the
 // masthead still renders a real field and CSS hides it at $xl+ — the first
 // screen always offers somewhere to type, and never two fields at once.
-$searchAction = null;
-$searchParam  = 'fulltext_search';
-$hasDreSearch = $this->getHelperPluginManager()->has('dreSearchAssets');
-if ($isHome) {
-    try {
-        if ($hasDreSearch && $site) {
-            $searchAction = rtrim((string) $site->url(), '/') . '/dre-search';
-            $searchParam  = 'q';
-        } elseif ($site) {
-            $searchAction = $this->url(
-                'site/resource',
-                ['site-slug' => $site->slug(), 'controller' => 'item', 'action' => 'browse']
-            );
-        }
-    } catch (\Throwable $e) {
-        // A routing hiccup drops the field, never the masthead.
-        $searchAction = null;
-    }
-}
+// DreSearchUrl owns the module probe and the fallback (core site search).
+$searchUrl    = $this->plugin('DreSearchUrl');
+$searchAction = $isHome ? ($searchUrl() ?: null) : null;
+$searchParam  = $searchUrl->queryParam();
 
 // ===== Hero links =========================================================
 // Two optional text links under the lede — underlined, gold arrow, no filled

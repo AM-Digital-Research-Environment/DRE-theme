@@ -1,9 +1,11 @@
+> Historical record — the 2026 design-system programme, implemented across v2.8.0–v2.23.0; kept for rationale. Current contract: [`DESIGN.md`](../../DESIGN.md).
+
 # DRE Design Roadmap
 
 > **Historical implementation record.** This file preserves the findings and
 > completed work from the 2026 design-system programme. The current Impeccable
 > 4.1.2 evaluation plan, live-surface matrix and future issue structure are in
-> [`docs/IMPECCABLE-ROADMAP.md`](docs/IMPECCABLE-ROADMAP.md).
+> [`IMPECCABLE-ROADMAP.md`](IMPECCABLE-ROADMAP.md).
 
 A design-philosophy audit and phased workplan covering the three repos that
 together render the Digital Research Environment:

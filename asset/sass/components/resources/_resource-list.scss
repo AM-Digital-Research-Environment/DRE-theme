@@ -16,10 +16,6 @@
         margin-bottom: 16px;
         transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
 
-        &::before {
-            content: none !important;
-        }
-
         &:hover {
             border-color: var(--border-strong);
             box-shadow: var(--shadow-md);

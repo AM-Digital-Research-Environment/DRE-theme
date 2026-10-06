@@ -23,7 +23,7 @@
         width: 100% !important;
         max-width: 325px;
         border: 1px dashed $color__gray-80;
-        border-radius: 20px 0;
+        border-radius: var(--radius-lg);
         padding: 0 !important;
         display: flex;
         flex-direction: column;

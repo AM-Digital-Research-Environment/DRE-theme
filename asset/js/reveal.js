@@ -39,17 +39,18 @@
             });
         }, { rootMargin: '0px 0px -8% 0px' });
 
-        Array.prototype.forEach.call(els, function (el) {
+        // Only what is still below the fold waits to arrive. Cards already on
+        // screen have been painted by now; hiding them would flash them out and
+        // back in and delay the largest paint. All reads before any write.
+        var fold = window.innerHeight * 0.92;
+        var pending = Array.prototype.filter.call(els, function (el) {
+            return el.getBoundingClientRect().top >= fold;
+        });
+        pending.forEach(function (el) {
             el.setAttribute('data-reveal', 'hidden');
             obs.observe(el);
         });
     }
 
-    if (window.DREUtils && window.DREUtils.onReady) {
-        window.DREUtils.onReady(init);
-    } else if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init, { once: true });
-    } else {
-        init();
-    }
+    window.DREUtils.onReady(init);
 })();

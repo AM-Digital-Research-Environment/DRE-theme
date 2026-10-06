@@ -17,16 +17,18 @@ the release changes data definitions. Wait for the job to succeed; clicking the
 button alone does not establish readiness. Keep the previous complete published
 generation available while the atomic publisher builds its replacement.
 
-From the theme checkout (Node.js installed), run:
+From the theme checkout (Node.js installed, `npx playwright install chromium`
+run once), run:
 
 ```sh
-node scripts/check-live-snapshot.mjs
+npx playwright test tests/browser/visualizations.spec.mjs -g snapshot --retries=0
 npm run test:live -- --retries=0
 ```
 
 Set `LIVE_BASE_URL` to validate another installation. Both commands are read-only;
-the first exits nonzero for a missing pointer, missing required artifact, malformed
-JSON, or empty overview/network. A deployment job should require both commands to
+the first is the snapshot health gate alone (the full suite includes it too) and
+fails for a missing pointer, missing required artifact, malformed JSON, or empty
+overview/network. A deployment job should require both commands to
 succeed before reporting success. The existing GitHub **Live-site smoke test**
 workflow can also be dispatched after a manual release installation.
 

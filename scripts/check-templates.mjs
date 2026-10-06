@@ -3,11 +3,13 @@
  * Template structure lint for view/**.phtml and helper/*.php.
  *
  *   node scripts/check-templates.mjs        (also: npm run lint:templates)
+ *   node scripts/check-templates.mjs --root=<dir>   check another theme tree
  *
  * This is NOT a PHP parser and does not replace `php -l`. It is a cheap
  * structural net for the mistakes that actually happen when editing Omeka
- * templates, and it runs anywhere Node does — useful because this theme is
- * developed on a machine with no PHP binary:
+ * templates, and it runs anywhere Node does — so it still guards a checkout
+ * where `lint:php` finds no PHP and skips (CI always has PHP; a contributor's
+ * machine may not):
  *
  *   1. Unbalanced `<?php` / `?>` tags.
  *   2. Unbalanced braces / parens / brackets in PHP regions.
@@ -24,10 +26,12 @@
  *
  * Exit code 1 on any finding.
  */
-import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 
-const ROOT = join(import.meta.dirname, '..');
+import { themeRoot, walkFiles } from './files.mjs';
+
+const ROOT = themeRoot();
 const VIEW = join(ROOT, 'view');
 const HELPER = join(ROOT, 'helper');
 
@@ -39,19 +43,13 @@ const HELPER = join(ROOT, 'helper');
  */
 const CORE_PARTIALS = new Set([
     'common/search-form',       // core site search form
+    'common/advanced-search',   // core advanced search; dre-search-redirect.phtml's fallback without DRE Search
 ]);
 
 const findings = [];
 const add = (file, line, msg) => findings.push(`${file}${line ? ':' + line : ''}  ${msg}`);
 
-function* walk(dir) {
-    if (!existsSync(dir)) return;
-    for (const name of readdirSync(dir)) {
-        const p = join(dir, name);
-        if (statSync(p).isDirectory()) yield* walk(p);
-        else if (/\.(phtml|php)$/.test(name)) yield p;
-    }
-}
+const walk = (dir) => walkFiles(dir, /\.(?:phtml|php)$/);
 
 /**
  * Split a file into PHP regions, with strings and comments blanked out so the

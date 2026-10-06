@@ -15,6 +15,8 @@ async function fixture(page, width, mode) {
         document.body.dataset.theme = theme;
     }, mode);
     await page.addStyleTag({content: css});
+    // Every real page loads utils.js before any theme script (layout.phtml).
+    await page.addScriptTag({path:'asset/js/utils.js'});
 }
 for (const width of [375, 1280]) for (const mode of ['light', 'dark']) {
     test(`fallback grid and keyboard annotations ${width} ${mode}`, async ({page}) => {

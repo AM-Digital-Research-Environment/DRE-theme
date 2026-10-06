@@ -3,12 +3,12 @@
  * Grid / list toggle for browse surfaces.
  *
  * Renders nothing unless the "Layout for Browse Pages" theme setting is one of
- * the toggle variants. The ACTIVE button is the disabled one — that is the
- * convention asset/js/browse.js and the stylesheet already rely on.
+ * the toggle variants. The active view is the pressed button; both stay enabled
+ * (asset/js/browse.js keeps aria-pressed in sync), because disabling the button
+ * a keyboard user just activated would drop their focus to <body>.
  *
  * @var \Laminas\View\Renderer\PhpRenderer $this
- * @var array $layout  The array returned by the browseLayout() view helper.
- * @var bool  $icons   Render icon-only buttons (media browse) rather than labels.
+ * @var array $layout  The array returned by the BrowseLayout() view helper.
  */
 
 if (empty($layout['hasToggle'])) {
@@ -16,26 +16,12 @@ if (empty($layout['hasToggle'])) {
 }
 
 $translate = $this->plugin('translate');
-$escapeAttr = $this->plugin('escapeHtmlAttr');
 $escape = $this->plugin('escapeHtml');
-$icons = isset($icons) ? (bool) $icons : false;
-
-$gridLabel = $translate('Grid');
-$listLabel = $translate('List');
+$escapeAttr = $this->plugin('escapeHtmlAttr');
+$isGrid = !empty($layout['isGrid']);
 ?>
-<div class="layout-toggle">
-    <?php // Icon buttons have no visible text, so they keep an aria-label. The
-          // labelled variant does not: its text content already names it, and a
-          // duplicate aria-label just overrides the (translatable) content. ?>
-    <button type="button" class="grid<?php echo $icons ? ' icon-btn o-icon-grid' : ''; ?>"
-        <?php echo $icons ? 'aria-label="' . $escapeAttr($gridLabel) . '"' : ''; ?>
-        <?php echo $layout['gridState'] ? 'disabled' : ''; ?>><?php
-        echo $icons ? '' : $escape($gridLabel); ?></button>
-
-    <?php if (!$icons): ?><span class="layout-toggle-separator"></span><?php endif; ?>
-
-    <button type="button" class="list<?php echo $icons ? ' icon-btn o-icon-list' : ''; ?>"
-        <?php echo $icons ? 'aria-label="' . $escapeAttr($listLabel) . '"' : ''; ?>
-        <?php echo $layout['listState'] ? 'disabled' : ''; ?>><?php
-        echo $icons ? '' : $escape($listLabel); ?></button>
+<div class="layout-toggle" role="group" aria-label="<?php echo $escapeAttr($translate('View as')); ?>">
+    <button type="button" class="grid" aria-pressed="<?php echo $isGrid ? 'true' : 'false'; ?>"><?php echo $escape($translate('Grid')); ?></button>
+    <span class="layout-toggle-separator" aria-hidden="true"></span>
+    <button type="button" class="list" aria-pressed="<?php echo $isGrid ? 'false' : 'true'; ?>"><?php echo $escape($translate('List')); ?></button>
 </div>

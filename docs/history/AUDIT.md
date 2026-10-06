@@ -1,3 +1,5 @@
+> Historical record — implemented in v2.22.0; kept for rationale and for the §4 breaking-change register. Current contract: [`DESIGN.md`](../../DESIGN.md).
+
 # DRE-theme — design & token audit
 
 > **Status: implemented in v2.22.0.** Every finding below (A1–A7, B1–B9, C1–C3)

@@ -40,11 +40,12 @@ body {
     color: var(--ink-strong);
 }
 
-// Keyboard focus — a single, consistent ring everywhere
+// Keyboard focus — a single, consistent ring everywhere. No border-radius here:
+// an outline already follows the element's own radius, and setting one on focus
+// reshaped every control the moment it was focused (an 8px select became 6px).
 :focus-visible {
     outline: 2px solid var(--focus-color);
     outline-offset: 2px;
-    border-radius: var(--radius-sm);
 }
 
 // Reduced motion retains colour/focus feedback. Spatial motion is handled

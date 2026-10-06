@@ -17,7 +17,12 @@ class ThemeTestView
         try { include dirname(__DIR__, 2) . '/view/' . $template . '.phtml'; return ob_get_clean(); }
         catch (Throwable $e) { ob_end_clean(); throw $e; }
     }
-    public function partial(string $template, array $vars = []): string { return $this->render($template, $vars); }
+    // Core-only partials (not in the theme's view/) are stubbed as 'partial:<name>' callbacks.
+    public function partial(string $template, array $vars = []): string
+    {
+        if (isset($this->callbacks['partial:' . $template])) return ($this->callbacks['partial:' . $template])($vars);
+        return $this->render($template, $vars);
+    }
     public function translate(string $text): string { return $text; }
     public function translatePlural(string $one, string $many, int $count): string { return $count === 1 ? $one : $many; }
     public function escapeHtml($text): string { return htmlspecialchars((string) $text, ENT_QUOTES, 'UTF-8'); }
@@ -26,7 +31,13 @@ class ThemeTestView
     public function siteSetting(string $key, $default = null) { return $this->settings[$key] ?? $default; }
     public function setting(string $key, $default = null) { return $this->settings[$key] ?? $default; }
     public function lang(): string { return 'fr'; }
-    public function plugin(string $name): callable { return fn(...$args) => $this->$name(...$args); }
+    // Like Omeka's renderer, plugin() hands back the theme helper instance itself,
+    // so templates can call its other public methods.
+    public function plugin(string $name): callable
+    {
+        if (!isset($this->callbacks[$name]) && is_file(dirname(__DIR__, 2) . '/helper/' . $name . '.php')) return $this->helper($name);
+        return fn(...$args) => $this->$name(...$args);
+    }
     public function getHelperPluginManager(): self { return $this; }
     public function has(string $name): bool { return isset($this->callbacks[$name]); }
     public function inlineScript(): self { return $this; }
@@ -41,12 +52,16 @@ class ThemeTestView
     public function __call(string $name, array $args)
     {
         if (isset($this->callbacks[$name])) return ($this->callbacks[$name])(...$args);
+        return ($this->helper($name))(...$args);
+    }
+    public function helper(string $name): object
+    {
         $class = 'OmekaTheme\\Helper\\' . $name;
         $file = dirname(__DIR__, 2) . '/helper/' . $name . '.php';
         if (!is_file($file)) throw new LogicException('Unmocked view method: ' . $name);
         require_once $file;
         if (!isset($this->helpers[$name])) { $this->helpers[$name] = new $class(); $this->helpers[$name]->setView($this); }
-        return ($this->helpers[$name])(...$args);
+        return $this->helpers[$name];
     }
 }
 

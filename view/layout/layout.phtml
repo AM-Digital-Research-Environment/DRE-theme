@@ -57,7 +57,7 @@ $this->headLink()->prependStylesheet($this->assetUrl('css/style.css'));
 // ~91 KiB/page) is intentionally NOT loaded. The theme draws all of its icons as
 // inline Lucide-style SVG and the svg-icon mask mixin in _mixins.scss; the few
 // former FA ::before/::after
-// glyphs (checkbox tick, menu chevrons, carousel arrows, ToC markers) are now
+// glyphs (menu chevrons, carousel arrows, ToC markers, pager arrows) are now
 // painted with that mask. Omeka's public user bar uses its own user-bar.css and
 // no icon font. If a future module needs FA glyphs, re-add the line below.
 // $this->headLink()->prependStylesheet($this->assetUrl('css/iconfonts.css', 'Omeka'));
@@ -107,7 +107,8 @@ if ($userBar) {
 <?php echo $this->htmlElement('html')->setAttribute('lang', $this->lang()); ?>
 	<head>
 		<?php // Preload the two above-the-fold webfont faces (Hanken Grotesk 400
-		      // body/UI + Spectral 600 display) so they fetch in parallel with the
+		      // body/UI + Spectral 800, the banner title and page h1 on every
+		      // page) so they fetch in parallel with the
 		      // CSS instead of waiting for it to download and parse first — shortens
 		      // the FCP/LCP font chain. Same-origin now (self-hosted), so no font-CDN
 		      // preconnect is needed; `crossorigin` is still required so the preload
@@ -116,7 +117,7 @@ if ($userBar) {
 		<link rel="preload" as="font" type="font/woff2" crossorigin
 			href="<?php echo $this->escapeHtmlAttr($this->assetUrl('fonts/hanken-grotesk-latin-400-normal.woff2', null, false, false)); ?>">
 		<link rel="preload" as="font" type="font/woff2" crossorigin
-			href="<?php echo $this->escapeHtmlAttr($this->assetUrl('fonts/spectral-latin-600-normal.woff2', null, false, false)); ?>">
+			href="<?php echo $this->escapeHtmlAttr($this->assetUrl('fonts/spectral-latin-800-normal.woff2', null, false, false)); ?>">
 		<?php echo $this->headMeta(); ?>
 		<?php echo $this->headTitle(); ?>
 		<?php echo $this->headLink(); ?>
@@ -203,8 +204,12 @@ if ($userBar) {
 		</button>
 
 		<?php
+		// Prepended in reverse: utils.js runs first, and every theme script
+		// (including the page scripts templates append) relies on window.DREUtils.
+		if ($this->themeSetting('research_shortlist') ?? true) {
+			$this->inlineScript()->prependFile($this->assetUrl('js/shortlist.js'));
+		}
 		echo $this->inlineScript()
-			->prependFile($this->assetUrl('js/shortlist.js'))
             ->prependFile($this->assetUrl('js/theme-toggle.js'))
 			->prependFile($this->assetUrl('js/navigation.js'))
 			->prependFile($this->assetUrl('js/back-to-top.js'))

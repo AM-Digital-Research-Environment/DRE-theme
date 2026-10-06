@@ -42,9 +42,22 @@
 --------------------------------------------- */
 @forward "timeline/timeline";
 
-// Keep editorial paragraphs readable without narrowing media or dashboards.
-.block-html > p,
-.block-html > ul,
-.block-html > ol {
-    max-inline-size: var(--measure-narrow);
+// No measure cap on HTML-block prose: it renders at the container's full width
+// by owner decision (DESIGN.md "Typography"; docs/history/DESIGN-ROADMAP.md
+// T13). A cap reintroduced on 2026-09-07 was removed again in 2.33.0.
+
+// Prose rhythm inside page-builder HTML. Headings carry no top margin globally
+// (base/typography/_headings.scss) and a paragraph leaves 24px below it, so an
+// h3 sat 24px under the text above it but only ~20px above its own — it read as
+// belonging to the wrong paragraph. Space above a heading that follows running
+// text is now twice its space below. Scoped to the HTML block: elsewhere a
+// heading starts its own component and owns its top edge.
+.block-html :is(p, ul, ol, blockquote, table) + :is(h2, h3, h4) {
+    margin-block-start: var(--space-10);
+}
+
+// Long-form editorial paragraphs: avoid one-word last lines (a no-op where
+// unsupported). Not `balance`, which is for short display headings only.
+.block-html p {
+    text-wrap: pretty;
 }

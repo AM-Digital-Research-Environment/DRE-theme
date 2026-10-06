@@ -29,8 +29,11 @@ select {
     width: 100%;
     transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 
+    // The ring is a box-shadow, and forced-colors mode (Windows High Contrast)
+    // drops box-shadows — so the outline is kept, transparent, rather than
+    // removed: invisible normally, painted in the system focus colour there.
     &:focus {
-        outline: none;
+        outline: 2px solid transparent;
         border-color: var(--primary);
         box-shadow: var(--ring-focus);
     }
@@ -40,70 +43,22 @@ select {
     }
 }
 
-input[type="checkbox"]:not(input[name="numeric-toggle-time-checkbox"]) {
-    border: 2px solid $color__field-border;
-    -webkit-appearance: none;
-    appearance: none;
-    background-color: $color__white;
-    margin: 0;
-    font: inherit;
-    color: $color__white;
-    width: 1.2rem;
-    height: 1.2rem;
-    border-radius: 0.15em;
-    transform: translateY(0.2em);
-    display: grid;
-    place-content: center;
-    flex-shrink: 0;
-
-    &:checked {
-        border: 2px solid $color__primary;
-        background-color: $color__primary;
-        
-        // The checkbox is `display: grid; place-content: center`, so the tick
-        // is centred by the grid — no absolute positioning needed (the former FA
-        // glyph filled the box and self-centred with flex).
-        &::before {
-            @include svg-icon($icon-check, 0.85rem, $color__white);
-        }
-    }
-
-}
-
+// Checkboxes and radios are the NATIVE controls, tinted with accent-color.
+// They used to be `appearance: none` boxes redrawn with borders, a masked tick
+// and a box-shadow dot: the unchecked border was --border-strong (1.9:1, below
+// WCAG 1.4.11's 3:1), and in forced-colors mode the checked state painted
+// nothing at all — a checked box and an empty one were identical. The native
+// controls meet both by construction and follow `color-scheme` into dark mode.
+// The numeric-data-types time toggle is a hidden checkbox inside a button-label
+// and keeps its own (module) presentation.
+input[type="checkbox"]:not([name="numeric-toggle-time-checkbox"]),
 input[type="radio"] {
-    border: 2px solid $color__field-border;
-    -webkit-appearance: none;
-    appearance: none;
-    background-color: $color__white;
+    accent-color: var(--primary);
+    width: 1.25rem;
+    height: 1.25rem;
     margin: 0;
-    font: inherit;
-    color: $color__primary;
-    width: 1.15rem;
-    height: 1.15rem;
-    border-radius: 50%;
-    transform: translateY(0.2em);
-    display: grid;
-    place-content: center;
     flex-shrink: 0;
-
-    &::before {
-        content: "";
-        width: 0.65em;
-        height: 0.65em;
-        border-radius: 50%;
-        transform: scale(0);
-        box-shadow: inset 1em 1em $color__primary;
-        border: 2px solid $color__primary;
-    }
-
-    &:checked {
-        border: 2px solid $color__primary;
-        
-        &::before {
-            transform: scale(1);
-        }
-    }
-
+    vertical-align: middle;
 }
 
 select {
@@ -141,7 +96,7 @@ label.sub-label {
 .field,
 fieldset {
     border: 1px dashed $color__gray-80;
-    border-radius: 20px 0;
+    border-radius: var(--radius-lg);
     padding: var(--space-5) var(--space-6);
     margin-bottom: var(--space-6);
 }

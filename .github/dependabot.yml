@@ -4,17 +4,24 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # Let a release age before it is proposed: a compromised or broken
+    # publish is usually yanked within days.
+    cooldown:
+      default-days: 5
     groups:
       build-toolchain:
         patterns:
           - '*'
 
-  - package-ecosystem: composer
-    directory: /
-    schedule:
-      interval: weekly
+  # No composer entry: composer.json only restates theme.ini's Omeka S range
+  # (omeka/omeka-s, no lockfile). A widening PR would desync it from the INI
+  # that Omeka actually enforces; `npm run lint:ini` keeps the two identical.
 
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    groups:
+      github-actions:
+        patterns:
+          - '*'

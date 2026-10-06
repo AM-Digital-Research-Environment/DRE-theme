@@ -8,67 +8,79 @@ deployed site is monitored separately.
 
 ```bash
 npm ci
-npm run build
-npm run test:unit
-npx playwright install chromium firefox webkit
-npm run test:browser
-npm run i18n:check
-npm audit --audit-level=high
+npx playwright install chromium firefox webkit   # once; on Linux add --with-deps
+npm run verify         # exactly what CI's build job runs
+npm run test:browser   # or `npm test` for test:unit + test:browser
 ```
 
-`npm run build` runs the design-token, theme.ini, template, metadata-group,
-JavaScript-syntax and PHP checks before compiling Sass. PHP is optional locally
-but mandatory in CI. The PHP runner installs an error handler before every
-behavior suite, so warnings and deprecations fail the job instead of merely
-printing to the log.
+`npm run verify` runs, in order:
 
-CI exercises PHP 8.1, 8.3 and the production runtime, PHP 8.5. A separate job
-downloads the official Omeka S 4.2.1 release, copies this checkout into its
-`themes/dre` directory, and asks Omeka's real theme manager to parse and activate
-the theme. This catches invalid configuration, framework loading problems and an
-incorrect Omeka version constraint without bundling Omeka/Laminas dependencies
-inside the theme.
+1. `npm run build` — the design-token, theme.ini, template, metadata-group,
+   JavaScript-syntax and PHP checks (`lint:source`), then the Sass build, then
+   the compiled-CSS integrity check (`lint:css`);
+2. `npm run i18n:check` — `language/template.pot` matches the templates;
+3. `npm run test:unit` — the `node:test` suites in `tests/js/`, including the
+   build tests (metadata header, prefixing, failed-compilation output
+   preservation, watch-mode recovery) and negative tests proving each custom
+   lint fails on a seeded violation;
+4. `npm audit --audit-level=high`;
+5. `scripts/check-stale-css.mjs` — the committed `asset/css/style.css` is what
+   the build produces. In CI's clean checkout any difference fails. Locally, a
+   difference that comes with uncommitted Sass, `theme.ini` or `package.json`
+   changes is only a reminder to commit the rebuilt CSS with them.
 
-## Local browser regressions
+### PHP
 
-`test:browser` uses `playwright.local.config.mjs` and actual PHP-rendered partials
-with the committed CSS and scripts. PHP must be on PATH. Chromium, Firefox and
-WebKit cover narrow/wide layouts, both themes, reduced motion, failed Masonry,
-keyboard disclosures and scoped axe accessibility checks. No production server
-or database is needed. On Windows, `DRE_BROWSER_CHANNEL=msedge` can select an
-installed Edge for the Chromium project. Screenshots are in `test-results/local`.
+`npm run lint:php` (part of `build`) runs `php -l` over every template, helper
+and test, then the dependency-free PHP behavior suites. It uses a `php` on
+`PATH` if there is one, otherwise a pulled Docker image (`php:8.3-cli`, or
+`DRE_PHP_IMAGE`), and skips with instructions when it finds neither. CI always
+has PHP and runs `npm run lint:php:require`, where a missing PHP is a failure.
+The PHP runner installs an error handler before every behavior suite, so
+warnings and deprecations fail the job instead of merely printing to the log.
 
-PHP tests cover rendered block/citation output, bounded endpoint queries,
-manifest failures, hierarchy cycles/private sets, brand contrast and statistics
-outages. JavaScript tests cover history/pager synchronization, layout lifecycle,
-PWA prompt consumption, submenu Escape, linked filtering and theme adapters.
-The Sass regression deliberately compiles invalid input against stale CSS.
+CI exercises PHP 8.1 (the floor of Omeka S 4.2.1), 8.3, and 8.5 — the
+production runtime (8.5.10). A local PHP of another version does not report
+8.5-only deprecations; CI's 8.5 job does, or check locally with Docker:
+
+```sh
+docker pull php:8.5-cli
+DRE_PHP_RUNNER=docker DRE_PHP_IMAGE=php:8.5-cli npm run lint:php
+```
+
+A separate CI job downloads the official Omeka S release named by
+`OMEKA_S_VERSION` in `.github/workflows/ci.yml` (currently 4.2.1), verifies its
+SHA-256, copies this checkout into its `themes/dre` directory, and asks Omeka's
+real theme manager to parse and activate the theme. This catches invalid
+configuration, framework loading problems and an incorrect Omeka version
+constraint without bundling Omeka/Laminas dependencies inside the theme. The
+nightly smoke workflow warns when Omeka publishes a newer release.
 
 Release validation reuses CI at the resolved tag SHA. Packaging waits for all
 jobs, archives that same SHA, and separately validates the installed archive.
 
-## Local browser and relationship integration tests
+## Local browser regressions
 
-The local suite renders actual PHP partials and loads the theme's checked-in
-assets against a routed fixture origin. It covers navigation without JavaScript,
-partial script failures, nested menus, focus restoration, search submission,
+`test:browser` uses `playwright.local.config.mjs`: it renders actual PHP
+partials and loads the theme's checked-in CSS and scripts against a routed
+fixture origin, so PHP must be on `PATH`. No production server or database is
+needed. In Chromium, Firefox and WebKit it covers narrow/wide layouts, both
+themes, reduced motion, navigation without JavaScript, partial script failures,
+nested menus, keyboard disclosures and focus restoration, search submission,
 enlarged text/forced colors, shortlist persistence and exports, record anchors,
-and the browse grid's fallback and Masonry behavior. It runs in Chromium,
-Firefox and WebKit, independently of production:
+the browse grid's fallback and Masonry behavior, and scoped axe accessibility
+checks. On Windows, `DRE_BROWSER_CHANNEL=msedge` can select an installed Edge
+for the Chromium project. `test-results/local/` contains failure traces and the
+representative desktop/mobile screenshots.
 
-```sh
-npm ci
-npx playwright install --with-deps chromium firefox webkit
-npm run build
-npm run test:unit
-npm run test:browser
-npm run i18n:check
-```
+PHP tests cover rendered block/citation output, bounded endpoint queries,
+manifest failures, hierarchy batching, cycles and private sets, site-scoped
+statistics and outages, brand contrast, compound relationship selections and
+optional viewer fallbacks. JavaScript tests cover history/pager
+synchronization, layout lifecycle, PWA prompt consumption, submenu Escape,
+linked filtering and theme adapters.
 
-PHP must be on `PATH` for the browser fixtures. `test-results/local/` contains
-failure traces and the representative desktop/mobile screenshots. The PHP
-behavior suites additionally check hierarchy batching and cycles, site-scoped
-statistics, compound relationship selections and optional viewer fallbacks.
+## Relationship integration test
 
 To exercise the real Omeka query builder, unpack the official Omeka S 4.2.1
 release including its vendor libraries, enable PHP's `pdo_sqlite` and `mbstring`
@@ -83,11 +95,15 @@ creates an in-memory SQLite database. It checks distinct counts/pagination,
 compound template-property filters, item/media relations, literal title search,
 visibility and site restrictions. It does not use a live Omeka database.
 
-CI also runs `npm audit --audit-level=high`. The direct Node/Sass/PostCSS build
-replaces Gulp and removes its vulnerable `braces` dependency chain. Build tests
-exercise metadata headers, prefixing, failed-compilation output preservation and
-watch-mode recovery. Dependabot checks npm, Composer and GitHub Actions weekly;
-dependency updates still have to pass the build, tests and audit gate.
+## Dependencies
+
+The direct Node/Sass/PostCSS build replaced Gulp and its vulnerable `braces`
+dependency chain. Dependabot proposes npm updates weekly (as one group, each
+release at least five days old) and GitHub Actions updates weekly (as one
+group); every update still has to pass the build, tests and audit gate.
+`composer.json` is not watched: it only mirrors `theme.ini`'s Omeka constraint,
+and `npm run lint:ini` keeps the two identical.
+
 
 ## Production smoke test
 
@@ -136,6 +152,28 @@ npx playwright install chromium
 LIVE_BASE_URL=https://data.africamultiple.uni-bayreuth.de npm run test:live
 ```
 
+Failure traces and screenshots go to `test-results/live/`, so a live run never
+wipes the local suite's `test-results/local/`. The published visualization
+snapshot alone (`current.json` and its required datasets) can be checked with
+`npx playwright test tests/browser/visualizations.spec.mjs -g snapshot`.
+
+### Acceptance audits
+
+Two heavier read-only scripts are run by hand, not by CI. They use the same
+production-request guard and write screenshots and JSON reports to the
+Git-ignored `artifacts/roadmap-acceptance/`:
+
+- `npm run audit:roadmap` — the DRESearch surface in light/dark at 320, 390 and
+  1280px: keyboard tabs, mobile chooser, filters, empty state, drawer, 200%
+  text zoom and long translated labels.
+- `npm run audit:surfaces` — the main routes at 390px with axe-core (WCAG 2.1
+  AA), map-control sizes, overflow and timing samples. `AUDIT_ROUTES=a,b`
+  narrows the route list.
+
+Append `-- --local-assets` to either to serve sibling checkouts' builds
+(`../DRE-Search`, `../DREVisualizations`, this theme's CSS) in place of the
+deployed assets, inside that browser only.
+
 The scheduled job is intentionally separate from pull-request CI because a
 deployment, network or production-data issue should not make a source change
 flaky.
@@ -172,8 +210,8 @@ target for Impeccable `live` and comp-first work.
 
 Serve the repository locally, then open the fixture in a browser:
 
-```powershell
-C:/Users/frede/AppData/Local/Programs/Python/Python312/python.exe -m http.server 4173
+```sh
+python -m http.server 4173      # or: python3 -m http.server 4173
 ```
 
 ```text
@@ -236,5 +274,5 @@ problem; systemic duplicates should link to one shared cause.
 
 The complete surface matrix, example Playwright experiment configuration,
 Impeccable command sequence and cross-repository release gates are in
-[`IMPECCABLE-ROADMAP.md`](IMPECCABLE-ROADMAP.md). The shared token and module
+[`history/IMPECCABLE-ROADMAP.md`](history/IMPECCABLE-ROADMAP.md). The shared token and module
 contract is in [`DESIGN-INTEGRATION.md`](DESIGN-INTEGRATION.md).

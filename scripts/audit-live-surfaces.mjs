@@ -1,14 +1,18 @@
 #!/usr/bin/env node
 // Read-only route/state inventory and cold-cache timing sample, not a CWV score.
+//   npm run audit:surfaces [-- --local-assets]   (AUDIT_ROUTES=a,b narrows routes)
+// Reports go to artifacts/roadmap-acceptance/ (Git-ignored).
 import { chromium, expect } from '@playwright/test';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { createRequire } from 'node:module';
 import { resolve, extname } from 'node:path';
 import { productionRequestDecision } from '../tests/browser/production-request-policy.mjs';
 const base = process.env.LIVE_BASE_URL || 'https://data.africamultiple.uni-bayreuth.de';
 const browser = await chromium.launch();
 const report = [];
 const local = process.argv.includes('--local-assets');
-const axe = await readFile(new URL('../../DRE-Search/node_modules/axe-core/axe.min.js', import.meta.url), 'utf8');
+// axe-core is installed here as a dependency of @axe-core/playwright.
+const axe = await readFile(createRequire(import.meta.url).resolve('axe-core/axe.min.js'), 'utf8');
 await mkdir('artifacts/roadmap-acceptance', { recursive: true });
 try {
     for (const path of ['page/research', 'dre-search', 'page/home', 'page/project-explorer', 'page/compare', 'page/spatial-exploration', 'page/networks', 'page/publications-visualisations', 'page/podcasts-visualisations', 'page/youtube-visualisations']) {

@@ -6,15 +6,13 @@
         button.addEventListener('click', async () => {
             const url = new URL(location.href);
             url.hash = button.dataset.sectionCopy;
-            const label = button.textContent;
+            let message = button.dataset.copied;
             try {
                 await navigator.clipboard.writeText(url.href);
-                button.textContent = button.dataset.copied;
             } catch (_) {
-                button.textContent = button.dataset.failed;
+                message = button.dataset.failed;
             }
-            button.setAttribute('aria-live', 'polite');
-            setTimeout(() => { button.textContent = label; button.removeAttribute('aria-live'); }, 3000);
+            window.DREUtils.flashLabel(button, message, 3000);
         });
     });
 })();

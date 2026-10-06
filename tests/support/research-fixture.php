@@ -25,7 +25,7 @@ echo '<main id="content" class="container"><h1>' . $v->escapeHtml($resource->dis
 echo $v->render('common/shortlist-button', ['resource' => $resource, 'detail' => true]);
 echo $v->render('common/resource-values', ['resource' => $resource, 'values' => $values]);
 echo '<section aria-labelledby="browse-title"><h2 id="browse-title">Explore related records</h2><div class="browse-controls">';
-echo $v->render('common/browse-layout-toggle', ['layout' => ['hasToggle' => true, 'gridState' => true, 'listState' => false]]);
+echo $v->render('common/browse-layout-toggle', ['layout' => ['hasToggle' => true, 'isGrid' => true]]);
 echo '</div><div class="resources resource-grid"><div class="grid-sizer"></div><div class="gutter-sizer"></div>';
 foreach (range(1, 6) as $n) {
     echo $v->render('common/resource-card', ['resource' => new ThemeTestResource('Research record ' . $n, $n),

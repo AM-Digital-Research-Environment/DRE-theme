@@ -13,17 +13,15 @@ use Laminas\View\Helper\AbstractHelper;
  *
  * Returns an array so a template can destructure what it needs:
  *
- *   $layout = $this->browseLayout();
+ *   $layout = $this->BrowseLayout();   // casing must match theme.ini helpers[]
  *   $layout['isGrid']      bool    render the masonry grid rather than the list
  *   $layout['hasToggle']   bool    the theme setting offers a visitor toggle
- *   $layout['gridState']   string  'disabled' when Grid is the active button
- *   $layout['listState']   string  'disabled' when List is the active button
  *   $layout['setting']     string  the raw browse_layout theme setting
  *   $layout['bodyTerm']    string  site setting: property shown as card body
  *   $layout['truncate']    string  theme setting: '', 'full', 'fadeout', 'ellipsis'
  *
- * The "active" button is the disabled one — that is the pre-existing
- * convention in browse.js and the stylesheet, kept deliberately.
+ * The toggle marks the active view with aria-pressed (common/browse-layout-toggle
+ * and browse.js); both buttons stay enabled so keyboard focus survives a switch.
  */
 class BrowseLayout extends AbstractHelper
 {
@@ -47,8 +45,6 @@ class BrowseLayout extends AbstractHelper
             'setting' => $setting,
             'isGrid' => $isGrid,
             'hasToggle' => str_contains($setting, 'toggle'),
-            'gridState' => $isGrid ? 'disabled' : '',
-            'listState' => $isGrid ? '' : 'disabled',
             'bodyTerm' => $view->siteSetting('browse_body_property_term'),
             'truncate' => (string) ($view->themeSetting('truncate_body_property') ?: ''),
         ];

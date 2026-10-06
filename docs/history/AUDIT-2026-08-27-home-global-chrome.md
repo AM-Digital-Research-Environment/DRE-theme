@@ -1,3 +1,5 @@
+> Historical record — Phase 2 baseline against v2.29.0; its findings were implemented in v2.30.1. Kept for rationale. Current contract: [`DESIGN.md`](../../DESIGN.md).
+
 # AMIRA Home and Global Chrome Technical Audit
 
 Date: 2026-08-27  

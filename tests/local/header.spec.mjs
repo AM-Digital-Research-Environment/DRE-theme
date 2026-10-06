@@ -77,8 +77,11 @@ test('complete chrome passes accessibility checks at enlarged text and forced co
 test('shortlist saves, survives reload, clears with undo and exports', async ({page}) => {
     await fixture(page,1280);
     await page.addScriptTag({path:'asset/js/shortlist.js'});
-    await page.getByRole('button',{name:'Save record',exact:true}).click();
-    await page.getByRole('button',{name:'Research shortlist',exact:true}).click();
+    // One name per toggle, with the record's title for context; the count is
+    // part of the shortlist button's name.
+    await page.getByRole('button',{name:'Save record: A record',exact:true}).click();
+    await expect(page.getByRole('button',{name:'Research shortlist 1',exact:true})).toBeVisible();
+    await page.getByRole('button',{name:/^Research shortlist/}).click();
     await expect(page.locator('[data-shortlist-list]')).toContainText('A record');
     for (const format of ['md', 'csv', 'json']) {
         await page.locator('[data-shortlist-format]').selectOption(format);
@@ -87,6 +90,7 @@ test('shortlist saves, survives reload, clears with undo and exports', async ({p
         const file = await download;
         expect(file.suggestedFilename()).toBe(`research-shortlist.${format}`);
         const content = readFileSync(await file.path(), 'utf8');
+        if (format === 'csv') expect(content.charCodeAt(0)).toBe(0xFEFF);
         expect(content).toContain('A record');
         expect(content).toContain('https://theme.test/s/a/item/1');
         if (format === 'json') expect(JSON.parse(content).records).toHaveLength(1);
@@ -97,7 +101,7 @@ test('shortlist saves, survives reload, clears with undo and exports', async ({p
     await expect(page.locator('[data-shortlist-list]')).toContainText('A record');
     await page.reload();
     await page.addScriptTag({path:'asset/js/shortlist.js'});
-    await expect(page.getByRole('button',{name:'Saved',exact:true})).toHaveAttribute('aria-pressed','true');
+    await expect(page.getByRole('button',{name:'Save record: A record',exact:true})).toHaveAttribute('aria-pressed','true');
 });
 
 test('desktop overflow switches to a usable drawer', async ({page}) => {

@@ -41,11 +41,11 @@
             // replacement indicator (see the pattern in _linked-resources.scss,
             // which swaps in `box-shadow: var(--ring-focus)`).
 
-            &:disabled,
-            &[disabled],
-            &.disabled {
-                color: $color__disabled;
+            // The current view: pressed, not disabled, so it keeps focus.
+            &[aria-pressed="true"] {
+                color: var(--ink);
                 text-decoration: none;
+                cursor: default;
             }
         }
 

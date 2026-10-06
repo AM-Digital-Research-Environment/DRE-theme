@@ -86,7 +86,7 @@ body:
     id: severity
     attributes:
       label: Priority
-      description: Apply the definitions in docs/IMPECCABLE-ROADMAP.md, not visual preference alone.
+      description: Apply the definitions in docs/history/IMPECCABLE-ROADMAP.md, not visual preference alone.
       options:
         - P0 — unsafe, inaccessible, or contract-breaking
         - P1 — primary task, keyboard, mobile, or interpretation blocker

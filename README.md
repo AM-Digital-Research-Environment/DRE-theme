@@ -7,11 +7,11 @@
 
 The **Digital Research Environment** theme for the [Africa Multiple Cluster of Excellence](https://www.africamultiple.uni-bayreuth.de/) (University of Bayreuth) — a *“Scholarly Modernism”* design system for the Cluster’s Omeka S archive. Warm and scholarly, built on a modern **OKLCH design-token** foundation with first-class **light and dark modes** and the Cluster’s Uni-Grün brand identity.
 
-> 📐 Product context: **[`PRODUCT.md`](PRODUCT.md)** · portable design system: **[`DESIGN.md`](DESIGN.md)** · cross-module contract: **[`docs/DESIGN-INTEGRATION.md`](docs/DESIGN-INTEGRATION.md)** · Impeccable evaluation programme: **[`docs/IMPECCABLE-ROADMAP.md`](https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/docs/IMPECCABLE-ROADMAP.md)** · design/token audit and breaking-change register: **[`AUDIT.md`](AUDIT.md)**
+> 📐 Product context: **[`PRODUCT.md`](PRODUCT.md)** · portable design system: **[`DESIGN.md`](DESIGN.md)** · cross-module contract: **[`docs/DESIGN-INTEGRATION.md`](docs/DESIGN-INTEGRATION.md)** · Impeccable evaluation programme: **[`docs/history/IMPECCABLE-ROADMAP.md`](https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/docs/history/IMPECCABLE-ROADMAP.md)** · design/token audit and breaking-change register: **[`docs/history/AUDIT.md`](https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/docs/history/AUDIT.md)** · release notes: **[`CHANGELOG.md`](CHANGELOG.md)**
 
 ## Features
 
-- **Research tools** — shareable connection filters and title searches, record contents with section permalinks, and an optional browser-local shortlist with citation details, Undo clear, and Markdown/CSV/JSON exports. See [2.32.0 release notes](docs/RELEASE-2.32.0.md).
+- **Research tools** — shareable connection filters and title searches, record contents with section permalinks, and an optional browser-local shortlist with citation details, Undo clear, and Markdown/CSV/JSON exports. See the [2.32.0 notes in the changelog](CHANGELOG.md#2320---2026-10-05).
 - **Single-seed brand engine** — one Uni-Grün seed (`#009260`) drives every accent, hover, focus ring and tint via `color-mix(in oklab, …)`. Change the **Brand colour** setting and the whole theme re-tints, AA-legible in both modes.
 - **Light & dark modes** — respects the visitor’s system preference, with a manual sun/moon toggle that persists; a synchronous head-script prevents any flash of the wrong theme.
 - **Distinctive typography** — Spectral (display serif) + Hanken Grotesk (body/UI), sourced from Bunny Fonts and **self-hosted by the theme**. No visitor request is made to a font CDN.
@@ -48,7 +48,7 @@ successful CSS intact, and watch mode recovers after the source is corrected.
 | Script | Checks |
 | --- | --- |
 | `npm run lint:tokens` | Raw hex outside the palette, accent side-stripes, gradient text, px font sizes, surviving `$font__h*-size` references, off-grid px page geometry — **and computed WCAG contrast** for every ink/surface pair in both modes |
-| `npm run lint:ini` | `theme.ini` structure, `.info` vs `.options.info`, dead `Zend\…` types, settings declared but never read, helper registration |
+| `npm run lint:ini` | `theme.ini` structure, `.info` vs `.options.info`, dead `Zend\…` types, settings declared but never read, helper registration, one version across `theme.ini`/`package.json`/`package-lock.json`/`CITATION.cff`, and the same Omeka range in `theme.ini` and `composer.json` |
 | `npm run lint:templates` | `<?php`/`?>` and bracket balance, unresolved `partial()` paths, helper call sites whose casing doesn't match `theme.ini` |
 | `npm run lint:groups` | Every property of the live *Research Items* template lands in a named metadata group, and the ones the record design depends on (Author, Abstract, Subject, DOI…) land in the *right* one |
 | `npm run lint:js` | Every maintained `.js`/`.mjs` file parses with the supported Node runtime |
@@ -56,13 +56,21 @@ successful CSS intact, and watch mode recovers after the source is corrected.
 | `npm run test:unit` | JavaScript behavior tests plus CSS compilation, metadata/prefixing, failed-build output preservation and watch-mode recovery |
 | `npm run test:browser` | Actual PHP-rendered fixtures in Chromium, Firefox and WebKit: navigation, keyboard access, no-JS fallback, shortlist exports, record sections and browse layouts |
 | `npm run i18n:check` | `language/template.pot` is up to date (regenerate with `npm run i18n:extract`) |
+| `npm run verify` | What CI's build job runs: `build`, `i18n:check`, `test:unit`, `npm audit --audit-level=high`, then a check that the committed `asset/css/style.css` matches the build |
+| `npm test` | `test:unit`, then `test:browser` |
+
+Run `npm run verify` before pushing. To bump the version, use `npm version <major|minor|patch>`: alongside `package.json` it updates `theme.ini`, `CITATION.cff`, the compiled CSS header and the changelog.
 
 ### PHP verification
 
 `lint:php` uses whatever PHP it can find — a `php` on `PATH` first, then a
 pulled `php:8.3-cli` Docker image. **With neither it prints how to get one and
-exits 0**, so a contributor without PHP is not blocked; CI runs
-`npm run lint:php:require`, which makes the same check a hard gate. That
+exits 0**, so a contributor without PHP is not blocked; CI always has PHP and
+runs `npm run lint:php:require` on 8.1, 8.3 and 8.5, which makes the same check
+a hard gate. Production runs PHP 8.5, so a local PHP of another version will not
+show 8.5-only deprecations: rely on CI's 8.5 job, or run
+`DRE_PHP_RUNNER=docker DRE_PHP_IMAGE=php:8.5-cli npm run lint:php` after
+`docker pull php:8.5-cli`. That
 asymmetry is deliberate and documented — unlike the accidental version this repo
 used to have, where `lint:ini` shelled out to `grep`, silently got nothing on
 Windows, and reported every admin field as dead.
@@ -73,7 +81,7 @@ Getting a PHP, cheapest first:
 winget install PHP.PHP.8.3
 ```
 
-`lint:templates` remains the no-PHP structural net (it catches a truncated file,
+`lint:templates` is the structural net that runs even without PHP (it catches a truncated file,
 heading-contract drift and retired integrations, not a mistyped `::`). It is a
 fallback for `lint:php`, not a substitute.
 
@@ -98,7 +106,7 @@ override—are intentionally absent.
 
 ### Translations
 
-Theme strings are extracted to [`language/template.pot`](language/template.pot):
+Theme strings are extracted to [`language/template.pot`](https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/language/template.pot) (in the repository; the release zip omits it):
 
 ```bash
 npm run i18n:extract
@@ -137,17 +145,17 @@ With the **Progressive Web App** setting enabled (the default), the site becomes
 
 The visual language — palette, typography, layout, depth, shapes, components and guardrails — is documented in the canonical **[`DESIGN.md`](DESIGN.md)** format, with machine-readable tokens in its frontmatter and a renderable Impeccable sidecar at `.impeccable/design.json`. Durable audience, purpose and operating constraints live separately in **[`PRODUCT.md`](PRODUCT.md)**.
 
-The theme’s design tokens are the shared API for **DRE Search** and **DRE Visualizations**. Their mode, JavaScript, fallback, data-colour, stacking and coordinated-release rules live in **[`docs/DESIGN-INTEGRATION.md`](docs/DESIGN-INTEGRATION.md)**. The phased Impeccable 4.1.2 audit, representative live routes and safe browser-local CSS/JavaScript experiment protocol are documented in **[`docs/IMPECCABLE-ROADMAP.md`](https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/docs/IMPECCABLE-ROADMAP.md)**.
+The theme’s design tokens are the shared API for **DRE Search** and **DRE Visualizations**. Their mode, JavaScript, fallback, data-colour, stacking and coordinated-release rules live in **[`docs/DESIGN-INTEGRATION.md`](docs/DESIGN-INTEGRATION.md)**. The phased Impeccable 4.1.2 audit, representative live routes and safe browser-local CSS/JavaScript experiment protocol are documented in **[`docs/history/IMPECCABLE-ROADMAP.md`](https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/docs/history/IMPECCABLE-ROADMAP.md)**.
 
-For design work without a local Omeka database, use the editable, sanitized **[`tests/fixtures/design-system/`](tests/fixtures/design-system/README.md)** catalogue first. The grouped read-only production tests, explicit deployed-version guard, and disposable CSS-injection workflow are documented in **[`docs/TESTING.md`](https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/docs/TESTING.md)**.
+For design work without a local Omeka database, use the editable, sanitized **[`tests/fixtures/design-system/`](https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/tests/fixtures/design-system/README.md)** catalogue first. The grouped read-only production tests, explicit deployed-version guard, and disposable CSS-injection workflow are documented in **[`docs/TESTING.md`](https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/docs/TESTING.md)**.
 
-**Upgrading to v2.22** — the token layer grew beyond colour (type, rhythm and layout families) and a handful of tokens were retired or renamed. Only one rename affects the modules: `--dre-hl-bg` → `--highlight-bg`, shipped with a deprecated compatibility alias and already updated in DRE Search. The full register, with impact and mitigation per change, is in [`AUDIT.md` §4](https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/AUDIT.md).
+**Upgrading to v2.22** — the token layer grew beyond colour (type, rhythm and layout families) and a handful of tokens were retired or renamed. Only one rename affects the modules: `--dre-hl-bg` → `--highlight-bg`, shipped with a deprecated compatibility alias and already updated in DRE Search. The full register, with impact and mitigation per change, is in [`docs/history/AUDIT.md` §4](https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/docs/history/AUDIT.md#4-breaking-change-register-for-dre-search--dre-visualizations).
 
 ## Credits
 
 Theme by Frédérick Madore for the Africa Multiple Cluster of Excellence.
 
-This theme began in 2026 as a fork of the **Lively** theme by the Omeka Team ([omeka-s-themes/lively](https://github.com/omeka-s-themes/lively)), whose GPLv3 licence it keeps, and to whom it owes its starting point. It has since been rebuilt top to bottom — palette and the single-seed colour engine, typography, spacing and layout tokens, every component, both colour schemes, the build pipeline and the test suite — and the last of the inherited stock-theme furniture was retired in v2.22 (see [`AUDIT.md`](https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/AUDIT.md) §B7). It is now developed, versioned and released independently, and is not affiliated with or supported by the Omeka Team.
+This theme began in 2026 as a fork of the **Lively** theme by the Omeka Team ([omeka-s-themes/lively](https://github.com/omeka-s-themes/lively)), whose GPLv3 licence it keeps, and to whom it owes its starting point. It has since been rebuilt top to bottom — palette and the single-seed colour engine, typography, spacing and layout tokens, every component, both colour schemes, the build pipeline and the test suite — and the last of the inherited stock-theme furniture was retired in v2.22 (see [`docs/history/AUDIT.md`](https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/docs/history/AUDIT.md) §B7). It is now developed, versioned and released independently, and is not affiliated with or supported by the Omeka Team.
 
 ## License
 

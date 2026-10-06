@@ -3,6 +3,7 @@
  * Compiled-CSS integrity lint — the artifact checks, not the source checks.
  *
  *   node scripts/check-compiled-css.mjs      (also: npm run lint:css)
+ *   node scripts/check-compiled-css.mjs --root=<dir>   check another theme tree
  *
  * check-design-tokens.mjs reads asset/sass and exempts the compiled CSS by
  * design. That left a blind spot the size of the whole site: a defect can be
@@ -12,8 +13,9 @@
  * It exists because of a real regression (v2.22.0, caught pre-release):
  *
  *   Dart Sass announces a non-ASCII stylesheet with `@charset "UTF-8";` in
- *   expanded output, but with a bare U+FEFF BOM in COMPRESSED output. gulpfile's
- *   prependHeader() only recognised the @charset form, so once v2.21.0 made
+ *   expanded output, but with a bare U+FEFF BOM in COMPRESSED output. The header
+ *   step of the Gulp pipeline then in use (prependHeader(); the build is now
+ *   scripts/build-css.mjs) only recognised the @charset form, so once v2.21.0 made
  *   `compressed` actually take effect and the v2.22.0 redesign put one curly
  *   quote into `blockquote::before`, the BOM stopped being at byte 0 (where the
  *   CSS parser strips it) and landed mid-file, welded to the first selector:
@@ -40,7 +42,9 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-const ROOT = join(import.meta.dirname, '..');
+import { themeRoot } from './files.mjs';
+
+const ROOT = themeRoot();
 const CSS_DIR = join(ROOT, 'asset', 'css');
 
 // Tokens the THEME references but the RUNTIME defines, so they are legitimately

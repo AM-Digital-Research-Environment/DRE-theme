@@ -39,40 +39,32 @@
         @media (min-width: $md) {
             width: 30%;
         }
-
-        &--left {
-            &::after {
-                right: calc(var(--space-8) * -1);
-            }
-        }
-
-        &--right {
-            &::after {
-                left: calc(var(--space-8) * -1);
-            }
-        }
     }
 
+    // Three regions need more room before they sit side by side. These tie the
+    // base rules above on specificity and win on source order, so they need no
+    // !important (Omeka core's page-blocks / resource-page-blocks CSS does not
+    // style the regions).
     &--all {
-        flex-direction: column !important;
+        flex-direction: column;
 
         @media (min-width: $xl) {
-            flex-direction: row !important;
+            flex-direction: row;
         }
 
         .main-region {
-            order: -1 !important;
+            order: -1;
 
             @media (min-width: $xl) {
-                order: initial !important;
+                order: initial;
             }
         }
 
         .sidebar-region {
-            width: 100% !important;
+            width: 100%;
 
             @media (min-width: $xl) {
-                width: 20% !important;
+                width: 20%;
             }
         }
     }

@@ -2,7 +2,8 @@
 $translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
 
-$this->inlineScript()->appendFile($this->assetUrl('js/masonry.pkgd.min.js'));
+// browse.js fetches Masonry itself, and only where the engine cannot lay the
+// grid out natively (display: grid-lanes).
 $this->inlineScript()->appendFile($this->assetUrl('js/browse.js'));
 
 // See helper/BrowseLayout.php — resolves grid/list, the ?view= override, and
@@ -47,9 +48,9 @@ $showBody = in_array('resource-body', $this->components);
                 'isGrid' => $isGrid,
                 'showHeading' => $showHeading,
                 'showTags' => $showHeading,
-                // The block's own resourceType ("items"/"item_sets"/"media") is
-                // the plural API name; let the partial derive the class from the
-                // resource so it matches every other browse surface.
+                // The block's resourceType is a controller name ("item"), not
+                // the card's type class; let the partial derive the class from
+                // the resource so it matches every other browse surface.
                 'typeClass' => null,
             ]));
         endforeach; ?>

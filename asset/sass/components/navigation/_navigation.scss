@@ -132,10 +132,6 @@
 
         li {
             margin-bottom: 0;
-
-            &::before {
-                content: none !important;
-            }
         }
 
         > li { //main menu items
@@ -370,8 +366,6 @@
             // three content columns beside the rail.
             .nav-panel__cell {
                 margin: 0;
-
-                &::before { content: none !important; }
 
                 > a {
                     display: block;

@@ -137,6 +137,7 @@
   --border-light:          #eae8e3;
   --border:                #dbd7d1;
   --border-strong:         #bfbab3;
+  --field-border:          #8b857f;
   --link:                  #006440;
   --link-hover:            #005536;
   --focus-color:           #007a50;
@@ -224,6 +225,7 @@
     --border-light:          #1e2622;
     --border:                #2c3531;
     --border-strong:         #49534e;
+    --field-border:          #66726c;
     --link:                  #74b794;
     --link-hover:            #85c0a0;
     --focus-color:           #4da67b;
@@ -313,6 +315,7 @@
   --border-light:          #1e2622;
   --border:                #2c3531;
   --border-strong:         #49534e;
+  --field-border:          #66726c;
   --link:                  #74b794;
   --link-hover:            #85c0a0;
   --focus-color:           #4da67b;
@@ -398,6 +401,7 @@
   --border-light:          #eae8e3;
   --border:                #dbd7d1;
   --border-strong:         #bfbab3;
+  --field-border:          #8b857f;
   --link:                  #006440;
   --link-hover:            #005536;
   --focus-color:           #007a50;

@@ -127,21 +127,11 @@ const dreScripts = () => {
     function onResize() {
         refreshScrollPadding();
         onScroll(lastKnownScrollPosition);
-
-
     }
 
     onResize();
 
-    const debounce = (window.DREUtils && window.DREUtils.debounce)
-        || ((fn, wait) => {
-            let t = null;
-            return (...args) => {
-                clearTimeout(t);
-                t = setTimeout(() => fn(...args), wait);
-            };
-        });
-    window.addEventListener('resize', debounce(onResize, RESIZE_DELAY));
+    window.addEventListener('resize', window.DREUtils.debounce(onResize, RESIZE_DELAY));
 
     // Enhance only successfully initialized core search disclosures.
     let searchToggle = null;
@@ -207,45 +197,8 @@ const dreScripts = () => {
             }
         });
     });
-
-    // Tooltips
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' || e.key === 'Esc') {
-            document
-                .querySelectorAll('.tooltip.is-visible')
-                .forEach(el => el.classList.remove('is-visible'));
-        }
-    });
-
-    document.querySelectorAll('.tooltip').forEach(tooltip => {
-        const button = tooltip.querySelector('.tooltip-button');
-
-        if (!button) {
-            return;
-        }
-
-        button.addEventListener('mouseenter', () =>
-            tooltip.classList.add('is-visible')
-        );
-        button.addEventListener('focus', () =>
-            tooltip.classList.add('is-visible')
-        );
-
-        button.addEventListener('mouseleave', () =>
-            tooltip.classList.remove('is-visible')
-        );
-        button.addEventListener('blur', () =>
-            tooltip.classList.remove('is-visible')
-        );
-    });
 }
 
-if (window.DREUtils && typeof window.DREUtils.onReady === 'function') {
-    window.DREUtils.onReady(dreScripts);
-} else if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', dreScripts, { once: true });
-} else {
-    dreScripts();
-}
+window.DREUtils.onReady(dreScripts);
 
 })();

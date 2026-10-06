@@ -23,6 +23,13 @@
     &[hidden] { display: none; }
     &[aria-pressed="true"] { background: var(--surface-sunken); border-color: var(--primary); }
 }
+// "Save record" keeps one name and reports saving through aria-pressed. The
+// check carries the state visually, including in forced colors, where the
+// border and fill difference above is flattened. Alt text "" keeps it silent.
+.shortlist-save[aria-pressed="true"]::before {
+    content: "✓\00a0";
+    content: "✓\00a0" / "";
+}
 .shortlist-open:not([hidden]) {
     display: inline-flex;
     align-items: center;

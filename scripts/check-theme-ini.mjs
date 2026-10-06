@@ -4,6 +4,7 @@
  * check-design-tokens.mjs.
  *
  *   node scripts/check-theme-ini.mjs        (also: npm run lint:ini)
+ *   node scripts/check-theme-ini.mjs --root=<dir>   check another theme tree
  *
  * Every check here encodes a bug that actually shipped in this theme:
  *
@@ -37,13 +38,20 @@
  *                     — package-lock.json sat at 2.23.1 through six releases,
  *                     and a citation naming a version the theme never shipped
  *                     is worse than one naming none.
+ *   8. Omeka range  — composer.json `require["omeka/omeka-s"]` must equal
+ *                     theme.ini `omeka_version_constraint`. Omeka enforces the
+ *                     INI; Packagist and Dependabot read composer.json. Two
+ *                     ranges for one fact is how an install that Omeka refuses
+ *                     gets advertised as supported.
  *
  * Exit code 1 on any finding; prints the offending line where it has one.
  */
-import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
-const ROOT = join(import.meta.dirname, '..');
+import { themeRoot, walkFiles } from './files.mjs';
+
+const ROOT = themeRoot();
 const INI = join(ROOT, 'config', 'theme.ini');
 
 const findings = [];
@@ -118,16 +126,8 @@ text.split(/\r?\n/).forEach((raw, i) => {
 // without grep — Windows/cmd.exe, i.e. `npm run build` — and an empty result
 // means "no element is read anywhere", so the check reported EVERY field as
 // dead. A lint that fails open on one OS and closed on another is worse than no
-// lint; this walks the tree itself.
-function* filesUnder(dir, exts) {
-    if (!existsSync(dir)) return;
-    for (const name of readdirSync(dir)) {
-        const p = join(dir, name);
-        if (statSync(p).isDirectory()) yield* filesUnder(p, exts);
-        else if (exts.some((e) => name.endsWith(e))) yield p;
-    }
-}
-
+// lint; this walks the tree itself (scripts/files.mjs).
+//
 // Allow whitespace inside the parens: themeSetting( 'x' ) is used too.
 //
 // The character class MUST match the one the element scan uses above
@@ -139,7 +139,7 @@ function* filesUnder(dir, exts) {
 const readNames = new Set();
 const readSites = []; // { name, fallback|null, file }
 for (const dir of ['view', 'helper']) {
-    for (const file of filesUnder(join(ROOT, dir), ['.phtml', '.php'])) {
+    for (const file of walkFiles(join(ROOT, dir), /\.(?:phtml|php)$/)) {
         const src = readFileSync(file, 'utf8');
         for (const m of src.matchAll(/themeSetting\(\s*['"]([A-Za-z0-9_]+)['"]\s*(?:,\s*([^),]*?)\s*)?\)/g)) {
             readNames.add(m[1]);
@@ -252,6 +252,28 @@ if (!iniVersion) {
                 add(null, `${file} says version ${v} but config/theme.ini says ${iniVersion}`);
             }
         }
+    }
+}
+
+// --- 8. One Omeka range, two manifests ------------------------------------
+//
+// Compared as literal strings, not as semver ranges: "^4.2.1" and ">=4.2.1
+// <5" admit the same releases but would still be two spellings to keep in
+// step by hand.
+const iniConstraint = text.match(/^omeka_version_constraint\s*=\s*"([^"]+)"/m)?.[1];
+const composerPath = join(ROOT, 'composer.json');
+if (!iniConstraint) {
+    add(null, 'config/theme.ini declares no [info] omeka_version_constraint');
+} else if (!existsSync(composerPath)) {
+    add(null, `composer.json is missing — theme.ini omeka_version_constraint ${iniConstraint} has nothing to agree with`);
+} else {
+    const composerConstraint = JSON.parse(readFileSync(composerPath, 'utf8')).require?.['omeka/omeka-s'];
+    if (composerConstraint !== iniConstraint) {
+        add(
+            null,
+            `composer.json requires omeka/omeka-s ${composerConstraint ?? '(nothing)'} but config/theme.ini ` +
+                `omeka_version_constraint is ${iniConstraint} — keep the two identical`
+        );
     }
 }
 

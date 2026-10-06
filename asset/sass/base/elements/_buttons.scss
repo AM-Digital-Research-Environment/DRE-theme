@@ -62,7 +62,7 @@ a.btn--secondary {
 
 // Modifier utilities — usable on any `.button` / `<button>` (and a few links).
 // Kept as their OWN selectors, NOT nested under the primary rule above, so a
-// bare control that only wants the secondary / link / icon look gets it without
+// bare control that only wants the secondary / icon look gets it without
 // inheriting the filled-primary base.
 //
 // They're element-qualified (`button.x`, `input.x`) as well as plain (`.x`) so
@@ -75,40 +75,6 @@ a.btn--secondary {
 button.btn--secondary,
 input.btn--secondary {
     @include secondary-button;
-}
-
-.link-style,
-button.link-style,
-input.link-style {
-    background-color: transparent !important;
-    color: $color__link;
-    padding-left: 0;
-    padding-right: 0;
-    text-transform: none;
-    text-decoration: underline;
-}
-
-.icon-btn,
-button.icon-btn {
-    padding: 0;
-    border: 0;                               // drop the native button bevel (see _navigation.scss toggle note)
-    background-color: transparent !important;
-    color: $color__buttons;
-    cursor: pointer;                         // bare <button> defaults to the arrow (see toggle note)
-    font-size: 1.7rem;
-    line-height: 1;
-
-    &:hover,
-    &:active,
-    &:focus {
-        color: $color__secondary;
-    }
-
-    &:disabled,
-    &[disabled],
-    &.disabled {
-        color: $color__disabled;
-    }
 }
 
 // Advanced-search add / remove-value controls. These carry `.button`, so the

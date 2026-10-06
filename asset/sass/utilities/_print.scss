@@ -66,6 +66,8 @@
     // Chrome off. Navigation, theme toggle, search, footer band, pagination,
     // drawer, back-to-top, admin bar — interaction has no meaning on paper.
     // ----------------------------------------------------------------------
+    // The masthead's entry links and catalogue column are navigation (they
+    // replaced the old CTA row and stats strip this list used to name).
     .main-header,
     .main-footer,
     .menu-drawer,
@@ -75,13 +77,10 @@
     #skipnav,
     #user-bar,
     .site-banner__art,
-    .site-banner__cta,
-    .site-banner__cta-row,
+    .site-banner__links,
     .site-banner__search,
-    .site-banner__search-note,
-    .site-banner__stats,
+    .site-banner__column,
     .site-banner__flag,
-    .item-record__rail,
     .dre-search-block,
     .block-mirador {
         display: none !important;
@@ -99,7 +98,23 @@
 
     // The banner keeps its title (site context on interior pages, the <h1>
     // at home) but flattens to a plain rule under the type.
+    //
+    // Its colours are role tokens, and the brand-presence treatments set those
+    // on <body> — bold (the default) at (0,1,1), bold + dark at (0,2,1) — where
+    // the light palette re-applied above cannot reach them. Under bold the
+    // title, eyebrow and lede stayed cream (98% L) while the plate was removed:
+    // cream on white paper. Declared on the banner itself, these win over any
+    // inherited value whatever the treatment or mode, and resolve against the
+    // light inks.
     .site-banner {
+        --masthead-bg: transparent;
+        --masthead-sunken: transparent;
+        --masthead-ink: var(--ink-strong);
+        --masthead-ink-soft: var(--ink-light);
+        --masthead-rule: var(--border-strong);
+        --masthead-hair: var(--border-strong);
+        --numeral: var(--ink-strong);
+
         background: none !important;
         border-bottom: 1px solid var(--border-strong);
         margin-bottom: var(--space-6);
@@ -112,13 +127,50 @@
 
     // Cards flatten to hairline-ruled entries; masonry's absolute positioning
     // cannot paginate, so the grid falls back to flow.
-    .resource-grid {
-        opacity: 1;
+    .resource-grid .resource {
+        position: static;
+        box-shadow: none;
+    }
 
-        .resource {
-            position: static;
-            box-shadow: none;
-        }
+    // Entrance motion starts from opacity 0: reveal-on-scroll hides cards until
+    // they scroll into view, and the home headline staggers in. Paper shows the
+    // settled state, never a frame of the animation.
+    [data-reveal],
+    .site-banner--home .site-banner__headline > * {
+        opacity: 1;
+        transform: none;
+        animation: none;
+    }
+
+    // ----------------------------------------------------------------------
+    // The record apparatus — citation, DOI, licence, permalink — is the part
+    // of a record a reader most needs on paper, so the rail prints, linearised
+    // after the record at full width. Only its controls go: the citation-style
+    // tabs (the default style is the visible panel), copy and download actions.
+    // ----------------------------------------------------------------------
+    .item-record {
+        display: block;
+    }
+
+    .item-record__rail {
+        position: static;
+        display: block;
+        margin-top: var(--space-8);
+    }
+
+    .record-apparatus {
+        break-inside: avoid;           // a short panel: keep it on one page
+        padding: var(--space-4) 0 0;
+        background: none;
+        border: 0;
+        border-top: 1px solid var(--border-strong);
+        border-radius: 0;
+    }
+
+    .record-apparatus__styles,
+    .record-apparatus__actions,
+    .record-apparatus__downloads {
+        display: none;
     }
 
     // ----------------------------------------------------------------------
@@ -132,6 +184,11 @@
         font-size: 0.8em;
         color: var(--ink-light);
         word-break: break-all;
+    }
+
+    // A formatted citation already spells its DOI / URL out as the link text.
+    #content .record-apparatus__citation a::after {
+        content: none;
     }
 
     #content a {

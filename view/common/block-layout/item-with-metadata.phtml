@@ -12,7 +12,9 @@ $decoration = $this->themeSetting('image_decoration');
 
             $primaryMedia = $item->primaryMedia();
 
-            $options = [];
+            // The block's own h3 heads each item; the values render without the
+            // record page's contents nav, h2 sections and copy buttons.
+            $options = ['recordChrome' => false];
             if ($this->siteSetting('exclude_resources_not_in_site')) {
                 $options['siteId'] = $this->currentSite()->id();
             }

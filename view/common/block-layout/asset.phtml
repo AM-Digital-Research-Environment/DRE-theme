@@ -1,25 +1,29 @@
 <?php
 $escHtml = $this->plugin('escapeHtml');
-$escUrl = $this->plugin('escapeUrl');
+$escAttr = $this->plugin('escapeHtmlAttr');
 $decoration = $this->themeSetting('image_decoration');
 ?>
 
 <div class="assets">
     <?php foreach ($attachments as $attachment): ?>
         <?php
+        // Core sets 'asset' to null when the asset was deleted; the page link
+        // and caption still render, as in core's own template.
         $asset = $attachment['asset'];
-        $altText = $asset->altText() ?: $attachment['caption'] ?: '';
-
-        if (!$altText) {
-          $altText = pathinfo($asset->name(), PATHINFO_FILENAME);
-          $altText = ucwords(str_replace(['-', '_'], ' ', $altText));
+        $assetImage = '';
+        if ($asset) {
+            $altText = $asset->altText() ?: $attachment['caption'] ?: '';
+            if (!$altText) {
+                $altText = pathinfo($asset->name(), PATHINFO_FILENAME);
+                $altText = ucwords(str_replace(['-', '_'], ' ', $altText));
+            }
+            $assetImage = $this->thumbnail($asset, 'large', ['alt' => $altText]);
         }
         ?>
         <div class="asset">
-            <?php $assetImage = ($asset) ? $this->thumbnail($asset, 'large', ['alt' => $altText]) : ''; ?>
             <?php $page = (array_key_exists('page', $attachment)) ? $attachment['page'] : null; ?>
             <?php if ($page): ?>
-                <a href="<?php echo $escUrl($page->siteUrl()); ?>">
+                <a href="<?php echo $escAttr($page->siteUrl()); ?>">
                     <div class="<?php echo is_array($decoration) && in_array('asset', $decoration) ? 'decoration' : ''; ?>">
                         <?php echo $assetImage; ?>
                     </div>
