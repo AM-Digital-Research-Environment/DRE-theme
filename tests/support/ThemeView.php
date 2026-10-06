@@ -40,8 +40,8 @@ class ThemeTestView
     }
     public function getHelperPluginManager(): self { return $this; }
     public function has(string $name): bool { return isset($this->callbacks[$name]); }
-    public function inlineScript(): self { return $this; }
-    public function headScript(): self { return $this; }
+    public function inlineScript(): object { return $this; }
+    public function headScript(): object { return $this; }
     public function appendFile(string $file): self { $this->assets[] = $file; return $this; }
     public function assetUrl(string $file): string { return '/themes/dre/asset/' . $file; }
     public function params(): self { return $this; }

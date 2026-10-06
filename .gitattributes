@@ -37,6 +37,7 @@
 /playwright.config.mjs  export-ignore
 /playwright.local.config.mjs export-ignore
 /playwright.visual.config.mjs export-ignore
+/phpstan.neon           export-ignore
 /scripts/               export-ignore
 /asset/sass/            export-ignore
 

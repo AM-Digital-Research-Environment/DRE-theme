@@ -164,6 +164,7 @@ jobs:
           php-version: '8.5'
           coverage: none
           extensions: mbstring, pdo_mysql, pdo_sqlite, xml
+          tools: phpstan:2.3.0
 
       - name: Validate Composer metadata
         run: composer validate --strict --no-check-publish
@@ -188,6 +189,13 @@ jobs:
           OMEKA_PATH: ${{ env.OMEKA_ROOT }}
           OMEKA_REPORT_DEPRECATED: '1'
         run: php -d error_reporting=E_ALL -d display_errors=1 tests/OmekaCompatibilityTest.php
+
+      # Theme helpers against the real Omeka S and Laminas classes, for PHP
+      # 8.1 through 8.5 (phpstan.neon). Templates are covered by rendering tests.
+      - name: Static analysis of view helpers (PHPStan)
+        env:
+          OMEKA_PATH: ${{ env.OMEKA_ROOT }}
+        run: phpstan analyse --no-progress --error-format=github --memory-limit=1G
 
       - name: Relationship queries against real Omeka entities
         env:

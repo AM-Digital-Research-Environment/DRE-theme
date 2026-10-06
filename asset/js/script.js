@@ -1,7 +1,7 @@
 /**
  * script.js — assorted layout chrome: sticky-header auto-hide, anchor
- * scroll-padding, annotation tooltips, the collapsible header search, and the
- * generic tooltip component.
+ * scroll-padding, the collapsible core header search, and the checkbox-label
+ * order in Omeka forms. Relies on window.DREUtils (utils.js).
  *
  * NOTE: this file used to also position a `.main-banner` image wrapper. That
  * banner component no longer exists — the masthead is the CSS-drawn
