@@ -142,7 +142,10 @@ test('in-page links never refetch connections; a new connection page still does'
     // The skip link is revealed on focus, as a keyboard user meets it.
     await page.getByRole('link', {name: 'Skip to main content'}).focus();
     await page.keyboard.press('Enter');
-    await page.getByRole('link', {name: 'Jump to the description', exact: true}).click();
+    // Keyboard-activated like the skip link: a mouse click on this link did not
+    // navigate in one of two WebKit CI runs.
+    await page.getByRole('link', {name: 'Jump to the description', exact: true}).focus();
+    await page.keyboard.press('Enter');
     await expect(page).toHaveURL(/#record-42-description$/);
     await page.goBack();
     await page.waitForTimeout(150);
