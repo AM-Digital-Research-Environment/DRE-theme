@@ -26,9 +26,10 @@ function panelMarkup({ styles = ['curated', 'chicago', 'apa'], active = 'curated
                 ${styles.length > 1 ? `<div role="tablist">${tabs}</div>` : ''}
                 ${panels}
             </div>
-            <div class="record-apparatus__actions" data-record-copy hidden>
-                <button type="button" class="record-apparatus__copy"
+            <div class="record-apparatus__actions">
+                <button type="button" class="record-apparatus__copy" data-record-copy hidden
                     data-copy-text="Fallback text." data-copied-label="Copied">Copy citation</button>
+                <button type="button" class="shortlist-save shortlist-save--rail" hidden data-shortlist-save>Save record</button>
             </div>
         </section>
     </body></html>`;
@@ -104,6 +105,8 @@ test('copying takes the citation the reader is looking at', async () => {
     const button = dom.window.document.querySelector('.record-apparatus__copy');
     assert.equal(dom.window.document.querySelector('[data-record-copy]').hidden, false,
         'the copy control is revealed where the clipboard API exists');
+    assert.equal(dom.window.document.querySelector('[data-shortlist-save]').hidden, true,
+        'record.js reveals only its own action; Save waits for shortlist.js');
 
     button.click();
     assert.deepEqual(writes, ['Citation in curated style.']);

@@ -169,7 +169,7 @@ msgstr ""
 msgid "Continue to %s."
 msgstr ""
 
-#: view/common/record-apparatus.phtml:90
+#: view/common/record-apparatus.phtml:92
 msgid "Copied"
 msgstr ""
 
@@ -222,7 +222,7 @@ msgstr ""
 msgid "DOI"
 msgstr ""
 
-#: view/common/record-apparatus.phtml:97
+#: view/common/record-apparatus.phtml:100
 msgid "Download"
 msgstr ""
 
@@ -594,11 +594,11 @@ msgstr ""
 msgid "Rights & access"
 msgstr ""
 
-#: view/common/shortlist-button.phtml:6
+#: view/common/shortlist-button.phtml:11
 msgid "Save record"
 msgstr ""
 
-#: view/common/shortlist-button.phtml:5
+#: view/common/shortlist-button.phtml:10
 msgid "Save record: %s"
 msgstr ""
 

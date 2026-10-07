@@ -36,14 +36,20 @@ $rightSidebarHasBlocks = $rightSidebarBlockContent->hasBlocks();
 // The apparatus renders nothing when the record carries no citation, DOI,
 // licence, access rights or identifier — capture it so an empty one does not
 // leave an empty rail behind.
-$apparatus = trim((string) $this->partial('common/record-apparatus', ['resource' => $item]));
+//
+// "Save record" is a record action, so it sits in the apparatus beside "Copy
+// link", where the sticky rail keeps it in view. Below $lg the rail drops under
+// the whole record, so a second copy under the title serves those widths; CSS
+// shows one or the other. Without an apparatus it stays under the title.
+$saveInRail = (string) $this->partial('common/shortlist-button', ['resource' => $item, 'detail' => true, 'placement' => 'rail']);
+$apparatus = trim((string) $this->partial('common/record-apparatus', ['resource' => $item, 'saveButton' => $saveInRail]));
 $hasRail = ($apparatus !== '') || $rightSidebarHasBlocks;
 ?>
 
 <?php echo $this->ResourceTags($item); ?>
 <?php echo $this->pageTitle($item->displayTitle(null, $valueLang), 1); ?>
 
-<?php echo $this->partial('common/shortlist-button', ['resource' => $item, 'detail' => true]); ?>
+<?php echo $this->partial('common/shortlist-button', ['resource' => $item, 'detail' => true, 'placement' => $apparatus !== '' ? 'narrow' : null]); ?>
 
 <?php $this->trigger('view.show.before'); ?>
 

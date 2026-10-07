@@ -82,14 +82,17 @@ $this->inlineScript()->appendFile($this->assetUrl('js/record.js'));
         </dl>
     <?php endif; ?>
 
-    <?php // Progressive enhancement: record.js reveals this only where the
-          // async clipboard API is available, so it is never a dead control. ?>
-    <div class="record-apparatus__actions" data-record-copy hidden>
-        <button type="button" class="button btn--secondary record-apparatus__copy"
+    <?php // Progressive enhancement: each action is revealed by its own script
+          // only where it can work — record.js where the async clipboard API
+          // exists, shortlist.js once it can read the shortlist — so neither is
+          // ever a dead control. $saveButton comes from item/show.phtml. ?>
+    <div class="record-apparatus__actions">
+        <button type="button" class="button btn--secondary record-apparatus__copy" data-record-copy hidden
             data-copy-text="<?php echo $escAttr($copyText); ?>"
             data-copied-label="<?php echo $escAttr($translate('Copied')); ?>">
             <?php echo $escHtml($copyLabel); ?>
         </button>
+        <?php echo $saveButton ?? ''; ?>
     </div>
 
     <?php if ($citeDownloads): ?>

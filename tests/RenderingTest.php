@@ -39,6 +39,17 @@ $view->callbacks['dreCitation'] = fn() => ['styles' => ['apa' => ['label' => 'AP
 $html = $view->render('common/record-apparatus', ['resource' => $resource]);
 dre_check($failures, $checks, 'authority uses honest labels', str_contains($html, 'This record') && str_contains($html, 'Copy link'));
 dre_check($failures, $checks, 'one style has no tablist or dangling tab reference', !str_contains($html, 'role="tab') && !str_contains($html, 'aria-labelledby="record-cite-1-tab-'));
+// "Save record" joins "Copy link" in the apparatus's one action row.
+$save = $view->render('common/shortlist-button', ['resource' => $resource, 'detail' => true, 'placement' => 'rail']);
+$doc = new DOMDocument(); @$doc->loadHTML($view->render('common/record-apparatus', ['resource' => $resource, 'saveButton' => $save]));
+$actions = (new DOMXPath($doc))->query('//div[@class="record-apparatus__actions"]/button');
+dre_check($failures, $checks, 'the apparatus action row holds Copy link and the rail Save button',
+    $actions->length === 2 && str_contains($actions->item(0)->getAttribute('class'), 'record-apparatus__copy')
+    && $actions->item(1)->getAttribute('class') === 'shortlist-save shortlist-save--rail');
+dre_check($failures, $checks, 'each apparatus action starts hidden for its own script to reveal',
+    $actions->item(0)->hasAttribute('hidden') && $actions->item(1)->hasAttribute('hidden'));
+dre_check($failures, $checks, 'an unknown Save placement adds no modifier class',
+    str_contains($view->render('common/shortlist-button', ['resource' => $resource, 'placement' => 'x" onclick="y']), 'class="shortlist-save" hidden'));
 $view->callbacks['dreCitation'] = function () { throw new RuntimeException('module unavailable'); };
 dre_check($failures, $checks, 'module failures retain curated citation', str_contains($view->render('common/record-apparatus', ['resource' => $resource]), '&lt;script&gt;citation'));
 

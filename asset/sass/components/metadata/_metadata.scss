@@ -435,14 +435,60 @@
     }
 }
 
+// "Copy link" and "Save record" share one row at equal widths, wrapping to two
+// rows if a translation runs long. Each is revealed by its own script only where
+// it can work; with neither revealed the row collapses instead of leaving a gap.
 .record-apparatus__actions {
     display: flex;
+    flex-wrap: wrap;
     gap: var(--space-2);
     margin-top: var(--space-4);
+
+    > * {
+        flex: 1 1 8rem;
+    }
+
+    &:not(:has(> :not([hidden]))) {
+        display: none;
+    }
 }
 
-.record-apparatus__copy {
-    flex: 1;
+// The rail's Save: the same secondary button as "Copy link" beside it, keeping
+// the shortlist's pressed state (and its check mark, components/research).
+.record-apparatus__actions .shortlist-save {
+    @include secondary-button;
+    margin: 0;
+    min-height: var(--size-control-lg);
+
+    &[aria-pressed="true"] {
+        background-color: var(--primary-muted);
+        border-color: var(--primary);
+    }
+}
+
+// The button mixin's display (0,1,1 on `button.btn--secondary`, 0,2,0 above)
+// outranks normalize's `[hidden]`; restate it for the not-yet-revealed actions.
+.record-apparatus .record-apparatus__actions > [hidden] {
+    display: none;
+}
+
+// One Save per layout. From $lg the rail sits beside the record (sticky), so
+// Save lives there; below it the rail drops under the whole record, and the
+// copy under the title takes over (view/omeka/site/item/show.phtml).
+.shortlist-save--narrow {
+    @media (min-width: $lg) {
+        display: none;
+    }
+}
+
+@media (max-width: #{$lg - 1px}) {
+    .record-apparatus .record-apparatus__actions > .shortlist-save--rail {
+        display: none;
+    }
+
+    .record-apparatus__actions:not(:has(> :not([hidden], .shortlist-save--rail))) {
+        display: none;
+    }
 }
 
 // --------------------------------------------------------------------------

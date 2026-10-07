@@ -13,6 +13,16 @@ to create.
 
 <!-- Summarise user-visible changes here (Added / Changed / Fixed / Removed / Security). -->
 
+### Changed
+
+- **"Save record" moves into the record box:** on item pages it now sits
+  beside "Copy link" in the "This record" box, styled as the same secondary
+  button. The sticky rail keeps it in view while reading. Below the `$lg`
+  breakpoint the box drops under the whole record, so the button under the
+  title takes over at those widths. Only one of the two shows at any width,
+  and both stay in sync. Media pages, and items without the box, keep the
+  button under the title.
+
 ## [2.33.2] - 2026-10-07
 
 ### Fixed

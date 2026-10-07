@@ -1,5 +1,10 @@
-<?php if (!($this->themeSetting('research_shortlist') ?? true)) return; ?>
-<button type="button" class="shortlist-save" hidden data-shortlist-save<?php echo !empty($detail) ? ' data-shortlist-detail' : ''; ?>
+<?php if (!($this->themeSetting('research_shortlist') ?? true)) return;
+// $placement (optional): 'rail' inside the record apparatus, 'narrow' under the
+// record title where the apparatus also carries one. Each shows at the widths
+// the other does not (components/metadata).
+$placement = isset($placement) && in_array($placement, ['rail', 'narrow'], true) ? $placement : null;
+?>
+<button type="button" class="shortlist-save<?php echo $placement ? ' shortlist-save--' . $placement : ''; ?>" hidden data-shortlist-save<?php echo !empty($detail) ? ' data-shortlist-detail' : ''; ?>
     data-url="<?php echo $this->escapeHtmlAttr($resource->url(null, true)); ?>"
     data-title="<?php echo $this->escapeHtmlAttr($resource->displayTitle()); ?>"
     aria-label="<?php echo $this->escapeHtmlAttr(sprintf($this->translate('Save record: %s'), $resource->displayTitle())); ?>"
