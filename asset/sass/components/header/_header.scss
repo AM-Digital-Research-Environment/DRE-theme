@@ -162,9 +162,24 @@
     }
 }
 
-// Hide the usable baseline only after the drawer has initialized successfully.
-.main-header.nav-ready[data-nav="drawer"] .main-header__nav-row { display: none; }
-.main-header:not(.nav-ready) {
+// The plain, fully expanded menu list is the fallback for a page WITHOUT a
+// working navigation script: no JavaScript at all (`html` lacks `.js`), or
+// navigation.js failed to initialise, which the header's inline script marks
+// with `.nav-failed` at window load.
+//
+// It must not show while a working script is merely still on its way. v2.32
+// gated it on `:not(.nav-ready)` alone, so every page painted the whole menu
+// tree open and snapped it shut at DOMContentLoaded — a visible flash, longest
+// on heavy record pages. With JS the inline classifier sets data-nav before
+// first paint, so the real inline row (panels closed, CSS :hover still opens
+// them) or the drawer toggle paints from the start.
+.main-header.nav-ready[data-nav="drawer"] .main-header__nav-row,
+html.js .main-header[data-nav="drawer"]:not(.nav-failed) .main-header__nav-row { display: none; }
+// …and should the browser paint between the nav markup and that classifier,
+// it paints no row at all rather than one that may then snap to the drawer.
+html.js .main-header:not([data-nav]) .main-header__nav-row { visibility: hidden; }
+html:not(.js) .main-header:not(.nav-ready),
+.main-header.nav-failed:not(.nav-ready) {
     position: relative;
     .main-navigation__toggle { display: none; }
     .main-navigation .navigation, .main-navigation .navigation ul {

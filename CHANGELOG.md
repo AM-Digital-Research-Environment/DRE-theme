@@ -13,6 +13,40 @@ to create.
 
 <!-- Summarise user-visible changes here (Added / Changed / Fixed / Removed / Security). -->
 
+### Fixed
+
+- **Menu flash on page load:** since v2.32 every page painted the whole menu
+  tree expanded (and hid the hamburger) until `navigation.js` initialised at
+  DOMContentLoaded, then snapped it shut. That was most visible on heavy record
+  pages. The expanded list is now the fallback only without JavaScript, or
+  when `navigation.js` has still not initialised by window load (`.nav-failed`,
+  set by the header's inline script). With JS the closed inline row or the
+  drawer toggle paints from the start.
+- **Value annotations open on load:** with the site's annotation setting on
+  "expanded", v2.33 opened every annotation popover on load, over the record.
+  Popovers now always start closed. Core itself never expands them, because it
+  casts the setting to a boolean.
+- **Value annotation layout:** core renders an annotation's values through
+  `common/value-annotation-resource-values`, which fell through to the grouped
+  record template. Each popover got section headings, a "Copy section link"
+  button and the label rail, which squeezed values into a column one letter
+  wide. A theme override now renders a flat label-over-value list, with linked
+  records as title links and no thumbnail.
+
+### Changed
+
+- **Full text last:** `bibo:content`, the extracted full text of open-access
+  publications (often 100–200 KB), moves from "Description" to its own "Full
+  text" group. That group renders after every metadata group, "Further
+  details" included, so the metadata is no longer buried below the text.
+
+### Removed
+
+- **Record contents and section links:** the "On this record" contents nav,
+  the "Copy section link" buttons, the self-linking group headings and
+  `asset/js/section-links.js` (all added in v2.32). A record is now just its
+  grouped fields. Sections keep their `id`s, so fragment links still resolve.
+
 ## [2.33.1] - 2026-10-06
 
 ### Development

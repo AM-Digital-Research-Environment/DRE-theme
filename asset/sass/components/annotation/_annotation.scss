@@ -104,50 +104,57 @@
         color: var(--ink-light);
     }
 
-    // The annotation's own property list (rendered by displayValues()). Stacked
-    // label-over-value rather than the old floated 70px column, so long values
-    // get the popover's full width and wrap instead of overflowing.
-    .annotation-tooltip {
-        dl {
+    // The annotation's own property list, from
+    // common/value-annotation-resource-values.phtml: label over value, so long
+    // values get the popover's full width and wrap instead of overflowing.
+    //
+    // Every box and type property is pinned here. The popover sits inside the
+    // record's own <dd>, and the record's row, prose and chip rules are
+    // descendant selectors (`.record__group--rows .record__list > .property dd`
+    // is 0,3,1), so anything left unset here would be inherited from whichever
+    // group the annotated value belongs to: a serif 20px prose dd, an
+    // inline-flex chip, a grid-column from the label rail.
+    .annotation-tooltip .annotation-values {
+        margin: 0;
+
+        > .property {
+            display: block;
             margin: 0;
+            padding: 0;
+            border: 0;
+
+            &:not(:last-child) {
+                margin-bottom: var(--space-3);
+            }
         }
 
-        .property:not(:last-child) {
-            margin-bottom: var(--space-3);
-        }
-
-        dt {
+        > .property > dt {
+            display: block;
             float: none;
             width: auto;
             margin: 0 0 var(--space-1);
             padding: 0;
+            font-family: $font__body;
             font-size: var(--text-xs);
             font-weight: 600;
+            letter-spacing: normal;
+            text-transform: none;
             line-height: var(--leading-snug);
             color: var(--ink-light);
         }
 
-        dd {
+        > .property > dd {
+            display: block;
             margin: 0;
+            padding: 0;
+            font-family: $font__body;
+            font-size: var(--text-sm);
+            line-height: var(--line-height-normal);
             color: var(--ink);
             overflow-wrap: anywhere;
-            word-break: break-word;
 
             & + dd {
                 margin-top: var(--space-1);
-            }
-
-            a {
-                word-break: break-word;
-            }
-
-            &.resource.media img {
-                display: block;
-                width: auto;
-                max-width: 100%;
-                height: auto;
-                margin-top: var(--space-1);
-                border-radius: var(--radius-md);
             }
         }
     }

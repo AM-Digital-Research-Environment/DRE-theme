@@ -11,7 +11,7 @@ async function fixture(page, width = 1280, mode = 'light') {
         document.documentElement.dataset.theme = mode;
         document.body.dataset.theme = mode;
     }, mode);
-    for (const name of ['navigation', 'script', 'section-links', 'shortlist']) {
+    for (const name of ['navigation', 'script', 'shortlist']) {
         await page.addScriptTag({path: `asset/js/${name}.js`});
     }
     await page.evaluate(() => document.fonts.ready);
@@ -22,11 +22,10 @@ for (const [width, mode] of [[320, 'light'], [390, 'dark'], [1280, 'light'], [12
         await fixture(page, width, mode);
         await page.emulateMedia({reducedMotion: 'reduce'});
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
-        const contents = page.getByRole('navigation', {name: 'Record contents'});
-        await expect(contents.getByRole('link')).toHaveCount(3);
-        await contents.getByRole('link', {name: 'Description', exact: true}).click();
-        await expect(page).toHaveURL(/#record-42-description$/);
-        await expect(page.getByRole('button', {name: 'Copy section link'}).first()).toBeVisible();
+        // The record is just its grouped fields: no contents nav, no copy buttons.
+        await expect(page.getByRole('navigation', {name: 'Record contents'})).toHaveCount(0);
+        await expect(page.getByRole('button', {name: 'Copy section link'})).toHaveCount(0);
+        await expect(page.getByRole('heading', {level: 2, name: 'Description', exact: true})).toBeVisible();
         await page.evaluate(() => scrollTo(0, 0));
         if (info.project.name === 'chromium') await page.screenshot({path: info.outputPath('research.png'), fullPage: true});
         await page.locator('main > [data-shortlist-save]').click();
@@ -126,6 +125,7 @@ test('in-page links never refetch connections; a new connection page still does'
         return route.fulfill({contentType: 'text/html', body: '<details class="resources-linked" open><summary><span class="resources-linked__summary">Second page</span></summary><ul data-lr-list></ul></details>'});
     });
     await page.evaluate(() => document.querySelector('main').insertAdjacentHTML('beforeend', `
+        <a href="#record-42-description">Jump to the description</a>
         <div data-connection-endpoint="/index/linked-resources/42" data-loading="Loading" data-failed="Failed">
         <p data-connection-status role="status"></p>
         <div data-connection-recovery hidden><button type="button" data-connection-retry>Retry</button><a data-connection-continue href="#">Full page</a></div>
@@ -142,7 +142,8 @@ test('in-page links never refetch connections; a new connection page still does'
     // The skip link is revealed on focus, as a keyboard user meets it.
     await page.getByRole('link', {name: 'Skip to main content'}).focus();
     await page.keyboard.press('Enter');
-    await page.getByRole('navigation', {name: 'Record contents'}).getByRole('link', {name: 'Description', exact: true}).click();
+    await page.getByRole('link', {name: 'Jump to the description', exact: true}).click();
+    await expect(page).toHaveURL(/#record-42-description$/);
     await page.goBack();
     await page.waitForTimeout(150);
     expect(requests).toBe(0);

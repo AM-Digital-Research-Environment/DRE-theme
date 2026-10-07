@@ -109,12 +109,13 @@ $view->themeSettings['research_shortlist'] = 0;
 dre_check($failures, $checks, 'a disabled shortlist renders no header control',
     !str_contains($view->render('common/header', ['site' => new ThemeNavSite(), 'userBar' => '']), 'data-shortlist-open'));
 
-// --- Resource values: annotation modes and embedded (chrome-free) output ---
+// --- Resource values: annotation modes and heading levels ------------------
 $property = new class { public function label() { return 'Description'; } };
 $annotated = fn($text, $note) => new class($text, $note) {
     public function __construct(private string $text, private ?object $note) {}
     public function lang() { return ''; } public function type() { return 'literal'; }
     public function valueAnnotation() { return $this->note; } public function isPublic() { return true; }
+    public function valueResource() { return null; }
     public function asHtml(...$args) { return htmlspecialchars($this->text, ENT_QUOTES); }
 };
 $note = new class { public function displayValues() { return '<p>Editorial note</p>'; } };
@@ -128,20 +129,46 @@ $html = $view->render('common/resource-values', ['resource' => $resource, 'value
 dre_check($failures, $checks, 'value annotations show by default, as in core', str_contains($html, 'Editorial note'));
 dre_check($failures, $checks, 'collapsed annotations start closed', !str_contains($html, '<details class="annotation-btn" open'));
 $view->settings['show_value_annotations'] = 'expanded';
-dre_check($failures, $checks, '"expanded" opens the annotation disclosure',
-    str_contains($view->render('common/resource-values', ['resource' => $resource, 'values' => $values]), '<details class="annotation-btn" open'));
+$expanded = $view->render('common/resource-values', ['resource' => $resource, 'values' => $values]);
+dre_check($failures, $checks, '"expanded" still shows annotations, but the popover starts closed',
+    str_contains($expanded, 'Editorial note') && !str_contains($expanded, '<details class="annotation-btn" open'));
 $view->settings['show_value_annotations'] = '';
 dre_check($failures, $checks, 'the empty option hides value annotations',
     !str_contains($view->render('common/resource-values', ['resource' => $resource, 'values' => $values]), 'Editorial note'));
-dre_check($failures, $checks, 'a record page keeps its contents nav, h2 sections and copy buttons',
-    str_contains($html, 'Record contents') && str_contains($html, '<h2 class="record__group-title">') && str_contains($html, 'data-section-copy'));
-$view->assets = [];
-$embedded = $view->render('common/resource-values', ['resource' => $resource, 'values' => $values, 'recordChrome' => false]);
-dre_check($failures, $checks, 'embedded values drop the record chrome and use h4 group titles',
-    !str_contains($embedded, 'Record contents') && !str_contains($embedded, '<h2') && !str_contains($embedded, 'data-section-copy')
-    && str_contains($embedded, '<h4 class="record__group-title">'));
-dre_check($failures, $checks, 'embedded values do not load the section-link script',
+dre_check($failures, $checks, 'a record page renders just its grouped fields under h2 titles',
+    str_contains($html, '<h2 class="record__group-title">Description</h2>')
+    && !str_contains($html, 'Record contents') && !str_contains($html, 'On this record')
+    && !str_contains($html, 'data-section-copy') && !str_contains($html, 'Copy section link')
+    && !str_contains($html, 'record-section-link'));
+dre_check($failures, $checks, 'a record page loads no section-link script',
     !array_filter($view->assets, fn($asset) => str_contains($asset, 'section-links')));
+$embedded = $view->render('common/resource-values', ['resource' => $resource, 'values' => $values, 'recordChrome' => false]);
+dre_check($failures, $checks, 'embedded values use h4 group titles',
+    !str_contains($embedded, '<h2') && str_contains($embedded, '<h4 class="record__group-title">'));
+
+// --- Value-annotation popover body: one flat list, no record apparatus -----
+$linked = new class extends ThemeTestResource {
+    public function displayTitle($default = null, $lang = null): string { return 'Rhodes University'; }
+};
+$annotationValues = [
+    'dcterms:isPartOf' => ['property' => new class { public function label() { return 'Is Part Of'; } }, 'alternate_label' => '', 'values' => [
+        new class($linked) {
+            public function __construct(private object $linked) {}
+            public function lang() { return ''; } public function valueResource() { return $this->linked; }
+            public function asHtml(...$args) { return '<img src="/thumb.jpg"><span>pretty</span>'; }
+        },
+        $annotated('International Library of African Music', null),
+    ]],
+];
+$view = new ThemeTestView();
+$popover = $view->render('common/value-annotation-resource-values', ['values' => $annotationValues]);
+dre_check($failures, $checks, 'an annotation renders a flat label-over-value list',
+    str_contains($popover, '<dl class="annotation-values">') && str_contains($popover, '<dt>Is Part Of</dt>')
+    && str_contains($popover, 'International Library of African Music'), $popover);
+dre_check($failures, $checks, 'an annotation carries no group headings, record list or section chrome',
+    !preg_match('/<h[1-6]|record__group|record__list|section-copy|record-contents/', $popover), $popover);
+dre_check($failures, $checks, 'a linked record in an annotation is its title link, without a thumbnail',
+    str_contains($popover, '>Rhodes University</a>') && !str_contains($popover, '<img'), $popover);
 
 // --- Shortlist button: one stable name that carries the record's title ----
 $view = new ThemeTestView();

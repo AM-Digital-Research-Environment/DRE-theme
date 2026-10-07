@@ -166,6 +166,12 @@ $pwaEnabled = isset($pwaEnabled) ? (bool) $pwaEnabled : false;
 
 		window.__dreClassifyNav = classify;
 		classify();
+
+		// navigation.js adds .nav-ready at DOMContentLoaded. Still missing at
+		// load means it failed: fall back to the expanded list (_header.scss).
+		window.addEventListener('load', function () {
+			if (!header.classList.contains('nav-ready')) header.classList.add('nav-failed');
+		});
 	})();
 	</script>
 

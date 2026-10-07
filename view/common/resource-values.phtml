@@ -1,10 +1,9 @@
 <?php
 // Group metadata without changing Omeka value/annotation rendering contracts.
 //
-// $recordChrome (a displayValues() option, default true) is the record page's
-// apparatus: the "On this record" contents, h2 section headings with anchor
-// links and copy buttons. Blocks that embed a record's values under their own
-// heading (item-with-metadata) pass false: plain h4 group titles, no chrome.
+// $recordChrome (a displayValues() option, default true) sets the heading
+// level: h2 group titles on a record page. Blocks that embed a record's values
+// under their own heading (item-with-metadata) pass false for h4 titles.
 
 $translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
@@ -17,18 +16,18 @@ if ($this->status()->isSiteRequest()) {
     $filterLocale = $this->siteSetting('filter_locale_values');
     $lang = $this->lang();
     // Core's select: '' hides, 'collapsed' / 'expanded' show. Unset means
-    // shown, as in core's own resource-values template.
+    // shown, as in core's own resource-values template. Both modes start
+    // closed: the annotation is a floating popover, and an open one would sit
+    // over the record on load (core casts the setting to bool, so it never
+    // expands either).
     $annotationMode = $this->siteSetting('show_value_annotations');
-    $annotationMode = null === $annotationMode ? 'collapsed' : (string) $annotationMode;
-    $showValueAnnotations = '' !== $annotationMode;
-    $expandAnnotations = 'expanded' === $annotationMode;
+    $showValueAnnotations = null === $annotationMode || '' !== (string) $annotationMode;
 } else {
     $labelInfo = $this->setting('property_label_information');
     $showLocale = true;
     $filterLocale = false;
     $lang = null;
     $showValueAnnotations = true;
-    $expandAnnotations = false;
 }
 $recordChrome = $recordChrome ?? true;
 $filterLocaleCallback = function ($value) use ($lang) {
@@ -47,17 +46,9 @@ foreach ($this->ResourceGroups($values) as $group) {
     }
     if ($rendered) $groups[] = $group + ['rendered' => $rendered, 'id' => $prefix . '-' . $group['key']];
 }
-if ($recordChrome) {
-    $this->inlineScript()->appendFile($this->assetUrl('js/section-links.js'));
-}
+$headingTag = $recordChrome ? 'h2' : 'h4';
 ?>
 <div class="record">
-<?php if ($recordChrome && count($groups) > 1): ?>
-<nav class="record-contents" aria-label="<?php echo $escapeAttr($translate('Record contents')); ?>">
-    <span><?php echo $translate('On this record'); ?></span>
-    <ul><?php foreach ($groups as $group): ?><li><a href="#<?php echo $escapeAttr($group['id']); ?>"><?php echo $escape($group['title']); ?></a></li><?php endforeach; ?></ul>
-</nav>
-<?php endif; ?>
 <?php foreach ($groups as $group):
     $rendered = $group['rendered'];
     // In the prose and chip groups the section heading already names the
@@ -67,14 +58,7 @@ if ($recordChrome) {
     $hideLabels = in_array($group['layout'], ['prose', 'chips'], true) && count($rendered) === 1;
     ?>
     <section id="<?php echo $escapeAttr($group['id']); ?>" class="record__group record__group--<?php echo $escapeAttr($group['layout']); ?>" data-group="<?php echo $escapeAttr($group['key']); ?>">
-        <?php if ($recordChrome): ?>
-        <h2 class="record__group-title"><a class="record-section-link" href="#<?php echo $escapeAttr($group['id']); ?>"><?php echo $escape($group['title']); ?></a></h2>
-        <button type="button" class="section-copy" hidden data-section-copy="<?php echo $escapeAttr($group['id']); ?>"
-            data-copied="<?php echo $escapeAttr($translate('Copied')); ?>"
-            data-failed="<?php echo $escapeAttr($translate('Copy failed. Use the section heading link.')); ?>"><?php echo $translate('Copy section link'); ?></button>
-        <?php else: ?>
-        <h4 class="record__group-title"><?php echo $escape($group['title']); ?></h4>
-        <?php endif; ?>
+        <<?php echo $headingTag; ?> class="record__group-title"><?php echo $escape($group['title']); ?></<?php echo $headingTag; ?>>
 
         <dl class="record__list">
         <?php foreach ($rendered as $term => [$propertyData, $propertyValues]):
@@ -132,7 +116,7 @@ if ($recordChrome) {
                             <span class="o-icon-private" role="img" title="<?php echo $this->escapeHtmlAttr($translate('Private')); ?>" aria-label="<?php echo $this->escapeHtmlAttr($translate('Private')); ?>"></span>
                         <?php endif; ?>
                         <?php if ($valueAnnotation && $showValueAnnotations) : ?>
-                            <?php echo $this->partial('common/value-annotation', ['valueAnnotation' => $valueAnnotation, 'expanded' => $expandAnnotations]); ?>
+                            <?php echo $this->partial('common/value-annotation', ['valueAnnotation' => $valueAnnotation]); ?>
                         <?php endif; ?>
                         <?php $this->trigger('view.show.value', ['value' => $value]); ?>
                     </dd>

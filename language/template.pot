@@ -36,7 +36,7 @@ msgstr ""
 msgid "0 results"
 msgstr ""
 
-#: helper/ResourceGroups.php:59
+#: helper/ResourceGroups.php:61
 msgid "Abstract"
 msgstr ""
 
@@ -170,7 +170,6 @@ msgid "Continue to %s."
 msgstr ""
 
 #: view/common/record-apparatus.phtml:90
-#: view/common/resource-values.phtml:73
 msgid "Copied"
 msgstr ""
 
@@ -178,16 +177,8 @@ msgstr ""
 msgid "Copy citation"
 msgstr ""
 
-#: view/common/resource-values.phtml:74
-msgid "Copy failed. Use the section heading link."
-msgstr ""
-
 #: helper/RecordApparatus.php:89
 msgid "Copy link"
-msgstr ""
-
-#: view/common/resource-values.phtml:74
-msgid "Copy section link"
 msgstr ""
 
 #: view/common/numeric-timestamp.phtml:19
@@ -198,7 +189,7 @@ msgstr ""
 msgid "Days"
 msgstr ""
 
-#: helper/ResourceGroups.php:65
+#: helper/ResourceGroups.php:67
 msgid "Description"
 msgstr ""
 
@@ -276,7 +267,11 @@ msgstr ""
 msgid "Filter this page by relationship"
 msgstr ""
 
-#: helper/ResourceGroups.php:148
+#: helper/ResourceGroups.php:150
+msgid "Full text"
+msgstr ""
+
+#: helper/ResourceGroups.php:160
 msgid "Further details"
 msgstr ""
 
@@ -296,7 +291,7 @@ msgstr ""
 msgid "Hours"
 msgstr ""
 
-#: helper/ResourceGroups.php:132
+#: helper/ResourceGroups.php:134
 msgid "Identifiers & sources"
 msgstr ""
 
@@ -451,10 +446,6 @@ msgstr ""
 msgid "Offset"
 msgstr ""
 
-#: view/common/resource-values.phtml:57
-msgid "On this record"
-msgstr ""
-
 #: view/common/resource-page-block-layout/mirador.phtml:22
 msgid "Open media record"
 msgstr ""
@@ -472,7 +463,7 @@ msgstr ""
 msgid "Organisations"
 msgstr ""
 
-#: helper/ResourceGroups.php:96
+#: helper/ResourceGroups.php:98
 msgid "Origins & context"
 msgstr ""
 
@@ -505,7 +496,7 @@ msgstr ""
 msgid "People"
 msgstr ""
 
-#: helper/ResourceGroups.php:81
+#: helper/ResourceGroups.php:83
 msgid "People & roles"
 msgstr ""
 
@@ -538,7 +529,7 @@ msgstr ""
 msgid "Primary navigation"
 msgstr ""
 
-#: view/common/resource-values.phtml:132
+#: view/common/resource-values.phtml:116
 msgid "Private"
 msgstr ""
 
@@ -578,10 +569,6 @@ msgstr ""
 msgid "Read the metadata at a glance."
 msgstr ""
 
-#: view/common/resource-values.phtml:56
-msgid "Record contents"
-msgstr ""
-
 #: view/common/linked-resources.phtml:128
 msgid "Relationship"
 msgstr ""
@@ -603,7 +590,7 @@ msgstr ""
 msgid "Research shortlist"
 msgstr ""
 
-#: helper/ResourceGroups.php:121
+#: helper/ResourceGroups.php:123
 msgid "Rights & access"
 msgstr ""
 
@@ -694,7 +681,7 @@ msgstr ""
 msgid "Sources, media & datasets"
 msgstr ""
 
-#: helper/ResourceGroups.php:71
+#: helper/ResourceGroups.php:73
 msgid "Subjects"
 msgstr ""
 

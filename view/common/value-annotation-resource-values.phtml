@@ -1,0 +1,42 @@
+<?php
+// The body of a value-annotation popover (common/value-annotation.phtml).
+//
+// Core's ValueAnnotationRepresentation::displayValues() renders this partial,
+// and core's own copy just includes common/resource-values. In this theme that
+// is the grouped record — section headings, the label rail, thumbnails — which
+// in a 22rem popover squeezed values to a letter-wide column. An annotation is
+// a handful of properties: one flat label-over-value list.
+
+$translate = $this->plugin('translate');
+$escape = $this->plugin('escapeHtml');
+$escapeAttr = $this->plugin('escapeHtmlAttr');
+
+$lang = null;
+if ($this->status()->isSiteRequest() && $this->siteSetting('filter_locale_values')) {
+    $lang = $this->lang();
+}
+?>
+<dl class="annotation-values">
+<?php foreach ($values as $term => $propertyData):
+    $propertyValues = $propertyData['values'];
+    if (null !== $lang) {
+        $propertyValues = array_filter($propertyValues, fn($value) => $value->lang() == '' || strcasecmp($value->lang(), $lang) === 0);
+    }
+    if (!$propertyValues) continue;
+    $label = $propertyData['alternate_label'] ?: $translate($propertyData['property']->label());
+    ?>
+    <div class="property <?php echo $escapeAttr(str_replace(':', '-', $term)); ?>">
+        <dt><?php echo $escape($label); ?></dt>
+        <?php foreach ($propertyValues as $value):
+            $valueResource = $value->valueResource(); ?>
+        <dd lang="<?php echo $escapeAttr($value->lang()); ?>"><span class="annotation-values__value"><?php
+            // A linked record as its title alone: core's linkPretty() would add
+            // a thumbnail the popover has no room for.
+            echo $valueResource
+                ? $valueResource->link($valueResource->displayTitle(null, $lang))
+                : (null !== $lang ? $value->asHtml($lang) : $value->asHtml());
+        ?></span></dd>
+        <?php endforeach; ?>
+    </div>
+<?php endforeach; ?>
+</dl>

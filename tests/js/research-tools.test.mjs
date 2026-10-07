@@ -63,13 +63,6 @@ test('shortlist validates stored URLs, escapes titles and keeps working when sto
     w.document.querySelector('[data-shortlist-undo]').click();assert.equal(w.document.querySelectorAll('[data-shortlist-list] li').length,2);
     w.close();
 });
-test('section copy keeps shareable query state and uses the stable section anchor',async()=>{
-    const d=dom('<button hidden data-section-copy="record-1-people" data-copied="Copied">Copy</button>'),w=d.window;
-    let copied;Object.defineProperty(w.navigator,'clipboard',{value:{writeText:async text=>{copied=text;}}});
-    w.eval(source('utils.js'));w.eval(source('section-links.js'));const button=w.document.querySelector('button');assert.equal(button.hidden,false);button.click();await tick();
-    assert.equal(copied,'https://example.test/item/1?view=list#record-1-people');assert.equal(button.textContent,'Copied');w.close();
-});
-
 test('history restores legacy connection filters and a new search resets legacy pagination', async () => {
     const d = connectionFixture(), w = d.window, requests = [];
     w.history.replaceState(null, '', '?view=list&resource_property=media%3A7-0%2C234&page=4');
@@ -213,22 +206,6 @@ test('re-applying the shown connection filters adds no history entry', async () 
     w.document.querySelector('form').dispatchEvent(new w.Event('submit', {bubbles: true, cancelable: true}));
     await tick(); await tick();
     assert.equal(w.history.length, entries);
-    w.close();
-});
-
-test('a second copy inside the feedback window restores the original label', async () => {
-    const d = dom('<button hidden data-section-copy="record-1-people" data-copied="Copied" data-failed="Failed">Copy section link</button>'), w = d.window;
-    Object.defineProperty(w.navigator, 'clipboard', {value: {writeText: async () => {}}});
-    const timers = [];
-    w.setTimeout = (callback, delay) => { timers.push({callback, delay}); return timers.length; };
-    w.clearTimeout = () => {};
-    w.eval(source('utils.js'));w.eval(source('section-links.js'));
-    const button = w.document.querySelector('button');
-    button.click(); await tick();
-    button.click(); await tick();
-    assert.equal(button.textContent, 'Copied');
-    timers.filter(timer => timer.delay === 3000).forEach(timer => timer.callback());
-    assert.equal(button.textContent, 'Copy section link');
     w.close();
 });
 

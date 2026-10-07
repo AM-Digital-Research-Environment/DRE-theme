@@ -467,6 +467,8 @@
             }
         }
 
+        // A late init still wins over the header's load-time failure fallback.
+        navHeader.classList.remove('nav-failed');
         navHeader.classList.add('nav-ready');
         refreshNavMode();
 

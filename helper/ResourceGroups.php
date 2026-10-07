@@ -16,10 +16,12 @@ use Laminas\View\Helper\AbstractHelper;
  *
  *      Abstract · Description · Subjects · People & roles
  *          · Origins & context · Rights & access · Identifiers & sources
- *          · Further details
+ *          · Further details · Full text
  *
  * Intellectual content first at a reading measure; administrative identifiers
- * last. Each group carries a LAYOUT hint the template renders against — prose
+ * after it; the full text (`bibo:content`), which can run to 200 KB, trails
+ * everything so it never pushes the metadata below the fold. Each group
+ * carries a LAYOUT hint the template renders against — prose
  * for the abstract, chips for subjects, label/value rows for the rest.
  *
  * NOTHING IS EVER DROPPED. Any term not in the map below falls through to
@@ -64,7 +66,7 @@ class ResourceGroups extends AbstractHelper
             'key' => 'description',
             'title' => 'Description', // @translate
             'layout' => self::LAYOUT_PROSE,
-            'terms' => ['dcterms:description', 'dcterms:tableOfContents', 'bibo:content'],
+            'terms' => ['dcterms:description', 'dcterms:tableOfContents'],
         ],
         [
             'key' => 'subjects',
@@ -140,6 +142,16 @@ class ResourceGroups extends AbstractHelper
                 'dre:bitstream', 'dre:mongoId',
             ],
         ],
+        [
+            // The extracted text of an open-access publication: often 100–200 KB.
+            // Anywhere earlier it buries every metadata field under it, so it
+            // TRAILS — rendered after "Further details", last on the record.
+            'key' => 'fulltext',
+            'title' => 'Full text', // @translate
+            'layout' => self::LAYOUT_PROSE,
+            'trailing' => true,
+            'terms' => ['bibo:content'],
+        ],
     ];
 
     /** Group that catches every term the map does not name. */
@@ -183,6 +195,7 @@ class ResourceGroups extends AbstractHelper
         }
 
         $out = [];
+        $trailing = [];
         foreach (self::GROUPS as $i => $group) {
             if (empty($buckets[$i])) {
                 continue;
@@ -202,12 +215,17 @@ class ResourceGroups extends AbstractHelper
                     $ordered[$term] = $propertyData;
                 }
             }
-            $out[] = [
+            $entry = [
                 'key' => $group['key'],
                 'title' => $translate($group['title']),
                 'layout' => $group['layout'],
                 'values' => $ordered,
             ];
+            if (empty($group['trailing'])) {
+                $out[] = $entry;
+            } else {
+                $trailing[] = $entry;
+            }
         }
 
         if ($fallback) {
@@ -219,7 +237,7 @@ class ResourceGroups extends AbstractHelper
             ];
         }
 
-        return $out;
+        return array_merge($out, $trailing);
     }
 
     /** Index of the first group claiming this term's vocabulary prefix, or null. */

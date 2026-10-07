@@ -68,6 +68,7 @@ $mustLandIn = [
     'dcterms:license' => 'rights',
     'dre:id' => 'identifiers',
     'fabio:hasURL' => 'identifiers',
+    'bibo:content' => 'fulltext',
 ];
 foreach ($mustLandIn as $term => $expected) {
     $actual = ResourceGroups::groupKeyFor($term);
@@ -133,6 +134,18 @@ check(
     'the unknown term is kept, in the "Further details" bucket',
     ($keys[count($keys) - 1] ?? null) === 'other'
         && isset($result[count($result) - 1]['values']['acme:unknown'])
+);
+
+// The full text can run to 200 KB: it must trail every metadata group,
+// "Further details" included, or it buries them.
+$withText = $values + ['bibo:content' => ['property' => null, 'alternate_label' => null, 'values' => ['x']],
+    'dcterms:description' => ['property' => null, 'alternate_label' => null, 'values' => ['x']]];
+$textKeys = array_column($helper($withText), 'key');
+check(
+    'the full text trails every metadata group, after "Further details"',
+    end($textKeys) === 'fulltext' && $textKeys[count($textKeys) - 2] === 'other'
+        && array_search('description', $textKeys, true) < array_search('subjects', $textKeys, true),
+    'group order was: ' . implode(' → ', $textKeys)
 );
 
 $people = null;

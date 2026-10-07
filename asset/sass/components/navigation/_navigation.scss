@@ -1,7 +1,8 @@
 @use "../../abstracts" as *;
 
-// The rendered list remains the baseline until .nav-ready enables the drawer.
-// data-nav then selects inline or drawer mode at every viewport width.
+// data-nav (set before first paint by the inline script in common/header.phtml)
+// selects inline or drawer mode at every viewport width. The expanded no-JS
+// list is the fallback only without a working script (components/header).
 .main-navigation {
     // Tier 2: the nav is the sole child of .main-header__nav-row and carries the
     // `.container` class, so it centres to the page width. The desktop/mobile
@@ -23,7 +24,7 @@
     // While the script is in charge (data-nav present) the menu never wraps:
     // the drawer takes over before a second row can paint. Without JS the
     // attribute is absent and the wrap below remains the graceful fallback.
-    .main-header.nav-ready[data-nav] & .navigation {
+    .main-header[data-nav]:not(.nav-failed) & .navigation {
         flex-wrap: nowrap;
     }
 

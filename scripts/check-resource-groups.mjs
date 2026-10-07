@@ -56,7 +56,7 @@ for (const m of php.matchAll(groupRe)) {
 }
 
 // Self-check the extraction before trusting it.
-const EXPECTED_KEYS = ['abstract', 'description', 'subjects', 'people', 'origins', 'rights', 'identifiers'];
+const EXPECTED_KEYS = ['abstract', 'description', 'subjects', 'people', 'origins', 'rights', 'identifiers', 'fulltext'];
 const foundKeys = groups.map((g) => g.key);
 for (const key of EXPECTED_KEYS) {
   if (!foundKeys.includes(key)) {
@@ -121,6 +121,7 @@ const MUST_LAND_IN = {
   'dcterms:isPartOf': 'origins',
   'dcterms:spatial': 'origins',
   'dcterms:language': 'origins',
+  'bibo:content': 'fulltext',     // the extracted full text — trails the metadata, never inside it
 };
 for (const [term, expected] of Object.entries(MUST_LAND_IN)) {
   const actual = groupKeyFor(term);

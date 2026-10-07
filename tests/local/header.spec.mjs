@@ -21,6 +21,26 @@ for (const width of [320, 390]) {
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
     });
 }
+// A real page sets html.js before the header. Between first paint and
+// navigation.js's DOMContentLoaded init the menu must already be closed:
+// v2.32 painted the whole tree expanded there, then snapped it shut.
+const jsHtml = html.replace('<html lang="en">', '<html lang="en" class="js">');
+for (const width of [390, 1280]) {
+    test(`with JavaScript the menu paints closed before navigation.js runs at ${width}`, async ({page}) => {
+        await page.setViewportSize({width, height:850});
+        await routeFixture(page, jsHtml);
+        await page.goto('https://theme.test/');
+        const nested = page.locator('.main-navigation').getByRole('link', {name:'Project archive', exact:true});
+        // No navigation.js at all: by window load the header falls back to the expanded list.
+        await expect(page.locator('.main-header')).toHaveClass(/nav-failed/);
+        await expect(nested).toBeVisible();
+        // The window before init, when the script is merely still coming.
+        await page.evaluate(() => document.querySelector('.main-header').classList.remove('nav-failed'));
+        await expect(nested).toBeHidden();
+        if (width < 1200) await expect(page.locator('.main-navigation__toggle')).toBeVisible();
+        else await expect(page.locator('.main-navigation').getByRole('link', {name:'Research', exact:true})).toBeVisible();
+    });
+}
 test('navigation remains usable with all JavaScript disabled', async ({browser}) => {
     const context = await browser.newContext({javaScriptEnabled:false, viewport:{width:390,height:850}});
     const page = await context.newPage();
