@@ -13,6 +13,8 @@ to create.
 
 <!-- Summarise user-visible changes here (Added / Changed / Fixed / Removed / Security). -->
 
+## [2.33.4] - 2026-10-07
+
 ### Removed
 
 - **WissKI URL:** `dre:wisskiUrl` is no longer placed under "Identifiers &
@@ -388,7 +390,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.33.3...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.33.4...HEAD
+[2.33.4]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.33.3...v2.33.4
 [2.33.3]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.33.2...v2.33.3
 [2.33.2]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.33.1...v2.33.2
 [2.33.1]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.33.0...v2.33.1
