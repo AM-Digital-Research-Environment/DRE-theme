@@ -4,7 +4,7 @@
   "template": {
     "id": 10,
     "label": "Research Items",
-    "propertyCount": 99,
+    "propertyCount": 98,
     "properties": [
       {
         "term": "dcterms:title",
@@ -391,10 +391,6 @@
         "label": "RDSpace Handle"
       },
       {
-        "term": "dre:wisskiUrl",
-        "label": "WissKI URL"
-      },
-      {
         "term": "dre:mongoId",
         "label": "MongoDB ID"
       },
@@ -426,8 +422,7 @@
       "dcterms:identifier",
       "bibo:doi",
       "dcterms:format",
-      "fabio:hasURL",
-      "dre:wisskiUrl"
+      "fabio:hasURL"
     ]
   }
 }

@@ -12,7 +12,7 @@
  * rather than a careful reading.
  *
  * This asserts the map against tests/fixtures/research-items-template.json —
- * the real property list of the live "Research Items" template (99 properties)
+ * the real property list of the live "Research Items" template (98 properties)
  * and the terms on a real record. It is deliberately a NODE check, not a PHP
  * one: it has to run in the same `npm run lint` chain as everything else, even on a
  * machine with no PHP binary. `npm run lint:php` and CI cover the PHP side.
@@ -114,7 +114,6 @@ const MUST_LAND_IN = {
   'dcterms:accessRights': 'rights',
   'dre:id': 'identifiers',        // administrative, and therefore last
   'dcterms:identifier': 'identifiers',
-  'dre:wisskiUrl': 'identifiers',
   'fabio:hasURL': 'identifiers',
   'dcterms:format': 'rights',
   'frapo:isFundedBy': 'origins',  // "Funded by" in the redesign mockup

@@ -13,6 +13,14 @@ to create.
 
 <!-- Summarise user-visible changes here (Added / Changed / Fixed / Removed / Security). -->
 
+### Removed
+
+- **WissKI URL:** `dre:wisskiUrl` is no longer placed under "Identifiers &
+  sources". WissKI was retired on 2026-10-07, and the property is being cleared
+  from every AMIRA item and from the Persons and Research Items templates. Until
+  that cleanup reaches a record, its leftover WissKI URL renders under "Further
+  details". The template fixture drops the property to match (98 properties).
+
 ## [2.33.3] - 2026-10-07
 
 ### Changed

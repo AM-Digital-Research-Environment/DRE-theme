@@ -40,8 +40,8 @@ use Laminas\View\Helper\AbstractHelper;
  * placement can still override the sweep.
  *
  * The map is keyed on the vocabularies the DRE actually uses, verified against
- * resource template 10 ("Research Items", 99 properties: marcrel 54, dcterms 32,
- * dre 6, fabio 4, bibo 2, frapo 1) and the publication templates.
+ * resource template 10 ("Research Items", 98 properties: marcrel 54, dcterms 32,
+ * dre 5, fabio 4, bibo 2, frapo 1) and the publication templates.
  */
 class ResourceGroups extends AbstractHelper
 {
@@ -138,7 +138,7 @@ class ResourceGroups extends AbstractHelper
                 'bibo:issn', 'bibo:isbn', 'bibo:isbn10', 'bibo:isbn13',
                 'bibo:uri', 'fabio:hasURL', 'dcterms:source',
                 'dcterms:bibliographicCitation', 'dcterms:references',
-                'dre:wisskiUrl', 'dre:collectionUrl', 'dre:rdspaceHandle',
+                'dre:collectionUrl', 'dre:rdspaceHandle',
                 'dre:bitstream', 'dre:mongoId',
             ],
         ],
