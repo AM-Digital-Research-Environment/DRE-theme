@@ -13,6 +13,8 @@ to create.
 
 <!-- Summarise user-visible changes here (Added / Changed / Fixed / Removed / Security). -->
 
+## [2.33.3] - 2026-10-07
+
 ### Changed
 
 - **"Save record" moves into the record box:** on item pages it now sits
@@ -378,7 +380,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.33.2...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.33.3...HEAD
+[2.33.3]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.33.2...v2.33.3
 [2.33.2]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.33.1...v2.33.2
 [2.33.1]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.33.0...v2.33.1
 [2.33.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.32.0...v2.33.0
