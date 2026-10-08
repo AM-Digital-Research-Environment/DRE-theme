@@ -46,6 +46,7 @@
 /tests/                 export-ignore
 /.github/               export-ignore
 /.editorconfig          export-ignore
+/.nvmrc                 export-ignore
 
 # --- Working documents ----------------------------------------------------
 # Published on GitHub and linked from the README by absolute URL, so removing
@@ -55,6 +56,7 @@
 # they describe the theme an admin has installed.
 /docs/history/          export-ignore
 /docs/TESTING.md        export-ignore
+/CONTRIBUTING.md        export-ignore
 /.impeccable/           export-ignore
 
 # --- Repository metadata --------------------------------------------------

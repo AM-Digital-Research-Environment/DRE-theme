@@ -376,8 +376,9 @@ The sticky header uses the paper or forest surface, a 3px Uni-Grün top flag,
 the Africa Multiple lockup, federated search, utility controls, and a measured
 inline-or-drawer navigation. Menu labels never wrap. The drawer is a right-side
 panel on larger narrow windows and becomes full-width only on small screens.
-The light/dark toggle is a labelled `aria-pressed` button and updates both root
-theme attributes before dependent charts repaint.
+The light/dark toggle is a button whose label names the action ("Switch to
+light mode") and carries no `aria-pressed`, which would contradict that label.
+It updates both root theme attributes before dependent charts repaint.
 
 ### Masthead
 
@@ -464,7 +465,9 @@ style unstable internals when a supported configuration option exists.
 ### Shared integration contract
 
 The complete token API, mode contract, JavaScript bridge, fallback rules,
-stacking scale, data-color rules, and cross-repository release procedure are in
+stacking scale, data-color rules, the shared interaction contract (focus,
+controls, loading/empty/error states, widgets, wording glossary), and the
+cross-repository release procedure are in
 [`docs/DESIGN-INTEGRATION.md`](docs/DESIGN-INTEGRATION.md). Treat that document
 as required reading before changing a token consumed by DRE Search or DRE
 Visualizations.

@@ -1,0 +1,54 @@
+name: Contract drift
+
+# The modules carry COPIES of the theme's token rules and generated token table
+# (scripts/vendor-lint.mjs explains why they are copied rather than depended
+# on). Each module's own lint proves its copy was not edited by hand; only this
+# side can prove the copy is still current. It ran nowhere before, and both
+# modules sat two releases behind — missing --field-border — without a signal.
+#
+# Not a gate on theme pull requests: a token change lands here first and the
+# modules are re-vendored after it, so a red run is the reminder to do that
+# (DESIGN-INTEGRATION.md, "Coordinated change procedure"), not a broken build.
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - scripts/lib/token-rules.mjs
+      - asset/css/dre-tokens-fallback.json
+      - scripts/vendor-lint.mjs
+      - .github/workflows/contract-drift.yml
+  schedule:
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  vendored-copies:
+    name: Module copies of the token lint are current
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: DRE-theme
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: AM-Digital-Research-Environment/DRE-Visualizations
+          path: DREVisualizations
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: AM-Digital-Research-Environment/DRESearch
+          path: DRE-Search
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      # Node built-ins only: no install step.
+      - run: node scripts/vendor-lint.mjs --check
+        working-directory: DRE-theme

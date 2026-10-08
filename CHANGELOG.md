@@ -13,6 +13,34 @@ to create.
 
 <!-- Summarise user-visible changes here (Added / Changed / Fixed / Removed / Security). -->
 
+### Added
+
+- **Shared interaction contract:** `docs/DESIGN-INTEGRATION.md` now states the
+  behaviour the theme, DRE Search and DRE Visualizations must implement the
+  same way. It covers:
+  - focus rings that survive forced-colors mode;
+  - form-control outline, radius and height;
+  - the loading, empty, error, unavailable and no-JavaScript states;
+  - tabs, disclosure popovers, copy feedback, fullscreen and heading levels;
+  - `window.DREUtils` as a public API;
+  - the shared basemap configuration and MapLibre locale;
+  - the number locale and print;
+  - a wording glossary.
+- **Contract drift workflow:** checks out both modules and fails when their
+  copies of the token lint or the generated token table fall behind the theme.
+  It runs on changes to those files, weekly, and on demand.
+- **Tamper check for the vendored copies:** `npm run vendor:lint` also writes
+  `scripts/lib/VENDORED.sha256` into each module. Each module's `lint:tokens`
+  refuses to run when a copy no longer matches it.
+- `CONTRIBUTING.md` and `.nvmrc`, matching the module repositories.
+
+### Changed
+
+- `DESIGN.md` now describes the light/dark toggle as it is built: its label
+  names the action and it carries no `aria-pressed`.
+- The README's development setup uses `npm ci`, as `docs/TESTING.md` already
+  did.
+
 ## [2.33.4] - 2026-10-07
 
 ### Removed

@@ -193,6 +193,131 @@ a stable, descriptive accessible name.
   after mount. Change the owning module or establish a standards-based outer
   boundary, then pin the contract in that repository's tests.
 
+## Shared interaction contract
+
+The token API keeps the three repositories the same colour; this section keeps
+them the same *product*. Each rule names one behaviour that a visitor meets in
+more than one repository, so it must not be implemented two ways.
+
+### Focus and forced colours
+
+- A focus ring drawn with `box-shadow: var(--ring-focus)` is always paired with
+  `outline: 2px solid transparent`, never `outline: none`. Forced-colors mode
+  (Windows High Contrast) drops box-shadows and paints the transparent outline
+  in the system focus colour; `outline: none` leaves no focus indicator at all.
+- A control that uses an outline instead takes `2px solid var(--focus-color)`
+  with `outline-offset: 2px`, as the theme's buttons do.
+- A CSS-mask icon (`mask: url(...)` over `background-color: currentColor`)
+  needs the theme's forced-colors rule: `forced-color-adjust: none;
+  background-color: CanvasText`, upgraded to `preserve-parent-color` +
+  `currentColor` where supported (`_mixins.scss`, `%svg-icon-forced`).
+
+### Form controls and buttons
+
+| Part | Rule |
+| --- | --- |
+| Input, select, search field outline | `1px solid var(--field-border)`; `--border*` are separators, not control boundaries |
+| Input and standard-control radius | `--radius-md`; `--radius-sm` only for small inline controls, never for a text field |
+| Control height | `--size-control-lg` for primary, paging, and map controls; `--size-control-sm`/`-md` for dense toolbars. No literal rem heights |
+| Primary button | `--primary` fill, `--primary-contrast` text |
+| Secondary button | transparent ground, `1px solid var(--border-strong)`, `--primary-text`; hover `--primary-muted` + `--primary` border (theme `secondary-button` mixin) |
+| Checkbox and radio | native, `accent-color: var(--primary)` |
+| Chip, tag, pill | `--radius-full`, label typography (`--text-xs`, weight 600); entity-typed chips take their `--entity-*` hue |
+| Letter-spacing | `--tracking-*` tokens only |
+
+### Asynchronous states
+
+Every asynchronous surface (a visualization block, a search result list, a map)
+goes through the same states, with the same markup and wording.
+
+| State | Markup | Visible text |
+| --- | --- | --- |
+| Loading | one persistent `role="status"` node (`aria-live="polite"`, `aria-atomic="true"`) per surface; `aria-busy="true"` on the stable container while work is active; skeleton or spinner is `aria-hidden` | *Loading…* |
+| Empty | status node carries the message | surface-specific, e.g. *No records match that search.* |
+| Error | message plus a **Try again** button that reruns the request; technical detail (HTTP status, request id, server message) goes to `console`, never to the visitor | surface-specific, e.g. *The map could not be loaded.* |
+| Unavailable | quiet message, no retry | *Search is temporarily unavailable.* |
+| No JavaScript | `<noscript>` inside the reserved space | *This visualization needs JavaScript.* |
+
+A skeleton shimmer draws its highlight from `--surface`, not `white`, runs
+`1.6s ease-in-out infinite`, and stops under `prefers-reduced-motion: reduce`.
+
+### Shared widgets
+
+- **Tabs.** WAI-ARIA tabs with roving `tabindex`; the panel is named by
+  `aria-labelledby` pointing at its tab. Activation is *automatic* (arrow keys
+  select) when switching is local and instant, and *manual* (arrow keys move
+  focus, Enter/Space select) when it costs a network request. Record which one
+  a component uses beside it.
+- **Disclosure popovers** (`<details>` menus such as cite, export, share): Escape
+  closes the open popover and returns focus to its `<summary>`; a click outside
+  closes it without moving focus.
+- **Copy feedback.** Swap the button label to *Copied* for 2000 ms and announce
+  it through `window.DREUtils.announce()` (or `DREUtils.flashLabel()`), falling
+  back to a local status node when the theme is absent.
+- **Fullscreen.** One icon button per surface, `aria-pressed` reflecting state,
+  label swapping between *Fullscreen* and *Exit fullscreen*; the fullscreen
+  layer sits at `--z-stage`.
+- **Headings.** A page block's title is `h2`; a chart, panel, or result-list
+  heading inside it is `h3`. A block rendered without a title of its own may
+  promote its inner headings to `h2`.
+
+### Theme JavaScript API
+
+`window.DREUtils` is public alongside `window.DRETokens`; modules call it when
+present and keep a local fallback for isolated rendering.
+
+| Call | Purpose |
+| --- | --- |
+| `DREUtils.announce(message)` | Speak a short message through the one shared, visually hidden status region |
+| `DREUtils.flashLabel(button, message, ms = 2000)` | Temporary label swap plus announcement (copy feedback) |
+| `DREUtils.debounce(fn, ms)` | Trailing-edge debounce |
+| `DREUtils.onReady(fn)` | Run after DOM parse |
+
+### Maps
+
+- `window.RV_MAP_CONFIG` is the one basemap configuration shared by both
+  modules. `lightStyle` and `darkStyle` are either a non-empty URL or absent;
+  consumers still read them with `||`, never `??`, so an empty string can never
+  become a style URL. DRE Visualizations writes its self-hosted default there,
+  so a DRE Search map on the same page uses the same basemap.
+- Every MapLibre map passes `locale` built from the module's translated strings
+  (zoom, compass, fullscreen, attribution, and cooperative-gesture hints) and
+  uses one navigation-control preset: `{ showCompass: false }`.
+
+### Numbers and locale
+
+Client-side `Intl` formatting takes its locale from `document.documentElement.lang`
+and falls back to `'en'` — the same locale the server used for the page — never
+from `navigator.language`. Server-side counts use `NumberFormatter` with the site
+locale. Counts, years, and paging use tabular numerals.
+
+### Print
+
+A module surface prints its content and hides its own controls (facets,
+toolbars, map and chart controls). It must not rely on the theme's global
+`button { display: none }` to do so, and must keep any label that lives in a
+`<button>` (a corpus tab, for example) visible as text when it names what printed.
+
+### Wording glossary
+
+Use these strings verbatim in every repository; translations key on them.
+
+| Concept | String |
+| --- | --- |
+| Loading | Loading… |
+| Retry | Try again |
+| Clear every active filter | Clear all filters |
+| No result for a query | No records match that search. |
+| Search service down | Search is temporarily unavailable. |
+| Map failed | The map could not be loaded. |
+| Chart failed | The visualization could not be loaded. |
+| Copy confirmation | Copied |
+| Enter / leave fullscreen | Fullscreen / Exit fullscreen |
+| Layout switch label | View as |
+| Layout options | Grid · List · Map |
+| Download data | Download data (CSV) |
+| No JavaScript | This visualization needs JavaScript. |
+
 ## Degraded and isolated rendering
 
 The integrated site is the primary product, but each repository must remain
@@ -213,7 +338,9 @@ understandable in isolation.
 
 1. Add the token to the theme in every applicable mode.
 2. Add contrast or structural checks when the token carries a testable claim.
-3. Regenerate and commit the fallback CSS and JSON.
+3. Regenerate and commit the fallback CSS and JSON, then copy them and the
+   shared lint rules into both modules with `npm run vendor:lint` and commit
+   there too. The `Contract drift` workflow fails while a module copy is stale.
 4. Update `DESIGN.md`, this contract, and `.impeccable/design.json` when the
    change affects portable design guidance.
 5. Release the theme before updating module consumers.

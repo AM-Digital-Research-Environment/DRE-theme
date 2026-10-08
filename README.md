@@ -31,7 +31,7 @@ That asset is the theme as Omeka loads it and nothing else: no build toolchain, 
 For Sass and test development you’ll need [Node.js](https://nodejs.org/) ≥ 24.15. From a clone of the repository:
 
 ```bash
-npm install
+npm ci
 npm run build     # lint, then compile asset/sass → asset/css/style.css (compressed, autoprefixed)
 npm run watch     # recompile on change
 ```
