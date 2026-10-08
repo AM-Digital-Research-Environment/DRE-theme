@@ -461,7 +461,7 @@
 // --------------------------------------------------------------------------
 // Responsive — let the sort control take the full width on very narrow screens.
 // --------------------------------------------------------------------------
-@media (max-width: $sm) {
+@media (max-width: #{$sm - 1px}) {
     // Search takes its own full-width row; the input grows to a 16px font so iOS
     // doesn't zoom the viewport on focus, with a slightly taller tap target.
     .resources-linked__search {

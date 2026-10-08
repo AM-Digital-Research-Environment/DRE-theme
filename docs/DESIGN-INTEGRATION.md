@@ -56,7 +56,10 @@ Modules must use that resolved mode.
 | A callback after a mode change | `window.DRETokens.onThemeChange(callback)` |
 
 Do not use `matchMedia('(prefers-color-scheme: dark)')` to determine the active
-theme. The visitor may have selected a mode that differs from the operating
+theme while a `data-theme` attribute is present. Only a module rendered outside
+the theme, where no attribute is written, follows the operating-system
+preference — as `DRETokens.isDark()` and the generated fallback CSS
+(`:not([data-theme="light"])`) do — so its canvas and its HTML never disagree. The visitor may have selected a mode that differs from the operating
 system. `prefers-reduced-motion` remains a valid accessibility preference and
 must be honoured independently.
 
@@ -107,6 +110,9 @@ The viewport breakpoint ladder is:
 ```text
 600px · 768px · 1024px · 1200px · 1460px
 ```
+
+Write a step as `min-width: <step>` and its complement as `max-width: <step − 1px>`
+(`768px` / `767px`); the token lint accepts exactly those two forms.
 
 Prefer container queries for a block whose layout depends only on its own width.
 This is especially important inside Omeka page grids, rails, and nested block
@@ -237,7 +243,7 @@ goes through the same states, with the same markup and wording.
 | Empty | status node carries the message | surface-specific, e.g. *No records match that search.* |
 | Error | message plus a **Try again** button that reruns the request; technical detail (HTTP status, request id, server message) goes to `console`, never to the visitor | surface-specific, e.g. *The map could not be loaded.* |
 | Unavailable | quiet message, no retry | *Search is temporarily unavailable.* |
-| No JavaScript | `<noscript>` inside the reserved space | *This visualization needs JavaScript.* |
+| No JavaScript | `<noscript>` inside the reserved space | *This visualisation needs JavaScript.* |
 
 A skeleton shimmer draws its highlight from `--surface`, not `white`, runs
 `1.6s ease-in-out infinite`, and stops under `prefers-reduced-motion: reduce`.
@@ -285,6 +291,14 @@ present and keep a local fallback for isolated rendering.
 - Every MapLibre map passes `locale` built from the module's translated strings
   (zoom, compass, fullscreen, attribution, and cooperative-gesture hints) and
   uses one navigation-control preset: `{ showCompass: false }`.
+- DRE Visualizations publishes its default basemap at `/s/{site}/dre-basemap/{light|dark}`.
+  A style served that way can carry only the generated fallback colours, so the
+  module also sets `RV_MAP_CONFIG.selfHosted: true`, and a consumer that can
+  restyle the basemap from live tokens (DRE Visualizations does) may do so
+  instead of loading the URL. A consumer that cannot simply loads the URL.
+- MapLibre's control group keeps its own light chrome in both modes; glyphs a
+  module adds inside it use fixed dark ink. This is a third-party-chrome
+  exception, like map label halos.
 
 ### Numbers and locale
 
@@ -305,6 +319,8 @@ what printed (the active corpus tab) is repeated as plain text.
 ### Wording glossary
 
 Use these strings verbatim in every repository; translations key on them.
+Interface copy is British English ("visualisation", "organisation"), as it
+already is across all three repositories.
 
 | Concept | String |
 | --- | --- |
@@ -314,13 +330,13 @@ Use these strings verbatim in every repository; translations key on them.
 | No result for a query | No records match that search. |
 | Search service down | Search is temporarily unavailable. |
 | Map failed | The map could not be loaded. |
-| Chart failed | The visualization could not be loaded. |
+| Chart failed | The visualisation could not be loaded. |
 | Copy confirmation | Copied |
 | Enter / leave fullscreen | Fullscreen / Exit fullscreen |
 | Layout switch label | View as |
 | Layout options | Grid · List · Map |
 | Download data | Download data (CSV) |
-| No JavaScript | This visualization needs JavaScript. |
+| No JavaScript | This visualisation needs JavaScript. |
 
 ## Degraded and isolated rendering
 

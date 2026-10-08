@@ -6,7 +6,7 @@
     }
 
     .hierarchy-main-content {
-        @media (max-width: $md) {
+        @media (max-width: #{$md - 1px}) {
             border-left: none;
             padding-left: 0;
         }
