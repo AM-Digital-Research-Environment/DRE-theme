@@ -41,6 +41,10 @@ to create.
 
   The `module-integration` CI job checks the three repositories out side by
   side to run it. Locally it skips when the siblings are absent.
+  Every themed page in it also carries a Mirador-style import map after the
+  module's own head, and the spec requires a bare-specifier import through it
+  to resolve. Firefox discards an import map that follows any module load or
+  `modulepreload`, which is how DRE Search 1.24–1.26.0 left Mirador blank there.
 - **Contract drift workflow:** checks out both modules and fails when their
   copies of the token lint or the generated token table fall behind the theme.
   It runs on changes to those files, weekly, and on demand.

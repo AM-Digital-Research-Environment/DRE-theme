@@ -27,8 +27,24 @@ const VIZ_BUNDLE = resolve(VIZ, 'asset', 'js', 'dashboard-charts.bundle.js');
 
 const chrome = renderFixture('header');
 
+/**
+ * What Mirador puts in the head: an import map, then a module that imports
+ * through it. Firefox discards an import map that follows ANY module load or
+ * modulepreload, so a module whose head hints start one leaves every viewer on
+ * the page blank there (DRE Search 1.24-1.26.0). Every themed page carries
+ * this probe AFTER the module's own head, and each module is held to it.
+ */
+const IMPORT_MAP_PROBE = '<script type="importmap">{"imports":{"dre-probe":"/probe/viewer.js"}}</script>'
+    + '<script type="module">import viewer from "dre-probe"; window.importMapProbe = viewer;</script>';
+
+/** Answer the probe's module. */
+function probe(url, route) {
+    if (url.pathname !== '/probe/viewer.js') return false;
+    return route.fulfill({contentType: 'text/javascript', body: 'export default "resolved";'}).then(() => true);
+}
+
 /** The header fixture's page with `main` replaced and extra theme scripts loaded. */
-function themedPage(main, title, head) {
+function themedPage(main, title, head, bodyEnd = '') {
     const start = chrome.indexOf('<main');
     const end = chrome.indexOf('</main>') + '</main>'.length;
     return chrome.slice(0, start)
@@ -39,8 +55,8 @@ function themedPage(main, title, head) {
         .replace('<body>', '<body data-theme="light">')
         .replace('</head>', '<script src="/themes/dre/asset/js/dre-token-bridge.js"></script>'
             + '<script src="/themes/dre/asset/js/theme-toggle.js" defer></script>'
-            + head + '</head>')
-        + `<main id="content" class="container">${main}</main>`
+            + head + IMPORT_MAP_PROBE + '</head>')
+        + `<main id="content" class="container">${main}</main>${bodyEnd}`
         + chrome.slice(end);
 }
 
@@ -93,6 +109,7 @@ async function serveSearch(page, width, {failSearches = 0} = {}) {
     await page.setViewportSize({width, height: 900});
     await page.emulateMedia({reducedMotion: 'reduce'});
     await routeFixture(page, searchPage(), async (url, route) => {
+        if (await probe(url, route)) return true;
         if (url.pathname.startsWith('/modules/DreSearch/asset/')) {
             return sibling(SEARCH, url, route, '/modules/DreSearch/asset/');
         }
@@ -128,7 +145,10 @@ async function serveSearch(page, width, {failSearches = 0} = {}) {
 const searchPage = () => themedPage(searchBlock(), 'Research archive',
     '<link rel="stylesheet" href="/modules/DreSearch/asset/css/dre-search.css">'
     + '<link rel="stylesheet" href="/modules/DreSearch/asset/dist/dre-search.css">'
-    + '<script type="module" src="/modules/DreSearch/asset/dist/dre-search.js"></script>');
+    // As BundleAssets renders it since 1.26.1: a plain preload in the head,
+    // the module script at the end of <body> (inlineScript()).
+    + '<link rel="preload" as="script" crossorigin="anonymous" href="/modules/DreSearch/asset/dist/dre-search.js">',
+    '<script type="module" src="/modules/DreSearch/asset/dist/dre-search.js"></script>');
 
 async function seriousViolations(page) {
     const results = await new AxeBuilder({page}).include('main').withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
@@ -180,6 +200,11 @@ test.describe('DRE Search inside the theme', () => {
         expect(focus.style).not.toBe('none');
         expect(focus.width).toBeGreaterThanOrEqual(2);
         expect(focus.shadow).not.toBe('none');
+    });
+
+    test('an import map after the Search head still resolves (Mirador)', async ({page}) => {
+        await serveSearch(page, 1280);
+        await expect.poll(() => page.evaluate(() => window.importMapProbe ?? null)).toBe('resolved');
     });
 
     test('autocomplete, a facet, the empty state and Try again work in the themed page', async ({page}) => {
@@ -258,6 +283,7 @@ async function serveViz(page, width) {
     await page.setViewportSize({width, height: 900});
     await page.emulateMedia({reducedMotion: 'reduce'});
     await routeFixture(page, vizPage(), async (url, route) => {
+        if (await probe(url, route)) return true;
         if (url.pathname.startsWith(VIZ_ASSET)) return sibling(VIZ, url, route, VIZ_ASSET);
         if (url.pathname.startsWith('/s/test/dre-data/')) {
             const body = url.pathname.endsWith('current.json') ? {generationId: '20261005T000000Z-aaaaaaaaaaaa'}
@@ -325,6 +351,11 @@ test.describe('DRE Visualizations inside the theme', () => {
         }
         expect(seen).toBeGreaterThan(3);
         expect([...unringed]).toEqual([]);
+    });
+
+    test('an import map after the Visualizations head still resolves (Mirador)', async ({page}) => {
+        await serveViz(page, 1280);
+        await expect.poll(() => page.evaluate(() => window.importMapProbe ?? null)).toBe('resolved');
     });
 
     test('each chart offers its data as a table', async ({page}) => {
