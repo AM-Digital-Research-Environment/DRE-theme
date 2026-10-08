@@ -223,6 +223,7 @@ more than one repository, so it must not be implemented two ways.
 | Secondary button | transparent ground, `1px solid var(--border-strong)`, `--primary-text`; hover `--primary-muted` + `--primary` border (theme `secondary-button` mixin) |
 | Checkbox and radio | native, `accent-color: var(--primary)` |
 | Chip, tag, pill | `--radius-full`, label typography (`--text-xs`, weight 600); entity-typed chips take their `--entity-*` hue |
+| Card thumbnail | beside the text only when the card itself is at least 28rem wide (container query; a card with inline padding queries its content box accordingly); a small avatar or emblem beside a name may stay inline at every width |
 | Letter-spacing | `--tracking-*` tokens only |
 
 ### Asynchronous states
@@ -232,7 +233,7 @@ goes through the same states, with the same markup and wording.
 
 | State | Markup | Visible text |
 | --- | --- | --- |
-| Loading | one persistent `role="status"` node (`aria-live="polite"`, `aria-atomic="true"`) per surface; `aria-busy="true"` on the stable container while work is active; skeleton or spinner is `aria-hidden` | *Loading…* |
+| Loading | one persistent `role="status"` node (`aria-live="polite"`, `aria-atomic="true"`) per surface; `aria-busy="true"` on the stable container while work is active; skeleton or spinner is `aria-hidden` | *Loading…* — announced by the status node; shown beside a spinner, or replaced visually by a skeleton that has the shape of the result |
 | Empty | status node carries the message | surface-specific, e.g. *No records match that search.* |
 | Error | message plus a **Try again** button that reruns the request; technical detail (HTTP status, request id, server message) goes to `console`, never to the visitor | surface-specific, e.g. *The map could not be loaded.* |
 | Unavailable | quiet message, no retry | *Search is temporarily unavailable.* |
@@ -252,8 +253,9 @@ A skeleton shimmer draws its highlight from `--surface`, not `white`, runs
   closes the open popover and returns focus to its `<summary>`; a click outside
   closes it without moving focus.
 - **Copy feedback.** Swap the button label to *Copied* for 2000 ms and announce
-  it through `window.DREUtils.announce()` (or `DREUtils.flashLabel()`), falling
-  back to a local status node when the theme is absent.
+  it through `window.DREUtils.announce()` (or `DREUtils.flashLabel()`). When the
+  theme is absent, announce through the surface's existing status node rather
+  than adding a second one.
 - **Fullscreen.** One icon button per surface, `aria-pressed` reflecting state,
   label swapping between *Fullscreen* and *Exit fullscreen*; the fullscreen
   layer sits at `--z-stage`.
@@ -294,9 +296,11 @@ locale. Counts, years, and paging use tabular numerals.
 ### Print
 
 A module surface prints its content and hides its own controls (facets,
-toolbars, map and chart controls). It must not rely on the theme's global
-`button { display: none }` to do so, and must keep any label that lives in a
-`<button>` (a corpus tab, for example) visible as text when it names what printed.
+toolbars, map and chart controls) with its own print rules; the theme no longer
+hides whole module blocks. The theme's print sheet hides every `<button>`,
+`.button`, and form control, so a button whose label *is* content (a chip naming
+a project or role) carries `data-print` to stay visible, and a label that names
+what printed (the active corpus tab) is repeated as plain text.
 
 ### Wording glossary
 

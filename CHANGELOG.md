@@ -42,6 +42,10 @@ to create.
 
 ### Changed
 
+- **Print:** DRE Search blocks are no longer hidden from print. The module
+  prints its results and hides its own controls. A `<button>` whose label is
+  content (a project or role chip) opts out of the print sheet's hide-every-button
+  rule with `data-print`.
 - `DESIGN.md` now describes the light/dark toggle as it is built: its label
   names the action and it carries no `aria-pressed`.
 - The README's development setup uses `npm ci`, as `docs/TESTING.md` already

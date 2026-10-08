@@ -81,14 +81,16 @@
     .site-banner__search,
     .site-banner__column,
     .site-banner__flag,
-    .dre-search-block,
     .block-mirador {
         display: none !important;
     }
 
-    // Dead UI: every button, select and form control is inert in ink.
-    button,
-    .button,
+    // Dead UI: every button, select and form control is inert in ink — except
+    // a button whose label IS content (a DRE Search chip naming a project or
+    // role), which opts out with `data-print`. DRE Search blocks print their
+    // results under the module's own print rules (DESIGN-INTEGRATION.md, Print).
+    button:not([data-print]),
+    .button:not([data-print]),
     select,
     input,
     textarea,
