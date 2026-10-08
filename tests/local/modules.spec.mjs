@@ -151,6 +151,8 @@ test.describe('DRE Search inside the theme', () => {
     }
 
     test('the theme toggle reaches Search, and both modes pass axe', async ({page}) => {
+        // Two full-page axe scans around a repaint: WebKit needs more than the default 30s.
+        test.slow();
         await serveSearch(page, 1280);
         const card = page.getByRole('article').first();
         const light = await card.evaluate(n => getComputedStyle(n).backgroundColor);
@@ -289,6 +291,8 @@ test.describe('DRE Visualizations inside the theme', () => {
     }
 
     test('the theme toggle repaints the charts, and both modes pass axe', async ({page}) => {
+        // Two full-page axe scans around a repaint: WebKit needs more than the default 30s.
+        test.slow();
         await serveViz(page, 1280);
         await expect.poll(() => page.locator('[_echarts_instance_]').count()).toBeGreaterThan(0);
         const light = await chartColours(page);
