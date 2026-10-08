@@ -33,6 +33,12 @@ to create.
   `scripts/lib/VENDORED.sha256` into each module. Each module's `lint:tokens`
   refuses to run when a copy no longer matches it.
 - `CONTRIBUTING.md` and `.nvmrc`, matching the module repositories.
+- **Token lint, bridge fallbacks:** the shared rules now check both branches
+  of a mode-dependent bridge fallback, `cssColor('--ink', dark ? … : …)`. A new
+  `bridgeAlias` rule rejects binding a bridge function to another name
+  (`var c = ns.cssColor`), because calls through an alias escaped the fallback
+  check entirely. That is how DRE Visualizations' chart chrome kept a retired
+  palette.
 
 ### Changed
 
