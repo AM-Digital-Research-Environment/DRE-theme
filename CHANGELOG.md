@@ -26,6 +26,19 @@ to create.
   - the shared basemap configuration and MapLibre locale;
   - the number locale and print;
   - a wording glossary.
+- **The theme tested with its modules:** `tests/local/modules.spec.mjs` mounts
+  DRE Search's and DRE Visualizations' built front-ends inside the
+  PHP-rendered theme chrome. It covers:
+  - the heading outline and overflow;
+  - the theme toggle reaching each module;
+  - axe in both modes;
+  - field outlines and forced-colors focus;
+  - search interactions and their states;
+  - print;
+  - the chart data tables.
+
+  The `module-integration` CI job checks the three repositories out side by
+  side to run it. Locally it skips when the siblings are absent.
 - **Contract drift workflow:** checks out both modules and fails when their
   copies of the token lint or the generated token table fall behind the theme.
   It runs on changes to those files, weekly, and on demand.

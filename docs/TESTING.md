@@ -73,6 +73,32 @@ checks. On Windows, `DRE_BROWSER_CHANNEL=msedge` can select an installed Edge
 for the Chromium project. `test-results/local/` contains failure traces and the
 representative desktop/mobile screenshots.
 
+### The theme with its modules
+
+`tests/local/modules.spec.mjs` mounts the modules' built front-ends inside the
+PHP-rendered theme header, with the theme's real stylesheet, token bridge and
+toggle, and stubs each module's network. It needs the two module repositories
+checked out next to this one: `../DRE-Search` built with `npm run build`, and
+`../DREVisualizations`, whose bundles are committed. Without them every test in
+the file is skipped with the command that would enable it. CI's
+`module-integration` job lays the three repositories out that way, using each
+module's default branch.
+
+- **DRE Search:**
+  - a titled block's heading outline (one `h1`, inner headings under the block
+    title);
+  - no horizontal scroll at 320, 390 and 1280px;
+  - the theme toggle reaching its cards;
+  - axe in both modes;
+  - `--field-border` and a focus outline on its fields;
+  - autocomplete, a facet, the empty state and **Try again**;
+  - print, where content chips survive the theme's hide-every-button rule
+    through `data-print`.
+- **DRE Visualizations:** a record dashboard's outline and overflow, ECharts
+  repainting after the theme toggle, axe in both modes, a visible focus outline
+  on every module control in forced-colors mode under the theme stylesheet, and
+  the per-chart data table.
+
 PHP tests cover rendered block/citation output, bounded endpoint queries,
 manifest failures, hierarchy batching, cycles and private sets, site-scoped
 statistics and outages, brand contrast, compound relationship selections and
