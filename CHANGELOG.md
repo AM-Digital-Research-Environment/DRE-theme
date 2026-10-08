@@ -13,6 +13,10 @@ to create.
 
 <!-- Summarise user-visible changes here (Added / Changed / Fixed / Removed / Security). -->
 
+### Development
+
+- The module integration spec runs a DRE Search block under the theme's prose list rhythm (`ul li { margin-bottom }`). It checks that the active-filter chips stay on the result count's line and that facet counts end at least 12px inside an overlay scrollbar's edge. Run against DRE Search 1.26.3, it fails on the 4px offset.
+
 ## [2.34.0] - 2026-10-08
 
 ### Added

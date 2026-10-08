@@ -202,6 +202,24 @@ test.describe('DRE Search inside the theme', () => {
         expect(focus.shadow).not.toBe('none');
     });
 
+    test('under the theme\'s list rhythm, filter chips stay on the count\'s line and facet counts clear the scrollbar', async ({page}) => {
+        await serveSearch(page, 1280);
+        await page.getByRole('checkbox', {name: /Audio/}).check();
+        const chip = page.locator('.dre-summary .dre-filter-chip').first();
+        await expect(chip).toBeVisible();
+        // The theme's prose `ul li { margin-bottom }` once lifted the chips 4px.
+        const middle = locator => locator.evaluate(n => { const r = n.getBoundingClientRect(); return r.top + r.height / 2; });
+        const offset = Math.abs(await middle(chip) - await middle(page.locator('.dre-summary__count')));
+        expect(offset).toBeLessThanOrEqual(1);
+        // An overlay scrollbar (Firefox, macOS) draws over the list's right
+        // edge: every count must end at least 12px inside it.
+        const clearance = await page.locator('.dre-facet__list').first().evaluate(list => {
+            const edge = list.getBoundingClientRect().left + list.clientWidth;
+            return Math.min(...[...list.querySelectorAll('.dre-facet__count')].map(c => edge - c.getBoundingClientRect().right));
+        });
+        expect(clearance).toBeGreaterThanOrEqual(12);
+    });
+
     test('an import map after the Search head still resolves (Mirador)', async ({page}) => {
         await serveSearch(page, 1280);
         await expect.poll(() => page.evaluate(() => window.importMapProbe ?? null)).toBe('resolved');
