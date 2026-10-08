@@ -13,6 +13,8 @@ to create.
 
 <!-- Summarise user-visible changes here (Added / Changed / Fixed / Removed / Security). -->
 
+## [2.34.0] - 2026-10-08
+
 ### Added
 
 - **Shared interaction contract:** `docs/DESIGN-INTEGRATION.md` now states the
@@ -441,7 +443,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.33.4...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.34.0...HEAD
+[2.34.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.33.4...v2.34.0
 [2.33.4]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.33.3...v2.33.4
 [2.33.3]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.33.2...v2.33.3
 [2.33.2]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.33.1...v2.33.2
