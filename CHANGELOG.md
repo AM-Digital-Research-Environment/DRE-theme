@@ -13,6 +13,10 @@ to create.
 
 <!-- Summarise user-visible changes here (Added / Changed / Fixed / Removed / Security). -->
 
+### Changed
+
+- An authority record (a person, place, subject heading, journal …) that DRE SEO 0.11+ cites as an entry of the database (`citeAs: 'entry'`) gets the panel title "Cite this record" and a "Copy citation" button. The copy fallback is the citation text, not the permalink. With an older module, such records keep the "This record" panel and "Copy link".
+
 ### Development
 
 - The module integration spec runs a DRE Search block under the theme's prose list rhythm (`ul li { margin-bottom }`). It checks that the active-filter chips stay on the result count's line and that facet counts end at least 12px inside an overlay scrollbar's edge. Run against DRE Search 1.26.3, it fails on the 4px offset.

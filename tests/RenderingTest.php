@@ -39,6 +39,12 @@ $view->callbacks['dreCitation'] = fn() => ['styles' => ['apa' => ['label' => 'AP
 $html = $view->render('common/record-apparatus', ['resource' => $resource]);
 dre_check($failures, $checks, 'authority uses honest labels', str_contains($html, 'This record') && str_contains($html, 'Copy link'));
 dre_check($failures, $checks, 'one style has no tablist or dangling tab reference', !str_contains($html, 'role="tab') && !str_contains($html, 'aria-labelledby="record-cite-1-tab-'));
+// DRE-SEO 0.11+: an authority record cited as a database entry is offered as a citation.
+$view->callbacks['dreCitation'] = fn() => ['styles' => ['chicago' => ['label' => 'Chicago', 'html' => '“Aas, Norbert.” Person record. AMIRA.']], 'defaultStyle' => 'chicago', 'citable' => false, 'citeAs' => 'entry'];
+$html = $view->render('common/record-apparatus', ['resource' => $resource]);
+dre_check($failures, $checks, 'an entry citation is offered as a citation', str_contains($html, 'Cite this record') && str_contains($html, 'Copy citation') && !str_contains($html, 'Copy link'));
+dre_check($failures, $checks, 'the entry copy fallback is the citation text', str_contains($html, 'data-copy-text="“Aas, Norbert.” Person record. AMIRA."') || str_contains(html_entity_decode($html, ENT_QUOTES | ENT_HTML5, 'UTF-8'), 'data-copy-text="“Aas, Norbert.” Person record. AMIRA."'));
+$view->callbacks['dreCitation'] = fn() => ['styles' => ['apa' => ['label' => 'APA', 'html' => '<em>Generated</em>']], 'defaultStyle' => 'apa', 'citable' => false];
 // "Save record" joins "Copy link" in the apparatus's one action row.
 $save = $view->render('common/shortlist-button', ['resource' => $resource, 'detail' => true, 'placement' => 'rail']);
 $doc = new DOMDocument(); @$doc->loadHTML($view->render('common/record-apparatus', ['resource' => $resource, 'saveButton' => $save]));

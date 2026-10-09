@@ -40,7 +40,7 @@ msgstr ""
 msgid "Abstract"
 msgstr ""
 
-#: helper/RecordApparatus.php:122
+#: helper/RecordApparatus.php:127
 msgid "Access rights"
 msgstr ""
 
@@ -120,7 +120,7 @@ msgstr ""
 msgid "Citation style"
 msgstr ""
 
-#: helper/RecordApparatus.php:88
+#: helper/RecordApparatus.php:93
 msgid "Cite this record"
 msgstr ""
 
@@ -173,11 +173,11 @@ msgstr ""
 msgid "Copied"
 msgstr ""
 
-#: helper/RecordApparatus.php:89
+#: helper/RecordApparatus.php:94
 msgid "Copy citation"
 msgstr ""
 
-#: helper/RecordApparatus.php:89
+#: helper/RecordApparatus.php:94
 msgid "Copy link"
 msgstr ""
 
@@ -218,7 +218,7 @@ msgstr ""
 msgid "Document & media types"
 msgstr ""
 
-#: helper/RecordApparatus.php:113
+#: helper/RecordApparatus.php:118
 msgid "DOI"
 msgstr ""
 
@@ -226,7 +226,7 @@ msgstr ""
 msgid "Download"
 msgstr ""
 
-#: helper/RecordApparatus.php:125
+#: helper/RecordApparatus.php:130
 msgid "DRE ID"
 msgstr ""
 
@@ -348,7 +348,7 @@ msgstr ""
 msgid "Languages represented"
 msgstr ""
 
-#: helper/RecordApparatus.php:119
+#: helper/RecordApparatus.php:124
 msgid "Licence"
 msgstr ""
 
@@ -504,7 +504,7 @@ msgstr ""
 msgid "Peripheral memories of Capoeira Angola in Salvador"
 msgstr ""
 
-#: helper/RecordApparatus.php:116
+#: helper/RecordApparatus.php:121
 msgid "Permalink"
 msgstr ""
 
@@ -725,7 +725,7 @@ msgstr ""
 msgid "The viewer is unavailable. Please try reloading the page."
 msgstr ""
 
-#: helper/RecordApparatus.php:88
+#: helper/RecordApparatus.php:93
 msgid "This record"
 msgstr ""
 

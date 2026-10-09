@@ -85,8 +85,13 @@ class RecordApparatus extends AbstractHelper
         // Note the three-way read: `null` means the module is absent or switched off
         // and the theme cannot tell, in which case nothing changes.
         $isAuthority = is_array($cite) && ($cite['citable'] ?? true) === false;
-        $panelTitle = $isAuthority ? $translate('This record') : $translate('Cite this record');
-        $copyLabel = $isAuthority ? $translate('Copy link') : $translate('Copy citation');
+        // DRE-SEO 0.11 cites an authority record as an entry of the database
+        // ("Aas, Norbert." Person record. AMIRA. Last modified …) and says so
+        // with `citeAs`. That citation is true of the record, so the panel may
+        // offer it as one; without it (an older module) the framing stays honest.
+        $isEntry = $isAuthority && ($cite['citeAs'] ?? null) === 'entry' && $citeStyles;
+        $panelTitle = $isAuthority && !$isEntry ? $translate('This record') : $translate('Cite this record');
+        $copyLabel = $isAuthority && !$isEntry ? $translate('Copy link') : $translate('Copy citation');
 
         $doiValues = $displayValues('bibo:doi');
         $licence = $displayValues('dcterms:license');
@@ -136,7 +141,11 @@ class RecordApparatus extends AbstractHelper
         // Prefer a real citation; otherwise give the copy button something honest —
         // the record's title and its permalink. On an authority record the link IS the
         // payload: nobody wants "Artefact." pasted in front of it.
-        if ($isAuthority) {
+        if ($isEntry) {
+            // The entry citation already ends in the permalink; record.js copies
+            // the style on screen, and this is the same text without script.
+            $copyText = trim(html_entity_decode(strip_tags((string) ($citeStyles[$citeDefault]['html'] ?? '')), ENT_QUOTES | ENT_HTML5, 'UTF-8')) ?: $permalink;
+        } elseif ($isAuthority) {
             $copyText = $permalink;
         } else {
             $copyText = $citation;
