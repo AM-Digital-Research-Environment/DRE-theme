@@ -4,13 +4,14 @@ import {
     collectDreAssetVersions,
     versionAtLeast,
     watchErrors,
+    SNAPSHOT_ROOT,
 } from './read-only-test.mjs';
 import { getSurface, smokeSurfaces } from './surfaces.mjs';
 
 test('the published visualization snapshot contains its required datasets', async ({ request }) => {
-    const root = '/modules/DreVisualizations/asset/data/';
+    const root = SNAPSHOT_ROOT;
     const response = await request.get(`${root}current.json`);
-    expect(response.status(), 'Restore or regenerate the published visualization snapshot: current.json is unavailable')
+    expect(response.status(), 'The visualization snapshot is withdrawn or missing (any Omeka write withdraws it): run DRE Visualizations → Regenerate now')
         .toBe(200);
     const manifest = await response.json();
     expect(manifest.generationId).toMatch(/^[0-9]{8}T[0-9]{6}Z-[a-f0-9]{12}$/);

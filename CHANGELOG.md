@@ -13,6 +13,14 @@ to create.
 
 <!-- Summarise user-visible changes here (Added / Changed / Fixed / Removed / Security). -->
 
+### Removed
+
+- The home masthead no longer looks for DRE Visualizations' precompute. It read `modules/DreVisualizations/asset/data/`, which DRE Visualizations 2.29+ no longer publishes (its snapshot moved to private storage), so this source had silently stopped matching. Its figures were a copy of DRE Search's source counts anyway, and those stay the first source. Without DRE Search, the theme's own Omeka API counts take over, with the same ten metrics in the same order.
+
+### Fixed
+
+- The nightly live smoke test reads DRE Visualizations' snapshot through `/s/amira/dre-data/`, as 2.29+ serves it, instead of the purged public path. When it fails now, the message says the snapshot was withdrawn and to run Regenerate now. `docs/RELEASE-DEPLOYMENT.md` describes the private storage and the withdrawal on every Omeka write, in place of the old advice to back up `asset/data`.
+
 ## [2.35.0] - 2026-10-09
 
 ### Changed

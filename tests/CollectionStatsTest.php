@@ -9,16 +9,28 @@ use OmekaTheme\Helper\IntegrationWarning;
 $failures = [];
 $checks = 0;
 
+// A leftover DRE Visualizations snapshot in the pre-2.29 public layout (flat
+// file, generation pointer and generation), scoped to the site under test. The
+// helper must never read it: the module no longer publishes there, and its
+// current snapshot only copies DRESearch's counts. Theme <=2.35 still read this
+// tree, so its branch failed silently once the module moved to private storage.
+// Any 42 below means a precompute reader came back.
 $root = sys_get_temp_dir() . '/dre-collection-stats-' . getmypid();
-$dataDir = $root . '/modules/DreVisualizations/asset/data/item-dashboards';
-mkdir($dataDir, 0777, true);
-file_put_contents($dataDir . '/collection-overview.json', json_encode([
-    'siteId' => 1,
-    'stats' => [
-        ['key' => 'researchItems', 'label' => 'Research items', 'value' => 42],
-        ['key' => 'projects', 'label' => 'Projects', 'value' => 7],
-        ['key' => 'people', 'label' => 'People', 'value' => 12],
-    ],
+$legacyData = $root . '/modules/DreVisualizations/asset/data';
+$generationId = '20260803T085234Z-964ff56b9f5c';
+$leftover = ['stats' => [
+    ['key' => 'researchItems', 'label' => 'Research items', 'value' => 42],
+    ['key' => 'projects', 'label' => 'Projects', 'value' => 7],
+    ['key' => 'people', 'label' => 'People', 'value' => 12],
+]];
+mkdir($legacyData . '/generations/' . $generationId . '/item-dashboards', 0777, true);
+mkdir($legacyData . '/item-dashboards', 0777, true);
+file_put_contents($legacyData . '/item-dashboards/collection-overview.json', json_encode(['siteId' => 1] + $leftover));
+file_put_contents($legacyData . '/generations/' . $generationId . '/item-dashboards/collection-overview.json', json_encode($leftover));
+file_put_contents($legacyData . '/current.json', json_encode([
+    'schemaVersion' => 1,
+    'generationId' => $generationId,
+    'scope' => ['type' => 'canonical-site', 'siteId' => 1],
 ]));
 if (!defined('OMEKA_PATH')) {
     define('OMEKA_PATH', $root);
@@ -53,14 +65,13 @@ $site = new class($services) {
     public function getServiceLocator(): object { return $this->services; }
 };
 $api = new class {
-    public int $siteTotal = 1;
     public array $queries = [];
     public bool $fail = false;
     public function search(string $resource, array $query): object
     {
         $this->queries[] = [$resource, $query];
         if ($this->fail) throw new RuntimeException("Unavailable");
-        $total = $resource === 'sites' ? $this->siteTotal : 0;
+        $total = 0;
         // Only the Publications set resolves, so its count predicate is observable.
         $content = $resource === 'item_sets' && ($query['property'][0]['text'] ?? '') === 'Publications'
             ? [new class { public function id(): int { return 29918; } }]
@@ -92,117 +103,35 @@ $view = new class($site, $api) {
 $singleSite = new CollectionStats();
 $singleSite->setView($view);
 $stats = $singleSite(1);
-dre_check($failures, $checks, 'legacy flat precompute is still read (pre-generations module)',
-    count($stats) === 3 && $stats[0]['n'] === 42);
+dre_check($failures, $checks, 'a leftover visualizations snapshot is never read',
+    count($stats) === 10 && $stats[0]['n'] === 0);
 dre_check($failures, $checks, 'statistics are cached under a site-specific key',
-    count($settings->values) === 1 && str_ends_with((string) array_key_first($settings->values), '_1'));
+    isset($settings->values['dre_stats_v10_1']));
 
+$queries = count($api->queries);
 $view->locale = 'fr';
 $translated = $singleSite(1);
 dre_check($failures, $checks, 'a cache hit translates labels for the current visitor',
-    $translated[0]['l'] === 'fr:Research items' && $translated[0]['n'] === 42);
+    $translated[0]['l'] === 'fr:Research items' && count($api->queries) === $queries);
 $view->locale = 'en';
 dre_check($failures, $checks, 'translation does not mutate shared cached labels',
-    $singleSite(1)[0]['l'] === 'Research items' && count($settings->values) === 1);
-
-// --- Generational snapshot layout ----------------------------------------
-// The module publishes atomically into generations/<id>/ and swaps
-// asset/data/current.json to point at it. When the theme kept reading the old
-// flat path, is_readable() simply returned false and the masthead fell back to
-// its own thinner API counts — no error, just three missing metrics. Assert the
-// pointer is followed, and that the generation WINS over a stale flat file.
-$generationId = '20260803T085234Z-964ff56b9f5c';
-$generationDir = $root . '/modules/DreVisualizations/asset/data/generations/'
-    . $generationId . '/item-dashboards';
-mkdir($generationDir, 0777, true);
-// The real module artifact carries no siteId: the scope lives in the pointer.
-file_put_contents($generationDir . '/collection-overview.json', json_encode([
-    'stats' => [
-        ['key' => 'researchItems', 'label' => 'Research items', 'value' => 3975],
-        ['key' => 'languages', 'label' => 'Languages', 'value' => 28],
-        ['key' => 'podcasts', 'label' => 'Podcasts', 'value' => 43],
-        ['key' => 'youtube', 'label' => 'YouTube videos', 'value' => 140],
-    ],
-]));
-file_put_contents($root . '/modules/DreVisualizations/asset/data/current.json', json_encode([
-    'schemaVersion' => 1,
-    'generationId' => $generationId,
-    'basePath' => 'generations/' . $generationId,
-    'scope' => ['type' => 'canonical-site', 'siteId' => 3, 'itemCount' => 3975],
-]));
-
-$published = new CollectionStats();
-$published->setView($view);
-$stats = $published(3);
-dre_check($failures, $checks, 'current.json pointer resolves the published generation',
-    count($stats) === 4 && $stats[0]['n'] === 3975);
-dre_check($failures, $checks, 'the generation wins over a stale flat precompute',
-    array_column($stats, 'k') === ['researchItems', 'languages', 'podcasts', 'youtube']);
-$otherSite = new CollectionStats();
-$otherSite->setView($view);
-$stats = $otherSite(6);
-dre_check($failures, $checks, 'a generation scoped to another site is not reused',
-    $stats && $stats[0]['n'] === 0);
-
-// A pointer naming a generation that was pruned must NOT silently fall back to
-// the stale flat file — that would serve figures from an unknown vintage.
-file_put_contents($root . '/modules/DreVisualizations/asset/data/current.json', json_encode([
-    'schemaVersion' => 1,
-    'generationId' => '20260101T000000Z-ffffffffffff',
-]));
-$missing = new CollectionStats();
-$missing->setView($view);
-$stats = $missing(4);
-dre_check($failures, $checks, 'a pointer to a pruned generation falls through to the API, not the stale flat file',
-    $stats && $stats[0]['n'] === 0);
-
-// A malformed generationId is never concatenated into a path. It is treated as
-// "no usable manifest", which drops to the legacy flat file — deliberately the
-// SAME branch the module's PublishedSnapshot::path() takes, so the two readers
-// can never disagree about which artifact is current. (Note this differs from
-// the pruned-generation case above: a VALID id whose directory is gone returns
-// null rather than falling back, because there the manifest is authoritative.)
-file_put_contents($root . '/modules/DreVisualizations/asset/data/current.json', json_encode([
-    'schemaVersion' => 1,
-    'generationId' => '../../../../etc',
-]));
-$traversal = new CollectionStats();
-$traversal->setView($view);
-$settings->values = [];
-$stats = $traversal(1);
-dre_check($failures, $checks, 'a malformed generation id is rejected, not resolved as a path',
-    count($stats) === 3 && $stats[0]['n'] === 42);
-
-unlink($root . '/modules/DreVisualizations/asset/data/current.json');
-unlink($generationDir . '/collection-overview.json');
-rmdir($generationDir);
-rmdir(dirname($generationDir));
-rmdir(dirname(dirname($generationDir)));
+    $singleSite(1)[0]['l'] === 'Research items'
+    && json_decode($settings->values['dre_stats_v10_1'], true)['stats'][0]['l'] === 'Research items');
 
 $settings->values = [];
-$stats = $singleSite(5);
-dre_check($failures, $checks, 'one site cannot reuse a different site snapshot', $stats[0]['n'] === 0);
-$settings->values = [];
-$stats = $singleSite(null);
-dre_check($failures, $checks, 'unscoped requests cannot reuse site-specific snapshots', $stats[0]['n'] === 0);
-$api->siteTotal = 2;
-$multiSite = new CollectionStats();
-$multiSite->setView($view);
-$stats = $multiSite(2);
-
-// The fallback ran rather than the precompute: the stub API counts everything
-// as 0, so a precompute hit would still be showing 42 here.
-dre_check($failures, $checks, 'multi-site installs bypass the global visualization totals',
-    $stats && $stats[0]['n'] === 0);
+$api->queries = [];
+$singleSite(null);
+dre_check($failures, $checks, 'unscoped requests use their own cache key and no site predicate',
+    isset($settings->values['dre_stats_v10_x'])
+    && !array_filter($api->queries, fn($call) => $call[0] === 'items' && isset($call[1]['site_id'])));
 
 // The fallback's metric set is a contract, not an implementation detail. The
-// masthead maps every key to an authority page, and the module precompute's
-// buildOverviewStats() must emit the same list in the same order — otherwise
-// the catalogue silently reshuffles when an install gains or loses the
-// visualizations module. A bare `count($stats) === 8` used to stand here, which
+// masthead maps every key to an authority page, and DRESearch's
+// CorpusCounts::METRICS emits the same list in the same order — otherwise the
+// catalogue silently reshuffles when an install gains or loses DRESearch. A bare `count($stats) === 8` used to stand here, which
 // broke on the first metric change while saying nothing about what diverged.
 $keys = array_column($stats, 'k');
-dre_check($failures, $checks, 'API fallback emits the ten catalogue metrics in precompute order',
+dre_check($failures, $checks, 'API fallback emits the ten catalogue metrics in DRESearch order',
     $keys === [
         'researchItems', 'projects', 'people', 'organisations', 'locations',
         'languages', 'subjectsTags', 'publications', 'podcasts', 'youtube',
@@ -232,8 +161,8 @@ dre_check($failures, $checks, 'fallback count predicates retain public site scop
         && $call[1]['site_id'] === 102 && $call[1]['is_public'] === true
         && $call[1]['limit'] === 0 && isset($call[1]['resource_template_label']))) === 5);
 // Publications span a growing, non-contiguous template range, and records
-// detached from the set keep their publication template. Like DRESearch and the
-// precompute, the fallback counts set membership, never a sum of template labels.
+// detached from the set keep their publication template. Like DRESearch, the
+// fallback counts set membership, never a sum of template labels.
 dre_check($failures, $checks, 'publications are counted by the Publications item set',
     count(array_filter($api->queries, fn($call) => $call[0] === 'items'
         && ($call[1]['item_set_id'] ?? null) === [29918]
@@ -270,12 +199,16 @@ dre_check($failures, $checks, 'failures are logged once per stage',
 $stats = $singleSite(89);
 dre_check($failures, $checks, 'outage without cached values returns an empty band', $stats === []);
 
-unlink($dataDir . '/collection-overview.json');
-rmdir($dataDir);
-rmdir(dirname($dataDir));
-rmdir(dirname(dirname($dataDir)));
-rmdir(dirname(dirname(dirname($dataDir))));
-rmdir(dirname(dirname(dirname(dirname($dataDir)))));
-rmdir($root);
+$remove = function (string $path) use (&$remove): void {
+    if (!is_dir($path)) {
+        unlink($path);
+        return;
+    }
+    foreach (array_diff(scandir($path), ['.', '..']) as $entry) {
+        $remove($path . '/' . $entry);
+    }
+    rmdir($path);
+};
+$remove($root);
 
 dre_report('CollectionStats', $failures, $checks);

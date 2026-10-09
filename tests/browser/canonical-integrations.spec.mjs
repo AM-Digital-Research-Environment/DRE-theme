@@ -4,6 +4,7 @@ import {
     collectDreAssetVersions,
     versionAtLeast,
     watchErrors,
+    SNAPSHOT_ROOT,
 } from './read-only-test.mjs';
 import { getSurface } from './surfaces.mjs';
 
@@ -53,7 +54,7 @@ test('the canonical item route mounts Mirador and its digitized canvas', async (
 });
 
 test('the canonical item only mounts a dashboard published for that record', async ({ page, request }) => {
-    const root = '/modules/DreVisualizations/asset/data/';
+    const root = SNAPSHOT_ROOT;
     const manifestResponse = await request.get(`${root}current.json`);
     expect(manifestResponse.status(), 'The snapshot health check must remain explicit').toBe(200);
     const manifest = await manifestResponse.json();

@@ -2,6 +2,13 @@ import { test as base, expect } from '@playwright/test';
 
 import { productionRequestDecision } from './production-request-policy.mjs';
 
+/**
+ * DRE Visualizations' published snapshot. Since 2.29.0 it lives in private
+ * storage and is served only through this site route; the old public
+ * `/modules/DreVisualizations/asset/data/` tree is purged on upgrade.
+ */
+export const SNAPSHOT_ROOT = '/s/amira/dre-data/';
+
 export function watchErrors(page) {
     const errors = [];
     page.on('console', (message) => {

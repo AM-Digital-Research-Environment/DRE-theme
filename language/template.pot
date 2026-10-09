@@ -340,7 +340,7 @@ msgstr ""
 msgid "Knowledge-graph links"
 msgstr ""
 
-#: helper/CollectionStats.php:143
+#: helper/CollectionStats.php:136
 msgid "Languages"
 msgstr ""
 
@@ -364,7 +364,7 @@ msgstr ""
 msgid "Loading connections…"
 msgstr ""
 
-#: helper/CollectionStats.php:142
+#: helper/CollectionStats.php:135
 msgid "Locations"
 msgstr ""
 
@@ -459,7 +459,7 @@ msgstr ""
 msgid "Open results as a page"
 msgstr ""
 
-#: helper/CollectionStats.php:141
+#: helper/CollectionStats.php:134
 msgid "Organisations"
 msgstr ""
 
@@ -492,7 +492,7 @@ msgstr ""
 msgid "Part of %s"
 msgstr ""
 
-#: helper/CollectionStats.php:140
+#: helper/CollectionStats.php:133
 msgid "People"
 msgstr ""
 
@@ -516,7 +516,7 @@ msgstr ""
 msgid "Places mapped & georeferenced"
 msgstr ""
 
-#: helper/CollectionStats.php:146
+#: helper/CollectionStats.php:139
 msgid "Podcasts"
 msgstr ""
 
@@ -533,7 +533,7 @@ msgstr ""
 msgid "Private"
 msgstr ""
 
-#: helper/CollectionStats.php:139
+#: helper/CollectionStats.php:132
 msgid "Projects"
 msgstr ""
 
@@ -557,7 +557,7 @@ msgstr ""
 msgid "Publication trends & networks"
 msgstr ""
 
-#: helper/CollectionStats.php:145
+#: helper/CollectionStats.php:138
 msgid "Publications"
 msgstr ""
 
@@ -581,7 +581,7 @@ msgstr ""
 msgid "Remove"
 msgstr ""
 
-#: helper/CollectionStats.php:138
+#: helper/CollectionStats.php:131
 msgid "Research items"
 msgstr ""
 
@@ -685,7 +685,7 @@ msgstr ""
 msgid "Subjects"
 msgstr ""
 
-#: helper/CollectionStats.php:144
+#: helper/CollectionStats.php:137
 msgid "Subjects & tags"
 msgstr ""
 
@@ -811,6 +811,6 @@ msgstr ""
 msgid "Years"
 msgstr ""
 
-#: helper/CollectionStats.php:147
+#: helper/CollectionStats.php:140
 msgid "YouTube videos"
 msgstr ""

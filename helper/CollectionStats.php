@@ -18,10 +18,15 @@ use Laminas\View\Helper\AbstractHelper;
  *      and an ephemeral tmpfs dropped it on every deploy. The key carries a
  *      schema version so a change to the metric set ignores a stale shape.
  *   2. DRESearch public source counts for this site, when its service is available.
- *   3. A DRE Visualizations precompute explicitly matching the requested site.
- *      Unscoped snapshots are used only for unscoped requests.
- *   4. The theme's own API-computed counts, so a standalone DRE theme with no
- *      visualizations module still grounds the hero.
+ *   3. The theme's own API-computed counts, so a standalone DRE theme with no
+ *      DRESearch still grounds the hero.
+ *
+ * DRE Visualizations is deliberately not a source. Its Collection Overview
+ * figures are DRESearch's CorpusCounts copied into a snapshot, which the module
+ * keeps in private storage (2.29+) and withdraws on every Omeka write. Reading
+ * it would couple the theme to the module's internals for a staler copy of
+ * step 2. Theme ≤2.35 read the pre-2.29 public asset/data tree, which no
+ * longer exists, so that branch had silently stopped matching.
  *
  * Every stage is wrapped in catch(\Throwable): this renders on the home page of
  * every site, and no stat band is always better than a 500. A failure returns
@@ -45,15 +50,6 @@ class CollectionStats extends AbstractHelper
      */
     private const CACHE_VERSION = 'v10';
 
-    /** The visualizations module's data directory, relative to OMEKA_PATH. */
-    private const PRECOMPUTE_DIR = '/modules/DreVisualizations/asset/data';
-
-    /** The artifact to read, relative to the resolved generation root. */
-    private const PRECOMPUTE_FILE = 'item-dashboards/collection-overview.json';
-
-    /** A published generation id, e.g. 20260803T085234Z-964ff56b9f5c. */
-    private const GENERATION_ID = '/^[0-9]{8}T[0-9]{6}Z-[a-f0-9]{12}$/';
-
     public function __invoke(?int $siteId = null): array
     {
         $cacheKey = sprintf('dre_stats_%s_%s', self::CACHE_VERSION, $siteId ?: 'x');
@@ -70,9 +66,6 @@ class CollectionStats extends AbstractHelper
             return $this->localize($stale ?? []);
         }
         $stats = $this->fromSearchProfiles($siteId);
-        if (null === $stats) {
-            $stats = $this->fromPrecompute($siteId);
-        }
         if (null === $stats) {
             $stats = $this->fromApi($siteId);
         }
@@ -200,97 +193,6 @@ class CollectionStats extends AbstractHelper
         }
     }
 
-    // ------------------------------------------------------- source: module
-
-    /**
-     * Resolve the precompute through the module's generation pointer.
-     *
-     * The module publishes atomically: artifacts are staged, then the directory
-     * is renamed and asset/data/current.json is swapped to point at it
-     * (Precompute/SnapshotPublisher.php). Readers must therefore go through the
-     * pointer — this mirrors the module's own
-     * Precompute/PublishedSnapshot::path(), which a theme cannot call because
-     * the class is absent whenever the module is.
-     *
-     * Getting this wrong is silent: the flat pre-generation path simply stops
-     * existing, is_readable() returns false, and the masthead quietly serves the
-     * thinner API fallback instead. That is exactly what happened between the
-     * module adopting generations and theme 2.24.1 — the band lost Languages,
-     * Podcasts and YouTube videos and nothing anywhere reported an error.
-     *
-     * Returns [artifact path, site id the snapshot was built for]. The module
-     * records that scope in the pointer (`scope.siteId`), not in the artifact —
-     * as its own DataController checks — so a legacy flat file is unscoped.
-     */
-    private function precomputeSource(): ?array
-    {
-        $dataDir = OMEKA_PATH . self::PRECOMPUTE_DIR;
-
-        $manifestPath = $dataDir . '/current.json';
-        if (is_readable($manifestPath)) {
-            $manifest = json_decode((string) file_get_contents($manifestPath), true);
-            $generationId = is_array($manifest) ? (string) ($manifest['generationId'] ?? '') : '';
-            // Validated, not trusted as a path fragment: this string is
-            // concatenated into a filesystem path.
-            if (preg_match(self::GENERATION_ID, $generationId)) {
-                $published = $dataDir . '/generations/' . $generationId . '/' . self::PRECOMPUTE_FILE;
-                $scope = $manifest['scope']['siteId'] ?? null;
-                return is_readable($published) ? [$published, is_int($scope) && $scope > 0 ? $scope : null] : null;
-            }
-        }
-
-        // Upgrade compatibility: a module older than the generations layout, or
-        // one that has not regenerated since upgrading, still writes it flat.
-        $legacy = $dataDir . '/' . self::PRECOMPUTE_FILE;
-        return is_readable($legacy) ? [$legacy, null] : null;
-    }
-
-    private function fromPrecompute(?int $siteId): ?array
-    {
-        try {
-            if (!defined('OMEKA_PATH')) {
-                return null;
-            }
-            $source = $this->precomputeSource();
-            if (null === $source) {
-                return null;
-            }
-            [$path, $scope] = $source;
-            $data = json_decode((string) file_get_contents($path), true);
-            if (!is_array($data) || empty($data['stats']) || !is_array($data['stats'])) {
-                return null;
-            }
-
-            // A snapshot must describe exactly the requested scope, even on
-            // one-site installations. Older artifacts carried their own siteId.
-            if (isset($data['siteId'])) {
-                $scope = (int) $data['siteId'];
-            }
-            if ($scope !== $siteId) {
-                return null;
-            }
-
-            $built = [];
-            foreach ($data['stats'] as $stat) {
-                if (!is_array($stat) || !isset($stat['label'], $stat['value'])) {
-                    continue;
-                }
-                $built[] = [
-                    'k' => (string) ($stat['key'] ?? ''),
-                    'l' => (string) $stat['label'],
-                    'n' => (int) $stat['value'],
-                    's' => isset($stat['subtitle']) ? (string) $stat['subtitle'] : '',
-                ];
-            }
-
-            // A precompute with only a card or two is a half-written file; fall
-            // through to the API rather than render a thin band.
-            return count($built) >= 3 ? $built : null;
-        } catch (\Throwable $e) {
-            return null;
-        }
-    }
-
     // ---------------------------------------------------------- source: API
 
     /**
@@ -346,9 +248,9 @@ class CollectionStats extends AbstractHelper
                 return !empty($setId[$label]) ? $total(['item_set_id' => $setId[$label]]) : 0;
             };
 
-            // Same metrics, same ORDER as the module precompute's
-            // buildOverviewStats(), so the masthead does not silently reshuffle
-            // when an install gains or loses the visualizations module.
+            // Same metrics, same ORDER as DRESearch's CorpusCounts::METRICS, so
+            // the masthead does not silently reshuffle when an install gains or
+            // loses DRESearch.
             //
             // Resource Types was dropped after 2.24: every other row answers
             // "how much of X does the collection hold" and links to an authority
@@ -356,11 +258,11 @@ class CollectionStats extends AbstractHelper
             // being a corpus of its own — and it is the one key the masthead has
             // no route for, so it was the single dead row in the catalogue.
             //
-            // Publications is the Publications item set, as in DRESearch and the
-            // precompute, never a sum of template labels. The publication
-            // templates grow with every new upstream type, and the set is also
-            // curated: records detached from it keep their publication template,
-            // so a label sum both missed new types and counted removed records.
+            // Publications is the Publications item set, as in DRESearch, never
+            // a sum of template labels. The publication templates grow with
+            // every new upstream type, and the set is also curated: records
+            // detached from it keep their publication template, so a label sum
+            // both missed new types and counted removed records.
             return [
                 ['k' => 'researchItems', 'l' => 'Research items',  'n' => $byTemplate('Research Items'), 's' => ''],
                 ['k' => 'projects',      'l' => 'Projects',        'n' => $byTemplate('Projects'),       's' => ''],
