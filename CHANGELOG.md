@@ -13,6 +13,8 @@ to create.
 
 <!-- Summarise user-visible changes here (Added / Changed / Fixed / Removed / Security). -->
 
+## [2.35.0] - 2026-10-09
+
 ### Changed
 
 - An authority record (a person, place, subject heading, journal …) that DRE SEO 0.11+ cites as an entry of the database (`citeAs: 'entry'`) gets the panel title "Cite this record" and a "Copy citation" button. The copy fallback is the citation text, not the permalink. With an older module, such records keep the "This record" panel and "Copy link".
@@ -455,7 +457,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.34.0...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.0...HEAD
+[2.35.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.34.0...v2.35.0
 [2.34.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.33.4...v2.34.0
 [2.33.4]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.33.3...v2.33.4
 [2.33.3]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.33.2...v2.33.3
