@@ -13,6 +13,8 @@ to create.
 
 <!-- Summarise user-visible changes here (Added / Changed / Fixed / Removed / Security). -->
 
+## [2.35.1] - 2026-10-09
+
 ### Removed
 
 - The home masthead no longer looks for DRE Visualizations' precompute. It read `modules/DreVisualizations/asset/data/`, which DRE Visualizations 2.29+ no longer publishes (its snapshot moved to private storage), so this source had silently stopped matching. Its figures were a copy of DRE Search's source counts anyway, and those stay the first source. Without DRE Search, the theme's own Omeka API counts take over, with the same ten metrics in the same order.
@@ -465,7 +467,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.0...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.1...HEAD
+[2.35.1]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.0...v2.35.1
 [2.35.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.34.0...v2.35.0
 [2.34.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.33.4...v2.34.0
 [2.33.4]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.33.3...v2.33.4
