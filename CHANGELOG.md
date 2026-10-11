@@ -13,6 +13,10 @@ to create.
 
 <!-- Summarise user-visible changes here (Added / Changed / Fixed / Removed / Security). -->
 
+### Fixed
+
+- In the Visualisations menu, YouTube now has a description ("Video trends & playlists") like the entries beside it. The panel looks descriptions up by page slug, and `youtube-visualisations` had no entry.
+
 ## [2.35.1] - 2026-10-09
 
 ### Removed

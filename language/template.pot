@@ -61,7 +61,7 @@ msgstr ""
 msgid "Africa Multiple Cluster of Excellence"
 msgstr ""
 
-#: view/common/nav-menu.phtml:44
+#: view/common/nav-menu.phtml:45
 msgid "Africa's foremost music archive"
 msgstr ""
 
@@ -336,7 +336,7 @@ msgstr ""
 msgid "Items"
 msgstr ""
 
-#: view/common/nav-menu.phtml:42
+#: view/common/nav-menu.phtml:43
 msgid "Knowledge-graph links"
 msgstr ""
 
@@ -467,7 +467,7 @@ msgstr ""
 msgid "Origins & context"
 msgstr ""
 
-#: view/common/nav-menu.phtml:46
+#: view/common/nav-menu.phtml:47
 msgid "Orishas — Gregório de Mattos Foundation"
 msgstr ""
 
@@ -500,7 +500,7 @@ msgstr ""
 msgid "People & roles"
 msgstr ""
 
-#: view/common/nav-menu.phtml:45
+#: view/common/nav-menu.phtml:46
 msgid "Peripheral memories of Capoeira Angola in Salvador"
 msgstr ""
 
@@ -787,7 +787,11 @@ msgstr ""
 msgid "Value must be an integer"
 msgstr ""
 
-#: view/common/nav-menu.phtml:109
+#: view/common/nav-menu.phtml:42
+msgid "Video trends & playlists"
+msgstr ""
+
+#: view/common/nav-menu.phtml:110
 msgid "View all"
 msgstr ""
 
@@ -799,7 +803,7 @@ msgstr ""
 msgid "View as"
 msgstr ""
 
-#: view/common/nav-menu.phtml:47
+#: view/common/nav-menu.phtml:48
 msgid "Workers in/from Bahia"
 msgstr ""
 
