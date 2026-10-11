@@ -13,6 +13,8 @@ to create.
 
 <!-- Summarise user-visible changes here (Added / Changed / Fixed / Removed / Security). -->
 
+## [2.35.2] - 2026-10-11
+
 ### Fixed
 
 - In the Visualisations menu, YouTube now has a description ("Video trends & playlists") like the entries beside it. The panel looks descriptions up by page slug, and `youtube-visualisations` had no entry.
@@ -471,7 +473,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.1...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.2...HEAD
+[2.35.2]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.1...v2.35.2
 [2.35.1]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.0...v2.35.1
 [2.35.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.34.0...v2.35.0
 [2.34.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.33.4...v2.34.0
