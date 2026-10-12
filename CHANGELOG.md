@@ -13,6 +13,8 @@ to create.
 
 <!-- Summarise user-visible changes here (Added / Changed / Fixed / Removed / Security). -->
 
+## [2.35.3] - 2026-10-12
+
 ### Fixed
 
 - Google search results now show the real Africa Multiple compass beside the site, not a redrawn compass on a green tile. Google picks the largest icon a page declares, and that was the 180px Apple touch icon, a vector re-draw. Every icon (touch icon, installed-app icons and favicons) is now resized from a 1024px master cut from the Cluster's official print logo. 192px and 96px favicons are also declared for search engines.
@@ -477,7 +479,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.2...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.3...HEAD
+[2.35.3]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.2...v2.35.3
 [2.35.2]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.1...v2.35.2
 [2.35.1]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.0...v2.35.1
 [2.35.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.34.0...v2.35.0
