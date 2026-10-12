@@ -14,7 +14,7 @@ Toggle it under theme settings → **Progressive Web App** (default on).
 | Per-site manifest (JSON island → runtime `blob:`) | `view/layout/layout.phtml` + `asset/js/pwa-install.js` |
 | Install button (hidden until installable) | `view/common/header.phtml` |
 | Button + iOS-hint styles | `asset/sass/components/pwa/_pwa-install.scss` |
-| Icon set on a Uni-Grün tile | `asset/img/pwa/*.png` (generator: `scripts/gen-pwa-icons.mjs`) |
+| Icon set (official compass on white) | `asset/img/pwa/*.png` (generator: `scripts/gen-pwa-icons.mjs`) |
 | `theme-color` (light/dark), Apple/mobile metas, favicons | `view/layout/layout.phtml` `<head>` |
 | Enable + short-name settings | `config/theme.ini` (`pwa_enable`, `pwa_short_name`) |
 
@@ -98,27 +98,27 @@ script removes it — no flash on browsers that can’t install.
 
 ## The icon set
 
-`scripts/gen-pwa-icons.mjs` (run with `npm run build:icons`) redraws the Africa
-Multiple compass mark as crisp vector art in the theme’s own `--brand-*` pigments
-and rasterises it with **sharp**. It writes to `asset/img/pwa/`:
+`scripts/gen-pwa-icons.mjs` (run with `npm run build:icons`) resizes every icon
+with **sharp** from one master, `compass-source.png`. That file is the Africa
+Multiple compass rose cut out of the Cluster's official print logo
+(`logo_africamultiple_image.tif`), with the lettering and grey rule removed. It is
+1024px with a transparent ground, framed like the official favicon. Nothing is
+redrawn. It writes to `asset/img/pwa/`:
 
 | File | Size | Purpose |
 | --- | --- | --- |
-| `icon-192.png`, `icon-512.png` | 192, 512 | `any` — rounded tile, ~10% margin |
-| `maskable-192.png`, `maskable-512.png` | 192, 512 | `maskable` — full bleed, glyph in the 80% safe zone |
-| `monochrome-512.png` | 512 | `monochrome` — single-colour glyph on transparent |
-| `apple-touch-icon.png` | 180 | opaque, square, no rounding (iOS masks it) |
-| `favicon-source.png` | 48 | master artwork — the official Africa Multiple colour compass on white; favicons are resized from this |
-| `favicon-48.png`, `favicon-32.png`, `favicon-16.png` | 48, 32, 16 | browser-tab mark, resized from `favicon-source.png` (real artwork, not redrawn) |
+| `compass-source.png` | 1024 | master artwork (build input only; not in the release zip) |
+| `icon-192.png`, `icon-512.png` | 192, 512 | `any` — compass on a rounded white tile |
+| `maskable-192.png`, `maskable-512.png` | 192, 512 | `maskable` — full-bleed white; the ring sits inside the 80% safe zone |
+| `monochrome-512.png` | 512 | `monochrome` — the mark's own silhouette, white on transparent |
+| `apple-touch-icon.png` | 180 | opaque white, square, no rounding (iOS masks it) |
+| `favicon-192.png`, `favicon-96.png` | 192, 96 | search engines: Google shows the largest declared icon, in multiples of 48px |
+| `favicon-48.png`, `favicon-32.png`, `favicon-16.png` | 48, 32, 16 | browser tab |
 
-The **installed-app tile** compass (`icon-*`, `maskable-*`, `monochrome-*`,
-`apple-touch-icon`) is redrawn as vector art (not cropped from the wordmark)
-because the wordmark’s mark is only ~130px tall and bleeds into the lettering —
-it can’t be separated or upscaled cleanly. Redrawing it also yields a clean
-single-colour silhouette for the `monochrome` purpose. The **browser-tab
-favicons**, by contrast, are resized straight from `favicon-source.png` (the
-official colour compass on white) so the tab shows the real brand mark. Commit
-the regenerated PNGs.
+Until v2.35 the app and touch icons were a vector *re-draw* of the compass on a
+green tile. Because the touch icon was the largest icon on the page, Google showed
+it beside search results. To change the mark, replace `compass-source.png` and
+re-run the script. Commit the regenerated PNGs.
 
 ## Testing installability
 

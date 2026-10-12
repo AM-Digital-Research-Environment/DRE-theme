@@ -86,7 +86,7 @@ msgstr ""
 msgid "Authors & named persons"
 msgstr ""
 
-#: view/layout/layout.phtml:198
+#: view/layout/layout.phtml:200
 msgid "Back to top"
 msgstr ""
 
@@ -665,7 +665,7 @@ msgstr ""
 msgid "Site pages"
 msgstr ""
 
-#: view/layout/layout.phtml:184
+#: view/layout/layout.phtml:186
 msgid "Skip to main content"
 msgstr ""
 

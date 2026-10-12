@@ -130,7 +130,7 @@ To add a locale, copy it to `<locale>.po`, translate the `msgstr` values, compil
 
 ## Installable PWA
 
-With the **Progressive Web App** setting enabled (the default), the site becomes installable — desktop browsers offer *Install*, mobile browsers *Add to Home Screen* — using the Africa Multiple compass mark on a Uni-Grün tile.
+With the **Progressive Web App** setting enabled (the default), the site becomes installable — desktop browsers offer *Install*, mobile browsers *Add to Home Screen* — using the official Africa Multiple compass mark on white.
 
 - **Quiet, browser-gated button.** A small install button sits in the header, hidden by default. `asset/js/pwa-install.js` reveals it **only** when the browser fires `beforeinstallprompt` (Chrome/Edge/Android), or on iOS Safari (where the button opens a *Share → Add to Home Screen* hint). There is **no auto-popup** — the browser’s own mini-infobar is suppressed.
 - **Per-site manifest, minted at runtime.** The manifest (name, start URL/scope/id from the site base, `theme_color`/`background_color` from the surface tokens, icons, Browse/Search shortcuts, locale) is built in PHP as a JSON island in `<head>`, then attached by the script as a **same-origin `blob:` URL** with all URLs absolutised first. A theme can’t register an Omeka route to serve a real `.webmanifest`, a static file can’t carry per-site values, and a `data:` manifest has an opaque origin Chrome would reject — so a runtime blob is the correct approach.

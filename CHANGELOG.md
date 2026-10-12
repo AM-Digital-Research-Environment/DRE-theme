@@ -13,6 +13,10 @@ to create.
 
 <!-- Summarise user-visible changes here (Added / Changed / Fixed / Removed / Security). -->
 
+### Fixed
+
+- Google search results now show the real Africa Multiple compass beside the site, not a redrawn compass on a green tile. Google picks the largest icon a page declares, and that was the 180px Apple touch icon, a vector re-draw. Every icon (touch icon, installed-app icons and favicons) is now resized from a 1024px master cut from the Cluster's official print logo. 192px and 96px favicons are also declared for search engines.
+
 ## [2.35.2] - 2026-10-11
 
 ### Fixed

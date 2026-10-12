@@ -41,6 +41,9 @@
 /eslint.config.mjs      export-ignore
 /scripts/               export-ignore
 /asset/sass/            export-ignore
+# The 1024px icon master: scripts/gen-pwa-icons.mjs resizes every shipped
+# icon from it, and Omeka never serves it.
+/asset/img/pwa/compass-source.png export-ignore
 
 # --- Tests and CI ---------------------------------------------------------
 /tests/                 export-ignore
