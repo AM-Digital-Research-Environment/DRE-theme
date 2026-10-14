@@ -11,6 +11,8 @@ to create.
 
 ## [Unreleased]
 
+## [2.37.0] - 2026-10-14
+
 ### Added
 
 - Research records now say plainly, under their title, that AMIRA holds only a description of the material: the material itself is kept elsewhere and cannot be obtained through the site. When a record shows images, the notice says they are previews. ([#10](https://github.com/AM-Digital-Research-Environment/DRE-theme/issues/10))
@@ -503,7 +505,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.36.0...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.37.0...HEAD
+[2.37.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.36.0...v2.37.0
 [2.36.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.4...v2.36.0
 [2.35.4]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.3...v2.35.4
 [2.35.3]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.2...v2.35.3
