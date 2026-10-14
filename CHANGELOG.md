@@ -11,6 +11,8 @@ to create.
 
 ## [Unreleased]
 
+## [2.37.1] - 2026-10-14
+
 ### Fixed
 
 - Ships the access notices of 2.37.0, which was tagged but never packaged: a redundant check in the new access helper failed CI's static analysis (PHPStan), so the release workflow stopped before building the zip. No change in behaviour.
@@ -509,7 +511,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.37.0...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.37.1...HEAD
+[2.37.1]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.37.0...v2.37.1
 [2.37.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.36.0...v2.37.0
 [2.36.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.4...v2.36.0
 [2.35.4]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.3...v2.35.4
