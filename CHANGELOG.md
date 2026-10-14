@@ -11,6 +11,10 @@ to create.
 
 ## [Unreleased]
 
+### Fixed
+
+- Ships the access notices of 2.37.0, which was tagged but never packaged: a redundant check in the new access helper failed CI's static analysis (PHPStan), so the release workflow stopped before building the zip. No change in behaviour.
+
 ## [2.37.0] - 2026-10-14
 
 ### Added

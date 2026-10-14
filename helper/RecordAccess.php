@@ -260,7 +260,7 @@ class RecordAccess extends AbstractHelper
     /** "2020-01-01/2023-12-31" → "2020–2023"; one year → "2020"; else "". */
     public static function years(string $temporal): string
     {
-        if (!preg_match_all('~(?<!\d)(\d{4})(?:-\d{2}){0,2}(?!\d)~', $temporal, $m) || !$m[1]) {
+        if (!preg_match_all('~(?<!\d)(\d{4})(?:-\d{2}){0,2}(?!\d)~', $temporal, $m)) {
             return '';
         }
         $first = $m[1][0];
