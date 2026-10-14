@@ -1,0 +1,88 @@
+<?php
+/**
+ * Record notice — the plain statement under the title (issue #10).
+ *
+ * On a research record: this page is a description, the material is elsewhere,
+ * and here is how to ask for it. On a project: the standard statement — whose
+ * metadata this is, who answers for its accuracy, who to contact — so the DRE can
+ * point to it instead of taking a collection offline.
+ *
+ * Written for a visitor who has never heard of metadata. Self-suppressing:
+ * RecordAccess returns [] for everything that is not a research record or a
+ * project, and for every record when the theme setting is off.
+ *
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var array $access From RecordAccess, passed by item/show.phtml.
+ */
+if (empty($access)) return;
+
+$escHtml = $this->plugin('escapeHtml');
+$escAttr = $this->plugin('escapeHtmlAttr');
+$translate = $this->plugin('translate');
+$translatePlural = $this->plugin('translatePlural');
+
+$linkList = function (array $links) use ($escHtml, $escAttr): string {
+    $parts = [];
+    foreach ($links as $link) {
+        $parts[] = $link['href'] !== ''
+            ? '<a href="' . $escAttr($link['href']) . '">' . $escHtml($link['label']) . '</a>'
+            : $escHtml($link['label']);
+    }
+    return implode('; ', $parts);
+};
+$mailLink = '<a href="mailto:' . $escAttr($access['email']) . '">' . $escHtml($access['email']) . '</a>';
+?>
+<aside class="record-notice" aria-labelledby="record-notice-<?php echo (int) $access['id']; ?>">
+<?php if ($access['kind'] === 'record'): ?>
+    <p>
+        <strong class="record-notice__lead" id="record-notice-<?php echo (int) $access['id']; ?>"><?php echo $escHtml($translate('This page is a catalogue record.')); ?></strong>
+        <?php echo sprintf(
+            $escHtml($translatePlural('It describes material connected with the research project %s.', 'It describes material connected with the research projects %s.', count($access['projects']))),
+            $linkList($access['projects'])
+        ); ?>
+        <?php echo $escHtml($translate('AMIRA holds only this description: the material itself is kept elsewhere and cannot be obtained through this site.')); ?>
+        <?php if ($access['hasMedia']): ?>
+            <?php echo $escHtml($translate('Any images shown are previews.')); ?>
+        <?php endif; ?>
+    </p>
+    <p class="record-notice__action">
+        <a href="#record-access-<?php echo (int) $access['id']; ?>"><?php echo $escHtml($translate('How to request access')); ?></a>
+    </p>
+<?php else: ?>
+    <?php
+    $context = implode(', ', array_filter([
+        implode(', ', array_column($access['sections'], 'label')),
+        $access['years'],
+    ]));
+    $title = '<em>' . $escHtml($access['title']) . '</em>' . ($context !== '' ? ' (' . $escHtml($context) . ')' : '');
+    ?>
+    <p>
+        <strong class="record-notice__lead" id="record-notice-<?php echo (int) $access['id']; ?>"><?php echo $escHtml($translate('About these records.')); ?></strong>
+        <?php if ($access['contactSource'] === 'dre'): ?>
+            <?php echo sprintf($escHtml($translate('This page presents the metadata of the collection %s.')), $title); ?>
+        <?php else: ?>
+            <?php echo sprintf($escHtml($translate('This page presents the metadata produced by the research project %s.')), $title); ?>
+            <?php echo $escHtml($translate('The project team described the material following the curation guidelines of the Digital Research Environment (DRE); the researchers are responsible for the accuracy of the descriptions.')); ?>
+        <?php endif; ?>
+        <?php echo $escHtml($translate('AMIRA does not hold the material itself.')); ?>
+    </p>
+    <p>
+        <?php if ($access['contactSource'] === 'pi'): ?>
+            <?php echo sprintf(
+                $escHtml($translatePlural('For access or more information, contact the principal investigator, %1$s, or, if you cannot reach them, the DRE at %2$s.', 'For access or more information, contact the principal investigators, %1$s, or, if you cannot reach them, the DRE at %2$s.', count($access['contacts']))),
+                $linkList($access['contacts']),
+                $mailLink
+            ); ?>
+        <?php elseif ($access['contactSource'] === 'mediator'): ?>
+            <?php echo sprintf($escHtml($translate('For access or more information, contact %1$s, or, if you cannot reach them, the DRE at %2$s.')), $linkList($access['contacts']), $mailLink); ?>
+        <?php else: ?>
+            <?php echo sprintf($escHtml($translate('For access or more information, write to the DRE at %s.')), $mailLink); ?>
+        <?php endif; ?>
+    </p>
+    <?php if ($access['accessPageUrl'] !== ''): ?>
+        <p class="record-notice__action">
+            <a href="<?php echo $escAttr($access['accessPageUrl']); ?>"><?php echo $escHtml($translate('More about access to AMIRA material')); ?></a>
+        </p>
+    <?php endif; ?>
+<?php endif; ?>
+</aside>

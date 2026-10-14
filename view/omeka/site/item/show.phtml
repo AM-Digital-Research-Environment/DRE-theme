@@ -57,11 +57,19 @@ $rightSidebarHasBlocks = $rightSidebarBlockContent->hasBlocks();
 // one or the other. Without an apparatus it stays under the title.
 $saveInRail = (string) $this->partial('common/shortlist-button', ['resource' => $item, 'detail' => true, 'placement' => 'rail']);
 $apparatus = trim((string) $this->partial('common/record-apparatus', ['resource' => $item, 'saveButton' => $saveInRail]));
-$hasRail = ($apparatus !== '') || $rightSidebarHasBlocks;
+
+// AMIRA describes material it does not hold (issue #10). On a research record
+// the notice under the title says so and points to "Access to this material",
+// which leads the rail: who to ask comes before how to cite. On a project the
+// notice is the project's standard statement. Both are empty elsewhere.
+$access = $this->RecordAccess($item);
+$recordAccess = trim((string) $this->partial('common/record-access', ['resource' => $item, 'access' => $access]));
+$hasRail = ($apparatus !== '') || ($recordAccess !== '') || $rightSidebarHasBlocks;
 ?>
 
 <?php echo $this->ResourceTags($item); ?>
 <?php echo $this->pageTitle($item->displayTitle(null, $valueLang), 1); ?>
+<?php echo $this->partial('common/record-notice', ['access' => $access]); ?>
 
 <?php echo $this->partial('common/shortlist-button', ['resource' => $item, 'detail' => true, 'placement' => $apparatus !== '' ? 'narrow' : null]); ?>
 
@@ -86,6 +94,7 @@ $hasRail = ($apparatus !== '') || $rightSidebarHasBlocks;
 
         <?php if ($hasRail): ?>
             <aside class="item-record__rail">
+                <?php echo $recordAccess; ?>
                 <?php echo $apparatus; ?>
 
                 <?php if ($rightSidebarHasBlocks && $blockContent = $rightSidebarBlockContent->getBlocks()): ?>

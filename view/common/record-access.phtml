@@ -1,0 +1,110 @@
+<?php
+/**
+ * Record access — "Access to this material", the first panel of the rail.
+ *
+ * Answers the three questions a visitor arriving from a search engine actually
+ * has, in the order they have them: is there a copy online, who can I ask, and
+ * how do I report a mistake. The contact is generated from the record's project
+ * (see helper/RecordAccess.php), never typed per record.
+ *
+ * The record notice under the title links here (#record-access-{id}).
+ *
+ * The error report is a ContactUs form when that module is active — messages are
+ * stored in admin and mailed to the DRE — and otherwise a pre-filled email to the
+ * DRE mailbox carrying the record id and permalink.
+ *
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+ * @var array $access From RecordAccess, passed by item/show.phtml.
+ */
+if (empty($access) || $access['kind'] !== 'record') return;
+
+$escHtml = $this->plugin('escapeHtml');
+$escAttr = $this->plugin('escapeHtmlAttr');
+$translate = $this->plugin('translate');
+$translatePlural = $this->plugin('translatePlural');
+
+$linkList = function (array $links) use ($escHtml, $escAttr): string {
+    $parts = [];
+    foreach ($links as $link) {
+        $parts[] = $link['href'] !== ''
+            ? '<a href="' . $escAttr($link['href']) . '">' . $escHtml($link['label']) . '</a>'
+            : $escHtml($link['label']);
+    }
+    return implode('; ', $parts);
+};
+$mailLink = '<a href="mailto:' . $escAttr($access['email']) . '">' . $escHtml($access['email']) . '</a>';
+$id = 'record-access-' . (int) $access['id'];
+
+// The report form, when the ContactUs module provides one. Optional and possibly
+// misconfigured on a deploy, so a failure falls back to the email link.
+$reportForm = '';
+if ($this->getHelperPluginManager()->has('contactUs')) {
+    try {
+        $rendered = $this->contactUs([
+            'resource' => $resource,
+            'heading' => $translate('Report an error in this record'),
+            'as_button' => true,
+            'template' => 'common/contact-us-button',
+        ]);
+        $reportForm = is_string($rendered) ? trim($rendered) : '';
+    } catch (\Throwable $e) {
+        $this->IntegrationWarning($resource, 'contact form', $e);
+        $reportForm = '';
+    }
+}
+?>
+<section class="record-access" id="<?php echo $escAttr($id); ?>" aria-labelledby="<?php echo $escAttr($id . '-title'); ?>">
+    <h2 class="record-apparatus__title" id="<?php echo $escAttr($id . '-title'); ?>"><?php echo $escHtml($translate('Access to this material')); ?></h2>
+
+    <h3 class="record-access__label"><?php echo $escHtml($translate('Online copy')); ?></h3>
+    <?php if ($access['links']): ?>
+        <ul class="record-access__links">
+            <?php foreach ($access['links'] as $link): ?>
+                <li><a href="<?php echo $escAttr($link['href']); ?>"><?php echo $escHtml($link['label']); ?></a></li>
+            <?php endforeach; ?>
+        </ul>
+        <p class="record-access__note"><?php echo $escHtml($translate('Access is decided there and may be restricted.')); ?></p>
+    <?php else: ?>
+        <p><?php echo $escHtml($translate('No online copy is linked to this record.')); ?></p>
+    <?php endif; ?>
+
+    <h3 class="record-access__label"><?php echo $escHtml($translate('Who to ask')); ?></h3>
+    <?php if ($access['contactSource'] === 'pi'): ?>
+        <p><?php echo sprintf(
+            $escHtml($translatePlural('For access or more information, contact the principal investigator of %1$s: %2$s.', 'For access or more information, contact the principal investigators of %1$s: %2$s.', count($access['contacts']))),
+            $linkList($access['projects']),
+            $linkList($access['contacts'])
+        ); ?></p>
+        <?php if ($access['holders']): ?>
+            <p><?php echo sprintf(
+                $escHtml($translate('Please do not write to %s about access: it keeps the material but is not the contact for this research.')),
+                '<strong>' . $escHtml(implode('; ', $access['holders'])) . '</strong>'
+            ); ?></p>
+        <?php endif; ?>
+        <p><?php echo sprintf($escHtml($translate('Cannot reach them? Write to the Digital Research Environment (DRE): %s.')), $mailLink); ?></p>
+    <?php elseif ($access['contactSource'] === 'mediator'): ?>
+        <p><?php echo sprintf($escHtml($translate('For access or more information, contact %s.')), $linkList($access['contacts'])); ?></p>
+        <p><?php echo sprintf($escHtml($translate('Cannot reach them? Write to the Digital Research Environment (DRE): %s.')), $mailLink); ?></p>
+    <?php else: ?>
+        <p><?php echo sprintf($escHtml($translate('For access or more information, write to the Digital Research Environment (DRE) of the Africa Multiple Cluster: %s.')), $mailLink); ?></p>
+    <?php endif; ?>
+
+    <h3 class="record-access__label"><?php echo $escHtml($translate('Something wrong?')); ?></h3>
+    <?php if ($reportForm !== ''): ?>
+        <?php // The module labels its own button ("Send a message"); this line says what it is for. ?>
+        <p><?php echo $escHtml($translate('Report a typo, a mistake or a suggested improvement to the DRE. The record’s id is sent with your message.')); ?></p>
+        <div class="record-access__report"><?php echo $reportForm; ?></div>
+    <?php else: ?>
+        <p>
+            <a class="record-access__report-link" href="<?php echo $escAttr($access['reportMailto']); ?>"><?php echo $escHtml($translate('Report an error in this record')); ?></a>
+            <span class="record-access__note"><?php echo $escHtml(sprintf($translate('Opens an email to %s.'), $access['email'])); ?></span>
+        </p>
+    <?php endif; ?>
+
+    <?php if ($access['accessPageUrl'] !== ''): ?>
+        <p class="record-access__more">
+            <a href="<?php echo $escAttr($access['accessPageUrl']); ?>"><?php echo $escHtml($translate('More about access to AMIRA material')); ?></a>
+        </p>
+    <?php endif; ?>
+</section>

@@ -11,7 +11,19 @@ to create.
 
 ## [Unreleased]
 
-<!-- Summarise user-visible changes here (Added / Changed / Fixed / Removed / Security). -->
+### Added
+
+- Research records now say plainly, under their title, that AMIRA holds only a description of the material: the material itself is kept elsewhere and cannot be obtained through the site. When a record shows images, the notice says they are previews. ([#10](https://github.com/AM-Digital-Research-Environment/DRE-theme/issues/10))
+- A new *Access to this material* panel leads the record's side column, above *Cite this record*. It answers three questions:
+  - **Online copy:** each link is named after the system it leads to (UB Digital Collections, RDSpace, the publisher's page or the website's address), with a note that access there may be restricted. A record with no link says so.
+  - **Who to ask:** the contact comes from the record's project. It is the project's `dcterms:mediator` if one is set, otherwise its principal investigators, otherwise the DRE mailbox. When the PIs are the contact, the institution named under *Current location* or *Repository* is named as not the contact for access.
+  - **Something wrong?** A report of a mistake goes to the DRE through the ContactUs module's form when that module is active, and otherwise as an email pre-filled with the record's id and permalink.
+- Project pages carry a standard statement: whose metadata this is, that the researchers are responsible for its accuracy, that AMIRA does not hold the material, and who to contact.
+- New *Access notices* theme settings: switch the notices on or off, set the mailbox (default `africamultiple-digital@uni-bayreuth.de`), and set the slug of an optional "Access & contact" page, which the notices link to once it is published.
+
+### Changed
+
+- On wide screens, the record's side column now scrolls on its own when its panels are taller than the window. Before, the foot of a sticky column taller than the screen stayed out of reach until the end of the page.
 
 ## [2.36.0] - 2026-10-14
 
