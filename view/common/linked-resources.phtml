@@ -58,6 +58,13 @@ $connectionSearch = $connectionSearch ?? '';
 $pageUrl = function (int $number) use ($baseUrl, $resourceProperty, $connectionSearch, $fragment) {
     return $baseUrl . '?' . http_build_query(['lr_property' => $resourceProperty, 'lr_q' => $connectionSearch, 'lr_page' => $number]) . '#' . $fragment;
 };
+// The server filter only earns its place when there is something to refine: a
+// result set spanning pages, several connections, or a filter to undo.
+$filterActive = $resourceProperty !== $resourceType . ':' || $connectionSearch !== '';
+$showFilter = $isPaginated || $uniqueCount > 1 || $filterActive;
+// Group the relationships by resource type only when both types link here; a
+// lone "Items" heading over every option is noise.
+$groupByType = count($typesWithValues) > 1;
 ?>
 <details class="resources-linked" id="<?php echo $fragment; ?>" open>
 
@@ -77,7 +84,9 @@ $pageUrl = function (int $number) use ($baseUrl, $resourceProperty, $connectionS
 
     <div class="resources-linked__panel">
 
-        <form class="resources-linked__types" method="get" action="<?php echo $escapeAttr($baseUrl); ?>#linked-resources" data-connection-form>
+        <?php if ($showFilter): ?>
+        <form class="resources-linked__filter" method="get" action="<?php echo $escapeAttr($baseUrl); ?>#linked-resources" data-connection-form>
+            <div class="resources-linked__field">
             <label for="resource-property-select"><?php echo $translate('Filter all connections by relationship'); ?></label>
             <select name="lr_property" id="resource-property-select">
                 <?php
@@ -90,19 +99,23 @@ $pageUrl = function (int $number) use ($baseUrl, $resourceProperty, $connectionS
                 <option value="<?php echo $escapeAttr($resourceProperty); ?>" selected><?php echo $escape($translate('Selected relationship')); ?></option>
                 <?php endif; ?>
                 <?php foreach ($typesWithValues as $type): ?>
-                    <optgroup label="<?php echo $escapeAttr($typeLabels[$type]); ?>">
+                    <?php if ($groupByType): ?><optgroup label="<?php echo $escapeAttr($typeLabels[$type]); ?>"><?php endif; ?>
                         <?php $optionValue = $type . ':'; ?>
-                        <option value="<?php echo $escapeAttr($optionValue); ?>"<?php echo $resourceProperty === $optionValue ? ' selected' : ''; ?>><?php echo $translate('All'); ?></option>
+                        <option value="<?php echo $escapeAttr($optionValue); ?>"<?php echo $resourceProperty === $optionValue ? ' selected' : ''; ?>><?php echo $groupByType ? $translate('All') : $translate('All relationships'); ?></option>
                         <?php foreach ($resourcePropertiesAll[$type] as $option): ?>
                         <option value="<?php echo $escapeAttr($option['compound_id']); ?>"<?php echo $resourceProperty === $option['compound_id'] ? ' selected' : ''; ?>><?php echo $escape($option['label_is_translatable'] ? $translate($option['label']) : $option['label']); ?></option>
                         <?php endforeach; ?>
-                    </optgroup>
+                    <?php if ($groupByType): ?></optgroup><?php endif; ?>
                 <?php endforeach; ?>
             </select>
+            </div>
+            <div class="resources-linked__field">
             <label for="linked-resources-query"><?php echo $translate('Search all connections by title'); ?></label>
             <input type="search" id="linked-resources-query" name="lr_q" value="<?php echo $escapeAttr($connectionSearch); ?>" maxlength="200">
+            </div>
             <button type="submit" class="button"><?php echo $translate('Apply'); ?></button>
         </form>
+        <?php endif; ?>
 
         <?php if ($showControls): ?>
         <div class="resources-linked__controls">

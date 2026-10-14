@@ -65,16 +65,20 @@ msgstr ""
 msgid "Africa's foremost music archive"
 msgstr ""
 
-#: view/common/linked-resources.phtml:112
-#: view/common/linked-resources.phtml:95
+#: view/common/linked-resources.phtml:104
+#: view/common/linked-resources.phtml:125
 msgid "All"
+msgstr ""
+
+#: view/common/linked-resources.phtml:104
+msgid "All relationships"
 msgstr ""
 
 #: view/common/menu-drawer.phtml:3
 msgid "All sections"
 msgstr ""
 
-#: view/common/linked-resources.phtml:104
+#: view/common/linked-resources.phtml:116
 msgid "Apply"
 msgstr ""
 
@@ -143,7 +147,7 @@ msgid_plural "connections on this page"
 msgstr[0] ""
 msgstr[1] ""
 
-#: view/common/linked-resources.phtml:182
+#: view/common/linked-resources.phtml:195
 msgid "Connection pages"
 msgstr ""
 
@@ -259,11 +263,11 @@ msgstr ""
 msgid "Fewer, broader terms cast a wider net."
 msgstr ""
 
-#: view/common/linked-resources.phtml:81
+#: view/common/linked-resources.phtml:90
 msgid "Filter all connections by relationship"
 msgstr ""
 
-#: view/common/linked-resources.phtml:110
+#: view/common/linked-resources.phtml:123
 msgid "Filter this page by relationship"
 msgstr ""
 
@@ -352,7 +356,7 @@ msgstr ""
 msgid "Licence"
 msgstr ""
 
-#: view/common/linked-resources.phtml:66
+#: view/common/linked-resources.phtml:73
 msgid "Linked resources"
 msgstr ""
 
@@ -412,12 +416,12 @@ msgstr ""
 msgid "Names may appear transliterated — try a variant spelling."
 msgstr ""
 
-#: view/common/linked-resources.phtml:185
+#: view/common/linked-resources.phtml:198
 #: view/common/pagination.phtml:36
 msgid "Next"
 msgstr ""
 
-#: view/common/linked-resources.phtml:179
+#: view/common/linked-resources.phtml:192
 msgid "No connections match this filter."
 msgstr ""
 
@@ -476,7 +480,7 @@ msgstr ""
 msgid "Page"
 msgstr ""
 
-#: view/common/linked-resources.phtml:184
+#: view/common/linked-resources.phtml:197
 msgid "Page %1$s of %2$s"
 msgstr ""
 
@@ -520,7 +524,7 @@ msgstr ""
 msgid "Podcasts"
 msgstr ""
 
-#: view/common/linked-resources.phtml:183
+#: view/common/linked-resources.phtml:196
 #: view/common/pagination.phtml:18
 msgid "Previous"
 msgstr ""
@@ -569,7 +573,7 @@ msgstr ""
 msgid "Read the metadata at a glance."
 msgstr ""
 
-#: view/common/linked-resources.phtml:128
+#: view/common/linked-resources.phtml:141
 msgid "Relationship"
 msgstr ""
 
@@ -615,7 +619,7 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-#: view/common/linked-resources.phtml:102
+#: view/common/linked-resources.phtml:113
 msgid "Search all connections by title"
 msgstr ""
 
@@ -653,7 +657,7 @@ msgstr ""
 msgid "Seconds"
 msgstr ""
 
-#: view/common/linked-resources.phtml:90
+#: view/common/linked-resources.phtml:99
 msgid "Selected relationship"
 msgstr ""
 
@@ -673,7 +677,7 @@ msgstr ""
 msgid "Social media"
 msgstr ""
 
-#: view/common/linked-resources.phtml:126
+#: view/common/linked-resources.phtml:139
 msgid "Sort this page"
 msgstr ""
 
@@ -734,11 +738,11 @@ msgstr ""
 msgid "Time"
 msgstr ""
 
-#: view/common/linked-resources.phtml:129
+#: view/common/linked-resources.phtml:142
 msgid "Title (A–Z)"
 msgstr ""
 
-#: view/common/linked-resources.phtml:130
+#: view/common/linked-resources.phtml:143
 msgid "Title (Z–A)"
 msgstr ""
 

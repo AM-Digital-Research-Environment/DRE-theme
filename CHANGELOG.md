@@ -13,6 +13,10 @@ to create.
 
 <!-- Summarise user-visible changes here (Added / Changed / Fixed / Removed / Security). -->
 
+### Fixed
+
+- The Linked resources filter (relationship dropdown, title search and Apply) is laid out as a proper form again. It had inherited the old resource-type switch's pill styling, which wrapped the controls in a rounded capsule. The dropdown no longer puts an "Items" heading over its options when items are the only linked type; its first option now reads "All relationships". The filter is hidden when there is a single connection and nothing to refine.
+
 ## [2.35.3] - 2026-10-12
 
 ### Fixed

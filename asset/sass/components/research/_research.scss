@@ -61,7 +61,6 @@
     li > button { display: block; margin-block-start: var(--space-2); }
     .shortlist-download { margin-inline: var(--space-2); }
 }
-.resources-linked__types { flex-wrap: wrap; }
 [data-connection-recovery][hidden] { display: none; }
 [data-connection-status]:empty { display: none; }
 [aria-busy="true"] .resources-linked { opacity: .7; }

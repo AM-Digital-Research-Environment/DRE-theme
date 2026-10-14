@@ -89,15 +89,35 @@
         padding-top: var(--space-5);
     }
 
-    // Resource-type switch — only when a record is linked from more than one
-    // resource type (items / item sets / media). A segmented pill.
-    &__types {
-        display: inline-flex;
+    // Server filter — relationship select and title search side by side, Apply
+    // aligned with the controls; the fields wrap to full width on narrow
+    // screens. (This used to wear the old resource-type switch's segmented-pill
+    // class, which squeezed the whole form into a 9999px-radius capsule.)
+    &__filter {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: var(--space-3) var(--space-4);
+        margin-bottom: var(--space-5);
+
+        select,
+        input[type="search"] { margin-bottom: 0; }
+
+        .button { flex: none; }
+    }
+
+    &__field {
+        display: flex;
+        flex: 1 1 16rem;
+        flex-direction: column;
         gap: var(--space-1);
-        margin-bottom: var(--space-4);
-        padding: var(--space-1);
-        background-color: var(--surface-sunken);
-        border-radius: var(--radius-full);
+        min-width: 0;
+
+        label {
+            color: var(--ink-light);
+            font-size: var(--text-sm);
+            font-weight: 600;
+        }
     }
 
     // Controls row — search + relationship facets flow from the left; sort is

@@ -65,6 +65,11 @@ $html = $v->render('omeka/site/index/linked-resources', ['resource' => $a]);
 $doc = new DOMDocument(); @$doc->loadHTML($html); $xp = new DOMXPath($doc);
 dre_check($failures, $checks, 'terminal response retains the actual compound selection', $xp->query('//option[@selected][@value="items:7-0,234"]')->length === 1);
 dre_check($failures, $checks, 'ordinary continuation links carry search, relationship and page', str_contains($html, 'lr_property=items%3A7-0%2C234&amp;lr_q=A&amp;lr_page=2'));
+dre_check($failures, $checks, 'a single resource type gets no optgroup heading', $xp->query('//optgroup')->length === 0 && $xp->query('//option[@value="items:"][.="All relationships"]')->length === 1);
+$v->callbacks['ConnectionPage'] = fn() => ['totalCount' => 1, 'perPage' => 25, 'resourceProperty' => 'items:', 'connectionSearch' => ''] + $data;
+$html = $v->render('omeka/site/index/linked-resources', ['resource' => $a]);
+dre_check($failures, $checks, 'a lone unfiltered connection renders no server filter', str_contains($html, 'connection__title') && !str_contains($html, 'data-connection-form'));
+$v->callbacks['ConnectionPage'] = fn() => $data;
 $html = $v->render('common/resource-page-block-layout/linked-resources', ['resource' => $a]);
 dre_check($failures, $checks, 'initial connection records are server rendered with enhancement recovery controls', str_contains($html, 'connection__title') && str_contains($html, 'data-connection-retry'));
 
