@@ -13,6 +13,10 @@ to create.
 
 <!-- Summarise user-visible changes here (Added / Changed / Fixed / Removed / Security). -->
 
+### Changed
+
+- On phones and tablets, "Cite this record" (with the DOI, licence and Save record) now follows the record directly. Linked resources and the visualisation blocks come after it. Before, the panel came last, below every visualisation. On wide screens the panel stays in the sticky column beside the record. Printed records also put the citation before the linked resources and visualisations.
+
 ## [2.35.4] - 2026-10-14
 
 ### Fixed

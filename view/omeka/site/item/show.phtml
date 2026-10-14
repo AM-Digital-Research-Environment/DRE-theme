@@ -26,8 +26,22 @@ $lang = $this->lang();
 $valueLang = $filterLocale ? [$lang, ''] : null;
 
 // Regions
-$mainBlockContent = $this->resourcePageBlocks($item);
-$mainHasBlocks = $mainBlockContent->hasBlocks();
+//
+// The centre region is split in two around the apparatus: the record itself
+// (its media viewer and values) and, after it, everything that puts the record
+// in context (linked resources, visualisations, module blocks). On a phone the
+// rail no longer lands under every visualisation: "Cite this record" follows
+// the record directly. The split falls after the last record block, so the
+// admin's block order is kept as configured; an unknown block counts as
+// context.
+$recordBlockNames = ['mirador', 'mediaEmbeds', 'mediaRender', 'mediaList', 'values', 'itemSets'];
+$mainBlocks = $this->resourcePageBlocks($item)->getBlocksArray();
+$splitAt = 0;
+foreach (array_keys($mainBlocks) as $index => $blockName) {
+    if (in_array($blockName, $recordBlockNames, true)) $splitAt = $index + 1;
+}
+$recordBlocks = trim(implode('', array_slice($mainBlocks, 0, $splitAt)));
+$contextBlocks = trim(implode('', array_slice($mainBlocks, $splitAt)));
 $leftSidebarBlockContent = $this->resourcePageBlocks($item, 'left');
 $leftSidebarHasBlocks = $leftSidebarBlockContent->hasBlocks();
 $rightSidebarBlockContent = $this->resourcePageBlocks($item, 'right');
@@ -39,8 +53,8 @@ $rightSidebarHasBlocks = $rightSidebarBlockContent->hasBlocks();
 //
 // "Save record" is a record action, so it sits in the apparatus beside "Copy
 // link", where the sticky rail keeps it in view. Below $lg the rail drops under
-// the whole record, so a second copy under the title serves those widths; CSS
-// shows one or the other. Without an apparatus it stays under the title.
+// the record, so a second copy under the title serves those widths; CSS shows
+// one or the other. Without an apparatus it stays under the title.
 $saveInRail = (string) $this->partial('common/shortlist-button', ['resource' => $item, 'detail' => true, 'placement' => 'rail']);
 $apparatus = trim((string) $this->partial('common/record-apparatus', ['resource' => $item, 'saveButton' => $saveInRail]));
 $hasRail = ($apparatus !== '') || $rightSidebarHasBlocks;
@@ -53,7 +67,7 @@ $hasRail = ($apparatus !== '') || $rightSidebarHasBlocks;
 
 <?php $this->trigger('view.show.before'); ?>
 
-<?php if ($mainHasBlocks || $leftSidebarHasBlocks || $hasRail): ?>
+<?php if ($mainBlocks || $leftSidebarHasBlocks || $hasRail): ?>
 
     <div class="item-record<?php echo $hasRail ? ' item-record--railed' : ''; ?>">
         <div class="item-record__main">
@@ -63,9 +77,9 @@ $hasRail = ($apparatus !== '') || $rightSidebarHasBlocks;
                 </div>
             <?php endif; ?>
 
-            <?php if ($mainHasBlocks && $blockContent = $mainBlockContent->getBlocks()): ?>
+            <?php if ($recordBlocks !== ''): ?>
                 <div class="metadata">
-                    <?php echo $blockContent; ?>
+                    <?php echo $recordBlocks; ?>
                 </div>
             <?php endif; ?>
         </div>
@@ -80,6 +94,12 @@ $hasRail = ($apparatus !== '') || $rightSidebarHasBlocks;
                     </div>
                 <?php endif; ?>
             </aside>
+        <?php endif; ?>
+
+        <?php if ($contextBlocks !== ''): ?>
+            <div class="item-record__context metadata">
+                <?php echo $contextBlocks; ?>
+            </div>
         <?php endif; ?>
     </div>
 

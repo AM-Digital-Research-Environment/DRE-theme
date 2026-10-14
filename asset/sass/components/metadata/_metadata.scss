@@ -40,17 +40,41 @@
     gap: var(--space-12);
     margin-bottom: var(--space-12);
 
+    // DOM order is record → rail → context, so on one column the citation
+    // follows the record and precedes linked resources and visualisations.
+    // Beside the rail, the context row continues the reading column at the
+    // usual block spacing (.metadata's --space-8; the record's last block, now
+    // a :last-child, has none of its own) and the rail spans both rows, so it
+    // stays sticky the whole way down.
     &--railed {
         @media (min-width: $lg) {
             grid-template-columns: minmax(0, 1fr) var(--rail-width);
-            gap: var(--space-16);
+            // A rail taller than the record grows the flexible second row,
+            // never the record's, so no gap opens above the context blocks.
+            grid-template-rows: auto 1fr;
+            gap: var(--space-8) var(--space-16);
             align-items: start;
+
+            .item-record__main,
+            .item-record__context { grid-column: 1; }
+
+            .item-record__rail {
+                grid-column: 2;
+                grid-row: 1 / span 2;
+            }
         }
     }
 }
 
-.item-record__main {
+.item-record__main,
+.item-record__context {
     min-width: 0;
+}
+
+// The grid gap already separates the context from the record; a block's own
+// top margin would double it (grid items don't collapse margins).
+.item-record__context > :first-child {
+    margin-top: 0;
 }
 
 // The "left sidebar" region. It is rare, and at the record's new proportions a

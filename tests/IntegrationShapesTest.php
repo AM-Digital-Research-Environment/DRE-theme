@@ -86,4 +86,27 @@ dre_check($failures, $checks, 'record sections keep stable fragment IDs', str_co
 $html = $v->render('common/resource-values', ['resource' => $a, 'values' => $values]);
 dre_check($failures, $checks, 'repeated metadata blocks have unique section IDs', str_contains($html, 'id="record-1-2-description"'));
 
+// Item page: the apparatus (citation) follows the record and precedes context
+// blocks in DOM order, so a single-column phone layout cites before it charts.
+$pageBlocks = new class {
+    public array $regions = [];
+    public string $region = 'main';
+    public function __invoke($resource, $region = 'main') { $this->region = $region; return $this; }
+    public function getBlocksArray(): array { return $this->regions[$this->region] ?? []; }
+    public function hasBlocks(): bool { return (bool) $this->getBlocksArray(); }
+    public function getBlocks(): string { return implode('', $this->getBlocksArray()); }
+};
+$chain = new class { public function __call($name, $args) { return $this; } };
+$v->callbacks += ['headLink' => fn() => $chain, 'htmlElement' => fn() => $chain, 'ResourceTags' => fn() => '', 'pageTitle' => fn($title) => '<h1>' . $title . '</h1>', 'resourcePageBlocks' => $pageBlocks];
+$v->callbacks['partial:common/shortlist-button'] = fn() => '';
+$v->callbacks['partial:common/record-apparatus'] = fn() => '<section data-apparatus>Cite this record</section>';
+$pageBlocks->regions['main'] = ['mirador' => '<div data-mirador></div>', 'values' => '<div data-values></div>', 'linkedResources' => '<div data-linked></div>', 'dreSimilarItems' => '<section data-similar></section>'];
+$html = $v->render('omeka/site/item/show', ['item' => $a]);
+$at = fn($marker) => strpos($html, $marker);
+dre_check($failures, $checks, 'item page orders record, citation, then context blocks',
+    $at('data-mirador') < $at('data-values') && $at('data-values') < $at('data-apparatus') && $at('data-apparatus') < $at('data-linked') && $at('data-linked') < $at('data-similar') && str_contains($html, 'item-record__context'));
+$pageBlocks->regions['main'] = ['values' => '<div data-values></div>'];
+$html = $v->render('omeka/site/item/show', ['item' => $a]);
+dre_check($failures, $checks, 'item page without context blocks renders no empty context wrapper', str_contains($html, 'data-values') && !str_contains($html, 'item-record__context'));
+
 dre_report('IntegrationShapes', $failures, $checks);
