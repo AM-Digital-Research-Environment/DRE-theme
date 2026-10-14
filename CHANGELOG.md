@@ -13,6 +13,8 @@ to create.
 
 <!-- Summarise user-visible changes here (Added / Changed / Fixed / Removed / Security). -->
 
+## [2.35.4] - 2026-10-14
+
 ### Fixed
 
 - The Linked resources filter (relationship dropdown, title search and Apply) is laid out as a proper form again. It had inherited the old resource-type switch's pill styling, which wrapped the controls in a rounded capsule. The dropdown no longer puts an "Items" heading over its options when items are the only linked type; its first option now reads "All relationships". The filter is hidden when there is a single connection and nothing to refine.
@@ -483,7 +485,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.3...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.4...HEAD
+[2.35.4]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.3...v2.35.4
 [2.35.3]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.2...v2.35.3
 [2.35.2]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.1...v2.35.2
 [2.35.1]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.0...v2.35.1
