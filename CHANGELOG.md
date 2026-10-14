@@ -13,6 +13,8 @@ to create.
 
 <!-- Summarise user-visible changes here (Added / Changed / Fixed / Removed / Security). -->
 
+## [2.36.0] - 2026-10-14
+
 ### Changed
 
 - On phones and tablets, "Cite this record" (with the DOI, licence and Save record) now follows the record directly. Linked resources and the visualisation blocks come after it. Before, the panel came last, below every visualisation. On wide screens the panel stays in the sticky column beside the record. Printed records also put the citation before the linked resources and visualisations.
@@ -489,7 +491,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.4...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.36.0...HEAD
+[2.36.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.4...v2.36.0
 [2.35.4]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.3...v2.35.4
 [2.35.3]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.2...v2.35.3
 [2.35.2]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.1...v2.35.2

@@ -32,7 +32,7 @@ abstract: >-
   published contract, consumed by name by the Cluster's DRE Search and
   ResourceVisualizations modules.
 
-version: 2.35.4
+version: 2.36.0
 date-released: 2026-10-14
 license: GPL-3.0-or-later
 
