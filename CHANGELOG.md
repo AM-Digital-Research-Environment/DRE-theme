@@ -11,6 +11,8 @@ to create.
 
 ## [Unreleased]
 
+## [2.37.2] - 2026-10-15
+
 ### Changed
 
 - The "This page is a catalogue record" notice now spans the full width of the record and is shorter. Its "How to request access" link is gone, since *Access to this material* sits beside it. It names the project or collection the record comes from instead of calling it a research project, because ILAM and BayGlo are external collections.
@@ -520,7 +522,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.37.1...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.37.2...HEAD
+[2.37.2]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.37.1...v2.37.2
 [2.37.1]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.37.0...v2.37.1
 [2.37.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.36.0...v2.37.0
 [2.36.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.35.4...v2.36.0
