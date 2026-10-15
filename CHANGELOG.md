@@ -13,7 +13,7 @@ to create.
 
 ### Added
 
-- Item and media pages show a breadcrumb above the title: *Home › Publications › record*, where the middle crumb is the record's item set (a research item's project, *Publications*, *Institutions* …) and a media page sits under its item. The trail comes from DRE SEO's new `dreBreadcrumb()` helper, the one its `BreadcrumbList` states, so the visible trail and the structured data agree. Without the module the record sits under the home page alone.
+- Item and media pages show a breadcrumb above the title: *Home › Publications › record*, where the middle crumb is the record's item set (a research item's project, *Publications*, *Institutions* …) and a media page sits under its item. The trail comes from DRE SEO 0.14.0's `dreBreadcrumb()` helper, the one its `BreadcrumbList` states, so the visible trail and the structured data agree. Without the module the record sits under the home page alone.
 
 ### Changed
 
