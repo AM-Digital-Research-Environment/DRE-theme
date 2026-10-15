@@ -31,7 +31,8 @@ $linkList = function (array $links) use ($escHtml, $escAttr): string {
     }
     return implode('; ', $parts);
 };
-$mailLink = '<a href="mailto:' . $escAttr($access['email']) . '">' . $escHtml($access['email']) . '</a>';
+// An access request to the DRE arrives with the record's id, title and link.
+$mailLink = '<a href="' . $escAttr($access['requestMailto']) . '">' . $escHtml($access['email']) . '</a>';
 $id = 'record-access-' . (int) $access['id'];
 
 // The report form, when the ContactUs module provides one. Optional and possibly

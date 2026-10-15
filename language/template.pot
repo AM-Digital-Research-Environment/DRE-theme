@@ -19,7 +19,11 @@ msgid_plural "(%s items)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: helper/RecordAccess.php:144
+#: helper/RecordAccess.php:140
+msgid "[AMIRA] Access request: record %1$s: %2$s"
+msgstr ""
+
+#: helper/RecordAccess.php:135
 msgid "[AMIRA] Correction to record %1$s: %2$s"
 msgstr ""
 
@@ -52,11 +56,11 @@ msgstr ""
 msgid "Access rights"
 msgstr ""
 
-#: view/common/record-access.phtml:69
+#: view/common/record-access.phtml:70
 msgid "Access there may be restricted."
 msgstr ""
 
-#: view/common/record-access.phtml:56
+#: view/common/record-access.phtml:57
 msgid "Access to this material"
 msgstr ""
 
@@ -159,6 +163,10 @@ msgstr ""
 
 #: view/common/header.phtml:104
 msgid "Close menu"
+msgstr ""
+
+#: helper/RecordAccess.php:54
+msgid "Collections@UBT, University of Bayreuth"
 msgstr ""
 
 #: view/common/linked-resources.phtml:33
@@ -323,7 +331,7 @@ msgstr ""
 msgid "Formats"
 msgstr ""
 
-#: view/common/record-access.phtml:113
+#: view/common/record-access.phtml:114
 msgid "Found a mistake in this record? Tell the DRE."
 msgstr ""
 
@@ -480,7 +488,7 @@ msgstr ""
 msgid "Months"
 msgstr ""
 
-#: view/common/record-access.phtml:119
+#: view/common/record-access.phtml:120
 msgid "More about access"
 msgstr ""
 
@@ -510,7 +518,7 @@ msgstr ""
 msgid "No pages found"
 msgstr ""
 
-#: view/common/record-access.phtml:105
+#: view/common/record-access.phtml:106
 msgid "No reply?"
 msgstr ""
 
@@ -518,11 +526,11 @@ msgstr ""
 msgid "No saved records yet."
 msgstr ""
 
-#: view/common/record-access.phtml:71
+#: view/common/record-access.phtml:72
 msgid "None linked to this record."
 msgstr ""
 
-#: view/common/record-access.phtml:91
+#: view/common/record-access.phtml:92
 msgid "Not %s: it keeps the material but does not handle access requests."
 msgstr ""
 
@@ -539,11 +547,11 @@ msgstr ""
 msgid "Offset"
 msgstr ""
 
-#: view/common/record-access.phtml:63
+#: view/common/record-access.phtml:64
 msgid "On this page, possibly in part"
 msgstr ""
 
-#: view/common/record-access.phtml:60
+#: view/common/record-access.phtml:61
 msgid "Online copy"
 msgstr ""
 
@@ -560,7 +568,7 @@ msgstr ""
 msgid "Open results as a page"
 msgstr ""
 
-#: view/common/record-access.phtml:86
+#: view/common/record-access.phtml:87
 msgid "or the research team of %s"
 msgstr ""
 
@@ -635,7 +643,7 @@ msgstr ""
 msgid "Primary navigation"
 msgstr ""
 
-#: view/common/record-access.phtml:82
+#: view/common/record-access.phtml:83
 msgid "principal investigator"
 msgid_plural "principal investigators"
 msgstr[0] ""
@@ -673,7 +681,7 @@ msgstr ""
 msgid "Publications"
 msgstr ""
 
-#: helper/RecordAccess.php:55
+#: helper/RecordAccess.php:56
 msgid "Publisher’s page (DOI)"
 msgstr ""
 
@@ -681,7 +689,7 @@ msgstr ""
 msgid "Query"
 msgstr ""
 
-#: helper/RecordAccess.php:54
+#: helper/RecordAccess.php:55
 msgid "RDSpace, University of Bayreuth"
 msgstr ""
 
@@ -689,7 +697,7 @@ msgstr ""
 msgid "Read the metadata at a glance."
 msgstr ""
 
-#: helper/RecordAccess.php:145
+#: helper/RecordAccess.php:156
 msgid "Record: %s"
 msgstr ""
 
@@ -705,8 +713,8 @@ msgstr ""
 msgid "Remove"
 msgstr ""
 
-#: view/common/record-access.phtml:116
-#: view/common/record-access.phtml:44
+#: view/common/record-access.phtml:117
+#: view/common/record-access.phtml:45
 msgid "Report an error in this record"
 msgstr ""
 
@@ -842,7 +850,7 @@ msgstr ""
 msgid "The Cluster's thematic areas"
 msgstr ""
 
-#: view/common/record-access.phtml:98
+#: view/common/record-access.phtml:99
 msgid "The Digital Research Environment (DRE): %s"
 msgstr ""
 
@@ -854,7 +862,7 @@ msgstr ""
 msgid "The project team described the material following the curation guidelines of the Digital Research Environment (DRE); the researchers are responsible for the accuracy of the descriptions."
 msgstr ""
 
-#: view/common/record-access.phtml:86
+#: view/common/record-access.phtml:87
 msgid "The research team of %s"
 msgstr ""
 
@@ -915,10 +923,6 @@ msgstr ""
 msgid "Try again"
 msgstr ""
 
-#: helper/RecordAccess.php:53
-msgid "UB Digital Collections, University of Bayreuth"
-msgstr ""
-
 #: view/common/shortlist.phtml:24
 msgid "Undo clear"
 msgstr ""
@@ -964,11 +968,15 @@ msgstr ""
 msgid "View as"
 msgstr ""
 
-#: helper/RecordAccess.php:146
+#: helper/RecordAccess.php:136
 msgid "What should be corrected or improved?"
 msgstr ""
 
-#: view/common/record-access.phtml:77
+#: helper/RecordAccess.php:141
+msgid "What would you like to access, and for what purpose?"
+msgstr ""
+
+#: view/common/record-access.phtml:78
 msgid "Who to ask"
 msgstr ""
 
@@ -976,7 +984,7 @@ msgstr ""
 msgid "Workers in/from Bahia"
 msgstr ""
 
-#: view/common/record-access.phtml:106
+#: view/common/record-access.phtml:107
 msgid "Write to the DRE: %s"
 msgstr ""
 

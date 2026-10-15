@@ -50,7 +50,8 @@ class RecordAccess extends AbstractHelper
      */
     private const LINK_TERMS = ['dre:collectionUrl', 'dre:rdspaceHandle', 'bibo:doi', 'fabio:hasURL'];
     private const HOST_LABELS = [
-        'collections.uni-bayreuth.de' => 'UB Digital Collections, University of Bayreuth', // @translate
+        // The site's own name ("Collections@UBT"), not "UB Digital Collections".
+        'collections.uni-bayreuth.de' => 'Collections@UBT, University of Bayreuth', // @translate
         'rdspace.uni-bayreuth.de' => 'RDSpace, University of Bayreuth', // @translate
         'doi.org' => 'Publisher’s page (DOI)', // @translate
     ];
@@ -128,22 +129,31 @@ class RecordAccess extends AbstractHelper
             'links' => $this->links($resource),
             'hasMedia' => $this->hasMedia($resource),
         ];
-        $record['reportMailto'] = $this->reportMailto($record);
+        $translate = $this->getView()->plugin('translate');
+        $record['reportMailto'] = $this->mailto(
+            $record,
+            $translate('[AMIRA] Correction to record %1$s: %2$s'),
+            $translate('What should be corrected or improved?')
+        );
+        $record['requestMailto'] = $this->mailto(
+            $record,
+            $translate('[AMIRA] Access request: record %1$s: %2$s'),
+            $translate('What would you like to access, and for what purpose?')
+        );
 
         return $record;
     }
 
     /**
-     * The mailto that carries an error report when no form module is active: the
-     * record's id and permalink travel in the message, so the DRE never has to ask
-     * which record was meant.
+     * A mailto to the DRE mailbox that carries the record's id, title and
+     * permalink, so the DRE never has to ask which record was meant: one for an
+     * error report (when no form module is active), one for an access request.
      */
-    private function reportMailto(array $access): string
+    private function mailto(array $access, string $subjectFormat, string $prompt): string
     {
         $translate = $this->getView()->plugin('translate');
-        $subject = sprintf($translate('[AMIRA] Correction to record %1$s: %2$s'), $access['id'], $access['title']);
-        $body = sprintf($translate('Record: %s'), $access['permalink'] ?? '') . "\n\n"
-            . $translate('What should be corrected or improved?') . "\n\n";
+        $subject = sprintf($subjectFormat, $access['id'], $access['title']);
+        $body = sprintf($translate('Record: %s'), $access['permalink'] ?? '') . "\n\n" . $prompt . "\n\n";
 
         return 'mailto:' . $access['email']
             . '?subject=' . rawurlencode($subject)

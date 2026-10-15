@@ -11,6 +11,11 @@ to create.
 
 ## [Unreleased]
 
+### Changed
+
+- In *Access to this material*, the DRE's email address now opens a pre-filled access request, like *Report an error in this record*. The subject carries the record's id and title, and the body carries its permanent link and asks what the visitor would like to access and why. Before, it opened an empty email.
+- Links to collections.uni-bayreuth.de are labelled "Collections@UBT, University of Bayreuth", the site's own name, instead of "UB Digital Collections".
+
 ## [2.38.0] - 2026-10-15
 
 ### Added

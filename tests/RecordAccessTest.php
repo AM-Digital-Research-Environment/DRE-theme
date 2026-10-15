@@ -82,7 +82,7 @@ dre_check($failures, $checks, 'a record with media is flagged', $access['hasMedi
 $labels = array_column($access['links'], 'label', 'href');
 dre_check($failures, $checks, 'links are named by the system they lead to, duplicates collapsed',
     $labels === [
-        'https://collections.uni-bayreuth.de/de/item/1' => 'UB Digital Collections, University of Bayreuth',
+        'https://collections.uni-bayreuth.de/de/item/1' => 'Collections@UBT, University of Bayreuth',
         'https://doi.org/10.1234/abc' => 'Publisher’s page (DOI)',
         'https://www.example.org/archive' => 'example.org',
     ], json_encode($labels));
@@ -91,6 +91,13 @@ dre_check($failures, $checks, 'the report mailto carries the record id and perma
     && str_contains(rawurldecode($access['reportMailto']), 'record 8698: Painting <untitled>')
     && str_contains(rawurldecode($access['reportMailto']), 'https://example.test/s/a/item/8698'));
 
+dre_check($failures, $checks, 'the access-request mailto carries the record id and permalink',
+    str_starts_with($access['requestMailto'], 'mailto:' . RecordAccess::DEFAULT_EMAIL . '?subject=')
+    && str_contains(rawurldecode($access['requestMailto']), 'Access request: record 8698: Painting <untitled>')
+    && str_contains(rawurldecode($access['requestMailto']), 'https://example.test/s/a/item/8698'));
+$panel = $view->render('common/record-access', ['resource' => $record, 'access' => $access]);
+dre_check($failures, $checks, 'the DRE address in the panel opens the pre-filled access request',
+    str_contains($panel, 'href="' . htmlspecialchars($access['requestMailto'], ENT_QUOTES) . '">' . RecordAccess::DEFAULT_EMAIL . '</a>'));
 $view->themeSettings['access_contact_email'] = 'not an address';
 dre_check($failures, $checks, 'an invalid mailbox setting falls back to the default', $helper($record)['email'] === RecordAccess::DEFAULT_EMAIL);
 $view->themeSettings['access_contact_email'] = 'dre@example.test';
