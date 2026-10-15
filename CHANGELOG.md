@@ -25,7 +25,15 @@ to create.
 
 - Page titles now read "Record · Site title". The installation title no longer follows every title; the new setting brings it back. The home page is titled with the site title alone, not "Home · Site title".
 - Favicons, the Apple touch icon and the light/dark `theme-color` are now on every page, whatever the *Enable app install* setting. That setting now governs only the app manifest, the install button and the mobile web-app metadata.
+- The "This page is a catalogue record" notice is now a note within the record rather than a second complementary landmark, so screen readers list the side column as the page's only complementary region.
 - `npm run vendor:lint` also refreshes the vendored token lint in DRE-LinkedData, and the *Contract drift* check covers it.
+
+### Fixed
+
+- Metadata values with no language no longer carry an empty `lang=""`, which declared them in an unknown language and overrode the page language (27 values on item 8698, for example).
+- A video or other embed whose title is just its source address no longer uses that address as the thumbnail's alternative text; the item's title is used instead.
+- The Previous and Next links of the linked-resources list are marked `rel="nofollow"`, a hint to search engines not to crawl every page of every filter.
+- The *Access & contact* page is looked up once per request rather than once per notice.
 
 ## [2.37.2] - 2026-10-15
 

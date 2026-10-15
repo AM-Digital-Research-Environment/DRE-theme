@@ -193,9 +193,9 @@ $groupByType = count($typesWithValues) > 1;
 
         <?php if ($isPaginated): ?>
         <nav class="linked-footer pagination" aria-label="<?php echo $escapeAttr($translate('Connection pages')); ?>">
-            <?php if ($page > 1): ?><a data-connection-page href="<?php echo $escapeAttr($pageUrl($page - 1)); ?>"><?php echo $translate('Previous'); ?></a><?php endif; ?>
+            <?php if ($page > 1): ?><a data-connection-page rel="nofollow" href="<?php echo $escapeAttr($pageUrl($page - 1)); ?>"><?php echo $translate('Previous'); ?></a><?php endif; ?>
             <span><?php echo $escape(sprintf($translate('Page %1$s of %2$s'), $page, (int) ceil($totalCount / $perPage))); ?></span>
-            <?php if ($page * $perPage < $totalCount): ?><a data-connection-page href="<?php echo $escapeAttr($pageUrl($page + 1)); ?>"><?php echo $translate('Next'); ?></a><?php endif; ?>
+            <?php if ($page * $perPage < $totalCount): ?><a data-connection-page rel="nofollow" href="<?php echo $escapeAttr($pageUrl($page + 1)); ?>"><?php echo $translate('Next'); ?></a><?php endif; ?>
         </nav>
         <?php endif; ?>
 

@@ -40,7 +40,7 @@ msgstr ""
 msgid "0 results"
 msgstr ""
 
-#: view/common/record-notice.phtml:60
+#: view/common/record-notice.phtml:62
 msgid "About these records."
 msgstr ""
 
@@ -94,7 +94,7 @@ msgstr ""
 msgid "All sections"
 msgstr ""
 
-#: view/common/record-notice.phtml:67
+#: view/common/record-notice.phtml:69
 msgid "AMIRA does not hold the material itself."
 msgstr ""
 
@@ -110,7 +110,7 @@ msgstr ""
 msgid "Authors & named persons"
 msgstr ""
 
-#: view/layout/layout.phtml:200
+#: view/layout/layout.phtml:221
 msgid "Back to top"
 msgstr ""
 
@@ -301,21 +301,21 @@ msgstr ""
 msgid "Filter this page by relationship"
 msgstr ""
 
-#: view/common/record-notice.phtml:79
+#: view/common/record-notice.phtml:81
 msgid "For access or more information, contact %1$s; if you cannot reach them, write to the DRE at %2$s."
 msgstr ""
 
-#: view/common/record-notice.phtml:72
+#: view/common/record-notice.phtml:74
 msgid "For access or more information, contact the principal investigator, %1$s, or the project’s researchers; if you cannot reach them, write to the DRE at %2$s."
 msgid_plural "For access or more information, contact the principal investigators, %1$s, or the project’s researchers; if you cannot reach them, write to the DRE at %2$s."
 msgstr[0] ""
 msgstr[1] ""
 
-#: view/common/record-notice.phtml:77
+#: view/common/record-notice.phtml:79
 msgid "For access or more information, contact the project’s researchers, listed on this page; if you cannot reach them, write to the DRE at %s."
 msgstr ""
 
-#: view/common/record-notice.phtml:81
+#: view/common/record-notice.phtml:83
 msgid "For access or more information, write to the DRE at %s."
 msgstr ""
 
@@ -377,11 +377,11 @@ msgstr ""
 msgid "Invalid value: %s"
 msgstr ""
 
-#: view/common/record-notice.phtml:48
+#: view/common/record-notice.phtml:50
 msgid "It comes from %s and describes material kept elsewhere: AMIRA holds only this description and cannot supply the material itself."
 msgstr ""
 
-#: view/common/record-notice.phtml:46
+#: view/common/record-notice.phtml:48
 msgid "It comes from %s. The original material is kept elsewhere: the images or files shown here are copies for reference and may show only part of it."
 msgstr ""
 
@@ -448,11 +448,11 @@ msgstr ""
 msgid "Media"
 msgstr ""
 
-#: view/common/resource-page-block-layout/mirador.phtml:20
+#: view/common/resource-page-block-layout/mirador.phtml:30
 msgid "Media is unavailable."
 msgstr ""
 
-#: view/common/resource-page-block-layout/mirador.phtml:45
+#: view/common/resource-page-block-layout/mirador.phtml:55
 msgid "Media records"
 msgstr ""
 
@@ -484,7 +484,7 @@ msgstr ""
 msgid "More about access"
 msgstr ""
 
-#: view/common/record-notice.phtml:84
+#: view/common/record-notice.phtml:86
 msgid "More about access to AMIRA material"
 msgstr ""
 
@@ -547,7 +547,7 @@ msgstr ""
 msgid "Online copy"
 msgstr ""
 
-#: view/common/resource-page-block-layout/mirador.phtml:22
+#: view/common/resource-page-block-layout/mirador.phtml:32
 msgid "Open media record"
 msgstr ""
 
@@ -641,7 +641,7 @@ msgid_plural "principal investigators"
 msgstr[0] ""
 msgstr[1] ""
 
-#: view/common/resource-values.phtml:124
+#: view/common/resource-values.phtml:126
 msgid "Private"
 msgstr ""
 
@@ -798,7 +798,7 @@ msgstr ""
 msgid "Site pages"
 msgstr ""
 
-#: view/layout/layout.phtml:186
+#: view/layout/layout.phtml:207
 msgid "Skip to main content"
 msgstr ""
 
@@ -850,7 +850,7 @@ msgstr ""
 msgid "The named entities that link every record together."
 msgstr ""
 
-#: view/common/record-notice.phtml:65
+#: view/common/record-notice.phtml:67
 msgid "The project team described the material following the curation guidelines of the Digital Research Environment (DRE); the researchers are responsible for the accuracy of the descriptions."
 msgstr ""
 
@@ -866,19 +866,19 @@ msgstr ""
 msgid "The shortlist is full. Export or remove records, then choose Undo clear again to restore the remaining records."
 msgstr ""
 
-#: view/common/resource-page-block-layout/mirador.phtml:35
+#: view/common/resource-page-block-layout/mirador.phtml:45
 msgid "The viewer is unavailable. Please try reloading the page."
 msgstr ""
 
-#: view/common/record-notice.phtml:41
+#: view/common/record-notice.phtml:43
 msgid "This page is a catalogue record."
 msgstr ""
 
-#: view/common/record-notice.phtml:62
+#: view/common/record-notice.phtml:64
 msgid "This page presents the metadata of the collection %s."
 msgstr ""
 
-#: view/common/record-notice.phtml:64
+#: view/common/record-notice.phtml:66
 msgid "This page presents the metadata produced by the research project %s."
 msgstr ""
 

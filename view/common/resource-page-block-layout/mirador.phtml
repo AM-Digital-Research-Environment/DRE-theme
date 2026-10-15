@@ -14,7 +14,17 @@ foreach ($allMedia as $media) {
     <?php foreach ($embeds as $media): ?>
     <div class="media-embed media-embed--video">
         <?php try {
-            echo $media->render(['thumbnailAttribs' => ['alt' => $media->altText() ?: $media->displayTitle() ?: '']]);
+            // An embed's display title is often its source URL (a YouTube link),
+            // which a screen reader spells out character by character; the
+            // record's own title describes the picture better.
+            $alt = trim((string) $media->altText());
+            if ($alt === '') {
+                $alt = trim((string) $media->displayTitle());
+                if ($alt === '' || preg_match('~^(?:[a-z][a-z0-9+.-]*:)?//\S+$|^www\.\S+$~i', $alt)) {
+                    $alt = method_exists($media, 'item') && $media->item() ? trim((string) $media->item()->displayTitle()) : '';
+                }
+            }
+            echo $media->render(['thumbnailAttribs' => ['alt' => $alt]]);
         } catch (\Throwable $e) {
             $this->IntegrationWarning($media, 'embed', $e);
             echo '<p>' . $this->escapeHtml($this->translate('Media is unavailable.')) . '</p>';

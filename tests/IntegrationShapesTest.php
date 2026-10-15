@@ -44,6 +44,27 @@ foreach ([[$embed], [$image], [$embed, $image], [], [$failed, $image]] as $i => 
     if (in_array($failed, $media, true)) dre_check($failures, $checks, 'unavailable embed leaves recovery and viewer', str_contains($html, 'Media is unavailable.') && str_contains($html, 'Open media record'));
 }
 
+// An embed's thumbnail alt: its own alt text, else its title — unless that title
+// is just the source URL, when the item's title says more.
+$owner = new ThemeTestResource('Interview with a griot', 77);
+$altFor = function (string $title, string $alt = '') use ($v, $owner): string {
+    $embed = new class($title, $alt, $owner) extends ThemeTestResource {
+        public array $rendered = [];
+        public function __construct(string $title, private string $alt, private $owner) { parent::__construct($title, 9); }
+        public function ingester() { return 'youtube'; }
+        public function altText() { return $this->alt; }
+        public function item() { return $this->owner; }
+        public function render(...$args) { $this->rendered = $args[0] ?? []; return ''; }
+    };
+    $v->callbacks['mirador'] = fn() => '';
+    $v->render('common/resource-page-block-layout/mirador', ['resource' => new class($embed) { public function __construct(private $m) {} public function media() { return [$this->m]; } }]);
+    return $embed->rendered['thumbnailAttribs']['alt'] ?? '(none)';
+};
+dre_check($failures, $checks, 'an embed titled with its URL takes the item title as alt',
+    $altFor('https://www.youtube.com/watch?v=abc123') === 'Interview with a griot' && $altFor('www.youtube.com/watch?v=abc') === 'Interview with a griot');
+dre_check($failures, $checks, 'a real embed title or alt text is kept',
+    $altFor('Griot performance, 2019') === 'Griot performance, 2019' && $altFor('https://youtu.be/x', 'A griot sings') === 'A griot sings');
+
 // The optional viewer, not attached media, decides whether a manifest is usable.
 $v->callbacks['mirador'] = fn() => '<div data-remote-viewer></div>';
 $html = $v->render('common/resource-page-block-layout/mirador', ['resource' => new class { public function media() { return []; } }]);
@@ -65,6 +86,7 @@ $html = $v->render('omeka/site/index/linked-resources', ['resource' => $a]);
 $doc = new DOMDocument(); @$doc->loadHTML($html); $xp = new DOMXPath($doc);
 dre_check($failures, $checks, 'terminal response retains the actual compound selection', $xp->query('//option[@selected][@value="items:7-0,234"]')->length === 1);
 dre_check($failures, $checks, 'ordinary continuation links carry search, relationship and page', str_contains($html, 'lr_property=items%3A7-0%2C234&amp;lr_q=A&amp;lr_page=2'));
+dre_check($failures, $checks, 'connection paging links are rel=nofollow', (bool) preg_match('/<a data-connection-page rel="nofollow" href="[^"]*lr_page=2/', $html));
 dre_check($failures, $checks, 'a single resource type gets no optgroup heading', $xp->query('//optgroup')->length === 0 && $xp->query('//option[@value="items:"][.="All relationships"]')->length === 1);
 $v->callbacks['ConnectionPage'] = fn() => ['totalCount' => 1, 'perPage' => 25, 'resourceProperty' => 'items:', 'connectionSearch' => ''] + $data;
 $html = $v->render('omeka/site/index/linked-resources', ['resource' => $a]);

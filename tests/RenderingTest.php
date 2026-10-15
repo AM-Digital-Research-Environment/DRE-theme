@@ -223,6 +223,8 @@ $values = [
     'dcterms:accessRights' => ['property' => $property, 'alternate_label' => '', 'values' => [new ValuesTestValue('', 'resource:item', $glossedRight)]],
 ];
 $html = $view->render('common/resource-values', ['resource' => new ThemeTestResource('Values', 8698), 'values' => $values]);
+dre_check($failures, $checks, 'an untagged value carries no empty lang attribute', !str_contains($html, 'lang=""') && str_contains($html, 'Untagged text'));
+dre_check($failures, $checks, 'a tagged value keeps its lang attribute', str_contains($html, 'lang="en"'));
 dre_check($failures, $checks, 'the metadata glosses an access-rights term',
     str_contains($html, '<span class="value-gloss">The description is public; the material may still be restricted.</span>'), $html);
 

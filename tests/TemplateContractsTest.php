@@ -89,6 +89,18 @@ dre_check($failures, $checks, 'item-set and media pages carry the compact linked
 dre_check($failures, $checks, 'record.js copies an exact value for a value-level copy button',
     str_contains($read('asset/js/record.js'), "hasAttribute('data-copy-exact')"));
 
+// Landmarks: the rail is the record's one complementary region; the notice
+// under the title is a note on the record, not a second <aside>.
+$notice = $read('view/common/record-notice.phtml');
+dre_check($failures, $checks, 'the record notice is a note, not a complementary landmark',
+    str_contains($notice, 'role="note"') && !str_contains($notice, '<aside'));
+
+dre_check($failures, $checks, 'connection paging links are not followed by crawlers',
+    substr_count($read('view/common/linked-resources.phtml'), 'data-connection-page rel="nofollow"') === 2);
+
+dre_check($failures, $checks, 'an untagged value never declares lang=""',
+    str_contains($values, "if ((string) \$valueLang !== ''): ?> lang="));
+
 $layout = $read('view/layout/layout.phtml');
 $pwaBlock = substr($layout, (int) strpos($layout, 'if ($pwaEnabled && $pwaManifestJson)'));
 $pwaBlock = substr($pwaBlock, 0, (int) strpos($pwaBlock, 'endif;'));

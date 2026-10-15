@@ -309,8 +309,16 @@ class RecordAccess extends AbstractHelper
         }
     }
 
+    /** The access page URL, once looked up: one API query per request, not per call. */
+    private ?string $accessPageUrl = null;
+
     /** The site's "Access & contact" page, when one is published under the slug. */
     private function accessPageUrl(): string
+    {
+        return $this->accessPageUrl ??= $this->findAccessPageUrl();
+    }
+
+    private function findAccessPageUrl(): string
     {
         $view = $this->getView();
         $slug = trim((string) ($view->themeSetting('access_page_slug') ?? self::DEFAULT_PAGE_SLUG));

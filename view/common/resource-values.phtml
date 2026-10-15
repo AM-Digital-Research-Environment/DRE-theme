@@ -93,7 +93,9 @@ $headingTag = $recordChrome ? 'h2' : 'h4';
                         $class[] = 'uri';
                     }
                     ?>
-                    <dd class="<?php echo $escapeAttr(implode(' ', $class)); ?>" lang="<?php echo $escapeAttr($valueLang); ?>">
+                    <?php // An untagged value inherits the page language: `lang=""` would
+                          // declare it "unknown language" and override <html lang>. ?>
+                    <dd class="<?php echo $escapeAttr(implode(' ', $class)); ?>"<?php if ((string) $valueLang !== ''): ?> lang="<?php echo $escapeAttr($valueLang); ?>"<?php endif; ?>>
                         <?php if ($showLocale && $valueLang) : ?>
                             <span class="language"><?php echo $escape($valueLang); ?></span>
                         <?php endif; ?>
