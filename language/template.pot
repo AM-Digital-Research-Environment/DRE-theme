@@ -52,7 +52,7 @@ msgstr ""
 msgid "Abstract"
 msgstr ""
 
-#: helper/RecordApparatus.php:158
+#: helper/RecordApparatus.php:161
 msgid "Access rights"
 msgstr ""
 
@@ -81,7 +81,7 @@ msgstr ""
 msgid "Africa Multiple Cluster of Excellence"
 msgstr ""
 
-#: view/common/nav-menu.phtml:45
+#: view/common/nav-menu.phtml:47
 msgid "Africa's foremost music archive"
 msgstr ""
 
@@ -106,11 +106,11 @@ msgstr ""
 msgid "Apply"
 msgstr ""
 
-#: view/common/nav-menu.phtml:34
+#: view/common/nav-menu.phtml:35
 msgid "Audio series"
 msgstr ""
 
-#: view/common/nav-menu.phtml:27
+#: view/common/nav-menu.phtml:28
 msgid "Authors & named persons"
 msgstr ""
 
@@ -127,7 +127,7 @@ msgstr ""
 msgid "Browse all items"
 msgstr ""
 
-#: view/common/nav-menu.phtml:37
+#: view/common/nav-menu.phtml:38
 msgid "Browse projects interactively"
 msgstr ""
 
@@ -264,7 +264,7 @@ msgstr ""
 msgid "Dismiss"
 msgstr ""
 
-#: view/common/nav-menu.phtml:29
+#: view/common/nav-menu.phtml:30
 msgid "Document & media types"
 msgstr ""
 
@@ -276,7 +276,7 @@ msgstr ""
 msgid "Download"
 msgstr ""
 
-#: helper/RecordApparatus.php:161
+#: helper/RecordApparatus.php:164
 msgid "DRE ID"
 msgstr ""
 
@@ -284,7 +284,7 @@ msgstr ""
 msgid "DRE Search"
 msgstr ""
 
-#: view/common/nav-menu.phtml:41
+#: view/common/nav-menu.phtml:42
 msgid "Episode trends & transcripts"
 msgstr ""
 
@@ -367,6 +367,10 @@ msgstr ""
 msgid "Hours"
 msgstr ""
 
+#: view/common/nav-menu.phtml:18
+msgid "How to reach the material, and how to reuse what AMIRA publishes."
+msgstr ""
+
 #: helper/ResourceGroups.php:134
 msgid "Identifiers & sources"
 msgstr ""
@@ -383,7 +387,7 @@ msgstr ""
 msgid "Install app"
 msgstr ""
 
-#: view/common/nav-menu.phtml:28
+#: view/common/nav-menu.phtml:29
 msgid "Institutions & bodies"
 msgstr ""
 
@@ -420,7 +424,7 @@ msgstr ""
 msgid "Items"
 msgstr ""
 
-#: view/common/nav-menu.phtml:43
+#: view/common/nav-menu.phtml:44
 msgid "Knowledge-graph links"
 msgstr ""
 
@@ -428,12 +432,12 @@ msgstr ""
 msgid "Languages"
 msgstr ""
 
-#: view/common/nav-menu.phtml:30
+#: view/common/nav-menu.phtml:31
 msgid "Languages represented"
 msgstr ""
 
-#: helper/RecordApparatus.php:155
-msgid "Licence"
+#: helper/RecordApparatus.php:158
+msgid "Licence of the material"
 msgstr ""
 
 #: helper/RecordLinkedData.php:116
@@ -588,7 +592,7 @@ msgstr ""
 msgid "Origins & context"
 msgstr ""
 
-#: view/common/nav-menu.phtml:47
+#: view/common/nav-menu.phtml:49
 msgid "Orishas — Gregório de Mattos Foundation"
 msgstr ""
 
@@ -621,7 +625,7 @@ msgstr ""
 msgid "People & roles"
 msgstr ""
 
-#: view/common/nav-menu.phtml:46
+#: view/common/nav-menu.phtml:48
 msgid "Peripheral memories of Capoeira Angola in Salvador"
 msgstr ""
 
@@ -630,11 +634,11 @@ msgstr ""
 msgid "Permanent link"
 msgstr ""
 
-#: view/common/nav-menu.phtml:31
+#: view/common/nav-menu.phtml:32
 msgid "Places & georeferences"
 msgstr ""
 
-#: view/common/nav-menu.phtml:39
+#: view/common/nav-menu.phtml:40
 msgid "Places mapped & georeferenced"
 msgstr ""
 
@@ -665,11 +669,11 @@ msgstr ""
 msgid "Projects"
 msgstr ""
 
-#: view/common/nav-menu.phtml:24
+#: view/common/nav-menu.phtml:25
 msgid "Projects across the AMRCs"
 msgstr ""
 
-#: view/common/nav-menu.phtml:38
+#: view/common/nav-menu.phtml:39
 msgid "Projects side by side"
 msgstr ""
 
@@ -681,7 +685,7 @@ msgstr ""
 msgid "Public-facing media from the Cluster."
 msgstr ""
 
-#: view/common/nav-menu.phtml:40
+#: view/common/nav-menu.phtml:41
 msgid "Publication trends & networks"
 msgstr ""
 
@@ -697,6 +701,10 @@ msgstr ""
 msgid "Query"
 msgstr ""
 
+#: view/common/nav-menu.phtml:53
+msgid "RDF, dump & CC0 metadata"
+msgstr ""
+
 #: helper/RecordAccess.php:55
 msgid "RDSpace, University of Bayreuth"
 msgstr ""
@@ -707,6 +715,10 @@ msgstr ""
 
 #: helper/RecordAccess.php:157
 msgid "Record: %s"
+msgstr ""
+
+#: view/common/nav-menu.phtml:45
+msgid "Records grouped by meaning"
 msgstr ""
 
 #: view/common/linked-resources.phtml:141
@@ -724,6 +736,10 @@ msgstr ""
 #: view/common/record-access.phtml:117
 #: view/common/record-access.phtml:45
 msgid "Report an error in this record"
+msgstr ""
+
+#: view/common/nav-menu.phtml:52
+msgid "Requesting material & who to ask"
 msgstr ""
 
 #: helper/CollectionStats.php:131
@@ -826,7 +842,7 @@ msgstr ""
 msgid "Sort this page"
 msgstr ""
 
-#: view/common/nav-menu.phtml:25
+#: view/common/nav-menu.phtml:26
 msgid "Sources, media & datasets"
 msgstr ""
 
@@ -850,11 +866,11 @@ msgstr ""
 msgid "Switch to light mode"
 msgstr ""
 
-#: view/common/nav-menu.phtml:35
+#: view/common/nav-menu.phtml:36
 msgid "Talks & recordings"
 msgstr ""
 
-#: view/common/nav-menu.phtml:23
+#: view/common/nav-menu.phtml:24
 msgid "The Cluster's thematic areas"
 msgstr ""
 
@@ -923,7 +939,7 @@ msgstr ""
 msgid "Toggle dark mode"
 msgstr ""
 
-#: view/common/nav-menu.phtml:32
+#: view/common/nav-menu.phtml:33
 msgid "Topics & keywords"
 msgstr ""
 
@@ -960,11 +976,11 @@ msgstr ""
 msgid "Value must be an integer"
 msgstr ""
 
-#: view/common/nav-menu.phtml:42
+#: view/common/nav-menu.phtml:43
 msgid "Video trends & playlists"
 msgstr ""
 
-#: view/common/nav-menu.phtml:110
+#: view/common/nav-menu.phtml:115
 msgid "View all"
 msgstr ""
 
@@ -988,7 +1004,7 @@ msgstr ""
 msgid "Who to ask"
 msgstr ""
 
-#: view/common/nav-menu.phtml:48
+#: view/common/nav-menu.phtml:50
 msgid "Workers in/from Bahia"
 msgstr ""
 

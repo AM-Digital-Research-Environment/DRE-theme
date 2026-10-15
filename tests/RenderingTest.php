@@ -125,7 +125,7 @@ dre_check($failures, $checks, 'sameAs renders as external links labelled by regi
 dre_check($failures, $checks, 'a DOI already in its own row is not repeated under Same as, and junk IRIs are dropped',
     !str_contains($sameText, 'DOI') && $same->getElementsByTagName('a')->length === 4);
 dre_check($failures, $checks, 'the identifiers sit next to the permanent link',
-    strpos($html, '>Permanent link<') < strpos($html, '>Linked data<') && strpos($html, '>Same as<') < strpos($html, '>Licence<'));
+    strpos($html, '>Permanent link<') < strpos($html, '>Linked data<') && strpos($html, '>Same as<') < strpos($html, '>Licence of the material<'));
 
 // A citation that already ends in the URI (DRE-SEO 0.13): the row would only repeat it.
 $view->callbacks['dreCitation'] = fn() => ['styles' => ['chicago' => ['label' => 'Chicago', 'html' => '“Museu Afro-Digital.” Project record. AMIRA. <a href="' . $base . '">' . $base . '</a>.']], 'defaultStyle' => 'chicago', 'citable' => true];
