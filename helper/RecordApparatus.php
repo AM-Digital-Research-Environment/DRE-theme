@@ -151,8 +151,11 @@ class RecordApparatus extends AbstractHelper
         foreach ($view->plugin('RecordLinkedData')->rows($linkedData, array_column($doiValues, 'href')) as $row) {
             $rows[] = $row;
         }
+        // `dcterms:license` is the licence of the material the record describes.
+        // The record itself is CC0, and a bare "Licence" beside its citation and
+        // permanent link read as the licence of the description.
         if ($licence) {
-            $rows[] = ['label' => $translate('Licence'), 'values' => $licence];
+            $rows[] = ['label' => $translate('Licence of the material'), 'values' => $licence];
         }
         if ($accessRights) {
             $rows[] = ['label' => $translate('Access rights'), 'values' => $accessRights];
