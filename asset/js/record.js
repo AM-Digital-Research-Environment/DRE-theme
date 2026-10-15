@@ -78,8 +78,14 @@
         wrap.hidden = false;
     });
 
-    /** The citation the reader is actually looking at, else the server fallback. */
+    /**
+     * The citation the reader is actually looking at, else the server fallback.
+     * A value's own copy button (the permanent link) copies exactly its value.
+     */
     function textFor(button) {
+        if (button.hasAttribute('data-copy-exact')) {
+            return button.getAttribute('data-copy-text') || '';
+        }
         var root = button.closest('.record-apparatus');
         var panel = root && root.querySelector('[data-citation-panel]:not([hidden])');
         if (panel) {
@@ -98,7 +104,7 @@
         if (!target || typeof target.closest !== 'function') {
             return;
         }
-        var button = target.closest('.record-apparatus__copy');
+        var button = target.closest('.record-apparatus__copy, [data-copy-exact]');
         if (!button) {
             return;
         }

@@ -110,6 +110,14 @@ $headingTag = $recordChrome ? 'h2' : 'h4';
                                 echo $filterLocale ? $value->asHtml($lang) : $value->asHtml();
                             endif;
                         ?></span>
+                        <?php
+                        // What an access-rights term means ("Public": the description
+                        // is public, the material may still be restricted), from the
+                        // linked Access Right record's own description. Issue #10.
+                        $gloss = ($term === 'dcterms:accessRights' && $isResource) ? $this->ValueGloss($value, $filterLocale ? $lang : null) : '';
+                        if ($gloss !== ''): ?>
+                            <span class="value-gloss"><?php echo $escape($gloss); ?></span>
+                        <?php endif; ?>
                         <?php if(!$value->isPublic()) : ?>
 <?php // role="img" + aria-label so the icon has an accessible name. The attribute
       // here was `aria-role`, which is not a real attribute and did nothing. ?>

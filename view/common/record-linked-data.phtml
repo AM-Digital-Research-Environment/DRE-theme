@@ -1,0 +1,36 @@
+<?php
+/**
+ * Linked data — the compact identity block of item-set and media pages.
+ *
+ * Those pages carry no citation rail, but DRE Linked Data gives an item set or
+ * a media its own permanent URI and RDF documents just as it does an item.
+ * This shows the same three rows the item rail does: the permanent link (with
+ * a copy button), the RDF formats, and any external records it is the same as.
+ *
+ * Self-suppressing: without the module, or for a record it does not publish,
+ * RecordLinkedData returns [] and nothing renders.
+ *
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+ */
+if (!isset($resource) || !$resource) return;
+
+$linked = $this->RecordLinkedData($resource);
+if (!$linked) return;
+
+$escHtml = $this->plugin('escapeHtml');
+$escAttr = $this->plugin('escapeHtmlAttr');
+$translate = $this->plugin('translate');
+
+$rows = array_merge(
+    [['label' => $translate('Permanent link'), 'layout' => 'block', 'values' => [['label' => $linked['uri'], 'href' => $linked['uri'], 'copy' => $translate('Copy permanent link')]]]],
+    $this->plugin('RecordLinkedData')->rows($linked, [], $translate('Formats'))
+);
+$id = 'record-linked-data-' . (int) $resource->id();
+
+$this->inlineScript()->appendFile($this->assetUrl('js/record.js'));
+?>
+<section class="record-linked-data" aria-labelledby="<?php echo $escAttr($id); ?>">
+    <h2 class="record-apparatus__title" id="<?php echo $escAttr($id); ?>"><?php echo $escHtml($translate('Linked data')); ?></h2>
+    <?php echo $this->partial('common/record-apparatus-rows', ['rows' => $rows]); ?>
+</section>

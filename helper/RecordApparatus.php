@@ -19,7 +19,7 @@ class RecordApparatus extends AbstractHelper
         //
         // All values, not just the first: records legitimately carry two access-rights
         // statements, one linked and one spelled out.
-        $displayValues = function (string $term) use ($resource): array {
+        $displayValues = function (string $term, bool $withGloss = false) use ($resource, $view): array {
             try {
                 $values = $resource->value($term, ['all' => true]) ?: [];
             } catch (\Throwable $e) {
@@ -44,7 +44,14 @@ class RecordApparatus extends AbstractHelper
                     }
 
                     if ($label !== '') {
-                        $out[] = ['label' => $label, 'href' => $href];
+                        $entry = ['label' => $label, 'href' => $href];
+                        // "Public" under Access rights reads as "downloadable
+                        // here"; its authority record says what it means.
+                        $gloss = $withGloss ? $view->ValueGloss($value) : '';
+                        if ($gloss !== '' && $gloss !== $label) {
+                            $entry['gloss'] = $gloss;
+                        }
+                        $out[] = $entry;
                     }
                 } catch (\Throwable $e) {
                     // One malformed value must not cost the reader the whole rail.
@@ -95,7 +102,7 @@ class RecordApparatus extends AbstractHelper
 
         $doiValues = $displayValues('bibo:doi');
         $licence = $displayValues('dcterms:license');
-        $accessRights = $displayValues('dcterms:accessRights');
+        $accessRights = $displayValues('dcterms:accessRights', true);
         $dreId = $displayValues('dre:id');
 
         // A bare DOI string is still a resolvable link.
@@ -105,20 +112,35 @@ class RecordApparatus extends AbstractHelper
             }
         }
 
-        // Absolute: this row is the thing a reader copies into a footnote, and it is
-        // also the fallback the copy button hands over.
+        // The page URL, absolute. It stays what the shortlist stores and what a
+        // reader navigates to; it is no longer what the rail tells them to cite.
         try {
             $permalink = (string) $resource->url(null, true);
         } catch (\Throwable $e) {
             $permalink = '';
         }
 
+        // DRE Linked Data mints a persistent identifier, {base}/resource/{id},
+        // which 303s to this page and survives a site slug or route change. With
+        // the module it is the "Permanent link" and the thing every copy button
+        // hands over; without it (absent, older, failing, or a record that is
+        // not public) the page URL serves, as it always has.
+        $linkedData = $view->RecordLinkedData($resource);
+        $identifier = ($linkedData['uri'] ?? '') ?: $permalink;
+
         $rows = [];
         if ($doiValues) {
             $rows[] = ['label' => $translate('DOI'), 'values' => $doiValues];
         }
-        if ($permalink !== '') {
-            $rows[] = ['label' => $translate('Permalink'), 'values' => [['label' => $permalink, 'href' => $permalink]]];
+        if ($identifier !== '') {
+            // Stacked: a URL beside its label, plus a copy button, does not fit
+            // the right-aligned token treatment of a DOI.
+            $rows[] = ['label' => $translate('Permanent link'), 'layout' => 'block', 'values' => [['label' => $identifier, 'href' => $identifier, 'copy' => $translate('Copy permanent link')]]];
+        }
+        // Linked data formats and external identities sit with the identifier
+        // they describe. A DOI already in its own row is not repeated as "Same as".
+        foreach ($view->plugin('RecordLinkedData')->rows($linkedData, array_column($doiValues, 'href')) as $row) {
+            $rows[] = $row;
         }
         if ($licence) {
             $rows[] = ['label' => $translate('Licence'), 'values' => $licence];
@@ -144,33 +166,41 @@ class RecordApparatus extends AbstractHelper
         if ($isEntry) {
             // The entry citation already ends in the permalink; record.js copies
             // the style on screen, and this is the same text without script.
-            $copyText = trim(html_entity_decode(strip_tags((string) ($citeStyles[$citeDefault]['html'] ?? '')), ENT_QUOTES | ENT_HTML5, 'UTF-8')) ?: $permalink;
+            $copyText = trim(html_entity_decode(strip_tags((string) ($citeStyles[$citeDefault]['html'] ?? '')), ENT_QUOTES | ENT_HTML5, 'UTF-8')) ?: $identifier;
         } elseif ($isAuthority) {
-            $copyText = $permalink;
+            $copyText = $identifier;
         } else {
             $copyText = $citation;
             if ($copyText === '') {
                 try {
-                    $copyText = trim($resource->displayTitle() . ($permalink !== '' ? '. ' . $permalink : ''));
+                    $copyText = trim($resource->displayTitle() . ($identifier !== '' ? '. ' . $identifier : ''));
                 } catch (\Throwable $e) {
-                    $copyText = $permalink;
+                    $copyText = $identifier;
                 }
             }
         }
 
         // A licence entered as prose — "Educational, research, criticism, and review
         // purposes only." — is a sentence, not a token, and the right-aligned bold
-        // treatment that suits a DOI turns it into a ragged bold block. Stack those.
-        $isLongRow = function (array $row): bool {
+        // treatment that suits a DOI turns it into a ragged bold block. Stack those,
+        // and any row whose value carries a gloss. Rows that set their own layout
+        // (the linked-data formats, a line of short links) keep it.
+        foreach ($rows as $i => $row) {
+            if (isset($row['layout'])) {
+                continue;
+            }
+            $long = count($row['values']) > 1;
             foreach ($row['values'] as $value) {
-                if (mb_strlen($value['label']) > 40) {
-                    return true;
+                if (mb_strlen($value['label']) > 40 || isset($value['gloss'])) {
+                    $long = true;
                 }
             }
+            $rows[$i]['layout'] = $long ? 'block' : 'token';
+        }
+        // On an authority record the "Copy link" action already copies the
+        // identifier; a second button in its row would only repeat it.
+        $copyInRow = !($isAuthority && !$isEntry);
 
-            return count($row['values']) > 1;
-        };
-
-        return compact('citation', 'citeStyles', 'citeDefault', 'citeDownloads', 'citeId', 'panelTitle', 'copyLabel', 'copyText', 'permalink', 'rows', 'isLongRow');
+        return compact('citation', 'citeStyles', 'citeDefault', 'citeDownloads', 'citeId', 'panelTitle', 'copyLabel', 'copyText', 'permalink', 'identifier', 'rows', 'copyInRow');
     }
 }

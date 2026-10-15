@@ -1,0 +1,64 @@
+<?php
+/**
+ * The labelled rows of the record apparatus — DOI, permanent link, linked data,
+ * licence, access rights — shared by the item rail (record-apparatus.phtml) and
+ * the compact linked-data block of item-set and media pages.
+ *
+ * Data only comes in: each row is
+ *
+ *   ['label' => …, 'layout' => 'token'|'block'|'inline', 'values' => [
+ *       ['label' => …, 'href' => …,
+ *        'type'   => media type, for links to a document in another format,
+ *        'detail' => a muted identifier after the label (Wikidata Q42),
+ *        'gloss'  => a plain-language explanation under the value,
+ *        'copy'   => the accessible name of a copy button beside the value], …]]
+ *
+ * The RDF links carry `type` and deliberately no `download`: a Turtle or
+ * JSON-LD document is something to follow (a browser or a harvester shows it
+ * as text), not a file to save, unlike the citation files.
+ *
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var array $rows
+ * @var bool $copyInRow Whether a row's `copy` flag renders its button (default true).
+ */
+if (empty($rows)) return;
+
+$escHtml = $this->plugin('escapeHtml');
+$escAttr = $this->plugin('escapeHtmlAttr');
+$translate = $this->plugin('translate');
+$copyInRow = $copyInRow ?? true;
+?>
+<dl class="record-apparatus__rows">
+    <?php foreach ($rows as $row): ?>
+        <?php $layout = $row['layout'] ?? 'token'; ?>
+        <div class="record-apparatus__row<?php echo $layout !== 'token' ? ' record-apparatus__row--' . $escAttr($layout) : ''; ?>">
+            <dt><?php echo $escHtml($row['label']); ?></dt>
+            <dd>
+                <?php foreach ($row['values'] as $value): ?>
+                    <span class="record-apparatus__value"><?php
+                        $detail = ($value['detail'] ?? '') !== ''
+                            ? ' <span class="record-apparatus__detail">' . $escHtml($value['detail']) . '</span>'
+                            : '';
+                        if (($value['href'] ?? '') !== ''):
+                            ?><a href="<?php echo $escAttr($value['href']); ?>"<?php
+                                if (($value['type'] ?? '') !== ''): ?> type="<?php echo $escAttr($value['type']); ?>"<?php endif;
+                            ?>><?php echo $escHtml($value['label']) . $detail; ?></a><?php
+                        else:
+                            echo $escHtml($value['label']) . $detail;
+                        endif;
+                        if (!empty($value['copy']) && $copyInRow):
+                            // Revealed by record.js only where the clipboard API exists.
+                            ?> <button type="button" class="record-apparatus__copy-value" data-record-copy data-copy-exact hidden
+                                data-copy-text="<?php echo $escAttr($value['href'] ?: $value['label']); ?>"
+                                data-copied-label="<?php echo $escAttr($translate('Copied')); ?>"
+                                aria-label="<?php echo $escAttr(is_string($value['copy']) ? $value['copy'] : $translate('Copy')); ?>"><?php echo $escHtml($translate('Copy')); ?></button><?php
+                        endif;
+                        if (($value['gloss'] ?? '') !== ''):
+                            ?><span class="record-apparatus__gloss"><?php echo $escHtml($value['gloss']); ?></span><?php
+                        endif;
+                    ?></span>
+                <?php endforeach; ?>
+            </dd>
+        </div>
+    <?php endforeach; ?>
+</dl>

@@ -77,6 +77,9 @@ $bodyTruncate = $layout['truncate'];
 
     <?php endif; ?>
 
+    <?php // The set's permanent URI and RDF documents, when DRE Linked Data is installed. ?>
+    <?php echo $this->partial('common/record-linked-data', ['resource' => $itemSet]); ?>
+
     <div class="item-set-items">
     <?php echo '<h2>' . $escape($translate('Items')) . '</h2>'; ?>
 <?php else: ?>

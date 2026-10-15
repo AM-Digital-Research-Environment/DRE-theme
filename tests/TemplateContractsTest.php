@@ -69,6 +69,26 @@ dre_check($failures, $checks, 'the panel title follows whether the record is cit
     str_contains($apparatus, "\$cite['citable'] ?? true) === false")
         && str_contains($apparatus, '$escHtml($panelTitle)'));
 
+// DRE Linked Data is optional too, and older releases lack keys (0.2.0 sends
+// no `page` or `sameAs`). The theme reads it only through RecordLinkedData.
+$linkedData = $read('helper/RecordLinkedData.php');
+dre_check($failures, $checks, 'the linked-data lookup is guarded like dreCitation',
+    str_contains($linkedData, "getHelperPluginManager()->has('dreLinkedData')")
+        && str_contains($linkedData, 'catch (\Throwable $e)')
+        && str_contains($linkedData, "IntegrationWarning(\$resource, 'linked data', \$e)"));
+dre_check($failures, $checks, 'keys added in DRE-LinkedData 0.3.0 are read defensively',
+    str_contains($linkedData, "\$data['sameAs'] ?? null") && str_contains($linkedData, "\$data['page'] ?? null"));
+dre_check($failures, $checks, 'the apparatus takes its identifier from RecordLinkedData, falling back to the page URL',
+    str_contains($apparatus, "\$view->RecordLinkedData(\$resource)") && str_contains($apparatus, "(\$linkedData['uri'] ?? '') ?: \$permalink"));
+$rowsTemplate = $read('view/common/record-apparatus-rows.phtml');
+dre_check($failures, $checks, 'RDF links are followable: typed, and never marked download',
+    str_contains($rowsTemplate, 'type="<?php echo $escAttr($value[\'type\']); ?>"') && !preg_match('/\sdownload[\s>=]/', $rowsTemplate));
+dre_check($failures, $checks, 'item-set and media pages carry the compact linked-data block',
+    str_contains($read('view/omeka/site/item/browse.phtml'), "partial('common/record-linked-data', ['resource' => \$itemSet])")
+        && str_contains($read('view/omeka/site/media/show.phtml'), "partial('common/record-linked-data', ['resource' => \$media])"));
+dre_check($failures, $checks, 'record.js copies an exact value for a value-level copy button',
+    str_contains($read('asset/js/record.js'), "hasAttribute('data-copy-exact')"));
+
 foreach (['item', 'item-set', 'media'] as $resource) {
     $redirect = "view/omeka/site/{$resource}/search.phtml";
     dre_check($failures, $checks, "legacy {$resource} search redirects to DRE Search",

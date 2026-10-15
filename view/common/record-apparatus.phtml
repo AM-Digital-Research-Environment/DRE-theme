@@ -12,6 +12,12 @@
  * licence or identifier the partial renders nothing and item/show.phtml drops
  * the rail, giving the record the full measure.
  *
+ * With DRE Linked Data installed, the "Permanent link" row shows the record's
+ * persistent URI ({base}/resource/{id}) rather than the page URL, followed by
+ * its RDF documents (Turtle, N-Triples, JSON-LD) and, on authority records, the
+ * external records it is the same as (Wikidata, GND, …). See
+ * helper/RecordLinkedData.php.
+ *
  * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
  */
 
@@ -61,26 +67,8 @@ $this->inlineScript()->appendFile($this->assetUrl('js/record.js'));
         <p class="record-apparatus__citation"><?php echo $escHtml($citation); ?></p>
     <?php endif; ?>
 
-    <?php if ($rows): ?>
-        <dl class="record-apparatus__rows">
-            <?php foreach ($rows as $row): ?>
-                <div class="record-apparatus__row<?php echo $isLongRow($row) ? ' record-apparatus__row--block' : ''; ?>">
-                    <dt><?php echo $escHtml($row['label']); ?></dt>
-                    <dd>
-                        <?php foreach ($row['values'] as $value): ?>
-                            <span class="record-apparatus__value"><?php
-                                if ($value['href'] !== ''):
-                                    ?><a href="<?php echo $escAttr($value['href']); ?>"><?php echo $escHtml($value['label']); ?></a><?php
-                                else:
-                                    echo $escHtml($value['label']);
-                                endif;
-                            ?></span>
-                        <?php endforeach; ?>
-                    </dd>
-                </div>
-            <?php endforeach; ?>
-        </dl>
-    <?php endif; ?>
+    <?php // DOI, permanent link, linked data, licence, access rights, DRE ID. ?>
+    <?php echo $this->partial('common/record-apparatus-rows', ['rows' => $rows, 'copyInRow' => $copyInRow]); ?>
 
     <?php // Progressive enhancement: each action is revealed by its own script
           // only where it can work — record.js where the async clipboard API

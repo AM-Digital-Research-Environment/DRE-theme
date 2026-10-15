@@ -164,3 +164,25 @@ test('a single style renders no tablist behaviour', () => {
     assert.equal(shown(dom).dataset.citationPanel, 'chicago');
     dom.window.close();
 });
+
+test('the permanent link copy button copies exactly the identifier, not the citation', async () => {
+    const markup = panelMarkup().replace('<div class="record-apparatus__actions">', `
+        <dl class="record-apparatus__rows"><div class="record-apparatus__row record-apparatus__row--block">
+            <dt>Permanent link</dt>
+            <dd><span class="record-apparatus__value"><a href="https://example.test/resource/1">https://example.test/resource/1</a>
+                <button type="button" class="record-apparatus__copy-value" data-record-copy data-copy-exact hidden
+                    data-copy-text="https://example.test/resource/1" data-copied-label="Copied"
+                    aria-label="Copy permanent link">Copy</button></span></dd>
+        </div></dl>
+        <div class="record-apparatus__actions">`);
+    const dom = new JSDOM(markup, { url: 'https://example.test/', runScripts: 'outside-only' });
+    const writes = withClipboard(dom);
+    dom.window.eval(source('utils.js'));dom.window.eval(source('record.js'));
+
+    const button = dom.window.document.querySelector('[data-copy-exact]');
+    assert.equal(button.hidden, false, 'revealed where the clipboard API exists');
+    button.click();
+    await Promise.resolve();
+    assert.deepEqual(writes, ['https://example.test/resource/1']);
+    dom.window.close();
+});
