@@ -174,46 +174,71 @@ dre_check($failures, $checks, 'the access page is found and queried once, howeve
 unset($view->callbacks['currentSite'], $view->callbacks['api']);
 
 // --- A project links to its records ------------------------------------------
+// Its records are the items whose dcterms:isPartOf names it, searched in DRE
+// Search with the project facet; the item set holding them is never the link
+// (it redirects to the project), only named when it calls the corpus otherwise.
 $queries = [];
-$view->callbacks['currentSite'] = fn() => new class { public function id() { return 1; } };
-$setCount = 110;
-$view->callbacks['api'] = function () use (&$queries, &$setCount) {
-    return new class($queries, $setCount) {
-        public function __construct(private array &$queries, private int &$count) {}
+$recordCount = 487;
+$setTitles = ['U-Matic Tapes of the Liberia Broadcasting System', 'Of Art Worlds – Collecting and Archiving'];
+$view->callbacks['currentSite'] = fn() => new class {
+    public function id() { return 1; }
+    public function url() { return '/s/a'; }
+};
+$view->callbacks['dreSearchBar'] = fn() => '';
+$view->callbacks['api'] = function () use (&$queries, &$recordCount, &$setTitles) {
+    return new class($queries, $recordCount, $setTitles) {
+        public function __construct(private array &$queries, private int &$count, private array &$titles) {}
         public function searchOne(string $resource, array $query) {
+            return new class { public function getContent() { return null; } };
+        }
+        public function search(string $resource, array $query) {
             $this->queries[] = [$resource, $query];
-            $count = $this->count;
-            return new class($resource, $count) {
-                public function __construct(private string $r, private int $c) {}
-                public function getContent() {
-                    if ($this->r !== 'item_sets') return null;
-                    $c = $this->c;
-                    return new class($c) {
-                        public function __construct(private int $c) {}
-                        public function itemCount() { return $this->c; }
-                        public function url() { return '/s/a/item-set/6295'; }
+            $content = [];
+            if ($resource === 'item_sets' && ($query['property'][0]['type'] ?? '') === 'res') {
+                foreach ($this->titles as $i => $title) {
+                    $content[] = new class(6263 + $i, $title) {
+                        public function __construct(private int $i, private string $t) {}
+                        public function id() { return $this->i; }
+                        public function displayTitle() { return $this->t; }
                     };
                 }
+            }
+            $total = $resource === 'items' ? $this->count : count($content);
+            return new class($content, $total) {
+                public function __construct(private array $c, private int $t) {}
+                public function getContent() { return $this->c; }
+                public function getTotalResults() { return $this->t; }
             };
         }
     };
 };
-$project->values['dre:id'] = [new ThemeTestValue('UFB_AfroDigital')];
+$project->values['dre:id'] = [new ThemeTestValue('UBT_ELTVTapes2021')];
 $recordsHelper = new RecordAccess();
 $recordsHelper->setView($view);
 $access = $recordsHelper($project);
-$setQuery = array_values(array_filter($queries, fn ($q) => $q[0] === 'item_sets'))[0][1] ?? [];
-dre_check($failures, $checks, 'a project finds its item set by the shared dre:id, not by an id',
-    ($setQuery['property'][0]['property'] ?? null) === 'dre:id' && ($setQuery['property'][0]['text'] ?? null) === 'UFB_AfroDigital'
-    && $access['records'] === ['href' => '/s/a/item-set/6295', 'count' => 110]);
+$countQuery = array_values(array_filter($queries, fn ($q) => $q[0] === 'items'))[0][1] ?? [];
+dre_check($failures, $checks, 'a project counts the records that link to it through dcterms:isPartOf, not an item set',
+    ($countQuery['property'][0]['property'] ?? null) === 'dcterms:isPartOf' && ($countQuery['property'][0]['type'] ?? null) === 'res'
+    && ($countQuery['property'][0]['text'] ?? null) === '1790' && ($access['records']['count'] ?? null) === 487);
+dre_check($failures, $checks, 'the records link opens DRE Search on the project facet',
+    ($access['records']['href'] ?? '') === '/s/a/dre-search?profile=research_items&f.project_s=Of%20Art%20Worlds');
+dre_check($failures, $checks, 'only a collection named differently from its project is named',
+    ($access['records']['collections'] ?? null) === ['U-Matic Tapes of the Liberia Broadcasting System']);
 $notice = $view->render('common/record-notice', ['access' => $access]);
-dre_check($failures, $checks, 'the project statement links to its records with their number',
-    str_contains($notice, 'href="/s/a/item-set/6295"') && str_contains($notice, 'Browse the 110 records of <em>Of Art Worlds</em>'));
-$setCount = 0;
+dre_check($failures, $checks, 'the project statement links to its records with their number and names the corpus',
+    str_contains($notice, 'href="/s/a/dre-search?profile=research_items&amp;f.project_s=Of%20Art%20Worlds"')
+    && str_contains($notice, 'Browse the 487 records of <em>Of Art Worlds</em>')
+    && str_contains($notice, 'They form the collection <em>U-Matic Tapes of the Liberia Broadcasting System</em>.')
+    && !str_contains($notice, 'item-set'));
+$recordCount = 0;
 $access = $recordsHelper($project);
-dre_check($failures, $checks, 'an empty or private item set gives no link', $access['records'] === []
+dre_check($failures, $checks, 'a project with no visible record gives no link', $access['records'] === []
     && !str_contains($view->render('common/record-notice', ['access' => $access]), 'Browse the'));
-unset($project->values['dre:id'], $view->callbacks['currentSite'], $view->callbacks['api']);
+unset($project->values['dre:id'], $view->callbacks['currentSite'], $view->callbacks['api'], $view->callbacks['dreSearchBar']);
+dre_check($failures, $checks, 'a corpus restating its project is the same name',
+    RecordAccess::sameName('Humanities for Humanitarians. An Experiment in the Public Impact', 'Humanities for Humanitarians')
+    && RecordAccess::sameName('Mobilities and Socialities: Covid-19 in the Drylands', 'Mobilities and Socialities: COVID-19 in the Drylands of Africa and Beyond')
+    && !RecordAccess::sameName('Youth and Informal Labour Migration in West Africa Urban Corridors', 'Mobilities and Flows Across West African Urban Corridors'));
 
 // --- Pure helpers ------------------------------------------------------------
 dre_check($failures, $checks, 'an interval reads as a year range', RecordAccess::years('2020-01-01/2023-12-31') === '2020–2023');

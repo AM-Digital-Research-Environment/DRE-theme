@@ -11,6 +11,16 @@ to create.
 
 ## [Unreleased]
 
+### Changed
+
+- A research project's page is now the place to read its records. Its statement links "Browse the 487 records of *Project*" to DRE Search with the project facet applied (`?profile=research_items&f.project_s=…`), where they can be filtered further, instead of to the project's item set. The count is the number of records that link to the project through `dcterms:isPartOf`. Without DRE Search the link opens core's item browse filtered the same way. When the item set names the corpus differently from the project, the statement names it too: "They form the collection *U-Matic Tapes of the Liberia Broadcasting System*." The new `ProjectCollections` helper resolves the project of an item set and the item sets of a project. It uses the set's `dcterms:isPartOf`, else the shared `dre:id`, and still pins no Omeka ids.
+- An item-set page has a breadcrumb. When the set holds a project's records it says so and links to the project ("These records come from *Project* …"). DRE SEO 0.15 redirects such a page to the project; this notice covers sites without it. Its *Search these records* link opens the project's records in DRE Search, not the whole archive.
+- Item lists offer fewer sorts: Title, the dates a reader sorts by (`dcterms:date`, `dcterms:issued`, `dcterms:created`, under their plain labels) and *Date added*. Before, an item-set page offered 25, one for every numeric property and data type, such as "page end (numeric:integer)". A sort already in the URL still works.
+
+### Fixed
+
+- The *Next* and *Previous* page arrows were invisible in dark mode. `a.button:link` painted them in the ink meant for a filled primary button, dark on the transparent secondary button.
+
 ### Added
 
 - A principal investigator named in *Access to this material* or in a project's statement gets a *staff page* link after their name when their Person item has a `fabio:hasURL`: *Vierke, Ulf (staff page)*. The name still opens the Person record. A contact set by `dcterms:mediator` gets the link the same way. MongoDB2OmekaS writes the URL from `dev.persons.url`, and 48 of the 68 project PIs have one (issue #10).

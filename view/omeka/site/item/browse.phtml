@@ -24,6 +24,13 @@ if ($itemSetShow) {
 
     $this->htmlElement('body')->appendAttribute('class', 'item-set');
     $query['item_set_id'] = $itemSet->id();
+
+    // A project's item set holds exactly the records that link to the project,
+    // whose page is the one to read (DRE SEO redirects here to it; without
+    // that, this page says so and searches the project's records).
+    $collections = $this->ProjectCollections();
+    $project = $collections->projectOf($itemSet);
+    $projectRecordsUrl = $project ? $collections->recordsUrl($project) : '';
 }
 
 // Layout state (grid vs list, the ?view= override, body term and truncation)
@@ -37,8 +44,21 @@ $bodyTruncate = $layout['truncate'];
 ?>
 
 <?php if ($itemSetShow): ?>
+    <?php echo $this->partial('common/breadcrumb', ['resource' => $itemSet]); ?>
     <?php echo $this->ResourceTags($itemSet); ?>
     <?php echo $this->pageTitle($itemSet->displayTitle(null, ($valueLang)), 1); ?>
+
+    <?php if ($project): ?>
+        <div class="record-notice" role="note">
+            <p>
+                <strong class="record-notice__lead"><?php echo $escape($translate('A project’s collection.')); ?></strong>
+                <?php echo sprintf(
+                    $escape($translate('These records come from %s. The project’s page presents them with its description, its team and their visualisations.')),
+                    '<a href="' . $this->escapeHtmlAttr($project->url()) . '">' . $escape($project->displayTitle()) . '</a>'
+                ); ?>
+            </p>
+        </div>
+    <?php endif; ?>
 
     <?php if ($mainHasBlocks || $leftSidebarHasBlocks || $rightSidebarHasBlocks): ?>
 
@@ -92,9 +112,18 @@ $bodyTruncate = $layout['truncate'];
 
 <div class="browse-controls">
     <?php echo $this->partial('common/browse-layout-toggle', ['layout' => $layout]); ?>
-    <?php echo $this->browse()->renderSortSelector('items'); ?>
+    <?php
+    // The visitor's sorts (BrowseSort), not every numeric column; core's list if
+    // the curated one cannot be built.
+    $sorts = $this->BrowseSort('items');
+    echo $sorts ? $this->browse()->renderSortSelector($sorts) : $this->browse()->renderSortSelector('items');
+    ?>
     <div class="collection-search-container">
-        <?php echo $this->hyperlink($translate('Search the collection'), $this->DreSearchUrl(), ['class' => 'collection-search']); ?>
+        <?php if ($itemSetShow && $projectRecordsUrl !== ''): ?>
+            <?php echo $this->hyperlink($translate('Search these records'), $projectRecordsUrl, ['class' => 'collection-search']); ?>
+        <?php else: ?>
+            <?php echo $this->hyperlink($translate('Search the collection'), $this->DreSearchUrl(), ['class' => 'collection-search']); ?>
+        <?php endif; ?>
     </div>
 </div>
 
