@@ -44,6 +44,10 @@ msgstr ""
 msgid "0 results"
 msgstr ""
 
+#: view/common/resource-values.phtml:126
+msgid "about %s words"
+msgstr ""
+
 #: view/common/record-notice.phtml:62
 msgid "About these records."
 msgstr ""
@@ -114,8 +118,12 @@ msgstr ""
 msgid "Authors & named persons"
 msgstr ""
 
-#: view/layout/layout.phtml:221
+#: view/layout/layout.phtml:228
 msgid "Back to top"
+msgstr ""
+
+#: view/common/breadcrumb.phtml:46
+msgid "Breadcrumb"
 msgstr ""
 
 #: helper/PwaManifest.php:53
@@ -347,6 +355,10 @@ msgstr ""
 msgid "Full text"
 msgstr ""
 
+#: view/common/resource-values.phtml:124
+msgid "Full text loaded"
+msgstr ""
+
 #: helper/ResourceGroups.php:160
 msgid "Further details"
 msgstr ""
@@ -357,6 +369,10 @@ msgstr ""
 
 #: view/common/browse-layout-toggle.phtml:24
 msgid "Grid"
+msgstr ""
+
+#: view/common/breadcrumb.phtml:49
+msgid "Home"
 msgstr ""
 
 #: view/common/numeric-timestamp.phtml:25
@@ -455,6 +471,10 @@ msgstr ""
 
 #: view/common/resource-page-block-layout/linked-resources.phtml:16
 msgid "Loading connections…"
+msgstr ""
+
+#: view/common/resource-values.phtml:123
+msgid "Loading the full text…"
 msgstr ""
 
 #: helper/CollectionStats.php:135
@@ -613,7 +633,7 @@ msgstr ""
 msgid "Pagination"
 msgstr ""
 
-#: view/omeka/site/media/show.phtml:68
+#: view/omeka/site/media/show.phtml:69
 msgid "Part of %s"
 msgstr ""
 
@@ -661,7 +681,7 @@ msgid_plural "principal investigators"
 msgstr[0] ""
 msgstr[1] ""
 
-#: view/common/resource-values.phtml:126
+#: view/common/resource-values.phtml:154
 msgid "Private"
 msgstr ""
 
@@ -707,6 +727,10 @@ msgstr ""
 
 #: helper/RecordAccess.php:55
 msgid "RDSpace, University of Bayreuth"
+msgstr ""
+
+#: view/common/resource-values.phtml:125
+msgid "Read the full text"
 msgstr ""
 
 #: view/common/nav-menu.phtml:16
@@ -830,7 +854,7 @@ msgstr ""
 msgid "Site pages"
 msgstr ""
 
-#: view/layout/layout.phtml:207
+#: view/layout/layout.phtml:214
 msgid "Skip to main content"
 msgstr ""
 
@@ -876,6 +900,10 @@ msgstr ""
 
 #: view/common/record-access.phtml:99
 msgid "The Digital Research Environment (DRE): %s"
+msgstr ""
+
+#: view/common/resource-values.phtml:125
+msgid "The full text could not be loaded. Try again"
 msgstr ""
 
 #: view/common/nav-menu.phtml:14

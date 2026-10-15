@@ -67,6 +67,7 @@ $recordAccess = trim((string) $this->partial('common/record-access', ['resource'
 $hasRail = ($apparatus !== '') || ($recordAccess !== '') || $rightSidebarHasBlocks;
 ?>
 
+<?php echo $this->partial('common/breadcrumb', ['resource' => $item]); ?>
 <?php echo $this->ResourceTags($item); ?>
 <?php echo $this->pageTitle($item->displayTitle(null, $valueLang), 1); ?>
 <?php echo $this->partial('common/record-notice', ['access' => $access]); ?>

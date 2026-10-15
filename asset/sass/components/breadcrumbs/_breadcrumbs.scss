@@ -11,3 +11,68 @@
     width: auto;
     margin-bottom: var(--space-4);
 }
+
+// Record breadcrumb (common/breadcrumb.phtml): Home › item set › record, above
+// the title. A quiet line of UI text; long project and record titles truncate
+// to one line each (the full name stays in `title` and in the h1 below), so the
+// trail never outgrows the title it introduces.
+.breadcrumb-trail {
+    margin-bottom: var(--space-4);
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    line-height: var(--leading-normal);
+    color: var(--ink-light);
+}
+
+.breadcrumb-trail__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.breadcrumb-trail__item {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    max-width: 100%;
+
+    & + &::before {
+        @include svg-icon($icon-chevron-right, 0.875em, var(--muted));
+        flex: none;
+        margin-inline: var(--space-2);
+    }
+
+    // The record itself takes what is left of the line.
+    &:last-child {
+        flex: 1 1 12ch;
+    }
+}
+
+.breadcrumb-trail__link,
+.breadcrumb-trail__current {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.breadcrumb-trail__link {
+    max-width: 40ch;
+    padding-block: var(--space-1);
+    color: var(--ink-light);
+    text-decoration: underline;
+    text-decoration-color: var(--border-strong);
+    text-underline-offset: 0.2em;
+
+    &:hover {
+        color: var(--link-hover);
+        text-decoration-color: currentColor;
+    }
+}
+
+.breadcrumb-trail__current {
+    color: var(--ink);
+}
