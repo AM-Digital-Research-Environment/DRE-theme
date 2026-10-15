@@ -16,11 +16,11 @@ The **Digital Research Environment** theme for the [Africa Multiple Cluster of E
 - **Light & dark modes** — respects the visitor’s system preference, with a manual sun/moon toggle that persists; a synchronous head-script prevents any flash of the wrong theme.
 - **Distinctive typography** — Spectral (display serif) + Hanken Grotesk (body/UI), sourced from Bunny Fonts and **self-hosted by the theme**. No visitor request is made to a font CDN.
 - **The deep-plate masthead** — a photography-free masthead carried by *type, rule and ground*: a gold brand flag → eyebrow → display title → lede → two text links, beside a sunken **catalogue column** of corpus counts in gold tabular numerals, each row linking to its authority page. The band is an authored plate in both light and dark rather than following the page surface — before v2.24 it resolved to a 1.8 % step off the page and read as empty space. Three **brand-presence** treatments — *quiet*, *balanced*, *bold* (default) — are a token switch, not a rebuild. The earlier earth-tone wash is still available as an optional treatment. A slim title strip on interior pages. No image required.
-- **Records that read like records** — item metadata is rendered in named groups (Abstract · Description · Subjects · Origins & context · Rights & access · Identifiers & sources), never in database order, with subjects as chips and a sticky rail carrying citation, DOI, permalink and licence. Any property the theme hasn't been taught about lands in *Further details*, so nothing is ever hidden.
+- **Records that read like records** — item metadata is rendered in named groups (Abstract · Description · Subjects · Origins & context · Rights & access · Identifiers & sources), never in database order, with subjects as chips and a sticky rail carrying citation, DOI, permanent link and licence. With [DRE Linked Data](https://github.com/AM-Digital-Research-Environment/DRE-LinkedData) installed, the permanent link is the record's persistent URI, with its Turtle / N-Triples / JSON-LD documents and the external records it is the same as (Wikidata, GND, ORCID…). Any property the theme hasn't been taught about lands in *Further details*, so nothing is ever hidden.
 - **Brand assets** — the Africa Multiple lockup (with an auto-generated dark-mode variant), institutional footer marks (University of Bayreuth + the Cluster), and [Lucide](https://lucide.dev/) icons.
 - **OKLCH design tokens, all the way down** — colour, *type, rhythm, spacing, layout*, radius, shadow, motion and z-index, all as CSS custom properties. One scale per decision: page geometry reads `--container-max` / `--header-height` / `--label-col`, headings read `--text-*` and `--leading-*`, and there is no parallel Sass number set.
 - **Accessible — and measured** — WCAG AA text/surface pairings in both modes, always-visible focus, and `prefers-reduced-motion` support. The contrast claim is *asserted by the build*: `npm run lint:tokens` computes the ratio for every ink/surface pair in both modes from the OKLCH literals and fails on a regression.
-- **Installable (PWA)** — visitors can install the site as an app (desktop *Install* / mobile *Add to Home Screen*) with a brand-mark compass icon. A quiet header button appears **only when the browser can actually install** — no auto-popup, and no service worker (the per-site manifest alone is enough in current Chrome/Edge). Ships light/dark `theme-color`, an Apple touch icon and favicons; toggle it under *Progressive Web App* settings. See **[Installable PWA](#installable-pwa)** below and [`docs/PWA.md`](docs/PWA.md).
+- **Installable (PWA)** — visitors can install the site as an app (desktop *Install* / mobile *Add to Home Screen*) with a brand-mark compass icon. A quiet header button appears **only when the browser can actually install** — no auto-popup, and no service worker (the per-site manifest alone is enough in current Chrome/Edge). Light/dark `theme-color`, an Apple touch icon and favicons ship on every page; the install features toggle under *Progressive Web App* settings. See **[Installable PWA](#installable-pwa)** below and [`docs/PWA.md`](docs/PWA.md).
 
 ## Installation
 
@@ -104,6 +104,29 @@ advanced-search routes return an HTTP 302 to that page. The former advanced-sear
 partials, JavaScript and Sass—and the no-longer-installed Faceted Browse module
 override—are intentionally absent.
 
+### Linked Data integration
+
+[DRE Linked Data](https://github.com/AM-Digital-Research-Environment/DRE-LinkedData)
+is optional. `helper/RecordLinkedData.php` looks up its `dreLinkedData($resource)`
+helper the way the rail looks up DRE SEO's `dreCitation`: only when the helper
+plugin manager has it, inside a `try`, logging a bounded `IntegrationWarning` on
+failure. It reads `uri` and `downloads` (0.2.0+) and `sameAs` / `page` when
+present (0.3.0+), and returns `[]` otherwise — and then the page is exactly what
+it was without the module:
+
+- **Item rail** — the *Permanent link* row shows the persistent URI
+  (`/resource/{id}`, which 303s to the page) with a copy button, falling back to
+  the page URL. Below it, *Linked data* lists the RDF documents as followable
+  links with `type=` and no `download` attribute, and *Same as* lists the
+  external identities (Wikidata, GND, ORCID, VIAF, Library of Congress,
+  GeoNames, ROR…), labelled by register. A DOI already in its own row is not
+  repeated.
+- **Item-set and media pages** — a compact *Linked data* block
+  (`common/record-linked-data.phtml`) with the same rows.
+
+The page URL remains the canonical page, the shortlist's record URL and the
+link in the error-report email; the URI is what the theme tells readers to cite.
+
 ### Translations
 
 Theme strings are extracted to [`language/template.pot`](https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/language/template.pot) (in the repository; the release zip omits it):
@@ -116,7 +139,7 @@ To add a locale, copy it to `<locale>.po`, translate the `msgstr` values, compil
 
 ## Theme settings
 
-- **General** — *Brand colour* (single seed; default Uni-Grün `#009260`) and *Research shortlist* (default on; saves records in the visitor's browser).
+- **General** — *Brand colour* (single seed; default Uni-Grün `#009260`), *Research shortlist* (default on; saves records in the visitor's browser) and *Append installation title to page titles* (default off: titles read “Record · Site title”, and the home page is titled with the site title alone).
 - **Contact info** — location, phone, email; show in top header and/or footer.
 - **Access notices** — *Show access notices* (default on), the *access and corrections email* (default `africamultiple-digital@uni-bayreuth.de`) and the *access page slug* (default `access`; linked once a public page with that slug exists). Research records say under their title that AMIRA holds descriptions, not material, and the rail opens with *Access to this material*: any online copy, who to ask, and an error report. The contact comes from the record's project: its `dcterms:mediator` if set, else its team (the PIs by name, the researchers through a link to the project page), else the email. Project pages carry a standard statement. The error report is a [ContactUs](https://gitlab.com/Daniel-KM/Omeka-S-module-ContactUs) form when that module is active, and a pre-filled email otherwise.
 - **Header** — top-navigation depth; optional custom *Logo* (overrides the bundled Africa Multiple lockup).

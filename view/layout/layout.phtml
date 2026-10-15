@@ -50,8 +50,24 @@ if (!preg_match('/^#[0-9a-f]{6}$/i', $primaryColor)) {
 
 $this->headMeta()->setCharset('utf-8');
 $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1');
-$this->headTitle($siteTitle)->setSeparator(' · ');
-$this->headTitle()->append($this->setting('installation_title', 'Omeka S'));
+// Page titles: "Record · Site". The installation title ("Omeka S", or AMIRA's
+// own) used to follow every one, which pushed the record title towards the
+// cut-off of search results and browser tabs; the setting
+// "Append installation title to page titles" brings it back (default off). The
+// home page is the site itself, so its title is the site title alone — not
+// "Home · Site", which put the navigation label first in every search result.
+// Templates have already prepended their titles (Omeka renders the content
+// before the layout), so the home page replaces the stack ('SET', the value of
+// Laminas' AbstractContainer::SET).
+if ($isHome) {
+    $this->headTitle($siteTitle, 'SET');
+} else {
+    $this->headTitle($siteTitle);
+}
+$this->headTitle()->setSeparator(' · ');
+if ($this->themeSetting('title_installation')) {
+    $this->headTitle()->append($this->setting('installation_title', 'Omeka S'));
+}
 $this->headLink()->prependStylesheet($this->assetUrl('css/style.css'));
 // NOTE: Omeka core's FontAwesome webfont (css/iconfonts.css + fa-solid-900.woff2,
 // ~91 KiB/page) is intentionally NOT loaded. The theme draws all of its icons as
@@ -124,29 +140,34 @@ if ($userBar) {
 		<?php echo $this->headStyle(); ?>
 		<?php echo $this->headScript(); ?>
 
-		<?php if ($pwaEnabled && $pwaManifestJson): ?>
-		<?php // ===== Installable PWA — theme-color (light/dark), Apple/mobile
-		      // web-app metas, favicon + apple-touch icons, and the manifest
-		      // island. There is deliberately NO <link rel="manifest"> here: the
-		      // manifest is minted as a same-origin blob: URL by pwa-install.js
-		      // (body end), because it must carry absolute per-site URLs and a
-		      // data: manifest's opaque origin would make Chrome reject it. ?>
+		<?php // Browser chrome and icons — on every page, whatever the PWA setting:
+		      // a favicon and the address-bar tint are not "app install". The
+		      // theme-color pair tracks the surface tokens in both modes. ?>
 		<meta name="theme-color" content="#fdfcf9" media="(prefers-color-scheme: light)">
 		<meta name="theme-color" content="#0e1612" media="(prefers-color-scheme: dark)">
-		<meta name="mobile-web-app-capable" content="yes">
-		<meta name="apple-mobile-web-app-capable" content="yes">
-		<meta name="apple-mobile-web-app-status-bar-style" content="default">
-		<meta name="apple-mobile-web-app-title" content="<?php echo $this->escapeHtmlAttr($pwaShortName); ?>">
-		<link rel="apple-touch-icon" href="<?php echo $this->escapeHtmlAttr($this->assetUrl('img/pwa/apple-touch-icon.png')); ?>">
 		<?php // Favicons: the official Africa Multiple colour compass on white, all
 		      // resized from asset/img/pwa/compass-source.png (as is every other
 		      // icon). The 192/96 sizes are for search engines — Google shows the
-		      // largest icon a page declares, in multiples of 48px. ?>
+		      // largest icon a page declares, in multiples of 48px. The Apple
+		      // touch icon is also what iOS shows for a bookmark. ?>
+		<link rel="apple-touch-icon" href="<?php echo $this->escapeHtmlAttr($this->assetUrl('img/pwa/apple-touch-icon.png')); ?>">
 		<link rel="icon" type="image/png" sizes="192x192" href="<?php echo $this->escapeHtmlAttr($this->assetUrl('img/pwa/favicon-192.png')); ?>">
 		<link rel="icon" type="image/png" sizes="96x96" href="<?php echo $this->escapeHtmlAttr($this->assetUrl('img/pwa/favicon-96.png')); ?>">
 		<link rel="icon" type="image/png" sizes="48x48" href="<?php echo $this->escapeHtmlAttr($this->assetUrl('img/pwa/favicon-48.png')); ?>">
 		<link rel="icon" type="image/png" sizes="32x32" href="<?php echo $this->escapeHtmlAttr($this->assetUrl('img/pwa/favicon-32.png')); ?>">
 		<link rel="icon" type="image/png" sizes="16x16" href="<?php echo $this->escapeHtmlAttr($this->assetUrl('img/pwa/favicon-16.png')); ?>">
+
+		<?php if ($pwaEnabled && $pwaManifestJson): ?>
+		<?php // ===== Installable PWA — the Apple/mobile web-app metas and the
+		      // manifest island. There is deliberately NO <link rel="manifest">
+		      // here: the manifest is minted as a same-origin blob: URL by
+		      // pwa-install.js (body end), because it must carry absolute per-site
+		      // URLs and a data: manifest's opaque origin would make Chrome reject
+		      // it. ?>
+		<meta name="mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="default">
+		<meta name="apple-mobile-web-app-title" content="<?php echo $this->escapeHtmlAttr($pwaShortName); ?>">
 		<script type="application/json" id="dre-pwa-manifest"><?php echo $pwaManifestJson; ?></script>
 		<?php endif; ?>
 

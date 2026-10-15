@@ -359,8 +359,8 @@ understandable in isolation.
 1. Add the token to the theme in every applicable mode.
 2. Add contrast or structural checks when the token carries a testable claim.
 3. Regenerate and commit the fallback CSS and JSON, then copy them and the
-   shared lint rules into both modules with `npm run vendor:lint` and commit
-   there too. The `Contract drift` workflow fails while a module copy is stale.
+   shared lint rules into the modules (DRE Visualizations, DRE Search and
+   DRE Linked Data) with `npm run vendor:lint` and commit there too. The `Contract drift` workflow fails while a module copy is stale.
 4. Update `DESIGN.md`, this contract, and `.impeccable/design.json` when the
    change affects portable design guidance.
 5. Release the theme before updating module consumers.

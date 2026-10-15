@@ -11,7 +11,8 @@
  *       fails; DRE_TOKENS_ROOT=<dir> does the same.
  *
  * The RULES live in scripts/lib/token-rules.mjs and are shared verbatim with
- * DRE-Visualizations and DRESearch (`npm run vendor:lint` copies them out).
+ * DRE-Visualizations, DRESearch and DRE-LinkedData (`npm run vendor:lint`
+ * copies them out).
  * Before that, all three repos had their own script, each claiming to mirror
  * this one and none of them doing so — the dashboards enforced off-scale spacing
  * and radius that the theme did not, this file measured contrast that no module

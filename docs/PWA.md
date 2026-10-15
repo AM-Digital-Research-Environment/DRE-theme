@@ -5,7 +5,11 @@ mobile *Add to Home Screen* — with the Africa Multiple compass mark as the app
 icon. It is deliberately minimal: a manifest, a small install button, icons, and
 theme-color metadata. **No service worker.** No offline cache. No auto-popup.
 
-Toggle it under theme settings → **Progressive Web App** (default on).
+Toggle it under theme settings → **Progressive Web App** (default on). Since 2.38
+the favicons, the Apple touch icon and the `theme-color` metas are emitted on
+every page whatever the setting: they are browser chrome, not app install. The
+toggle governs only the manifest, the install button and the mobile web-app
+metas.
 
 ## What ships
 
@@ -15,7 +19,8 @@ Toggle it under theme settings → **Progressive Web App** (default on).
 | Install button (hidden until installable) | `view/common/header.phtml` |
 | Button + iOS-hint styles | `asset/sass/components/pwa/_pwa-install.scss` |
 | Icon set (official compass on white) | `asset/img/pwa/*.png` (generator: `scripts/gen-pwa-icons.mjs`) |
-| `theme-color` (light/dark), Apple/mobile metas, favicons | `view/layout/layout.phtml` `<head>` |
+| `theme-color` (light/dark), Apple touch icon, favicons (always) | `view/layout/layout.phtml` `<head>` |
+| Apple/mobile web-app metas (PWA only) | `view/layout/layout.phtml` `<head>` |
 | Enable + short-name settings | `config/theme.ini` (`pwa_enable`, `pwa_short_name`) |
 
 ## Why a runtime `blob:` manifest, not a static file

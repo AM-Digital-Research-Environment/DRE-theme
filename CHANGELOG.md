@@ -11,6 +11,32 @@ to create.
 
 ## [Unreleased]
 
+## [2.38.0] - 2026-10-15
+
+### Added
+
+- With [DRE Linked Data](https://github.com/AM-Digital-Research-Environment/DRE-LinkedData) installed, the record's side column shows its linked data. ([#11](https://github.com/AM-Digital-Research-Environment/DRE-theme/issues/11))
+  - **Permanent link:** the record's persistent URI (`/resource/{id}`, which leads to the page) replaces the page address, with its own *Copy* button. "Copy link" on authority records and the citation fallback copy it too. Without the module, or for a record it does not publish, the page address serves as before.
+  - **Linked data:** the record's Turtle, N-Triples and JSON-LD documents, as links to follow rather than files to download, in the order the module lists them.
+  - **Same as:** on persons, subjects, places and organisations, the external records the entry is the same as, named by register with their identifier: Wikidata, GND, ORCID, VIAF, Library of Congress, GeoNames, ROR and others. A DOI already shown in its own row is not repeated. This needs DRE Linked Data 0.3.0; with 0.2.0 the row is simply absent.
+- Item-set and media pages show a compact *Linked data* block with the same permanent link, formats and external records.
+- Access-rights values carry a plain-language explanation, in the side column and in the record's metadata, taken from the public description of the linked Access Right record. "Public", for instance, can now say that the description is public while the material may still be restricted. Nothing is added where the record has no description. ([#10](https://github.com/AM-Digital-Research-Environment/DRE-theme/issues/10))
+- New *Append installation title to page titles* setting under *General*, off by default.
+
+### Changed
+
+- Page titles now read "Record · Site title". The installation title no longer follows every title; the new setting brings it back. The home page is titled with the site title alone, not "Home · Site title".
+- Favicons, the Apple touch icon and the light/dark `theme-color` are now on every page, whatever the *Enable app install* setting. That setting now governs only the app manifest, the install button and the mobile web-app metadata.
+- The "This page is a catalogue record" notice is now a note within the record rather than a second complementary landmark, so screen readers list the side column as the page's only complementary region.
+- `npm run vendor:lint` also refreshes the vendored token lint in DRE-LinkedData, and the *Contract drift* check covers it.
+
+### Fixed
+
+- Metadata values with no language no longer carry an empty `lang=""`, which declared them in an unknown language and overrode the page language (27 values on item 8698, for example).
+- A video or other embed whose title is just its source address no longer uses that address as the thumbnail's alternative text; the item's title is used instead.
+- The Previous and Next links of the linked-resources list are marked `rel="nofollow"`, a hint to search engines not to crawl every page of every filter.
+- The *Access & contact* page is looked up once per request rather than once per notice.
+
 ## [2.37.2] - 2026-10-15
 
 ### Changed
@@ -522,7 +548,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.37.2...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.38.0...HEAD
+[2.38.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.37.2...v2.38.0
 [2.37.2]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.37.1...v2.37.2
 [2.37.1]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.37.0...v2.37.1
 [2.37.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.36.0...v2.37.0

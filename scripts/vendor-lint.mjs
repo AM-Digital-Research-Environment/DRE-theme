@@ -5,8 +5,8 @@
  *
  *   node scripts/vendor-lint.mjs [path-to-module …]     (npm run vendor:lint)
  *
- * Defaults to ../DREVisualizations and ../DRE-Search, which is how the three
- * repos are checked out side by side.
+ * Defaults to ../DREVisualizations, ../DRE-Search and ../DRE-LinkedData, which
+ * is how the four repos are checked out side by side.
  *
  * WHY VENDOR RATHER THAN DEPEND. The modules are separate repositories on their
  * own release cadence, installed into an Omeka site independently of the theme;
@@ -24,7 +24,7 @@ import { join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 
 const ROOT = join(import.meta.dirname, '..');
-const DEFAULT_TARGETS = ['../DREVisualizations', '../DRE-Search'];
+const DEFAULT_TARGETS = ['../DREVisualizations', '../DRE-Search', '../DRE-LinkedData'];
 
 const targets = process.argv.slice(2).filter((a) => !a.startsWith('-'));
 const check = process.argv.includes('--check');
@@ -36,9 +36,10 @@ const BANNER = `/**
  * Source of truth: DRE-theme/scripts/lib/token-rules.mjs
  * Refresh with:    (in DRE-theme) npm run vendor:lint
  *
- * The design-token rules are shared across DRE-theme, DRE-Visualizations and
- * DRESearch so the three cannot drift apart again. Repo-specific paths and
- * allowlists belong in this repo's scripts/check-design-tokens.mjs, not here.
+ * The design-token rules are shared across DRE-theme, DRE-Visualizations,
+ * DRESearch and DRE-LinkedData so they cannot drift apart again. Repo-specific
+ * paths and allowlists belong in this repo's scripts/check-design-tokens.mjs,
+ * not here.
  */
 `;
 

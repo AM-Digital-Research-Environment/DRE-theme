@@ -35,7 +35,9 @@ $linkList = function (array $links) use ($escHtml, $escAttr): string {
 $mailLink = '<a href="mailto:' . $escAttr($access['email']) . '">' . $escHtml($access['email']) . '</a>';
 $leadId = 'record-notice-' . (int) $access['id'];
 ?>
-<aside class="record-notice" aria-labelledby="<?php echo $escAttr($leadId); ?>">
+<?php // A note on the record, not complementary content: as an aside it was a second
+      // "complementary" landmark beside the rail, and an unlabelled one. ?>
+<div class="record-notice" role="note" aria-labelledby="<?php echo $escAttr($leadId); ?>">
 <?php if ($access['kind'] === 'record'): ?>
     <p>
         <strong class="record-notice__lead" id="<?php echo $escAttr($leadId); ?>"><?php echo $escHtml($translate('This page is a catalogue record.')); ?></strong>
@@ -85,4 +87,4 @@ $leadId = 'record-notice-' . (int) $access['id'];
         <?php endif; ?>
     </p>
 <?php endif; ?>
-</aside>
+</div>

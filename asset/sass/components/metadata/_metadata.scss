@@ -600,6 +600,74 @@
     }
 }
 
+// A line of short links — the RDF formats (Turtle, N-Triples, JSON-LD), the
+// registers a record is the same as (Wikidata, GND) — wraps as a run under its
+// label rather than stacking one per line.
+.record-apparatus__row--inline {
+    display: block;
+
+    dd {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-1) var(--space-3);
+        margin-top: var(--space-1);
+        text-align: left;
+    }
+
+    .record-apparatus__value + .record-apparatus__value {
+        margin-top: 0;
+    }
+}
+
+// The identifier inside a register link: "Wikidata Q42".
+.record-apparatus__detail {
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-light);
+}
+
+// What an access-rights term means, under the term (issue #10).
+.record-apparatus__gloss,
+.value-gloss {
+    display: block;
+    margin-top: var(--space-1);
+    font-size: var(--text-xs);
+    font-weight: 400;
+    line-height: var(--leading-normal);
+    color: var(--ink-light);
+}
+
+// "Copy" beside the permanent link: a quiet text-size control, revealed by
+// record.js only where the clipboard API exists.
+.record-apparatus__copy-value {
+    @include secondary-button;
+    min-height: var(--size-control-sm);
+    margin-top: var(--space-1);
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--text-xs);
+
+    // The mixin's display outranks normalize's [hidden]; restate it.
+    &[hidden] {
+        display: none;
+    }
+}
+
+// The compact linked-data block of item-set and media pages: the rail's panel
+// at the reading measure, without a citation.
+.record-linked-data {
+    max-width: var(--measure-narrow);
+    margin: var(--space-8) 0;
+    padding: var(--space-5);
+    background-color: var(--panel-bg);
+    border: var(--panel-border);
+    border-radius: var(--panel-radius);
+
+    .record-apparatus__rows {
+        padding-top: 0;
+        border-top: 0;
+    }
+}
+
 // "Copy link" and "Save record" share one row at equal widths, wrapping to two
 // rows if a translation runs long. Each is revealed by its own script only where
 // it can work; with neither revealed the row collapses instead of leaving a gap.

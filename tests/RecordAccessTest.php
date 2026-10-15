@@ -126,6 +126,27 @@ $access = $helper($project);
 dre_check($failures, $checks, 'a foaf:Project item gets the project statement', ($access['kind'] ?? null) === 'project');
 dre_check($failures, $checks, 'the statement carries section and years', $access['sections'][0]['label'] === 'Arts & Aesthetics' && $access['years'] === '2020–2023');
 
+// --- The access page is looked up once per request ----------------------------
+$lookups = 0;
+$view->callbacks['currentSite'] = fn() => new class { public function id() { return 1; } };
+$view->callbacks['api'] = function () use (&$lookups) {
+    return new class($lookups) {
+        public function __construct(private int &$count) {}
+        public function searchOne(string $resource, array $query) {
+            $this->count++;
+            return new class { public function getContent() { return new class { public function siteUrl() { return '/s/a/page/access'; } }; } };
+        }
+    };
+};
+$memo = new RecordAccess();
+$memo->setView($view);
+$first = $memo($record);
+$memo($record);
+$memo($project);
+dre_check($failures, $checks, 'the access page is found and queried once, however many records ask',
+    $first['accessPageUrl'] === '/s/a/page/access' && $lookups === 1, "lookups: {$lookups}");
+unset($view->callbacks['currentSite'], $view->callbacks['api']);
+
 // --- Pure helpers ------------------------------------------------------------
 dre_check($failures, $checks, 'an interval reads as a year range', RecordAccess::years('2020-01-01/2023-12-31') === '2020–2023');
 dre_check($failures, $checks, 'one year stays one year', RecordAccess::years('2021') === '2021' && RecordAccess::years('2021-03/2021-09') === '2021');
