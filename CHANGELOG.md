@@ -19,9 +19,12 @@ to create.
   - **Same as:** on persons, subjects, places and organisations, the external records the entry is the same as, named by register with their identifier: Wikidata, GND, ORCID, VIAF, Library of Congress, GeoNames, ROR and others. A DOI already shown in its own row is not repeated. This needs DRE Linked Data 0.3.0; with 0.2.0 the row is simply absent.
 - Item-set and media pages show a compact *Linked data* block with the same permanent link, formats and external records.
 - Access-rights values carry a plain-language explanation, in the side column and in the record's metadata, taken from the public description of the linked Access Right record. "Public", for instance, can now say that the description is public while the material may still be restricted. Nothing is added where the record has no description. ([#10](https://github.com/AM-Digital-Research-Environment/DRE-theme/issues/10))
+- New *Append installation title to page titles* setting under *General*, off by default.
 
 ### Changed
 
+- Page titles now read "Record · Site title". The installation title no longer follows every title; the new setting brings it back. The home page is titled with the site title alone, not "Home · Site title".
+- Favicons, the Apple touch icon and the light/dark `theme-color` are now on every page, whatever the *Enable app install* setting. That setting now governs only the app manifest, the install button and the mobile web-app metadata.
 - `npm run vendor:lint` also refreshes the vendored token lint in DRE-LinkedData, and the *Contract drift* check covers it.
 
 ## [2.37.2] - 2026-10-15

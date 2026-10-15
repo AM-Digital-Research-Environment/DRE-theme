@@ -89,6 +89,13 @@ dre_check($failures, $checks, 'item-set and media pages carry the compact linked
 dre_check($failures, $checks, 'record.js copies an exact value for a value-level copy button',
     str_contains($read('asset/js/record.js'), "hasAttribute('data-copy-exact')"));
 
+$layout = $read('view/layout/layout.phtml');
+$pwaBlock = substr($layout, (int) strpos($layout, 'if ($pwaEnabled && $pwaManifestJson)'));
+$pwaBlock = substr($pwaBlock, 0, (int) strpos($pwaBlock, 'endif;'));
+dre_check($failures, $checks, 'favicons and theme-color do not depend on the PWA setting',
+    !str_contains($pwaBlock, 'theme-color') && !str_contains($pwaBlock, 'rel="icon"') && !str_contains($pwaBlock, 'apple-touch-icon')
+        && str_contains($pwaBlock, 'dre-pwa-manifest'));
+
 foreach (['item', 'item-set', 'media'] as $resource) {
     $redirect = "view/omeka/site/{$resource}/search.phtml";
     dre_check($failures, $checks, "legacy {$resource} search redirects to DRE Search",

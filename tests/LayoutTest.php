@@ -41,10 +41,31 @@ class LayoutStack
     }
 }
 
+/** Laminas' HeadTitle, as far as the layout uses it: APPEND, PREPEND, SET, separator. */
+class LayoutHeadTitle
+{
+    public array $items = [];
+    public string $separator = '';
+    public function __invoke($title = null, $setType = null): self
+    {
+        $title = (string) $title;
+        if ($title === '') return $this;
+        if ($setType === 'SET') $this->items = [$title];
+        elseif ($setType === 'PREPEND') array_unshift($this->items, $title);
+        else $this->items[] = $title;
+        return $this;
+    }
+    public function setSeparator(string $separator): self { $this->separator = $separator; return $this; }
+    public function append($title): self { return $this('' . $title); }
+    public function text(): string { return implode($this->separator, $this->items); }
+    public function __toString(): string { return '<title>' . htmlspecialchars($this->text()) . '</title>'; }
+}
+
 class LayoutTestView extends ThemeTestView
 {
     public string $content = '<p>Page content</p>';
     public string $requestUrl = 'https://theme.test/s/a/page/about';
+    public ?LayoutHeadTitle $title = null;
     public array $elements = [];
     public ?LayoutStack $inline = null;
     public ?LayoutStack $head = null;
@@ -71,12 +92,18 @@ $site = new class($services) extends ThemeNavSite {
     public function getServiceLocator() { return $this->services; }
 };
 
-$render = function (array $themeSettings = [], string $requestUrl = 'https://theme.test/s/a/page/about') use ($site, $settings): array {
+$render = function (array $themeSettings = [], string $requestUrl = 'https://theme.test/s/a/page/about', array $settingsValues = []) use ($site, $settings): array {
     $view = new LayoutTestView();
     $view->requestUrl = $requestUrl;
     $view->themeSettings = $themeSettings;
+    $view->settings = $settingsValues;
     $chain = new LayoutStack();
-    foreach (['headMeta', 'headTitle', 'headLink', 'headStyle'] as $helper) $view->callbacks[$helper] = fn() => $chain;
+    foreach (['headMeta', 'headLink', 'headStyle'] as $helper) $view->callbacks[$helper] = fn() => $chain;
+    // The content template has already prepended its title (pageTitle() does),
+    // as it would have when Omeka renders the layout.
+    $view->title = new LayoutHeadTitle();
+    $view->title->__invoke('About', 'PREPEND');
+    $view->callbacks['headTitle'] = fn($title = null, $setType = null) => ($view->title)($title, $setType);
     $view->callbacks['userBar'] = fn() => '';
     $view->callbacks['jsTranslate'] = fn() => '';
     $view->callbacks['doctype'] = fn() => '<!DOCTYPE html>';
@@ -110,6 +137,10 @@ try {
         (bool) array_filter($scripts, fn($file) => str_contains($file, 'js/shortlist.js')));
     dre_check($failures, $checks, 'the font preload targets the Spectral weight every page renders',
         str_contains($html, 'spectral-latin-800-normal.woff2') && !str_contains($html, 'spectral-latin-600-normal.woff2'));
+    dre_check($failures, $checks, 'an interior page is titled "Page · Site", without the installation title by default',
+        $view->title->text() === 'About · Research archive', $view->title->text());
+    dre_check($failures, $checks, 'favicons and theme-color render with the PWA on, once each',
+        substr_count($html, 'img/pwa/favicon-32.png') === 1 && substr_count($html, 'name="theme-color"') === 2);
     dre_check($failures, $checks, 'PWA is on by default: manifest island and install script render',
         str_contains($html, 'id="dre-pwa-manifest"') && str_contains($html, 'js/pwa-install.js'));
     $manifest = $xpath->query('//script[@id="dre-pwa-manifest"]')->item(0);
@@ -124,6 +155,11 @@ try {
         str_contains($html, '--primary-base: #009260;') && !str_contains($html, 'display:none'));
     dre_check($failures, $checks, 'PWA off: no manifest island and no install script',
         !str_contains($html, 'dre-pwa-manifest') && !str_contains($html, 'pwa-install.js'));
+    dre_check($failures, $checks, 'PWA off: favicons, the touch icon and theme-color still render',
+        str_contains($html, 'img/pwa/favicon-192.png') && str_contains($html, 'img/pwa/favicon-16.png')
+        && str_contains($html, 'rel="apple-touch-icon"') && substr_count($html, 'name="theme-color"') === 2);
+    dre_check($failures, $checks, 'PWA off: no web-app install metas',
+        !str_contains($html, 'apple-mobile-web-app-capable') && !str_contains($html, 'mobile-web-app-capable'));
     dre_check($failures, $checks, 'shortlist off: no script, dialog or header control',
         !array_filter($view->inline->files, fn($file) => str_contains($file, 'shortlist.js'))
         && !str_contains($html, 'data-shortlist-dialog') && !str_contains($html, 'data-shortlist-open'));
@@ -131,7 +167,13 @@ try {
     [$html] = $render(['primary_color' => '#7A1F5C', 'masthead_brand' => 'quiet']);
     dre_check($failures, $checks, 'a valid custom brand seed is used', str_contains($html, '--primary-base: #7A1F5C;'));
 
+    [$html, $view] = $render(['title_installation' => '1'], 'https://theme.test/s/a/page/about', ['installation_title' => 'AMIRA']);
+    dre_check($failures, $checks, 'the setting appends the installation title',
+        $view->title->text() === 'About · Research archive · AMIRA', $view->title->text());
+
     [$html, $view] = $render([], 'https://theme.test/s/a/');
+    dre_check($failures, $checks, 'the home page is titled with the site title alone, not "Home · Site"',
+        $view->title->text() === 'Research archive', $view->title->text());
     dre_check($failures, $checks, 'the site root renders the home masthead and its search',
         str_contains($html, 'site-banner--home') && str_contains($html, 'site-banner__search'));
     dre_check($failures, $checks, 'with no statistics source the masthead renders without a stat band',
