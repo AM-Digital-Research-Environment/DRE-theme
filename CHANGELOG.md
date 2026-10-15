@@ -11,6 +11,8 @@ to create.
 
 ## [Unreleased]
 
+## [2.41.0] - 2026-10-15
+
 ### Changed
 
 - A project page no longer opens with the "About these records" statement. It is the project's own page: its description, team and visualisations are on it. The rail's first panel becomes *Access and contact*: whose descriptions these are (the project team, following the DRE's curation guidelines), the project's records ("Search its 487 records", with the collection's name when it differs), who to ask, and the DRE as fallback. A project's access request and error report now carry the project's id and title.
@@ -619,7 +621,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.40.0...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.41.0...HEAD
+[2.41.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.40.0...v2.41.0
 [2.40.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.39.0...v2.40.0
 [2.39.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.38.3...v2.39.0
 [2.38.3]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.38.2...v2.38.3
