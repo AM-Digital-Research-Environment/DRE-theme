@@ -11,6 +11,15 @@ to create.
 
 ## [Unreleased]
 
+### Changed
+
+- The "This page is a catalogue record" notice now spans the full width of the record and is shorter. Its "How to request access" link is gone, since *Access to this material* sits beside it. It names the project or collection the record comes from instead of calling it a research project, because ILAM and BayGlo are external collections.
+- Records that show images no longer call them "previews", and no longer say that AMIRA holds only the description. Some records carry the whole document (Museu Afro-Digital's postcards); others carry only part of it, such as a disc label or a frame grab. The notice now says the images or files are copies for reference that may show only part of the material, and *Online copy* lists "On this page, possibly in part" before any external link.
+- *Access to this material* is shorter: three label/value rows (*Online copy*, *Who to ask*, *No reply?*) and one *Report an error in this record* link.
+  - *Who to ask* names the project's principal investigators and links to the project page for its research team, so a large team never becomes a list in the side column.
+  - A project with researchers but no PI points to its team instead of the DRE.
+- The side column no longer scrolls on its own beside the page. *Access to this material* scrolls away with the page, and only *Cite this record* stays pinned below the header, on screens tall enough to hold it.
+
 ## [2.37.1] - 2026-10-14
 
 ### Fixed

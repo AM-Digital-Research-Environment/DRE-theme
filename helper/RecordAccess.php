@@ -27,7 +27,8 @@ use Laminas\View\Helper\AbstractHelper;
  *
  * Contact resolution, per project:
  *
- *      dcterms:mediator  →  dcterms:creator (the PIs)  →  the DRE mailbox
+ *      dcterms:mediator  →  the project team (dcterms:creator PIs,
+ *                           foaf:member researchers)  →  the DRE mailbox
  *
  * `dcterms:mediator` ("an entity that mediates access to the resource") is the
  * hand-set override for a project whose PI has left, or an external collection
@@ -92,15 +93,18 @@ class RecordAccess extends AbstractHelper
                 'years' => self::years($this->firstLiteral($resource, 'dcterms:temporal')),
                 'contactSource' => $contact['source'],
                 'contacts' => $contact['contacts'],
+                'pis' => $contact['pis'],
+                'researchers' => $contact['researchers'],
             ];
         }
 
         $contact = $this->contactFor($projects);
 
-        // Name the holding institution as NOT the contact only when a person is:
-        // with no PI and no override the theme does not know who answers, and for
-        // an external collection the holder may well be the right address.
-        $holders = $contact['source'] === 'pi'
+        // Name the holding institution as NOT the contact only when the project
+        // team is: with no team and no override the theme does not know who
+        // answers, and for an external collection the holder may well be the
+        // right address.
+        $holders = $contact['source'] === 'team'
             ? array_merge($this->linkedTitles($resource, 'dcterms:provenance', true), $this->linkedTitles($resource, 'marcrel:rps', true))
             : [];
 
@@ -118,6 +122,8 @@ class RecordAccess extends AbstractHelper
             'projects' => array_map(fn ($p) => ['label' => (string) $p->displayTitle(), 'href' => (string) $p->url()], $projects),
             'contactSource' => $contact['source'],
             'contacts' => $contact['contacts'],
+            'pis' => $contact['pis'],
+            'researchers' => $contact['researchers'],
             'holders' => array_values(array_unique(array_column($holders, 'label'))),
             'links' => $this->links($resource),
             'hasMedia' => $this->hasMedia($resource),
@@ -159,23 +165,39 @@ class RecordAccess extends AbstractHelper
     }
 
     /**
-     * @return array{source:string,contacts:array<int,array{label:string,href:string}>}
-     *   source: 'mediator' (hand-set override), 'pi', or 'dre' (nobody known).
+     * Who answers access requests for these projects.
+     *
+     *  - 'mediator': the hand-set `dcterms:mediator` override, in `contacts`;
+     *  - 'team': the project team — its PIs (`dcterms:creator`) in `pis` and its
+     *    other researchers (`foaf:member`, PIs removed) in `researchers`;
+     *  - 'dre': nobody is known, so the DRE mailbox answers.
+     *
+     * @return array{source:string,contacts:array,pis:array,researchers:array}
      */
     private function contactFor(array $projects): array
     {
-        foreach (['mediator' => 'dcterms:mediator', 'pi' => 'dcterms:creator'] as $source => $term) {
-            $contacts = [];
+        $collect = function (string $term) use ($projects): array {
+            $out = [];
             foreach ($projects as $project) {
-                foreach ($this->linkedTitles($project, $term) as $contact) {
-                    $contacts[$contact['label']] = $contact;
+                foreach ($this->linkedTitles($project, $term) as $person) {
+                    $out[$person['label']] = $person;
                 }
             }
-            if ($contacts) {
-                return ['source' => $source, 'contacts' => array_values($contacts)];
-            }
+            return $out;
+        };
+
+        $mediators = $collect('dcterms:mediator');
+        if ($mediators) {
+            return ['source' => 'mediator', 'contacts' => array_values($mediators), 'pis' => [], 'researchers' => []];
         }
-        return ['source' => 'dre', 'contacts' => []];
+
+        $pis = $collect('dcterms:creator');
+        $researchers = array_diff_key($collect('foaf:member'), $pis);
+        if ($pis || $researchers) {
+            return ['source' => 'team', 'contacts' => [], 'pis' => array_values($pis), 'researchers' => array_values($researchers)];
+        }
+
+        return ['source' => 'dre', 'contacts' => [], 'pis' => [], 'researchers' => []];
     }
 
     /**

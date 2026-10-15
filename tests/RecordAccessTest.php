@@ -38,6 +38,8 @@ $project = new AccessTestResource('Of Art Worlds', 1790);
 $project->classTerm = 'foaf:Project';
 $project->values = [
     'dcterms:creator' => [access_link($pi)],
+    // The PI is listed as a member too, as on the live projects; six others.
+    'foaf:member' => array_merge([access_link($pi)], array_map(fn ($n) => access_link(new AccessTestResource('Researcher, ' . $n, 500 + $n)), range(1, 6))),
     'dcterms:isPartOf' => [access_link($section)],
     'dcterms:temporal' => [new ThemeTestValue('2020-01-01/2023-12-31', 'numeric:interval')],
 ];
@@ -71,10 +73,12 @@ unset($view->themeSettings['access_notices']);
 $access = $helper($record);
 dre_check($failures, $checks, 'a record linked to a project is a research record', ($access['kind'] ?? null) === 'record');
 dre_check($failures, $checks, 'the project is named and linked', $access['projects'] === [['label' => 'Of Art Worlds', 'href' => '/s/a/item/1790']]);
-dre_check($failures, $checks, 'the contact is the project PI', $access['contactSource'] === 'pi' && $access['contacts'][0]['label'] === 'Vierke, Ulf');
+dre_check($failures, $checks, 'the contact is the project team: its PI', $access['contactSource'] === 'team' && $access['pis'][0]['label'] === 'Vierke, Ulf');
+dre_check($failures, $checks, 'and its researchers, the PI not repeated among them',
+    count($access['researchers']) === 6 && !in_array('Vierke, Ulf', array_column($access['researchers'], 'label'), true));
 dre_check($failures, $checks, 'only a LINKED holding institution is named as not the contact', $access['holders'] === ['Iwalewahaus Bayreuth']);
 dre_check($failures, $checks, 'the default mailbox is the DRE', $access['email'] === RecordAccess::DEFAULT_EMAIL);
-dre_check($failures, $checks, 'media are flagged as previews', $access['hasMedia'] === true);
+dre_check($failures, $checks, 'a record with media is flagged', $access['hasMedia'] === true);
 $labels = array_column($access['links'], 'label', 'href');
 dre_check($failures, $checks, 'links are named by the system they lead to, duplicates collapsed',
     $labels === [
@@ -102,11 +106,20 @@ dre_check($failures, $checks, 'with a mediator the holder is not called "not the
 unset($project->values['dcterms:mediator']);
 
 $creators = $project->values['dcterms:creator'];
+$members = $project->values['foaf:member'];
 unset($project->values['dcterms:creator']);
 $access = $helper($record);
-dre_check($failures, $checks, 'a project with no PI falls back to the DRE', $access['contactSource'] === 'dre' && $access['contacts'] === []);
+dre_check($failures, $checks, 'a project with researchers but no PI names its researchers',
+    $access['contactSource'] === 'team' && $access['pis'] === [] && count($access['researchers']) === 7);
+unset($project->values['foaf:member']);
+$access = $helper($record);
+dre_check($failures, $checks, 'a project with no team falls back to the DRE', $access['contactSource'] === 'dre' && $access['contacts'] === []);
 dre_check($failures, $checks, 'with nobody known, the holder is not called "not the contact"', $access['holders'] === []);
+$panel = $view->render('common/record-access', ['resource' => $record, 'access' => $access]);
+dre_check($failures, $checks, 'with nobody known, the DRE is who to ask and no "No reply?" row repeats it',
+    str_contains($panel, 'The Digital Research Environment (DRE)') && !str_contains($panel, 'No reply?'));
 $project->values['dcterms:creator'] = $creators;
+$project->values['foaf:member'] = $members;
 
 // --- A project ---------------------------------------------------------------
 $access = $helper($project);
@@ -123,12 +136,16 @@ dre_check($failures, $checks, 'an RDSpace handle is named', RecordAccess::linkLa
 $access = $helper($record);
 $notice = $view->render('common/record-notice', ['access' => $access]);
 dre_check($failures, $checks, 'the record notice says plainly what the page is',
-    str_contains($notice, 'This page is a catalogue record.') && str_contains($notice, 'cannot be obtained through this site') && str_contains($notice, 'previews'));
-dre_check($failures, $checks, 'the notice links to the access panel', str_contains($notice, 'href="#record-access-8698"'));
+    str_contains($notice, 'This page is a catalogue record.') && str_contains($notice, 'copies for reference and may show only part of it')
+    && !str_contains($notice, 'holds only this description'));
+dre_check($failures, $checks, 'the notice names the project and carries no other link',
+    str_contains($notice, '>Of Art Worlds</a>') && substr_count($notice, '<a ') === 1);
 
 $panel = $view->render('common/record-access', ['resource' => $record, 'access' => $access]);
 dre_check($failures, $checks, 'the panel names the PI and the holder that is not the contact',
-    str_contains($panel, '>Vierke, Ulf</a>') && str_contains($panel, 'Please do not write to <strong>Iwalewahaus Bayreuth</strong>'));
+    str_contains($panel, '>Vierke, Ulf</a>') && str_contains($panel, 'Not Iwalewahaus Bayreuth: it keeps the material'));
+dre_check($failures, $checks, 'the team is a link to the project page, never a list of names',
+    str_contains($panel, 'or the research team of <a href="/s/a/item/1790">Of Art Worlds</a>') && !str_contains($panel, 'Researcher, 1'));
 dre_check($failures, $checks, 'without a form module the report is a mailto', str_contains($panel, 'class="record-access__report-link" href="mailto:'));
 dre_check($failures, $checks, 'the panel titles are escaped', !str_contains($panel . $notice, '<untitled>'));
 
@@ -144,7 +161,15 @@ unset($view->callbacks['contactUs']);
 
 unset($record->values['dre:collectionUrl'], $record->values['fabio:hasURL'], $record->values['bibo:doi']);
 $panel = $view->render('common/record-access', ['resource' => $record, 'access' => $helper($record)]);
-dre_check($failures, $checks, 'a record with no link says so', str_contains($panel, 'No online copy is linked to this record.'));
+dre_check($failures, $checks, 'a record with media but no link points to this page',
+    str_contains($panel, 'On this page, possibly in part') && !str_contains($panel, 'None linked') && !str_contains($panel, 'may be restricted'));
+$record->mediaList = [];
+$access = $helper($record);
+$panel = $view->render('common/record-access', ['resource' => $record, 'access' => $access]);
+dre_check($failures, $checks, 'a record with neither media nor link says so', str_contains($panel, 'None linked to this record.') && !str_contains($panel, 'On this page'));
+dre_check($failures, $checks, 'without media the notice says AMIRA holds only the description',
+    str_contains($view->render('common/record-notice', ['access' => $access]), 'AMIRA holds only this description and cannot supply the material itself'));
+$record->mediaList = [new stdClass()];
 
 $statement = $view->render('common/record-notice', ['access' => $helper($project)]);
 dre_check($failures, $checks, 'the project statement names project, section, years, PI and mailbox',

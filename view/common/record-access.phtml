@@ -2,12 +2,10 @@
 /**
  * Record access — "Access to this material", the first panel of the rail.
  *
- * Answers the three questions a visitor arriving from a search engine actually
- * has, in the order they have them: is there a copy online, who can I ask, and
- * how do I report a mistake. The contact is generated from the record's project
- * (see helper/RecordAccess.php), never typed per record.
- *
- * The record notice under the title links here (#record-access-{id}).
+ * Three short rows, read in the order a visitor arriving from a search engine
+ * has the questions: is there a copy online, who can I ask, and what if nobody
+ * answers. Then one link to report a mistake. The contact is generated from the
+ * record's project (helper/RecordAccess.php), never typed per record.
  *
  * The error report is a ContactUs form when that module is active — messages are
  * stored in admin and mailed to the DRE — and otherwise a pre-filled email to the
@@ -57,54 +55,68 @@ if ($this->getHelperPluginManager()->has('contactUs')) {
 <section class="record-access" id="<?php echo $escAttr($id); ?>" aria-labelledby="<?php echo $escAttr($id . '-title'); ?>">
     <h2 class="record-apparatus__title" id="<?php echo $escAttr($id . '-title'); ?>"><?php echo $escHtml($translate('Access to this material')); ?></h2>
 
-    <h3 class="record-access__label"><?php echo $escHtml($translate('Online copy')); ?></h3>
-    <?php if ($access['links']): ?>
-        <ul class="record-access__links">
-            <?php foreach ($access['links'] as $link): ?>
-                <li><a href="<?php echo $escAttr($link['href']); ?>"><?php echo $escHtml($link['label']); ?></a></li>
-            <?php endforeach; ?>
-        </ul>
-        <p class="record-access__note"><?php echo $escHtml($translate('Access is decided there and may be restricted.')); ?></p>
-    <?php else: ?>
-        <p><?php echo $escHtml($translate('No online copy is linked to this record.')); ?></p>
-    <?php endif; ?>
+    <dl class="record-access__rows">
+        <div class="record-access__row">
+            <dt><?php echo $escHtml($translate('Online copy')); ?></dt>
+            <dd>
+                <?php if ($access['hasMedia']): ?>
+                    <span class="record-access__item"><?php echo $escHtml($translate('On this page, possibly in part')); ?></span>
+                <?php endif; ?>
+                <?php foreach ($access['links'] as $link): ?>
+                    <a class="record-access__item" href="<?php echo $escAttr($link['href']); ?>"><?php echo $escHtml($link['label']); ?></a>
+                <?php endforeach; ?>
+                <?php if ($access['links']): ?>
+                    <span class="record-access__note"><?php echo $escHtml($translate('Access there may be restricted.')); ?></span>
+                <?php elseif (!$access['hasMedia']): ?>
+                    <?php echo $escHtml($translate('None linked to this record.')); ?>
+                <?php endif; ?>
+            </dd>
+        </div>
 
-    <h3 class="record-access__label"><?php echo $escHtml($translate('Who to ask')); ?></h3>
-    <?php if ($access['contactSource'] === 'pi'): ?>
-        <p><?php echo sprintf(
-            $escHtml($translatePlural('For access or more information, contact the principal investigator of %1$s: %2$s.', 'For access or more information, contact the principal investigators of %1$s: %2$s.', count($access['contacts']))),
-            $linkList($access['projects']),
-            $linkList($access['contacts'])
-        ); ?></p>
-        <?php if ($access['holders']): ?>
-            <p><?php echo sprintf(
-                $escHtml($translate('Please do not write to %s about access: it keeps the material but is not the contact for this research.')),
-                '<strong>' . $escHtml(implode('; ', $access['holders'])) . '</strong>'
-            ); ?></p>
+        <div class="record-access__row">
+            <dt><?php echo $escHtml($translate('Who to ask')); ?></dt>
+            <dd>
+                <?php if ($access['contactSource'] === 'team'): ?>
+                    <?php if ($access['pis']): ?>
+                        <span class="record-access__item"><?php echo $linkList($access['pis']); ?>
+                            <span class="record-access__role"><?php echo $escHtml($translatePlural('principal investigator', 'principal investigators', count($access['pis']))); ?></span></span>
+                    <?php endif; ?>
+                    <?php // The team itself is listed on the project page; a big project would turn the rail into a staff list. ?>
+                    <span class="record-access__item"><?php echo sprintf(
+                        $escHtml($access['pis'] ? $translate('or the research team of %s') : $translate('The research team of %s')),
+                        $linkList($access['projects'])
+                    ); ?></span>
+                    <?php if ($access['holders']): ?>
+                        <span class="record-access__note"><?php echo $escHtml(sprintf(
+                            $translate('Not %s: it keeps the material but does not handle access requests.'),
+                            implode('; ', $access['holders'])
+                        )); ?></span>
+                    <?php endif; ?>
+                <?php elseif ($access['contactSource'] === 'mediator'): ?>
+                    <span class="record-access__item"><?php echo $linkList($access['contacts']); ?></span>
+                <?php else: ?>
+                    <span class="record-access__item"><?php echo sprintf($escHtml($translate('The Digital Research Environment (DRE): %s')), $mailLink); ?></span>
+                <?php endif; ?>
+            </dd>
+        </div>
+
+        <?php if ($access['contactSource'] !== 'dre'): ?>
+            <div class="record-access__row">
+                <dt><?php echo $escHtml($translate('No reply?')); ?></dt>
+                <dd><?php echo sprintf($escHtml($translate('Write to the DRE: %s')), $mailLink); ?></dd>
+            </div>
         <?php endif; ?>
-        <p><?php echo sprintf($escHtml($translate('Cannot reach them? Write to the Digital Research Environment (DRE): %s.')), $mailLink); ?></p>
-    <?php elseif ($access['contactSource'] === 'mediator'): ?>
-        <p><?php echo sprintf($escHtml($translate('For access or more information, contact %s.')), $linkList($access['contacts'])); ?></p>
-        <p><?php echo sprintf($escHtml($translate('Cannot reach them? Write to the Digital Research Environment (DRE): %s.')), $mailLink); ?></p>
-    <?php else: ?>
-        <p><?php echo sprintf($escHtml($translate('For access or more information, write to the Digital Research Environment (DRE) of the Africa Multiple Cluster: %s.')), $mailLink); ?></p>
-    <?php endif; ?>
+    </dl>
 
-    <h3 class="record-access__label"><?php echo $escHtml($translate('Something wrong?')); ?></h3>
-    <?php if ($reportForm !== ''): ?>
-        <?php // The module labels its own button ("Send a message"); this line says what it is for. ?>
-        <p><?php echo $escHtml($translate('Report a typo, a mistake or a suggested improvement to the DRE. The record’s id is sent with your message.')); ?></p>
-        <div class="record-access__report"><?php echo $reportForm; ?></div>
-    <?php else: ?>
-        <p>
+    <div class="record-access__footer">
+        <?php if ($reportForm !== ''): ?>
+            <span class="record-access__note"><?php echo $escHtml($translate('Found a mistake in this record? Tell the DRE.')); ?></span>
+            <div class="record-access__report"><?php echo $reportForm; ?></div>
+        <?php else: ?>
             <a class="record-access__report-link" href="<?php echo $escAttr($access['reportMailto']); ?>"><?php echo $escHtml($translate('Report an error in this record')); ?></a>
-            <span class="record-access__note"><?php echo $escHtml(sprintf($translate('Opens an email to %s.'), $access['email'])); ?></span>
-        </p>
-    <?php endif; ?>
-
-    <?php if ($access['accessPageUrl'] !== ''): ?>
-        <p class="record-access__more">
-            <a href="<?php echo $escAttr($access['accessPageUrl']); ?>"><?php echo $escHtml($translate('More about access to AMIRA material')); ?></a>
-        </p>
-    <?php endif; ?>
+        <?php endif; ?>
+        <?php if ($access['accessPageUrl'] !== ''): ?>
+            <a href="<?php echo $escAttr($access['accessPageUrl']); ?>"><?php echo $escHtml($translate('More about access')); ?></a>
+        <?php endif; ?>
+    </div>
 </section>

@@ -2,10 +2,12 @@
 /**
  * Record notice — the plain statement under the title (issue #10).
  *
- * On a research record: this page is a description, the material is elsewhere,
- * and here is how to ask for it. On a project: the standard statement — whose
- * metadata this is, who answers for its accuracy, who to contact — so the DRE can
- * point to it instead of taking a collection offline.
+ * On a research record: this page is a description, and the material is
+ * elsewhere. Who to ask sits in the rail's "Access to this material", one glance
+ * to the right (or just below the record on a phone), so the notice carries no
+ * link of its own. On a project: the standard statement — whose metadata this
+ * is, who answers for its accuracy, who to contact — so the DRE can point to it
+ * instead of taking a collection offline.
  *
  * Written for a visitor who has never heard of metadata. Self-suppressing:
  * RecordAccess returns [] for everything that is not a research record or a
@@ -31,22 +33,20 @@ $linkList = function (array $links) use ($escHtml, $escAttr): string {
     return implode('; ', $parts);
 };
 $mailLink = '<a href="mailto:' . $escAttr($access['email']) . '">' . $escHtml($access['email']) . '</a>';
+$leadId = 'record-notice-' . (int) $access['id'];
 ?>
-<aside class="record-notice" aria-labelledby="record-notice-<?php echo (int) $access['id']; ?>">
+<aside class="record-notice" aria-labelledby="<?php echo $escAttr($leadId); ?>">
 <?php if ($access['kind'] === 'record'): ?>
     <p>
-        <strong class="record-notice__lead" id="record-notice-<?php echo (int) $access['id']; ?>"><?php echo $escHtml($translate('This page is a catalogue record.')); ?></strong>
-        <?php echo sprintf(
-            $escHtml($translatePlural('It describes material connected with the research project %s.', 'It describes material connected with the research projects %s.', count($access['projects']))),
-            $linkList($access['projects'])
-        ); ?>
-        <?php echo $escHtml($translate('AMIRA holds only this description: the material itself is kept elsewhere and cannot be obtained through this site.')); ?>
+        <strong class="record-notice__lead" id="<?php echo $escAttr($leadId); ?>"><?php echo $escHtml($translate('This page is a catalogue record.')); ?></strong>
+        <?php // "From" rather than "research project": ILAM and BayGlo are external collections. ?>
         <?php if ($access['hasMedia']): ?>
-            <?php echo $escHtml($translate('Any images shown are previews.')); ?>
+            <?php // Some records carry the whole document (Museu Afro-Digital's postcards), others a
+                  // label or a frame grab (ILAM, ELTV): never claim the page has nothing, nor everything. ?>
+            <?php echo sprintf($escHtml($translate('It comes from %s. The original material is kept elsewhere: the images or files shown here are copies for reference and may show only part of it.')), $linkList($access['projects'])); ?>
+        <?php else: ?>
+            <?php echo sprintf($escHtml($translate('It comes from %s and describes material kept elsewhere: AMIRA holds only this description and cannot supply the material itself.')), $linkList($access['projects'])); ?>
         <?php endif; ?>
-    </p>
-    <p class="record-notice__action">
-        <a href="#record-access-<?php echo (int) $access['id']; ?>"><?php echo $escHtml($translate('How to request access')); ?></a>
     </p>
 <?php else: ?>
     <?php
@@ -57,7 +57,7 @@ $mailLink = '<a href="mailto:' . $escAttr($access['email']) . '">' . $escHtml($a
     $title = '<em>' . $escHtml($access['title']) . '</em>' . ($context !== '' ? ' (' . $escHtml($context) . ')' : '');
     ?>
     <p>
-        <strong class="record-notice__lead" id="record-notice-<?php echo (int) $access['id']; ?>"><?php echo $escHtml($translate('About these records.')); ?></strong>
+        <strong class="record-notice__lead" id="<?php echo $escAttr($leadId); ?>"><?php echo $escHtml($translate('About these records.')); ?></strong>
         <?php if ($access['contactSource'] === 'dre'): ?>
             <?php echo sprintf($escHtml($translate('This page presents the metadata of the collection %s.')), $title); ?>
         <?php else: ?>
@@ -67,22 +67,22 @@ $mailLink = '<a href="mailto:' . $escAttr($access['email']) . '">' . $escHtml($a
         <?php echo $escHtml($translate('AMIRA does not hold the material itself.')); ?>
     </p>
     <p>
-        <?php if ($access['contactSource'] === 'pi'): ?>
+        <?php if ($access['contactSource'] === 'team' && $access['pis']): ?>
             <?php echo sprintf(
-                $escHtml($translatePlural('For access or more information, contact the principal investigator, %1$s, or, if you cannot reach them, the DRE at %2$s.', 'For access or more information, contact the principal investigators, %1$s, or, if you cannot reach them, the DRE at %2$s.', count($access['contacts']))),
-                $linkList($access['contacts']),
+                $escHtml($translatePlural('For access or more information, contact the principal investigator, %1$s, or the project’s researchers; if you cannot reach them, write to the DRE at %2$s.', 'For access or more information, contact the principal investigators, %1$s, or the project’s researchers; if you cannot reach them, write to the DRE at %2$s.', count($access['pis']))),
+                $linkList($access['pis']),
                 $mailLink
             ); ?>
+        <?php elseif ($access['contactSource'] === 'team'): ?>
+            <?php echo sprintf($escHtml($translate('For access or more information, contact the project’s researchers, listed on this page; if you cannot reach them, write to the DRE at %s.')), $mailLink); ?>
         <?php elseif ($access['contactSource'] === 'mediator'): ?>
-            <?php echo sprintf($escHtml($translate('For access or more information, contact %1$s, or, if you cannot reach them, the DRE at %2$s.')), $linkList($access['contacts']), $mailLink); ?>
+            <?php echo sprintf($escHtml($translate('For access or more information, contact %1$s; if you cannot reach them, write to the DRE at %2$s.')), $linkList($access['contacts']), $mailLink); ?>
         <?php else: ?>
             <?php echo sprintf($escHtml($translate('For access or more information, write to the DRE at %s.')), $mailLink); ?>
         <?php endif; ?>
-    </p>
-    <?php if ($access['accessPageUrl'] !== ''): ?>
-        <p class="record-notice__action">
+        <?php if ($access['accessPageUrl'] !== ''): ?>
             <a href="<?php echo $escAttr($access['accessPageUrl']); ?>"><?php echo $escHtml($translate('More about access to AMIRA material')); ?></a>
-        </p>
-    <?php endif; ?>
+        <?php endif; ?>
+    </p>
 <?php endif; ?>
 </aside>

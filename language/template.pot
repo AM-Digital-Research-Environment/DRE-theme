@@ -19,7 +19,7 @@ msgid_plural "(%s items)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: helper/RecordAccess.php:138
+#: helper/RecordAccess.php:144
 msgid "[AMIRA] Correction to record %1$s: %2$s"
 msgstr ""
 
@@ -48,15 +48,15 @@ msgstr ""
 msgid "Abstract"
 msgstr ""
 
-#: view/common/record-access.phtml:67
-msgid "Access is decided there and may be restricted."
-msgstr ""
-
 #: helper/RecordApparatus.php:127
 msgid "Access rights"
 msgstr ""
 
-#: view/common/record-access.phtml:58
+#: view/common/record-access.phtml:69
+msgid "Access there may be restricted."
+msgstr ""
+
+#: view/common/record-access.phtml:56
 msgid "Access to this material"
 msgstr ""
 
@@ -98,14 +98,6 @@ msgstr ""
 msgid "AMIRA does not hold the material itself."
 msgstr ""
 
-#: view/common/record-notice.phtml:43
-msgid "AMIRA holds only this description: the material itself is kept elsewhere and cannot be obtained through this site."
-msgstr ""
-
-#: view/common/record-notice.phtml:45
-msgid "Any images shown are previews."
-msgstr ""
-
 #: view/common/linked-resources.phtml:116
 msgid "Apply"
 msgstr ""
@@ -141,11 +133,6 @@ msgstr ""
 
 #: view/common/shortlist.phtml:6
 msgid "Browser storage is unavailable. This list will last for this page only. Export it to keep a copy."
-msgstr ""
-
-#: view/common/record-access.phtml:85
-#: view/common/record-access.phtml:88
-msgid "Cannot reach them? Write to the Digital Research Environment (DRE): %s."
 msgstr ""
 
 #: view/omeka/site/index/search.phtml:18
@@ -304,32 +291,26 @@ msgstr ""
 msgid "Filter this page by relationship"
 msgstr ""
 
-#: view/common/record-notice.phtml:77
-msgid "For access or more information, contact %1$s, or, if you cannot reach them, the DRE at %2$s."
+#: view/common/record-notice.phtml:79
+msgid "For access or more information, contact %1$s; if you cannot reach them, write to the DRE at %2$s."
 msgstr ""
-
-#: view/common/record-access.phtml:87
-msgid "For access or more information, contact %s."
-msgstr ""
-
-#: view/common/record-access.phtml:75
-msgid "For access or more information, contact the principal investigator of %1$s: %2$s."
-msgid_plural "For access or more information, contact the principal investigators of %1$s: %2$s."
-msgstr[0] ""
-msgstr[1] ""
 
 #: view/common/record-notice.phtml:72
-msgid "For access or more information, contact the principal investigator, %1$s, or, if you cannot reach them, the DRE at %2$s."
-msgid_plural "For access or more information, contact the principal investigators, %1$s, or, if you cannot reach them, the DRE at %2$s."
+msgid "For access or more information, contact the principal investigator, %1$s, or the project’s researchers; if you cannot reach them, write to the DRE at %2$s."
+msgid_plural "For access or more information, contact the principal investigators, %1$s, or the project’s researchers; if you cannot reach them, write to the DRE at %2$s."
 msgstr[0] ""
 msgstr[1] ""
 
-#: view/common/record-access.phtml:90
-msgid "For access or more information, write to the Digital Research Environment (DRE) of the Africa Multiple Cluster: %s."
+#: view/common/record-notice.phtml:77
+msgid "For access or more information, contact the project’s researchers, listed on this page; if you cannot reach them, write to the DRE at %s."
 msgstr ""
 
-#: view/common/record-notice.phtml:79
+#: view/common/record-notice.phtml:81
 msgid "For access or more information, write to the DRE at %s."
+msgstr ""
+
+#: view/common/record-access.phtml:113
+msgid "Found a mistake in this record? Tell the DRE."
 msgstr ""
 
 #: helper/ResourceGroups.php:150
@@ -354,10 +335,6 @@ msgstr ""
 
 #: view/common/numeric-duration.phtml:25
 msgid "Hours"
-msgstr ""
-
-#: view/common/record-notice.phtml:49
-msgid "How to request access"
 msgstr ""
 
 #: helper/ResourceGroups.php:134
@@ -386,11 +363,13 @@ msgstr ""
 msgid "Invalid value: %s"
 msgstr ""
 
-#: view/common/record-notice.phtml:40
-msgid "It describes material connected with the research project %s."
-msgid_plural "It describes material connected with the research projects %s."
-msgstr[0] ""
-msgstr[1] ""
+#: view/common/record-notice.phtml:48
+msgid "It comes from %s and describes material kept elsewhere: AMIRA holds only this description and cannot supply the material itself."
+msgstr ""
+
+#: view/common/record-notice.phtml:46
+msgid "It comes from %s. The original material is kept elsewhere: the images or files shown here are copies for reference and may show only part of it."
+msgstr ""
 
 #: view/common/block-layout/item-with-metadata.phtml:67
 #: view/common/linked-resources.phtml:43
@@ -482,7 +461,10 @@ msgstr ""
 msgid "Months"
 msgstr ""
 
-#: view/common/record-access.phtml:107
+#: view/common/record-access.phtml:119
+msgid "More about access"
+msgstr ""
+
 #: view/common/record-notice.phtml:84
 msgid "More about access to AMIRA material"
 msgstr ""
@@ -505,16 +487,24 @@ msgstr ""
 msgid "No items match the current filters."
 msgstr ""
 
-#: view/common/record-access.phtml:69
-msgid "No online copy is linked to this record."
-msgstr ""
-
 #: view/omeka/site/page/browse.phtml:14
 msgid "No pages found"
 msgstr ""
 
+#: view/common/record-access.phtml:105
+msgid "No reply?"
+msgstr ""
+
 #: view/common/shortlist.phtml:4
 msgid "No saved records yet."
+msgstr ""
+
+#: view/common/record-access.phtml:71
+msgid "None linked to this record."
+msgstr ""
+
+#: view/common/record-access.phtml:91
+msgid "Not %s: it keeps the material but does not handle access requests."
 msgstr ""
 
 #: view/omeka/site/index/search.phtml:16
@@ -528,6 +518,10 @@ msgstr ""
 
 #: view/common/numeric-timestamp.phtml:34
 msgid "Offset"
+msgstr ""
+
+#: view/common/record-access.phtml:63
+msgid "On this page, possibly in part"
 msgstr ""
 
 #: view/common/record-access.phtml:60
@@ -547,8 +541,8 @@ msgstr ""
 msgid "Open results as a page"
 msgstr ""
 
-#: view/common/record-access.phtml:101
-msgid "Opens an email to %s."
+#: view/common/record-access.phtml:86
+msgid "or the research team of %s"
 msgstr ""
 
 #: helper/CollectionStats.php:134
@@ -608,10 +602,6 @@ msgstr ""
 msgid "Places mapped & georeferenced"
 msgstr ""
 
-#: view/common/record-access.phtml:81
-msgid "Please do not write to %s about access: it keeps the material but is not the contact for this research."
-msgstr ""
-
 #: helper/CollectionStats.php:139
 msgid "Podcasts"
 msgstr ""
@@ -624,6 +614,12 @@ msgstr ""
 #: view/common/header.phtml:124
 msgid "Primary navigation"
 msgstr ""
+
+#: view/common/record-access.phtml:82
+msgid "principal investigator"
+msgid_plural "principal investigators"
+msgstr[0] ""
+msgstr[1] ""
 
 #: view/common/resource-values.phtml:116
 msgid "Private"
@@ -657,7 +653,7 @@ msgstr ""
 msgid "Publications"
 msgstr ""
 
-#: helper/RecordAccess.php:54
+#: helper/RecordAccess.php:55
 msgid "Publisher’s page (DOI)"
 msgstr ""
 
@@ -665,7 +661,7 @@ msgstr ""
 msgid "Query"
 msgstr ""
 
-#: helper/RecordAccess.php:53
+#: helper/RecordAccess.php:54
 msgid "RDSpace, University of Bayreuth"
 msgstr ""
 
@@ -673,7 +669,7 @@ msgstr ""
 msgid "Read the metadata at a glance."
 msgstr ""
 
-#: helper/RecordAccess.php:139
+#: helper/RecordAccess.php:145
 msgid "Record: %s"
 msgstr ""
 
@@ -689,12 +685,8 @@ msgstr ""
 msgid "Remove"
 msgstr ""
 
-#: view/common/record-access.phtml:96
-msgid "Report a typo, a mistake or a suggested improvement to the DRE. The record’s id is sent with your message."
-msgstr ""
-
-#: view/common/record-access.phtml:100
-#: view/common/record-access.phtml:46
+#: view/common/record-access.phtml:116
+#: view/common/record-access.phtml:44
 msgid "Report an error in this record"
 msgstr ""
 
@@ -790,10 +782,6 @@ msgstr ""
 msgid "Social media"
 msgstr ""
 
-#: view/common/record-access.phtml:93
-msgid "Something wrong?"
-msgstr ""
-
 #: view/common/linked-resources.phtml:139
 msgid "Sort this page"
 msgstr ""
@@ -830,12 +818,20 @@ msgstr ""
 msgid "The Cluster's thematic areas"
 msgstr ""
 
+#: view/common/record-access.phtml:98
+msgid "The Digital Research Environment (DRE): %s"
+msgstr ""
+
 #: view/common/nav-menu.phtml:14
 msgid "The named entities that link every record together."
 msgstr ""
 
 #: view/common/record-notice.phtml:65
 msgid "The project team described the material following the curation guidelines of the Digital Research Environment (DRE); the researchers are responsible for the accuracy of the descriptions."
+msgstr ""
+
+#: view/common/record-access.phtml:86
+msgid "The research team of %s"
 msgstr ""
 
 #: view/common/shortlist.phtml:7
@@ -850,7 +846,7 @@ msgstr ""
 msgid "The viewer is unavailable. Please try reloading the page."
 msgstr ""
 
-#: view/common/record-notice.phtml:38
+#: view/common/record-notice.phtml:41
 msgid "This page is a catalogue record."
 msgstr ""
 
@@ -895,7 +891,7 @@ msgstr ""
 msgid "Try again"
 msgstr ""
 
-#: helper/RecordAccess.php:52
+#: helper/RecordAccess.php:53
 msgid "UB Digital Collections, University of Bayreuth"
 msgstr ""
 
@@ -944,16 +940,20 @@ msgstr ""
 msgid "View as"
 msgstr ""
 
-#: helper/RecordAccess.php:140
+#: helper/RecordAccess.php:146
 msgid "What should be corrected or improved?"
 msgstr ""
 
-#: view/common/record-access.phtml:72
+#: view/common/record-access.phtml:77
 msgid "Who to ask"
 msgstr ""
 
 #: view/common/nav-menu.phtml:48
 msgid "Workers in/from Bahia"
+msgstr ""
+
+#: view/common/record-access.phtml:106
+msgid "Write to the DRE: %s"
 msgstr ""
 
 #: view/common/numeric-timestamp.phtml:13
