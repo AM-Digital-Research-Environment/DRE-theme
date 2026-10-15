@@ -15,6 +15,10 @@ use Laminas\View\Helper\AbstractHelper;
  * label) and the date a record was added. A sort already in the URL still
  * works; it is only not offered.
  *
+ * Numeric Data Types adds its sorts from the `view.sort-selector` event, which
+ * core fires inside renderSortSelector() — after any list a theme passes in.
+ * selector() therefore fires the event itself and curates what comes back.
+ *
  * Properties are looked up by term, once per request, so the theme pins no
  * property ids.
  */
@@ -39,6 +43,41 @@ class BrowseSort extends AbstractHelper
             $sorts['created'] = $this->getView()->translate($sorts['created']);
         }
         return $sorts;
+    }
+
+    /**
+     * The sort form for a list, as core's renderSortSelector() builds it but
+     * with the curated options; core's form when no sort is configured.
+     */
+    public function selector(string $resourceType = 'items'): string
+    {
+        $view = $this->getView();
+        try {
+            $config = $view->browse()->getBrowseService()->getSortConfig('public', $resourceType);
+            if (!$config) {
+                return '';
+            }
+            $query = $view->params()->fromQuery();
+            $fulltext = isset($query['fulltext_search']) && is_string($query['fulltext_search']) && trim($query['fulltext_search']) !== '';
+            if ($fulltext) {
+                $config[''] = 'Relevance'; // @translate
+            }
+            $params = [
+                'sortConfig' => $config,
+                'sortByQuery' => (isset($query['sort_by_default']) && $fulltext) ? '' : $view->params()->fromQuery('sort_by'),
+                'sortOrderQuery' => (isset($query['sort_order_default']) && $fulltext) ? 'desc' : $view->params()->fromQuery('sort_order'),
+            ];
+            $result = $view->trigger('view.sort-selector', $params, true);
+            $args = (is_array($result) || $result instanceof \ArrayObject) ? (array) $result : $params;
+            $sorts = self::curate((array) ($args['sortConfig'] ?? []), $this->dateProperties ??= $this->findDateProperties());
+            foreach ($sorts as $key => $label) {
+                $sorts[$key] = $view->translate($label);
+            }
+            $args['sortConfig'] = $sorts;
+            return (string) $view->partial('common/sort-selector', $args);
+        } catch (\Throwable $e) {
+            return (string) $view->browse()->renderSortSelector($resourceType);
+        }
     }
 
     /**

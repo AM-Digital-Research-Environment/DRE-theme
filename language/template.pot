@@ -143,7 +143,7 @@ msgid "Browse"
 msgstr ""
 
 #: view/omeka/site/index/search.phtml:29
-#: view/omeka/site/item/browse.phtml:158
+#: view/omeka/site/item/browse.phtml:155
 msgid "Browse all items"
 msgstr ""
 
@@ -160,7 +160,7 @@ msgid "Browser storage is unavailable. This list will last for this page only. E
 msgstr ""
 
 #: view/omeka/site/index/search.phtml:18
-#: view/omeka/site/item/browse.phtml:144
+#: view/omeka/site/item/browse.phtml:141
 msgid "Check the spelling, or try another form of the word."
 msgstr ""
 
@@ -319,7 +319,7 @@ msgid "Export list"
 msgstr ""
 
 #: view/omeka/site/index/search.phtml:19
-#: view/omeka/site/item/browse.phtml:145
+#: view/omeka/site/item/browse.phtml:142
 msgid "Fewer, broader terms cast a wider net."
 msgstr ""
 
@@ -513,7 +513,7 @@ msgid "More about access"
 msgstr ""
 
 #: view/omeka/site/index/search.phtml:20
-#: view/omeka/site/item/browse.phtml:146
+#: view/omeka/site/item/browse.phtml:143
 msgid "Names may appear transliterated — try a variant spelling."
 msgstr ""
 
@@ -526,7 +526,7 @@ msgstr ""
 msgid "No connections match this filter."
 msgstr ""
 
-#: view/omeka/site/item/browse.phtml:149
+#: view/omeka/site/item/browse.phtml:146
 msgid "No items match the current filters."
 msgstr ""
 
@@ -551,7 +551,7 @@ msgid "Not %s: it keeps the material but does not handle access requests."
 msgstr ""
 
 #: view/omeka/site/index/search.phtml:16
-#: view/omeka/site/item/browse.phtml:142
+#: view/omeka/site/item/browse.phtml:139
 msgid "Nothing in the collections matched this search."
 msgstr ""
 
@@ -823,16 +823,16 @@ msgstr ""
 #: view/common/dre-search-redirect.phtml:57
 #: view/hierarchy/site/index/hierarchy.phtml:86
 #: view/omeka/site/item-set/browse.phtml:24
-#: view/omeka/site/item/browse.phtml:125
+#: view/omeka/site/item/browse.phtml:122
 msgid "Search the collection"
 msgstr ""
 
-#: view/omeka/site/item/browse.phtml:123
+#: view/omeka/site/item/browse.phtml:120
 msgid "Search these records"
 msgstr ""
 
 #: view/omeka/site/index/search.phtml:23
-#: view/omeka/site/item/browse.phtml:152
+#: view/omeka/site/item/browse.phtml:149
 msgid "Search with filters"
 msgstr ""
 

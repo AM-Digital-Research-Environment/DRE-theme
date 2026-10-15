@@ -112,12 +112,9 @@ $bodyTruncate = $layout['truncate'];
 
 <div class="browse-controls">
     <?php echo $this->partial('common/browse-layout-toggle', ['layout' => $layout]); ?>
-    <?php
-    // The visitor's sorts (BrowseSort), not every numeric column; core's list if
-    // the curated one cannot be built.
-    $sorts = $this->BrowseSort('items');
-    echo $sorts ? $this->browse()->renderSortSelector($sorts) : $this->browse()->renderSortSelector('items');
-    ?>
+    <?php // The visitor's sorts (BrowseSort), not every numeric column; core's form if
+          // the curated one cannot be built. ?>
+    <?php echo $this->plugin('BrowseSort')->selector('items'); ?>
     <div class="collection-search-container">
         <?php if ($itemSetShow && $projectRecordsUrl !== ''): ?>
             <?php echo $this->hyperlink($translate('Search these records'), $projectRecordsUrl, ['class' => 'collection-search']); ?>

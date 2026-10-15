@@ -120,4 +120,52 @@ dre_check($failures, $checks, 'the sort list keeps title, the reader\'s dates by
 dre_check($failures, $checks, 'with no date property known, no numeric sort is offered',
     BrowseSort::curate($core, []) === ['title' => 'Title', 'created' => 'Date added']);
 
+// The sort form: Numeric Data Types adds its sorts from `view.sort-selector`,
+// after any list passed to core, so the curation runs on what the event returns.
+$rendered = [];
+/** Just what BrowseSort::selector() asks of the renderer; core's Trigger hands back the params. */
+$sortView = new class($rendered) {
+    public function __construct(public array &$rendered) {}
+    public function params(): self { return $this; }
+    public function fromQuery(?string $key = null) { $q = ['sort_by' => 'title']; return $key === null ? $q : ($q[$key] ?? null); }
+    public function translate(string $text): string { return $text; }
+    public function browse(): object {
+        return new class {
+            public function getBrowseService() {
+                return new class { public function getSortConfig($context, $type) { return ['created' => 'Created', 'resource_class_label' => 'Resource class', 'title' => 'Title']; } };
+            }
+            public function renderSortSelector($type) { return 'CORE'; }
+        };
+    }
+    public function trigger(string $name, array $params, bool $return = false): ArrayObject
+    {
+        if ($name === 'view.sort-selector') {
+            $params['sortConfig'] += ['numeric:timestamp:7' => 'Date (numeric:timestamp)', 'numeric:integer:122' => 'volume (numeric:integer)'];
+        }
+        return new ArrayObject($params);
+    }
+    public function api(): object {
+        return new class {
+            public function searchOne(string $resource, array $query) {
+                $property = ['dcterms:date' => [7, 'Date']][$query['term']] ?? null;
+                return new class($property) {
+                    public function __construct(private ?array $p) {}
+                    public function getContent() {
+                        if (!$this->p) return null;
+                        $p = $this->p;
+                        return new class($p) { public function __construct(private array $p) {} public function id() { return $this->p[0]; } public function label() { return $this->p[1]; } };
+                    }
+                };
+            }
+        };
+    }
+    public function partial(string $name, array $vars): string { $this->rendered = $vars; return 'FORM'; }
+};
+$sortHelper = new BrowseSort();
+$sortHelper->setView($sortView);
+dre_check($failures, $checks, 'the sort form curates the options a module adds from view.sort-selector',
+    $sortHelper->selector('items') === 'FORM'
+    && $rendered['sortConfig'] === ['title' => 'Title', 'numeric:timestamp:7' => 'Date', 'created' => 'Date added']
+    && $rendered['sortByQuery'] === 'title', json_encode($rendered));
+
 dre_report('ProjectCollections', $failures, $checks);
