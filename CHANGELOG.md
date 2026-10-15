@@ -11,6 +11,8 @@ to create.
 
 ## [Unreleased]
 
+## [2.38.1] - 2026-10-15
+
 ### Changed
 
 - In *Access to this material*, the DRE's email address now opens a pre-filled access request, like *Report an error in this record*. The subject carries the record's id and title, and the body carries its permanent link and asks what the visitor would like to access and why. Before, it opened an empty email.
@@ -553,7 +555,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.38.0...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.38.1...HEAD
+[2.38.1]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.38.0...v2.38.1
 [2.38.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.37.2...v2.38.0
 [2.37.2]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.37.1...v2.37.2
 [2.37.1]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.37.0...v2.37.1
