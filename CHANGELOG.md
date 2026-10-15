@@ -11,6 +11,8 @@ to create.
 
 ## [Unreleased]
 
+## [2.40.0] - 2026-10-15
+
 ### Changed
 
 - A research project's page is now the place to read its records. Its statement links "Browse the 487 records of *Project*" to DRE Search with the project facet applied (`?profile=research_items&f.project_s=…`), where they can be filtered further, instead of to the project's item set. The count is the number of records that link to the project through `dcterms:isPartOf`. Without DRE Search the link opens core's item browse filtered the same way. When the item set names the corpus differently from the project, the statement names it too: "They form the collection *U-Matic Tapes of the Liberia Broadcasting System*." The new `ProjectCollections` helper resolves the project of an item set and the item sets of a project. It uses the set's `dcterms:isPartOf`, else the shared `dre:id`, and still pins no Omeka ids.
@@ -607,7 +609,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.39.0...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.40.0...HEAD
+[2.40.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.39.0...v2.40.0
 [2.39.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.38.3...v2.39.0
 [2.38.3]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.38.2...v2.38.3
 [2.38.2]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.38.1...v2.38.2
