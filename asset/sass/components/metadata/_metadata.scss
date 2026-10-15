@@ -274,6 +274,57 @@
     }
 }
 
+// --- Full text on demand ----------------------------------------------------
+//
+// The opening of a long full text, then the control that loads the rest
+// (helper/FullTextPreview.php, js/fulltext.js). The template writes the text
+// without markup, so pre-line keeps its paragraphs, as nl2br() would.
+.record-fulltext {
+    display: block;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+
+    &:focus {
+        outline: none;
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--focus-color);
+        outline-offset: var(--space-2);
+    }
+}
+
+.record-fulltext__more {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+    margin-top: var(--space-4);
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    line-height: var(--leading-normal);
+}
+
+.record-fulltext__load {
+    @include secondary-button;
+
+    // An anchor: the global a:visited / a:hover rules (0,1,1) would repaint the
+    // label, which the mixin sets through :where().
+    &:is(a) {
+        &, &:link, &:visited, &:hover, &:active {
+            color: var(--primary-text);
+        }
+    }
+
+    &[aria-busy="true"] {
+        cursor: progress;
+    }
+}
+
+.record-fulltext__size {
+    color: var(--ink-light);
+}
+
 // --- Chips: subjects -------------------------------------------------------
 //
 // Twelve subject links in a row of running text read as a wall. As chips they

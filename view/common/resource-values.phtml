@@ -79,9 +79,18 @@ $headingTag = $recordChrome ? 'h2' : 'h4';
                 <span class="field-term">(<?php echo $escape($propertyTerm); ?>)</span>
                 <?php endif; ?>
                 </dt>
-                <?php foreach ($propertyValues as $value): ?>
+                <?php foreach ($propertyValues as $valueIndex => $value): ?>
                     <?php
                     $valueType = $value->type();
+                    // A long full text renders its opening; "Read the full text"
+                    // fetches the rest from the record's API representation
+                    // (issue #14). $valueIndex is the value's position in the API's
+                    // array: array_filter() above keeps the keys.
+                    $fullText = null;
+                    if ($term === 'bibo:content' && $recordChrome && isset($resource) && 'literal' === $valueType) {
+                        $fullText = $this->FullTextPreview((string) $value->value());
+                        if (!$fullText['truncated']) $fullText = null;
+                    }
                     $valueLang = $value->lang();
                     $valueAnnotation = $value->valueAnnotation();
                     $class = ['value'];
@@ -99,6 +108,24 @@ $headingTag = $recordChrome ? 'h2' : 'h4';
                         <?php if ($showLocale && $valueLang) : ?>
                             <span class="language"><?php echo $escape($valueLang); ?></span>
                         <?php endif; ?>
+                        <?php if ($fullText):
+                            $textId = $group['id'] . '-text-' . $valueIndex;
+                            $apiUrl = $this->url('api/default', ['resource' => $resource->resourceName(), 'id' => $resource->id()]);
+                            // HeadScript skips a file it already holds.
+                            $this->inlineScript()->appendFile($this->assetUrl('js/fulltext.js'));
+                            // No whitespace inside the span: it keeps the text's line
+                            // breaks with white-space: pre-line, so the loaded text
+                            // can be set as plain textContent.
+                            ?>
+                        <span class="value-content record-fulltext" id="<?php echo $escapeAttr($textId); ?>" tabindex="-1" data-term="<?php echo $escapeAttr($term); ?>" data-index="<?php echo (int) $valueIndex; ?>"><?php echo $escape($fullText['preview']); ?>…</span>
+                        <span class="record-fulltext__more">
+                            <a class="record-fulltext__load" href="<?php echo $escapeAttr($apiUrl); ?>" rel="nofollow" aria-controls="<?php echo $escapeAttr($textId); ?>" data-fulltext-load
+                                data-loading="<?php echo $escapeAttr($translate('Loading the full text…')); ?>"
+                                data-loaded="<?php echo $escapeAttr($translate('Full text loaded')); ?>"
+                                data-error="<?php echo $escapeAttr($translate('The full text could not be loaded. Try again')); ?>"><?php echo $escape($translate('Read the full text')); ?></a>
+                            <span class="record-fulltext__size"><?php echo $escape(sprintf($translate('about %s words'), $fullText['words'])); ?></span>
+                        </span>
+                        <?php else: ?>
                         <span class="value-content"><?php
                             // Resource values: render the link ourselves with an aspect-
                             // preserving ('medium') thumbnail. The core resource data type
@@ -112,6 +139,7 @@ $headingTag = $recordChrome ? 'h2' : 'h4';
                                 echo $filterLocale ? $value->asHtml($lang) : $value->asHtml();
                             endif;
                         ?></span>
+                        <?php endif; ?>
                         <?php
                         // What an access-rights term means ("Public": the description
                         // is public, the material may still be restricted), from the

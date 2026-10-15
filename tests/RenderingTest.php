@@ -238,6 +238,61 @@ dre_check($failures, $checks, 'a tagged value keeps its lang attribute', str_con
 dre_check($failures, $checks, 'the metadata glosses an access-rights term',
     str_contains($html, '<span class="value-gloss">The description is public; the material may still be restricted.</span>'), $html);
 
+// A long full text renders its opening and a link to the rest (issue #14).
+$preview = $view->FullTextPreview(str_repeat('word ', 300));
+dre_check($failures, $checks, 'a short full text renders whole', !$preview['truncated'] && $preview['preview'] === str_repeat('word ', 300));
+$long = "Première ligne\n" . str_repeat('mot ', 4000) . 'fin';
+$preview = $view->FullTextPreview($long);
+dre_check($failures, $checks, 'a long full text is cut back to a word boundary',
+    $preview['truncated'] && mb_strlen($preview['preview']) <= 2000
+    && str_starts_with($preview['preview'], "Première ligne\nmot") && str_ends_with($preview['preview'], 'mot'), $preview['preview']);
+// Formatted in the process locale: "4,003", "4 003" or, under POSIX, "4003".
+dre_check($failures, $checks, 'the word count covers the whole text', (bool) preg_match('/^4\D{0,3}003$/u', $preview['words']), $preview['words']);
+class FullTextValue extends ValuesTestValue
+{
+    public function value() { return $this->text; }
+}
+$view->callbacks['url'] = fn(string $route, array $params = []) => '/api/' . $params['resource'] . '/' . $params['id'];
+$view->assets = [];
+$values = [
+    'bibo:content' => ['property' => $property, 'alternate_label' => '', 'values' => [new FullTextValue('<b>' . $long)]],
+];
+$html = $view->render('common/resource-values', ['resource' => new ThemeTestResource('Thesis', 41980), 'values' => $values]);
+dre_check($failures, $checks, 'the record carries the opening of a long full text, escaped',
+    str_contains($html, 'data-term="bibo:content" data-index="0">&lt;b&gt;Première ligne') && !str_contains($html, 'mot fin'), $html);
+dre_check($failures, $checks, 'the full text loads from the record\'s API representation',
+    str_contains($html, 'href="/api/items/41980" rel="nofollow"') && str_contains($html, 'data-fulltext-load')
+    && in_array('/themes/dre/asset/js/fulltext.js', $view->assets, true));
+$html = $view->render('common/resource-values', ['resource' => new ThemeTestResource('Thesis', 41980), 'values' => $values, 'recordChrome' => false]);
+dre_check($failures, $checks, 'an embedded record renders the full text whole', str_contains($html, 'mot fin') && !str_contains($html, 'data-fulltext-load'));
+
+// The breadcrumb shows DRE SEO's trail, the one its BreadcrumbList states (issue #14).
+$crumbs = new ThemeTestView();
+$crumbs->callbacks['dreBreadcrumb'] = fn($resource) => [
+    ['name' => 'AMIRA', 'url' => 'https://example.test/s/a/page/home'],
+    ['name' => 'Publications & <reports>', 'url' => 'https://example.test/s/a/item-set/29918'],
+    ['name' => $resource->displayTitle(), 'url' => 'https://example.test/s/a/item/41980'],
+];
+$html = $crumbs->render('common/breadcrumb', ['resource' => new ThemeTestResource('Das Archiv als Heimat', 41980)]);
+dre_check($failures, $checks, 'the breadcrumb links home and the item set, and marks the record current',
+    str_contains($html, '<nav class="breadcrumb-trail" aria-label="Breadcrumb">')
+    && str_contains($html, 'href="https://example.test/s/a/page/home">Home</a>')
+    && str_contains($html, 'href="https://example.test/s/a/item-set/29918" title="Publications &amp; &lt;reports&gt;">Publications &amp; &lt;reports&gt;</a>')
+    && str_contains($html, 'aria-current="page" title="Das Archiv als Heimat">Das Archiv als Heimat</span>')
+    && !str_contains($html, 'href="https://example.test/s/a/item/41980"'), $html);
+$crumbs->callbacks['dreBreadcrumb'] = fn() => null;
+$crumbs->callbacks['currentSite'] = fn() => new class {
+    public function title() { return 'AMIRA'; }
+    public function siteUrl() { return '/s/a'; }
+};
+$html = $crumbs->render('common/breadcrumb', ['resource' => new ThemeTestResource('A record', 7)]);
+dre_check($failures, $checks, 'without a trail from DRE SEO the record sits under the home page',
+    substr_count($html, '<li') === 2 && str_contains($html, 'href="/s/a">Home</a>') && str_contains($html, 'aria-current="page"'), $html);
+unset($crumbs->callbacks['dreBreadcrumb']);
+$crumbs->callbacks['currentSite'] = fn() => null;
+dre_check($failures, $checks, 'outside a site the breadcrumb renders nothing',
+    trim($crumbs->render('common/breadcrumb', ['resource' => new ThemeTestResource('A record', 7)])) === '');
+
 $view->settings = ['filter_locale_values' => true, 'browse_heading_property_term' => 'dcterms:title', 'browse_body_property_term' => 'dcterms:description'];
 $view->callbacks['thumbnail'] = function () { throw new RuntimeException('thumbnail work was not requested'); };
 $card = $view->ResourceCardData($resource, ['showThumbnail' => false, 'showBody' => false]);

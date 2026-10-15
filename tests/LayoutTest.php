@@ -14,11 +14,12 @@ $failures = [];
 $checks = 0;
 
 /** A stringable stand-in for Omeka's head/inline helpers and HtmlElement. */
-class LayoutStack
+class LayoutStack implements Countable
 {
     public array $files = [];
     public array $attributes = [];
     public function __construct(private string $kind = 'stack') {}
+    public function count(): int { return count($this->files); }
     public function __call(string $name, array $args)
     {
         if ($name === 'prependFile') array_unshift($this->files, $args[0]);

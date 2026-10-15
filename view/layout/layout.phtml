@@ -89,7 +89,8 @@ $this->headLink()->prependStylesheet($this->assetUrl('css/style.css'));
 // asset/fonts/ and add a @font-face to _fonts.scss (then rebuild).
 // jQuery + Omeka core global.js stay available for core and third-party module
 // templates. Theme-authored scripts are dependency-free; legacy advanced-search
-// routes now redirect to the DRE Search module.
+// routes now redirect to the DRE Search module. Both are deferred, with every
+// other external script, just before <head> is written (helper/DeferScripts.php).
 $this->headScript()->prependFile($this->assetUrl('js/global.js', 'Omeka'));
 $this->headScript()->prependFile($this->assetUrl('vendor/jquery/jquery.min.js', 'Omeka'));
 // Token bridge (window.DRETokens) — the CSS token layer, readable from JS. Any
@@ -103,7 +104,11 @@ $this->headScript()->prependFile(
     'text/javascript',
     ['defer' => true]
 );
+// Core writes `Omeka.jsTranslate = …` inline, and global.js, which defines
+// `Omeka`, is now deferred: the snippet runs as a module, right after it.
+$translationsFrom = count($this->headScript());
 $this->jsTranslate();
+$this->DeferScripts()->asModules($this->headScript(), $translationsFrom);
 
 // DRE Search module: inject the Typesense search bundle into <head> here (before
 // the head is rendered below), so the header search bar — which renders later as
@@ -138,7 +143,9 @@ if ($userBar) {
 		<?php echo $this->headTitle(); ?>
 		<?php echo $this->headLink(); ?>
 		<?php echo $this->headStyle(); ?>
-		<?php echo $this->headScript(); ?>
+		<?php // Last, so the scripts templates and modules appended are deferred too.
+		      $this->DeferScripts($this->headScript());
+		      echo $this->headScript(); ?>
 
 		<?php // Browser chrome and icons — on every page, whatever the PWA setting:
 		      // a favicon and the address-bar tint are not "app install". The
@@ -232,12 +239,17 @@ if ($userBar) {
 		if ($this->themeSetting('research_shortlist') ?? true) {
 			$this->inlineScript()->prependFile($this->assetUrl('js/shortlist.js'));
 		}
-		echo $this->inlineScript()
+		$this->inlineScript()
             ->prependFile($this->assetUrl('js/theme-toggle.js'))
 			->prependFile($this->assetUrl('js/navigation.js'))
 			->prependFile($this->assetUrl('js/back-to-top.js'))
 			->prependFile($this->assetUrl('js/script.js'))
 			->prependFile($this->assetUrl('js/utils.js'));
+		// Deferred like the <head> scripts, so a file a module appends here that
+		// calls `$` still runs after jQuery. At the end of the body this costs
+		// nothing: the document is parsed by then.
+		$this->DeferScripts($this->inlineScript());
+		echo $this->inlineScript();
 		?>
 		<?php if ($pwaEnabled): ?>
 		<?php // pwa-install.js — vanilla, deferred; reads the manifest island,

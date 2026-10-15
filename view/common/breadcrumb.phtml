@@ -1,0 +1,60 @@
+<?php
+/**
+ * Where a record sits in the site, above its title (issue #14):
+ *
+ *     Home › Publications › Das Archiv als Heimat …
+ *
+ * The trail is DRE SEO's (dreBreadcrumb(), the trail its BreadcrumbList
+ * states), so what a reader sees and what a search engine reads cannot
+ * disagree; this partial owns only the markup. Without the module, or when it
+ * has no trail, the record is placed under the home page alone.
+ *
+ * The first crumb is the site's home page, labelled "Home": the structured data
+ * names it by the site's title, which at the head of every record would repeat
+ * the masthead. The last crumb is this page, unlinked and marked current.
+ *
+ * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+ */
+$escape = $this->plugin('escapeHtml');
+$escapeAttr = $this->plugin('escapeHtmlAttr');
+$translate = $this->plugin('translate');
+
+$trail = null;
+if ($this->getHelperPluginManager()->has('dreBreadcrumb')) {
+    try {
+        $trail = $this->dreBreadcrumb($resource);
+    } catch (\Throwable $e) {
+        $trail = null;
+    }
+}
+if (!is_array($trail) || count($trail) < 2) {
+    try {
+        $site = $this->currentSite();
+        $trail = $site ? [
+            ['name' => $site->title(), 'url' => $site->siteUrl()],
+            ['name' => (string) $resource->displayTitle(), 'url' => $resource->url()],
+        ] : [];
+    } catch (\Throwable $e) {
+        $trail = [];
+    }
+}
+if (count($trail) < 2) {
+    return;
+}
+$last = count($trail) - 1;
+?>
+<nav class="breadcrumb-trail" aria-label="<?php echo $escapeAttr($translate('Breadcrumb')); ?>">
+    <ol class="breadcrumb-trail__list">
+    <?php foreach (array_values($trail) as $index => $crumb):
+        $name = $index === 0 ? $translate('Home') : (string) ($crumb['name'] ?? '');
+        ?>
+        <li class="breadcrumb-trail__item">
+        <?php if ($index === $last): ?>
+            <span class="breadcrumb-trail__current" aria-current="page" title="<?php echo $escapeAttr($name); ?>"><?php echo $escape($name); ?></span>
+        <?php else: ?>
+            <a class="breadcrumb-trail__link" href="<?php echo $escapeAttr((string) ($crumb['url'] ?? '')); ?>"<?php if ($index > 0): ?> title="<?php echo $escapeAttr($name); ?>"<?php endif; ?>><?php echo $escape($name); ?></a>
+        <?php endif; ?>
+        </li>
+    <?php endforeach; ?>
+    </ol>
+</nav>

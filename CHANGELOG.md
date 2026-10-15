@@ -11,6 +11,15 @@ to create.
 
 ## [Unreleased]
 
+### Added
+
+- Item and media pages show a breadcrumb above the title: *Home › Publications › record*, where the middle crumb is the record's item set (a research item's project, *Publications*, *Institutions* …) and a media page sits under its item. The trail comes from DRE SEO's new `dreBreadcrumb()` helper, the one its `BreadcrumbList` states, so the visible trail and the structured data agree. Without the module the record sits under the home page alone.
+
+### Changed
+
+- A long full text (`bibo:content`) renders its first 2,000 characters and a *Read the full text* link with its length ("about 125,129 words"). The link loads the rest from the record's API representation and puts it in place. Item 41980's page drops from 1.1 MB to about 170 KB. Search engines index only the opening; the abstract and the other metadata stay in the page. Without JavaScript the link opens the text as JSON. Texts under 3,000 characters still render whole, as do records embedded by a page block.
+- jQuery and Omeka's `global.js` no longer block rendering. Every external script the page loads in the classic way is deferred, in document order, so a script that calls `$`, such as core's lightGallery set-up, still runs after jQuery. Core's inline `Omeka.jsTranslate` snippet runs as a module, right after `global.js`.
+
 ## [2.38.3] - 2026-10-15
 
 ### Added

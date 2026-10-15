@@ -18,6 +18,7 @@ $rightSidebarBlockContent = $this->resourcePageBlocks($media, 'right');
 $rightSidebarHasBlocks = $rightSidebarBlockContent->hasBlocks();
 ?>
 
+<?php echo $this->partial('common/breadcrumb', ['resource' => $media]); ?>
 <?php echo $this->ResourceTags($media); ?>
 <?php echo $this->pageTitle($media->displayTitle(null, $valueLang), 1); ?>
 
