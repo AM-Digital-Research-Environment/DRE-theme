@@ -73,6 +73,14 @@
         position: relative;
         width: var(--size-control-md);
 
+        // Previous/Next are `<a class="button">`: `a.button:link` (0,2,1) paints
+        // them in --primary-contrast, the ink meant for a filled primary button,
+        // which on this transparent secondary was dark on dark — the Next arrow
+        // vanished in dark mode. (0,3,0) restores the secondary's colour.
+        &:is(:link, :visited) {
+            color: var(--primary-text);
+        }
+
         &:hover:not(.disabled),
         &:active:not(.disabled) {
             &::before {

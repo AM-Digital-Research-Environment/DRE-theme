@@ -327,6 +327,22 @@ class RecordAccess extends AbstractHelper
         return $host !== '' ? $host : $href;
     }
 
+    /**
+     * Whether a collection's title only restates its project's: most item sets
+     * carry the project title, sometimes longer or recased ("Humanities for
+     * Humanitarians. An Experiment …"). Compared on the opening 25 letters and
+     * digits, so only a corpus with a name of its own ("U-Matic Tapes of the
+     * Liberia Broadcasting System") is worth naming.
+     */
+    public static function sameName(string $a, string $b): bool
+    {
+        $norm = fn (string $s): string => trim((string) preg_replace('~[^\p{L}\p{N}]+~u', ' ', mb_strtolower($s)));
+        $a = $norm($a);
+        $b = $norm($b);
+        $k = min(25, mb_strlen($a), mb_strlen($b));
+        return $k === 0 || mb_substr($a, 0, $k) === mb_substr($b, 0, $k);
+    }
+
     /** "2020-01-01/2023-12-31" → "2020–2023"; one year → "2020"; else "". */
     public static function years(string $temporal): string
     {
@@ -349,29 +365,33 @@ class RecordAccess extends AbstractHelper
     }
 
     /**
-     * The project's own records: the item set that MongoDB2OmekaS creates for
-     * the project's collection, which carries the same `dre:id` (the collection
-     * code, e.g. UFB_AfroDigital) as the project item. Matched on that value, not
-     * on an id, so the theme still pins none. [] when there is no such set, it is
-     * private, or it is empty: the statement then simply carries no link.
+     * The project's own records: the items that link to it through
+     * `dcterms:isPartOf`, explored in DRE Search with the project facet applied
+     * (ProjectCollections). The item set the sync files them in holds the same
+     * records and now redirects here, so it is never the link; its title is
+     * kept as `collections` when it names the corpus differently from the
+     * project (the U-Matic tapes of project 1797). [] when no visible record
+     * links to the project: the statement then simply carries no link.
      *
-     * @return array{href:string,count:int}|array{}
+     * @return array{href:string,count:int,collections:list<string>}|array{}
      */
     private function projectRecords($resource): array
     {
-        $code = $this->firstLiteral($resource, 'dre:id');
-        if ($code === '') {
+        $projects = $this->getView()->plugin('ProjectCollections');
+        $count = $projects->recordCount($resource);
+        $href = $count > 0 ? $projects->recordsUrl($resource) : '';
+        if ($href === '') {
             return [];
         }
-        try {
-            $set = $this->getView()->api()->searchOne('item_sets', [
-                'property' => [['joiner' => 'and', 'property' => 'dre:id', 'type' => 'eq', 'text' => $code]],
-            ])->getContent();
-            $count = $set ? (int) $set->itemCount() : 0;
-            return $count > 0 ? ['href' => (string) $set->url(), 'count' => $count] : [];
-        } catch (\Throwable $e) {
-            return [];
+        $title = (string) $resource->displayTitle();
+        $collections = [];
+        foreach ($projects->collectionsOf($resource) as $set) {
+            $name = trim((string) $set->displayTitle());
+            if ($name !== '' && !self::sameName($name, $title)) {
+                $collections[] = $name;
+            }
         }
+        return ['href' => $href, 'count' => $count, 'collections' => array_values(array_unique($collections))];
     }
 
     private function hasMedia($resource): bool

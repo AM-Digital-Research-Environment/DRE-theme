@@ -44,6 +44,10 @@ msgstr ""
 msgid "0 results"
 msgstr ""
 
+#: view/omeka/site/item/browse.phtml:54
+msgid "A project’s collection."
+msgstr ""
+
 #: view/common/resource-values.phtml:126
 msgid "about %s words"
 msgstr ""
@@ -131,7 +135,7 @@ msgid "Browse"
 msgstr ""
 
 #: view/omeka/site/index/search.phtml:29
-#: view/omeka/site/item/browse.phtml:129
+#: view/omeka/site/item/browse.phtml:158
 msgid "Browse all items"
 msgstr ""
 
@@ -139,7 +143,7 @@ msgstr ""
 msgid "Browse projects interactively"
 msgstr ""
 
-#: view/common/record-notice.phtml:81
+#: view/common/record-notice.phtml:82
 msgid "Browse the %1$s record of %2$s"
 msgid_plural "Browse the %1$s records of %2$s"
 msgstr[0] ""
@@ -154,7 +158,7 @@ msgid "Browser storage is unavailable. This list will last for this page only. E
 msgstr ""
 
 #: view/omeka/site/index/search.phtml:18
-#: view/omeka/site/item/browse.phtml:115
+#: view/omeka/site/item/browse.phtml:144
 msgid "Check the spelling, or try another form of the word."
 msgstr ""
 
@@ -313,7 +317,7 @@ msgid "Export list"
 msgstr ""
 
 #: view/omeka/site/index/search.phtml:19
-#: view/omeka/site/item/browse.phtml:116
+#: view/omeka/site/item/browse.phtml:145
 msgid "Fewer, broader terms cast a wider net."
 msgstr ""
 
@@ -325,21 +329,21 @@ msgstr ""
 msgid "Filter this page by relationship"
 msgstr ""
 
-#: view/common/record-notice.phtml:97
+#: view/common/record-notice.phtml:106
 msgid "For access or more information, contact %1$s; if you cannot reach them, write to the DRE at %2$s."
 msgstr ""
 
-#: view/common/record-notice.phtml:90
+#: view/common/record-notice.phtml:99
 msgid "For access or more information, contact the principal investigator, %1$s, or the project’s researchers; if you cannot reach them, write to the DRE at %2$s."
 msgid_plural "For access or more information, contact the principal investigators, %1$s, or the project’s researchers; if you cannot reach them, write to the DRE at %2$s."
 msgstr[0] ""
 msgstr[1] ""
 
-#: view/common/record-notice.phtml:95
+#: view/common/record-notice.phtml:104
 msgid "For access or more information, contact the project’s researchers, listed on this page; if you cannot reach them, write to the DRE at %s."
 msgstr ""
 
-#: view/common/record-notice.phtml:99
+#: view/common/record-notice.phtml:108
 msgid "For access or more information, write to the DRE at %s."
 msgstr ""
 
@@ -435,8 +439,8 @@ msgstr ""
 #: view/common/linked-resources.phtml:42
 #: view/hierarchy/site/index/hierarchy.phtml:80
 #: view/omeka/site/index/search.phtml:36
-#: view/omeka/site/item/browse.phtml:84
-#: view/omeka/site/item/browse.phtml:86
+#: view/omeka/site/item/browse.phtml:104
+#: view/omeka/site/item/browse.phtml:106
 msgid "Items"
 msgstr ""
 
@@ -524,12 +528,12 @@ msgstr ""
 msgid "More about access"
 msgstr ""
 
-#: view/common/record-notice.phtml:102
+#: view/common/record-notice.phtml:111
 msgid "More about access to AMIRA material"
 msgstr ""
 
 #: view/omeka/site/index/search.phtml:20
-#: view/omeka/site/item/browse.phtml:117
+#: view/omeka/site/item/browse.phtml:146
 msgid "Names may appear transliterated — try a variant spelling."
 msgstr ""
 
@@ -542,7 +546,7 @@ msgstr ""
 msgid "No connections match this filter."
 msgstr ""
 
-#: view/omeka/site/item/browse.phtml:120
+#: view/omeka/site/item/browse.phtml:149
 msgid "No items match the current filters."
 msgstr ""
 
@@ -567,7 +571,7 @@ msgid "Not %s: it keeps the material but does not handle access requests."
 msgstr ""
 
 #: view/omeka/site/index/search.phtml:16
-#: view/omeka/site/item/browse.phtml:113
+#: view/omeka/site/item/browse.phtml:142
 msgid "Nothing in the collections matched this search."
 msgstr ""
 
@@ -825,12 +829,16 @@ msgstr ""
 #: view/common/dre-search-redirect.phtml:57
 #: view/hierarchy/site/index/hierarchy.phtml:86
 #: view/omeka/site/item-set/browse.phtml:24
-#: view/omeka/site/item/browse.phtml:97
+#: view/omeka/site/item/browse.phtml:125
 msgid "Search the collection"
 msgstr ""
 
-#: view/omeka/site/index/search.phtml:23
 #: view/omeka/site/item/browse.phtml:123
+msgid "Search these records"
+msgstr ""
+
+#: view/omeka/site/index/search.phtml:23
+#: view/omeka/site/item/browse.phtml:152
 msgid "Search with filters"
 msgstr ""
 
@@ -939,6 +947,16 @@ msgstr ""
 #: view/common/resource-page-block-layout/mirador.phtml:45
 msgid "The viewer is unavailable. Please try reloading the page."
 msgstr ""
+
+#: view/omeka/site/item/browse.phtml:56
+msgid "These records come from %s. The project’s page presents them with its description, its team and their visualisations."
+msgstr ""
+
+#: view/common/record-notice.phtml:90
+msgid "They form the collection %s."
+msgid_plural "They form the collections %s."
+msgstr[0] ""
+msgstr[1] ""
 
 #: view/common/record-notice.phtml:51
 msgid "This page is a catalogue record."
