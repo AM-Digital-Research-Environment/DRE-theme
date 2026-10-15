@@ -104,6 +104,25 @@ $view->themeSettings['access_contact_email'] = 'dre@example.test';
 dre_check($failures, $checks, 'a configured mailbox is used', $helper($record)['email'] === 'dre@example.test');
 unset($view->themeSettings['access_contact_email']);
 
+// --- Staff pages ---------------------------------------------------------------
+dre_check($failures, $checks, 'a PI without fabio:hasURL carries no staff page', !isset($helper($record)['pis'][0]['staffPage']));
+$staffUrl = 'https://www.eimas.eu/en/members/academic_staff/ulf_vierke/index.html';
+$pi->values['fabio:hasURL'] = [new ThemeTestValue('not a web address'), new ThemeTestValue($staffUrl, 'uri')];
+$researcher = $project->values['foaf:member'][1]->linked;
+$researcher->values['fabio:hasURL'] = [new ThemeTestValue('https://example.org/researcher', 'uri')];
+$access = $helper($record);
+dre_check($failures, $checks, 'a PI brings the first web address of their fabio:hasURL as the staff page',
+    ($access['pis'][0]['staffPage'] ?? null) === $staffUrl && $access['pis'][0]['href'] === '/s/a/item/414');
+dre_check($failures, $checks, 'researchers, who are not listed on records, carry no staff page',
+    !in_array(true, array_map(fn ($r) => isset($r['staffPage']), $access['researchers']), true));
+$panel = $view->render('common/record-access', ['resource' => $record, 'access' => $access]);
+dre_check($failures, $checks, 'the panel links the staff page after the PI, named for whose page it is',
+    str_contains($panel, '>Vierke, Ulf</a> (<a href="' . $staffUrl . '" aria-label="Staff page of Vierke, Ulf">staff page</a>)'));
+$statement = $view->render('common/record-notice', ['access' => $helper($project)]);
+dre_check($failures, $checks, 'the project statement links the PI staff page too',
+    str_contains($statement, '>Vierke, Ulf</a> (<a href="' . $staffUrl . '"'));
+unset($pi->values['fabio:hasURL'], $researcher->values['fabio:hasURL']);
+
 // --- Overrides and fallbacks -------------------------------------------------
 $archive = new AccessTestResource('International Library of African Music', 37701);
 $project->values['dcterms:mediator'] = [access_link($archive)];

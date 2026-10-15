@@ -23,12 +23,20 @@ $escAttr = $this->plugin('escapeHtmlAttr');
 $translate = $this->plugin('translate');
 $translatePlural = $this->plugin('translatePlural');
 
-$linkList = function (array $links) use ($escHtml, $escAttr): string {
+// A person with a staff page gets it after the name: "Vierke, Ulf (staff page)".
+// The link text repeats per person, so its accessible name says whose page it is.
+$linkList = function (array $links) use ($escHtml, $escAttr, $translate): string {
     $parts = [];
     foreach ($links as $link) {
-        $parts[] = $link['href'] !== ''
+        $part = $link['href'] !== ''
             ? '<a href="' . $escAttr($link['href']) . '">' . $escHtml($link['label']) . '</a>'
             : $escHtml($link['label']);
+        if (!empty($link['staffPage'])) {
+            $part .= ' (<a href="' . $escAttr($link['staffPage']) . '" aria-label="'
+                . $escAttr(sprintf($translate('Staff page of %s'), $link['label'])) . '">'
+                . $escHtml($translate('staff page')) . '</a>)';
+        }
+        $parts[] = $part;
     }
     return implode('; ', $parts);
 };
