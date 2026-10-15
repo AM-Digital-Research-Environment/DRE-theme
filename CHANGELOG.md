@@ -11,6 +11,10 @@ to create.
 
 ## [Unreleased]
 
+### Added
+
+- A principal investigator named in *Access to this material* or in a project's statement gets a *staff page* link after their name when their Person item has a `fabio:hasURL`: *Vierke, Ulf (staff page)*. The name still opens the Person record. A contact set by `dcterms:mediator` gets the link the same way. MongoDB2OmekaS writes the URL from `dev.persons.url`, and 48 of the 68 project PIs have one (issue #10).
+
 ## [2.39.0] - 2026-10-15
 
 ### Added

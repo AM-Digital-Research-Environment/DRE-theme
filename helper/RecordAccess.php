@@ -34,6 +34,10 @@ use Laminas\View\Helper\AbstractHelper;
  * hand-set override for a project whose PI has left, or an external collection
  * whose holder IS the contact. MongoDB2OmekaS does not manage it on projects, so a
  * value set in Omeka survives every sync.
+ *
+ * A PI or mediator whose Person item carries a `fabio:hasURL` (the institutional
+ * staff page, synced from MongoDB) brings it along as `staffPage`, so a visitor
+ * can reach a current address without first opening the Person record.
  */
 class RecordAccess extends AbstractHelper
 {
@@ -181,28 +185,31 @@ class RecordAccess extends AbstractHelper
      *  - 'mediator': the hand-set `dcterms:mediator` override, in `contacts`;
      *  - 'team': the project team — its PIs (`dcterms:creator`) in `pis` and its
      *    other researchers (`foaf:member`, PIs removed) in `researchers`;
+     *
+     * Contacts and PIs carry their staff page, when they have one; the
+     * researchers, who are not listed on records, do not.
      *  - 'dre': nobody is known, so the DRE mailbox answers.
      *
      * @return array{source:string,contacts:array,pis:array,researchers:array}
      */
     private function contactFor(array $projects): array
     {
-        $collect = function (string $term) use ($projects): array {
+        $collect = function (string $term, bool $staffPages = false) use ($projects): array {
             $out = [];
             foreach ($projects as $project) {
-                foreach ($this->linkedTitles($project, $term) as $person) {
+                foreach ($this->linkedTitles($project, $term, false, $staffPages) as $person) {
                     $out[$person['label']] = $person;
                 }
             }
             return $out;
         };
 
-        $mediators = $collect('dcterms:mediator');
+        $mediators = $collect('dcterms:mediator', true);
         if ($mediators) {
             return ['source' => 'mediator', 'contacts' => array_values($mediators), 'pis' => [], 'researchers' => []];
         }
 
-        $pis = $collect('dcterms:creator');
+        $pis = $collect('dcterms:creator', true);
         $researchers = array_diff_key($collect('foaf:member'), $pis);
         if ($pis || $researchers) {
             return ['source' => 'team', 'contacts' => [], 'pis' => array_values($pis), 'researchers' => array_values($researchers)];
@@ -214,8 +221,9 @@ class RecordAccess extends AbstractHelper
     /**
      * Labels (and record links) of a property's values. A linked value shows its
      * title, a URI its label or itself, a literal its text — the rail's rule.
+     * With $staffPages, a linked item's staff page rides along as `staffPage`.
      */
-    private function linkedTitles($resource, string $term, bool $linksOnly = false): array
+    private function linkedTitles($resource, string $term, bool $linksOnly = false, bool $staffPages = false): array
     {
         $out = [];
         try {
@@ -239,13 +247,42 @@ class RecordAccess extends AbstractHelper
                     $href = '';
                 }
                 if ($label !== '') {
-                    $out[] = ['label' => $label, 'href' => $href];
+                    $entry = ['label' => $label, 'href' => $href];
+                    $staffPage = $staffPages && $linked ? $this->staffPage($linked) : '';
+                    if ($staffPage !== '') {
+                        $entry['staffPage'] = $staffPage;
+                    }
+                    $out[] = $entry;
                 }
             } catch (\Throwable $e) {
                 continue;
             }
         }
         return $out;
+    }
+
+    /**
+     * A person's staff page: the first web address under `fabio:hasURL`, which
+     * MongoDB2OmekaS writes from `dev.persons.url`. '' when there is none.
+     */
+    private function staffPage($person): string
+    {
+        try {
+            $values = $person->value('fabio:hasURL', ['all' => true]) ?: [];
+        } catch (\Throwable $e) {
+            return '';
+        }
+        foreach ($values as $value) {
+            try {
+                $href = 'uri' === (string) $value->type() ? (string) $value->uri() : trim((string) $value);
+            } catch (\Throwable $e) {
+                continue;
+            }
+            if (preg_match('~^https?://~i', $href)) {
+                return $href;
+            }
+        }
+        return '';
     }
 
     /** Online copies, named by the system they lead to. Duplicate URLs collapse. */
