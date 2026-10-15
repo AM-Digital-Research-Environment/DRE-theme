@@ -81,7 +81,7 @@ msgstr ""
 msgid "Africa Multiple Cluster of Excellence"
 msgstr ""
 
-#: view/common/nav-menu.phtml:46
+#: view/common/nav-menu.phtml:47
 msgid "Africa's foremost music archive"
 msgstr ""
 
@@ -592,7 +592,7 @@ msgstr ""
 msgid "Origins & context"
 msgstr ""
 
-#: view/common/nav-menu.phtml:48
+#: view/common/nav-menu.phtml:49
 msgid "Orishas — Gregório de Mattos Foundation"
 msgstr ""
 
@@ -625,7 +625,7 @@ msgstr ""
 msgid "People & roles"
 msgstr ""
 
-#: view/common/nav-menu.phtml:47
+#: view/common/nav-menu.phtml:48
 msgid "Peripheral memories of Capoeira Angola in Salvador"
 msgstr ""
 
@@ -701,7 +701,7 @@ msgstr ""
 msgid "Query"
 msgstr ""
 
-#: view/common/nav-menu.phtml:52
+#: view/common/nav-menu.phtml:53
 msgid "RDF, dump & CC0 metadata"
 msgstr ""
 
@@ -715,6 +715,10 @@ msgstr ""
 
 #: helper/RecordAccess.php:157
 msgid "Record: %s"
+msgstr ""
+
+#: view/common/nav-menu.phtml:45
+msgid "Records grouped by meaning"
 msgstr ""
 
 #: view/common/linked-resources.phtml:141
@@ -734,7 +738,7 @@ msgstr ""
 msgid "Report an error in this record"
 msgstr ""
 
-#: view/common/nav-menu.phtml:51
+#: view/common/nav-menu.phtml:52
 msgid "Requesting material & who to ask"
 msgstr ""
 
@@ -976,7 +980,7 @@ msgstr ""
 msgid "Video trends & playlists"
 msgstr ""
 
-#: view/common/nav-menu.phtml:114
+#: view/common/nav-menu.phtml:115
 msgid "View all"
 msgstr ""
 
@@ -1000,7 +1004,7 @@ msgstr ""
 msgid "Who to ask"
 msgstr ""
 
-#: view/common/nav-menu.phtml:49
+#: view/common/nav-menu.phtml:50
 msgid "Workers in/from Bahia"
 msgstr ""
 

@@ -14,6 +14,7 @@ to create.
 ### Added
 
 - The main menu has an intro and descriptions for an *Access & reuse* section: a hub page with the slug `access-reuse` and its *Access & contact* (`access-contact`) and *Linked open data* (`linked-open-data`) pages. They appear once the site's navigation has that section.
+- *Semantic map* (`semantic-map`) has a description in the *Visualisations* menu: "Records grouped by meaning".
 
 ### Changed
 
