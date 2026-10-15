@@ -11,6 +11,8 @@ to create.
 
 ## [Unreleased]
 
+## [2.38.3] - 2026-10-15
+
 ### Added
 
 - The main menu has an intro and descriptions for an *Access & reuse* section: a hub page with the slug `access-reuse` and its *Access & contact* (`access-contact`) and *Linked open data* (`linked-open-data`) pages. They appear once the site's navigation has that section.
@@ -580,7 +582,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.38.2...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.38.3...HEAD
+[2.38.3]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.38.2...v2.38.3
 [2.38.2]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.38.1...v2.38.2
 [2.38.1]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.38.0...v2.38.1
 [2.38.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.37.2...v2.38.0
