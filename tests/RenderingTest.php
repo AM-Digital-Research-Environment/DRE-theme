@@ -246,7 +246,8 @@ $preview = $view->FullTextPreview($long);
 dre_check($failures, $checks, 'a long full text is cut back to a word boundary',
     $preview['truncated'] && mb_strlen($preview['preview']) <= 2000
     && str_starts_with($preview['preview'], "Première ligne\nmot") && str_ends_with($preview['preview'], 'mot'), $preview['preview']);
-dre_check($failures, $checks, 'the word count covers the whole text', in_array($preview['words'], ['4,003', '4.003', '4 003', "4\u{a0}003", "4\u{202f}003"], true), $preview['words']);
+// Formatted in the process locale: "4,003", "4 003" or, under POSIX, "4003".
+dre_check($failures, $checks, 'the word count covers the whole text', (bool) preg_match('/^4\D{0,3}003$/u', $preview['words']), $preview['words']);
 class FullTextValue extends ValuesTestValue
 {
     public function value() { return $this->text; }

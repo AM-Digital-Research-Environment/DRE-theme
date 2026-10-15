@@ -50,11 +50,16 @@ class FullTextPreview extends AbstractHelper
 
     private function formatCount(int $count): string
     {
-        // number_format() is locale-blind; the banner counts do the same.
+        // number_format() is locale-blind; the banner counts do the same. The
+        // constructor throws on a locale ICU does not know ("C" under POSIX).
         if (class_exists(\NumberFormatter::class)) {
-            $formatted = (new \NumberFormatter(\Locale::getDefault(), \NumberFormatter::DECIMAL))->format($count);
-            if (is_string($formatted)) {
-                return $formatted;
+            try {
+                $formatted = (new \NumberFormatter(\Locale::getDefault(), \NumberFormatter::DECIMAL))->format($count);
+                if (is_string($formatted)) {
+                    return $formatted;
+                }
+            } catch (\Throwable $e) {
+                // number_format() below.
             }
         }
         return number_format($count);
