@@ -11,6 +11,8 @@ to create.
 
 ## [Unreleased]
 
+## [2.38.2] - 2026-10-15
+
 ### Added
 
 - A project's statement ("About these records") links to the project's records: "Browse the 110 records of *Museu Afro-Digital*". The link leads to the project's collection, the item set that shares the project's `dre:id`, so the theme still pins no Omeka ids. There is no link when that collection is missing, private or empty.
@@ -569,7 +571,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.38.1...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.38.2...HEAD
+[2.38.2]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.38.1...v2.38.2
 [2.38.1]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.38.0...v2.38.1
 [2.38.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.37.2...v2.38.0
 [2.37.2]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.37.1...v2.37.2
