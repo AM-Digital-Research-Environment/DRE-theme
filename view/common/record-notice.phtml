@@ -67,6 +67,14 @@ $leadId = 'record-notice-' . (int) $access['id'];
             <?php echo $escHtml($translate('The project team described the material following the curation guidelines of the Digital Research Environment (DRE); the researchers are responsible for the accuracy of the descriptions.')); ?>
         <?php endif; ?>
         <?php echo $escHtml($translate('AMIRA does not hold the material itself.')); ?>
+        <?php if (!empty($access['records'])): ?>
+            <?php // The records themselves: the project's item set, one click from its statement. ?>
+            <a href="<?php echo $escAttr($access['records']['href']); ?>"><?php echo sprintf(
+                $escHtml($translatePlural('Browse the %1$s record of %2$s', 'Browse the %1$s records of %2$s', $access['records']['count'])),
+                $escHtml(number_format($access['records']['count'])),
+                '<em>' . $escHtml($access['title']) . '</em>'
+            ); ?></a>.
+        <?php endif; ?>
     </p>
     <p>
         <?php if ($access['contactSource'] === 'team' && $access['pis']): ?>

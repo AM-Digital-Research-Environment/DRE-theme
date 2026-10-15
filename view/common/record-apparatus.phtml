@@ -80,6 +80,13 @@ $this->inlineScript()->appendFile($this->assetUrl('js/record.js'));
             data-copied-label="<?php echo $escAttr($translate('Copied')); ?>">
             <?php echo $escHtml($copyLabel); ?>
         </button>
+        <?php if (($copyLink ?? '') !== ''): ?>
+            <button type="button" class="button btn--secondary record-apparatus__copy" data-record-copy data-copy-exact hidden
+                data-copy-text="<?php echo $escAttr($copyLink); ?>"
+                data-copied-label="<?php echo $escAttr($translate('Copied')); ?>">
+                <?php echo $escHtml($translate('Copy link')); ?>
+            </button>
+        <?php endif; ?>
         <?php echo $saveButton ?? ''; ?>
     </div>
 

@@ -42,7 +42,9 @@ dre_check($failures, $checks, 'one style has no tablist or dangling tab referenc
 // DRE-SEO 0.11+: an authority record cited as a database entry is offered as a citation.
 $view->callbacks['dreCitation'] = fn() => ['styles' => ['chicago' => ['label' => 'Chicago', 'html' => '“Aas, Norbert.” Person record. AMIRA.']], 'defaultStyle' => 'chicago', 'citable' => false, 'citeAs' => 'entry'];
 $html = $view->render('common/record-apparatus', ['resource' => $resource]);
-dre_check($failures, $checks, 'an entry citation is offered as a citation', str_contains($html, 'Cite this record') && str_contains($html, 'Copy citation') && !str_contains($html, 'Copy link'));
+dre_check($failures, $checks, 'an entry citation is offered as a citation, with the link as its own action',
+    str_contains($html, 'Cite this record') && str_contains($html, 'Copy citation')
+    && substr_count($html, 'Copy link') === 1 && str_contains($html, 'data-copy-exact'));
 dre_check($failures, $checks, 'the entry copy fallback is the citation text', str_contains($html, 'data-copy-text="“Aas, Norbert.” Person record. AMIRA."') || str_contains(html_entity_decode($html, ENT_QUOTES | ENT_HTML5, 'UTF-8'), 'data-copy-text="“Aas, Norbert.” Person record. AMIRA."'));
 $view->callbacks['dreCitation'] = fn() => ['styles' => ['apa' => ['label' => 'APA', 'html' => '<em>Generated</em>']], 'defaultStyle' => 'apa', 'citable' => false];
 // "Save record" joins "Copy link" in the apparatus's one action row.
@@ -90,7 +92,7 @@ $permanent = $rdfRow($xp, 'Permanent link');
 dre_check($failures, $checks, 'with the module (0.2.0) the permanent link is the persistent URI',
     $permanent?->getElementsByTagName('a')->item(0)?->getAttribute('href') === $base
     && !str_contains($permanent?->textContent ?? '', '/s/a/item/1'));
-dre_check($failures, $checks, 'the copy fallback and the row button carry the URI, not the page URL',
+dre_check($failures, $checks, 'the copy fallback and the "Copy link" action carry the URI, not the page URL',
     str_contains($html, 'data-copy-text="&lt;script&gt;citation&lt;/script&gt;"')
     && $xp->query('//button[@data-copy-exact][@data-copy-text="' . $base . '"]')->length === 1);
 dre_check($failures, $checks, 'the shortlist still stores the page URL',
@@ -124,6 +126,14 @@ dre_check($failures, $checks, 'a DOI already in its own row is not repeated unde
     !str_contains($sameText, 'DOI') && $same->getElementsByTagName('a')->length === 4);
 dre_check($failures, $checks, 'the identifiers sit next to the permanent link',
     strpos($html, '>Permanent link<') < strpos($html, '>Linked data<') && strpos($html, '>Same as<') < strpos($html, '>Licence<'));
+
+// A citation that already ends in the URI (DRE-SEO 0.13): the row would only repeat it.
+$view->callbacks['dreCitation'] = fn() => ['styles' => ['chicago' => ['label' => 'Chicago', 'html' => '“Museu Afro-Digital.” Project record. AMIRA. <a href="' . $base . '">' . $base . '</a>.']], 'defaultStyle' => 'chicago', 'citable' => true];
+[$html, $xp] = $apparatusDom();
+dre_check($failures, $checks, 'a citation that shows the URI drops the permanent link row, and "Copy link" still hands it over',
+    !$rdfRow($xp, 'Permanent link') && $rdfRow($xp, 'Linked data')
+    && $xp->query('//div[contains(@class,"record-apparatus__actions")]/button[@data-copy-exact][@data-copy-text="' . $base . '"]')->length === 1
+    && $xp->query('//button[contains(@class,"record-apparatus__copy-value")]')->length === 0);
 
 // An authority record: "Copy link" copies the URI, so the row needs no second button.
 $view->callbacks['dreCitation'] = fn() => ['styles' => ['apa' => ['label' => 'APA', 'html' => '<em>Generated</em>']], 'defaultStyle' => 'apa', 'citable' => false];

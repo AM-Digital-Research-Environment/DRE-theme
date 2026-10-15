@@ -19,11 +19,11 @@ msgid_plural "(%s items)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: helper/RecordAccess.php:140
+#: helper/RecordAccess.php:141
 msgid "[AMIRA] Access request: record %1$s: %2$s"
 msgstr ""
 
-#: helper/RecordAccess.php:135
+#: helper/RecordAccess.php:136
 msgid "[AMIRA] Correction to record %1$s: %2$s"
 msgstr ""
 
@@ -52,7 +52,7 @@ msgstr ""
 msgid "Abstract"
 msgstr ""
 
-#: helper/RecordApparatus.php:149
+#: helper/RecordApparatus.php:158
 msgid "Access rights"
 msgstr ""
 
@@ -131,6 +131,12 @@ msgstr ""
 msgid "Browse projects interactively"
 msgstr ""
 
+#: view/common/record-notice.phtml:73
+msgid "Browse the %1$s record of %2$s"
+msgid_plural "Browse the %1$s records of %2$s"
+msgstr[0] ""
+msgstr[1] ""
+
 #: helper/PwaManifest.php:52
 msgid "Browse the collection"
 msgstr ""
@@ -203,6 +209,7 @@ msgstr ""
 
 #: view/common/record-apparatus-rows.phtml:53
 #: view/common/record-apparatus.phtml:80
+#: view/common/record-apparatus.phtml:86
 msgid "Copied"
 msgstr ""
 
@@ -215,10 +222,11 @@ msgid "Copy citation"
 msgstr ""
 
 #: helper/RecordApparatus.php:101
+#: view/common/record-apparatus.phtml:87
 msgid "Copy link"
 msgstr ""
 
-#: helper/RecordApparatus.php:138
+#: helper/RecordApparatus.php:147
 #: view/common/record-linked-data.phtml:26
 msgid "Copy permanent link"
 msgstr ""
@@ -260,15 +268,15 @@ msgstr ""
 msgid "Document & media types"
 msgstr ""
 
-#: helper/RecordApparatus.php:133
+#: helper/RecordApparatus.php:142
 msgid "DOI"
 msgstr ""
 
-#: view/common/record-apparatus.phtml:88
+#: view/common/record-apparatus.phtml:95
 msgid "Download"
 msgstr ""
 
-#: helper/RecordApparatus.php:152
+#: helper/RecordApparatus.php:161
 msgid "DRE ID"
 msgstr ""
 
@@ -309,21 +317,21 @@ msgstr ""
 msgid "Filter this page by relationship"
 msgstr ""
 
-#: view/common/record-notice.phtml:81
+#: view/common/record-notice.phtml:89
 msgid "For access or more information, contact %1$s; if you cannot reach them, write to the DRE at %2$s."
 msgstr ""
 
-#: view/common/record-notice.phtml:74
+#: view/common/record-notice.phtml:82
 msgid "For access or more information, contact the principal investigator, %1$s, or the project’s researchers; if you cannot reach them, write to the DRE at %2$s."
 msgid_plural "For access or more information, contact the principal investigators, %1$s, or the project’s researchers; if you cannot reach them, write to the DRE at %2$s."
 msgstr[0] ""
 msgstr[1] ""
 
-#: view/common/record-notice.phtml:79
+#: view/common/record-notice.phtml:87
 msgid "For access or more information, contact the project’s researchers, listed on this page; if you cannot reach them, write to the DRE at %s."
 msgstr ""
 
-#: view/common/record-notice.phtml:83
+#: view/common/record-notice.phtml:91
 msgid "For access or more information, write to the DRE at %s."
 msgstr ""
 
@@ -424,7 +432,7 @@ msgstr ""
 msgid "Languages represented"
 msgstr ""
 
-#: helper/RecordApparatus.php:146
+#: helper/RecordApparatus.php:155
 msgid "Licence"
 msgstr ""
 
@@ -492,7 +500,7 @@ msgstr ""
 msgid "More about access"
 msgstr ""
 
-#: view/common/record-notice.phtml:86
+#: view/common/record-notice.phtml:94
 msgid "More about access to AMIRA material"
 msgstr ""
 
@@ -617,7 +625,7 @@ msgstr ""
 msgid "Peripheral memories of Capoeira Angola in Salvador"
 msgstr ""
 
-#: helper/RecordApparatus.php:138
+#: helper/RecordApparatus.php:147
 #: view/common/record-linked-data.phtml:26
 msgid "Permanent link"
 msgstr ""
@@ -697,7 +705,7 @@ msgstr ""
 msgid "Read the metadata at a glance."
 msgstr ""
 
-#: helper/RecordAccess.php:156
+#: helper/RecordAccess.php:157
 msgid "Record: %s"
 msgstr ""
 
@@ -968,11 +976,11 @@ msgstr ""
 msgid "View as"
 msgstr ""
 
-#: helper/RecordAccess.php:136
+#: helper/RecordAccess.php:137
 msgid "What should be corrected or improved?"
 msgstr ""
 
-#: helper/RecordAccess.php:141
+#: helper/RecordAccess.php:142
 msgid "What would you like to access, and for what purpose?"
 msgstr ""
 

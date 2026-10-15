@@ -189,6 +189,11 @@ $icon-comment: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%2
         background-color: var(--primary-muted);
         border-color: var(--primary);
         color: var(--primary-text);
+        // A secondary that also carries `.button` would inherit the primary's
+        // lift and glow on hover, so it jumped while a plain secondary beside it
+        // ("Copy citation" next to "Save record") stayed put. Secondaries never lift.
+        box-shadow: none;
+        transform: none;
     }
 
     &:where(:active:not(.disabled):not(:disabled)) {
