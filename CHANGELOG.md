@@ -20,6 +20,10 @@ to create.
 - Item-set and media pages show a compact *Linked data* block with the same permanent link, formats and external records.
 - Access-rights values carry a plain-language explanation, in the side column and in the record's metadata, taken from the public description of the linked Access Right record. "Public", for instance, can now say that the description is public while the material may still be restricted. Nothing is added where the record has no description. ([#10](https://github.com/AM-Digital-Research-Environment/DRE-theme/issues/10))
 
+### Changed
+
+- `npm run vendor:lint` also refreshes the vendored token lint in DRE-LinkedData, and the *Contract drift* check covers it.
+
 ## [2.37.2] - 2026-10-15
 
 ### Changed
@@ -132,6 +136,7 @@ to create.
 - **Contract drift workflow:** checks out both modules and fails when their
   copies of the token lint or the generated token table fall behind the theme.
   It runs on changes to those files, weekly, and on demand.
+- **Tamper check for the vendored copies:** `npm run vendor:lint` also writes
   `scripts/lib/VENDORED.sha256` into each module. Each module's `lint:tokens`
   refuses to run when a copy no longer matches it.
 - `CONTRIBUTING.md` and `.nvmrc`, matching the module repositories.
