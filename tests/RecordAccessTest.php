@@ -154,6 +154,48 @@ dre_check($failures, $checks, 'the access page is found and queried once, howeve
     $first['accessPageUrl'] === '/s/a/page/access' && $lookups === 1, "lookups: {$lookups}");
 unset($view->callbacks['currentSite'], $view->callbacks['api']);
 
+// --- A project links to its records ------------------------------------------
+$queries = [];
+$view->callbacks['currentSite'] = fn() => new class { public function id() { return 1; } };
+$setCount = 110;
+$view->callbacks['api'] = function () use (&$queries, &$setCount) {
+    return new class($queries, $setCount) {
+        public function __construct(private array &$queries, private int &$count) {}
+        public function searchOne(string $resource, array $query) {
+            $this->queries[] = [$resource, $query];
+            $count = $this->count;
+            return new class($resource, $count) {
+                public function __construct(private string $r, private int $c) {}
+                public function getContent() {
+                    if ($this->r !== 'item_sets') return null;
+                    $c = $this->c;
+                    return new class($c) {
+                        public function __construct(private int $c) {}
+                        public function itemCount() { return $this->c; }
+                        public function url() { return '/s/a/item-set/6295'; }
+                    };
+                }
+            };
+        }
+    };
+};
+$project->values['dre:id'] = [new ThemeTestValue('UFB_AfroDigital')];
+$recordsHelper = new RecordAccess();
+$recordsHelper->setView($view);
+$access = $recordsHelper($project);
+$setQuery = array_values(array_filter($queries, fn ($q) => $q[0] === 'item_sets'))[0][1] ?? [];
+dre_check($failures, $checks, 'a project finds its item set by the shared dre:id, not by an id',
+    ($setQuery['property'][0]['property'] ?? null) === 'dre:id' && ($setQuery['property'][0]['text'] ?? null) === 'UFB_AfroDigital'
+    && $access['records'] === ['href' => '/s/a/item-set/6295', 'count' => 110]);
+$notice = $view->render('common/record-notice', ['access' => $access]);
+dre_check($failures, $checks, 'the project statement links to its records with their number',
+    str_contains($notice, 'href="/s/a/item-set/6295"') && str_contains($notice, 'Browse the 110 records of <em>Of Art Worlds</em>'));
+$setCount = 0;
+$access = $recordsHelper($project);
+dre_check($failures, $checks, 'an empty or private item set gives no link', $access['records'] === []
+    && !str_contains($view->render('common/record-notice', ['access' => $access]), 'Browse the'));
+unset($project->values['dre:id'], $view->callbacks['currentSite'], $view->callbacks['api']);
+
 // --- Pure helpers ------------------------------------------------------------
 dre_check($failures, $checks, 'an interval reads as a year range', RecordAccess::years('2020-01-01/2023-12-31') === '2020–2023');
 dre_check($failures, $checks, 'one year stays one year', RecordAccess::years('2021') === '2021' && RecordAccess::years('2021-03/2021-09') === '2021');

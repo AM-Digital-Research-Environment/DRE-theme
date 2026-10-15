@@ -11,6 +11,22 @@ to create.
 
 ## [Unreleased]
 
+## [2.38.2] - 2026-10-15
+
+### Added
+
+- A project's statement ("About these records") links to the project's records: "Browse the 110 records of *Museu Afro-Digital*". The link leads to the project's collection, the item set that shares the project's `dre:id`, so the theme still pins no Omeka ids. There is no link when that collection is missing, private or empty.
+
+### Changed
+
+- *Cite this record* no longer repeats the permanent link under a citation that already ends with it. Copying the link is now its own *Copy link* button beside *Copy citation* and *Save record*, not a small button after the wrapped URL. The *Permanent link* row stays where no citation shows the link.
+- On item-set and media pages, the permanent link's *Copy* button sits on its own line under the URL.
+- The text of the "About these records" and "This page is a catalogue record" notices now fills the width of their box.
+
+### Fixed
+
+- Secondary buttons no longer lift on hover. *Copy citation* jumped while *Save record* beside it stayed still, because it also carried the primary button class.
+
 ## [2.38.1] - 2026-10-15
 
 ### Changed
@@ -555,7 +571,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.38.1...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.38.2...HEAD
+[2.38.2]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.38.1...v2.38.2
 [2.38.1]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.38.0...v2.38.1
 [2.38.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.37.2...v2.38.0
 [2.37.2]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.37.1...v2.37.2

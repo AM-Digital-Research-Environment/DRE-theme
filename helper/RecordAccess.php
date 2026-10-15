@@ -92,6 +92,7 @@ class RecordAccess extends AbstractHelper
                 'title' => (string) $resource->displayTitle(),
                 'sections' => $this->linkedTitles($resource, 'dcterms:isPartOf'),
                 'years' => self::years($this->firstLiteral($resource, 'dcterms:temporal')),
+                'records' => $this->projectRecords($resource),
                 'contactSource' => $contact['source'],
                 'contacts' => $contact['contacts'],
                 'pis' => $contact['pis'],
@@ -307,6 +308,32 @@ class RecordAccess extends AbstractHelper
             return $value ? trim((string) $value) : '';
         } catch (\Throwable $e) {
             return '';
+        }
+    }
+
+    /**
+     * The project's own records: the item set that MongoDB2OmekaS creates for
+     * the project's collection, which carries the same `dre:id` (the collection
+     * code, e.g. UFB_AfroDigital) as the project item. Matched on that value, not
+     * on an id, so the theme still pins none. [] when there is no such set, it is
+     * private, or it is empty: the statement then simply carries no link.
+     *
+     * @return array{href:string,count:int}|array{}
+     */
+    private function projectRecords($resource): array
+    {
+        $code = $this->firstLiteral($resource, 'dre:id');
+        if ($code === '') {
+            return [];
+        }
+        try {
+            $set = $this->getView()->api()->searchOne('item_sets', [
+                'property' => [['joiner' => 'and', 'property' => 'dre:id', 'type' => 'eq', 'text' => $code]],
+            ])->getContent();
+            $count = $set ? (int) $set->itemCount() : 0;
+            return $count > 0 ? ['href' => (string) $set->url(), 'count' => $count] : [];
+        } catch (\Throwable $e) {
+            return [];
         }
     }
 

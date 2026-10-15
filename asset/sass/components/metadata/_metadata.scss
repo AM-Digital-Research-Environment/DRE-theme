@@ -355,8 +355,9 @@
 
     p {
         margin: 0;
-        // A full-width plate, but never a line too long to follow.
-        max-width: 110ch;
+        // The text fills the plate: a measure narrower than the plate left a
+        // band of empty tint on the right that read as a layout fault, and at
+        // --text-sm a full-width line on the widest container stays followable.
 
         + p {
             margin-top: var(--space-2);
@@ -637,12 +638,16 @@
     color: var(--ink-light);
 }
 
-// "Copy" beside the permanent link: a quiet text-size control, revealed by
-// record.js only where the clipboard API exists.
+// "Copy" under the permanent link of the item-set and media block (the rail
+// copies from its actions row instead): a quiet text-size control on its own
+// line, so it never trails a wrapped URL. Revealed by record.js only where the
+// clipboard API exists.
 .record-apparatus__copy-value {
     @include secondary-button;
+    display: flex;
+    width: fit-content;
     min-height: var(--size-control-sm);
-    margin-top: var(--space-1);
+    margin-top: var(--space-2);
     padding: var(--space-1) var(--space-3);
     font-size: var(--text-xs);
 

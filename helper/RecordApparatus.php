@@ -128,11 +128,20 @@ class RecordApparatus extends AbstractHelper
         $linkedData = $view->RecordLinkedData($resource);
         $identifier = ($linkedData['uri'] ?? '') ?: $permalink;
 
+        // DRE-SEO's styles already end in the identifier ("… Last modified
+        // October 11, 2026. https://…/resource/1845."). A row repeating the same
+        // URL under the citation only made the reader wonder which one to use;
+        // the "Copy link" action still hands it over on its own.
+        $citationShowsIdentifier = $identifier !== '' && (
+            str_contains((string) ($citeStyles[$citeDefault]['html'] ?? ''), $identifier)
+            || (!$citeStyles && str_contains($citation, $identifier))
+        );
+
         $rows = [];
         if ($doiValues) {
             $rows[] = ['label' => $translate('DOI'), 'values' => $doiValues];
         }
-        if ($identifier !== '') {
+        if ($identifier !== '' && !$citationShowsIdentifier) {
             // Stacked: a URL beside its label, plus a copy button, does not fit
             // the right-aligned token treatment of a DOI.
             $rows[] = ['label' => $translate('Permanent link'), 'layout' => 'block', 'values' => [['label' => $identifier, 'href' => $identifier, 'copy' => $translate('Copy permanent link')]]];
@@ -197,10 +206,14 @@ class RecordApparatus extends AbstractHelper
             }
             $rows[$i]['layout'] = $long ? 'block' : 'token';
         }
-        // On an authority record the "Copy link" action already copies the
-        // identifier; a second button in its row would only repeat it.
-        $copyInRow = !($isAuthority && !$isEntry);
+        // Copying the link is an action beside "Copy citation" and "Save record",
+        // not a small button wedged after a wrapping URL. On an authority record
+        // that is not cited as an entry, the main action already is "Copy link".
+        $copyLink = ($identifier !== '' && !($isAuthority && !$isEntry)) ? $identifier : '';
+        // In the rail the actions row always offers the link, so the permanent
+        // link row (when shown) carries no copy button of its own.
+        $copyInRow = false;
 
-        return compact('citation', 'citeStyles', 'citeDefault', 'citeDownloads', 'citeId', 'panelTitle', 'copyLabel', 'copyText', 'permalink', 'identifier', 'rows', 'copyInRow');
+        return compact('citation', 'citeStyles', 'citeDefault', 'citeDownloads', 'citeId', 'panelTitle', 'copyLabel', 'copyText', 'copyLink', 'permalink', 'identifier', 'rows', 'copyInRow');
     }
 }
