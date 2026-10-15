@@ -35,7 +35,23 @@ $valueLang = $filterLocale ? [$lang, ''] : null;
 // admin's block order is kept as configured; an unknown block counts as
 // context.
 $recordBlockNames = ['mirador', 'mediaEmbeds', 'mediaRender', 'mediaList', 'values', 'itemSets'];
+
+// `view.show.before` is triggered here, before any block renders, and its output
+// is printed in its usual place below. Modules add the scripts their blocks need
+// from that event (DRE Visualizations' prelude): fired after the blocks, as it
+// was, it put those scripts behind the blocks' own and the dashboards broke.
+ob_start();
+$this->trigger('view.show.before');
+$showBefore = ob_get_clean();
+
 $mainBlocks = $this->resourcePageBlocks($item)->getBlocksArray();
+
+// A project's records are searched on its page (DRE Search's project records
+// block), so the generic list of links to the project — on a project, nothing
+// but those same records — goes when the search is there.
+if (trim((string) ($mainBlocks['dreSearchProjectRecords'] ?? '')) !== '') {
+    unset($mainBlocks['linkedResources']);
+}
 $splitAt = 0;
 foreach (array_keys($mainBlocks) as $index => $blockName) {
     if (in_array($blockName, $recordBlockNames, true)) $splitAt = $index + 1;
@@ -74,7 +90,7 @@ $hasRail = ($apparatus !== '') || ($recordAccess !== '') || $rightSidebarHasBloc
 
 <?php echo $this->partial('common/shortlist-button', ['resource' => $item, 'detail' => true, 'placement' => $apparatus !== '' ? 'narrow' : null]); ?>
 
-<?php $this->trigger('view.show.before'); ?>
+<?php echo $showBefore; ?>
 
 <?php if ($mainBlocks || $leftSidebarHasBlocks || $hasRail): ?>
 

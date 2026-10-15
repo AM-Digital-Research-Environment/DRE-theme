@@ -11,6 +11,16 @@ to create.
 
 ## [Unreleased]
 
+### Changed
+
+- A project page no longer opens with the "About these records" statement. It is the project's own page: its description, team and visualisations are on it. The rail's first panel becomes *Access and contact*: whose descriptions these are (the project team, following the DRE's curation guidelines), the project's records ("Search its 487 records", with the collection's name when it differs), who to ask, and the DRE as fallback. A project's access request and error report now carry the project's id and title.
+- On a project page, DRE Search's *Project records* block (DRE Search 1.29) replaces *Linked resources*. On every project the only links pointing at it are its own records ("Parent project"), so the search, with its facets and sort, now lists them. Without that block, *Linked resources* stays.
+
+### Fixed
+
+- Item lists still offered every numeric sort after 2.40.0, now behind *Title* and *Date added*. Numeric Data Types adds its sorts from the `view.sort-selector` event, which core fires after taking the theme's list. The theme now fires the event itself and curates what comes back: *Title*, *Date* / *Date Issued* / *Date Created*, *Date added*.
+- The DRE Visualizations dashboard on item pages loaded its scripts out of order and broke ("dashboard-core.js must load before graph-canvas.js"). The item page rendered its blocks before triggering `view.show.before`, the event modules use to add the scripts those blocks need. It is now triggered first, and its output still prints in the same place.
+
 ## [2.40.0] - 2026-10-15
 
 ### Changed
