@@ -7,6 +7,11 @@
  * answers. Then one link to report a mistake. The contact is generated from the
  * record's project (helper/RecordAccess.php), never typed per record.
  *
+ * On a project page the panel is "Access and contact": whose metadata this is,
+ * the project's records (searched on the page itself when DRE Search is there),
+ * and the same who-to-ask rows. It replaces the statement that used to sit
+ * under the project's title.
+ *
  * The error report is a ContactUs form when that module is active — messages are
  * stored in admin and mailed to the DRE — and otherwise a pre-filled email to the
  * DRE mailbox carrying the record id and permalink.
@@ -15,7 +20,8 @@
  * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
  * @var array $access From RecordAccess, passed by item/show.phtml.
  */
-if (empty($access) || $access['kind'] !== 'record') return;
+if (empty($access) || !in_array($access['kind'] ?? '', ['record', 'project'], true)) return;
+$isProject = $access['kind'] === 'project';
 
 $escHtml = $this->plugin('escapeHtml');
 $escAttr = $this->plugin('escapeHtmlAttr');
@@ -62,9 +68,34 @@ if ($this->getHelperPluginManager()->has('contactUs')) {
 }
 ?>
 <section class="record-access" id="<?php echo $escAttr($id); ?>" aria-labelledby="<?php echo $escAttr($id . '-title'); ?>">
-    <h2 class="record-apparatus__title" id="<?php echo $escAttr($id . '-title'); ?>"><?php echo $escHtml($translate('Access to this material')); ?></h2>
+    <h2 class="record-apparatus__title" id="<?php echo $escAttr($id . '-title'); ?>"><?php echo $escHtml($isProject ? $translate('Access and contact') : $translate('Access to this material')); ?></h2>
+
+    <?php if ($isProject && $access['contactSource'] !== 'dre'): ?>
+        <p class="record-access__note"><?php echo $escHtml($translate('The project team described its material following the curation guidelines of the Digital Research Environment (DRE) and answers for the descriptions. AMIRA holds the descriptions only, not the material.')); ?></p>
+    <?php elseif ($isProject): ?>
+        <p class="record-access__note"><?php echo $escHtml($translate('AMIRA holds the descriptions of this collection only, not the material.')); ?></p>
+    <?php endif; ?>
 
     <dl class="record-access__rows">
+        <?php if ($isProject): ?>
+        <?php if (!empty($access['records'])): ?>
+        <div class="record-access__row">
+            <dt><?php echo $escHtml($translate('Records')); ?></dt>
+            <dd>
+                <a class="record-access__item" href="<?php echo $escAttr($access['records']['href']); ?>"><?php echo $escHtml(sprintf(
+                    $translatePlural('Search its %s record', 'Search its %s records', $access['records']['count']),
+                    number_format($access['records']['count'])
+                )); ?></a>
+                <?php if (!empty($access['records']['collections'])): ?>
+                    <span class="record-access__note"><?php echo $escHtml(sprintf(
+                        $translatePlural('The collection %s', 'The collections %s', count($access['records']['collections'])),
+                        implode('; ', $access['records']['collections'])
+                    )); ?></span>
+                <?php endif; ?>
+            </dd>
+        </div>
+        <?php endif; ?>
+        <?php else: ?>
         <div class="record-access__row">
             <dt><?php echo $escHtml($translate('Online copy')); ?></dt>
             <dd>
@@ -81,6 +112,7 @@ if ($this->getHelperPluginManager()->has('contactUs')) {
                 <?php endif; ?>
             </dd>
         </div>
+        <?php endif; ?>
 
         <div class="record-access__row">
             <dt><?php echo $escHtml($translate('Who to ask')); ?></dt>
@@ -91,11 +123,15 @@ if ($this->getHelperPluginManager()->has('contactUs')) {
                             <span class="record-access__role"><?php echo $escHtml($translatePlural('principal investigator', 'principal investigators', count($access['pis']))); ?></span></span>
                     <?php endif; ?>
                     <?php // The team itself is listed on the project page; a big project would turn the rail into a staff list. ?>
+                    <?php if ($isProject): ?>
+                        <span class="record-access__item"><?php echo $escHtml($access['pis'] ? $translate('or the project’s researchers, listed on this page') : $translate('The project’s researchers, listed on this page')); ?></span>
+                    <?php else: ?>
                     <span class="record-access__item"><?php echo sprintf(
                         $escHtml($access['pis'] ? $translate('or the research team of %s') : $translate('The research team of %s')),
                         $linkList($access['projects'])
                     ); ?></span>
-                    <?php if ($access['holders']): ?>
+                    <?php endif; ?>
+                    <?php if (!empty($access['holders'])): ?>
                         <span class="record-access__note"><?php echo $escHtml(sprintf(
                             $translate('Not %s: it keeps the material but does not handle access requests.'),
                             implode('; ', $access['holders'])

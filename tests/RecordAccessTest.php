@@ -118,9 +118,9 @@ dre_check($failures, $checks, 'researchers, who are not listed on records, carry
 $panel = $view->render('common/record-access', ['resource' => $record, 'access' => $access]);
 dre_check($failures, $checks, 'the panel links the staff page after the PI, named for whose page it is',
     str_contains($panel, '>Vierke, Ulf</a> (<a href="' . $staffUrl . '" aria-label="Staff page of Vierke, Ulf">staff page</a>)'));
-$statement = $view->render('common/record-notice', ['access' => $helper($project)]);
-dre_check($failures, $checks, 'the project statement links the PI staff page too',
-    str_contains($statement, '>Vierke, Ulf</a> (<a href="' . $staffUrl . '"'));
+$projectPanel = $view->render('common/record-access', ['resource' => $project, 'access' => $helper($project)]);
+dre_check($failures, $checks, 'the project panel links the PI staff page too',
+    str_contains($projectPanel, '>Vierke, Ulf</a> (<a href="' . $staffUrl . '"'));
 unset($pi->values['fabio:hasURL'], $researcher->values['fabio:hasURL']);
 
 // --- Overrides and fallbacks -------------------------------------------------
@@ -224,16 +224,18 @@ dre_check($failures, $checks, 'the records link opens DRE Search on the project 
     ($access['records']['href'] ?? '') === '/s/a/dre-search?profile=research_items&f.project_s=Of%20Art%20Worlds');
 dre_check($failures, $checks, 'only a collection named differently from its project is named',
     ($access['records']['collections'] ?? null) === ['U-Matic Tapes of the Liberia Broadcasting System']);
-$notice = $view->render('common/record-notice', ['access' => $access]);
-dre_check($failures, $checks, 'the project statement links to its records with their number and names the corpus',
-    str_contains($notice, 'href="/s/a/dre-search?profile=research_items&amp;f.project_s=Of%20Art%20Worlds"')
-    && str_contains($notice, 'Browse the 487 records of <em>Of Art Worlds</em>')
-    && str_contains($notice, 'They form the collection <em>U-Matic Tapes of the Liberia Broadcasting System</em>.')
-    && !str_contains($notice, 'item-set'));
+$panel = $view->render('common/record-access', ['resource' => $project, 'access' => $access]);
+dre_check($failures, $checks, 'the project panel links to its records with their number and names the corpus',
+    str_contains($panel, 'href="/s/a/dre-search?profile=research_items&amp;f.project_s=Of%20Art%20Worlds"')
+    && str_contains($panel, 'Search its 487 records')
+    && str_contains($panel, 'The collection U-Matic Tapes of the Liberia Broadcasting System')
+    && !str_contains($panel, 'item-set'));
+dre_check($failures, $checks, 'a project page carries no notice under its title',
+    $view->render('common/record-notice', ['access' => $access]) === '');
 $recordCount = 0;
 $access = $recordsHelper($project);
-dre_check($failures, $checks, 'a project with no visible record gives no link', $access['records'] === []
-    && !str_contains($view->render('common/record-notice', ['access' => $access]), 'Browse the'));
+dre_check($failures, $checks, 'a project with no visible record gives no records row', $access['records'] === []
+    && !str_contains($view->render('common/record-access', ['resource' => $project, 'access' => $access]), 'Search its'));
 unset($project->values['dre:id'], $view->callbacks['currentSite'], $view->callbacks['api'], $view->callbacks['dreSearchBar']);
 dre_check($failures, $checks, 'a corpus restating its project is the same name',
     RecordAccess::sameName('Humanities for Humanitarians. An Experiment in the Public Impact', 'Humanities for Humanitarians')
@@ -285,12 +287,15 @@ dre_check($failures, $checks, 'without media the notice says AMIRA holds only th
     str_contains($view->render('common/record-notice', ['access' => $access]), 'AMIRA holds only this description and cannot supply the material itself'));
 $record->mediaList = [new stdClass()];
 
-$statement = $view->render('common/record-notice', ['access' => $helper($project)]);
-dre_check($failures, $checks, 'the project statement names project, section, years, PI and mailbox',
-    str_contains($statement, '<em>Of Art Worlds</em> (Arts &amp; Aesthetics, 2020–2023)')
-    && str_contains($statement, 'responsible for the accuracy')
+$projectAccess = $helper($project);
+$statement = $view->render('common/record-access', ['resource' => $project, 'access' => $projectAccess]);
+dre_check($failures, $checks, 'the project panel says whose descriptions these are, who to ask and where to write',
+    str_contains($statement, 'Access and contact')
+    && str_contains($statement, 'answers for the descriptions')
     && str_contains($statement, '>Vierke, Ulf</a>')
-    && str_contains($statement, 'mailto:' . RecordAccess::DEFAULT_EMAIL));
+    && str_contains($statement, 'the project’s researchers, listed on this page')
+    && str_contains($statement, 'mailto:' . RecordAccess::DEFAULT_EMAIL)
+    && str_contains(rawurldecode($projectAccess['requestMailto']), 'Access request: project 1790: Of Art Worlds'));
 dre_check($failures, $checks, 'nothing renders for a non-research record', $view->render('common/record-notice', ['access' => []]) === '' && $view->render('common/record-access', ['resource' => $publication, 'access' => []]) === '');
 
 dre_report('RecordAccess', $failures, $checks);

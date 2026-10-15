@@ -90,10 +90,11 @@ class RecordAccess extends AbstractHelper
 
         if ($isProject) {
             $contact = $this->contactFor([$resource]);
-            return $common + [
+            $project = $common + [
                 'kind' => 'project',
                 'id' => (int) $resource->id(),
                 'title' => (string) $resource->displayTitle(),
+                'permalink' => $this->permalink($resource),
                 'sections' => $this->linkedTitles($resource, 'dcterms:isPartOf'),
                 'years' => self::years($this->firstLiteral($resource, 'dcterms:temporal')),
                 'records' => $this->projectRecords($resource),
@@ -102,6 +103,18 @@ class RecordAccess extends AbstractHelper
                 'pis' => $contact['pis'],
                 'researchers' => $contact['researchers'],
             ];
+            $translate = $this->getView()->plugin('translate');
+            $project['reportMailto'] = $this->mailto(
+                $project,
+                $translate('[AMIRA] Correction to project %1$s: %2$s'),
+                $translate('What should be corrected or improved?')
+            );
+            $project['requestMailto'] = $this->mailto(
+                $project,
+                $translate('[AMIRA] Access request: project %1$s: %2$s'),
+                $translate('What would you like to access, and for what purpose?')
+            );
+            return $project;
         }
 
         $contact = $this->contactFor($projects);
@@ -114,17 +127,11 @@ class RecordAccess extends AbstractHelper
             ? array_merge($this->linkedTitles($resource, 'dcterms:provenance', true), $this->linkedTitles($resource, 'marcrel:rps', true))
             : [];
 
-        try {
-            $permalink = (string) $resource->url(null, true);
-        } catch (\Throwable $e) {
-            $permalink = '';
-        }
-
         $record = $common + [
             'kind' => 'record',
             'id' => (int) $resource->id(),
             'title' => (string) $resource->displayTitle(),
-            'permalink' => $permalink,
+            'permalink' => $this->permalink($resource),
             'projects' => array_map(fn ($p) => ['label' => (string) $p->displayTitle(), 'href' => (string) $p->url()], $projects),
             'contactSource' => $contact['source'],
             'contacts' => $contact['contacts'],
@@ -163,6 +170,16 @@ class RecordAccess extends AbstractHelper
         return 'mailto:' . $access['email']
             . '?subject=' . rawurlencode($subject)
             . '&body=' . rawurlencode($body);
+    }
+
+    /** The resource's canonical page, '' when it cannot be built. */
+    private function permalink($resource): string
+    {
+        try {
+            return (string) $resource->url(null, true);
+        } catch (\Throwable $e) {
+            return '';
+        }
     }
 
     /** Projects an item belongs to: `dcterms:isPartOf` links of class foaf:Project. */
