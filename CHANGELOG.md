@@ -11,6 +11,8 @@ to create.
 
 ## [Unreleased]
 
+## [2.39.0] - 2026-10-15
+
 ### Added
 
 - Item and media pages show a breadcrumb above the title: *Home › Publications › record*, where the middle crumb is the record's item set (a research item's project, *Publications*, *Institutions* …) and a media page sits under its item. The trail comes from DRE SEO 0.14.0's `dreBreadcrumb()` helper, the one its `BreadcrumbList` states, so the visible trail and the structured data agree. Without the module the record sits under the home page alone.
@@ -591,7 +593,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.38.3...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.39.0...HEAD
+[2.39.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.38.3...v2.39.0
 [2.38.3]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.38.2...v2.38.3
 [2.38.2]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.38.1...v2.38.2
 [2.38.1]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.38.0...v2.38.1
