@@ -42,26 +42,25 @@
 
     // DOM order is record → rail → context, so on one column the citation
     // follows the record and precedes linked resources and visualisations.
-    // Beside the rail, the context row continues the reading column at the
-    // usual block spacing (.metadata's --space-8; the record's last block, now
-    // a :last-child, has none of its own) and the rail spans both rows, so it
-    // stays sticky the whole way down.
+    // The rail belongs to the record and ends with it: the context row runs
+    // under both columns at the full width, where a project's records and its
+    // charts have room, and "Cite this record" no longer rides beside material
+    // that is not this record. The row gap is .metadata's usual block spacing
+    // (--space-8; the record's last block, now a :last-child, has none).
     &--railed {
         @media (min-width: $lg) {
             grid-template-columns: minmax(0, 1fr) var(--rail-width);
-            // A rail taller than the record grows the flexible second row,
-            // never the record's, so no gap opens above the context blocks.
-            grid-template-rows: auto 1fr;
             gap: var(--space-8) var(--space-16);
             align-items: start;
 
-            .item-record__main,
-            .item-record__context { grid-column: 1; }
+            .item-record__main { grid-column: 1; }
 
             .item-record__rail {
                 grid-column: 2;
-                grid-row: 1 / span 2;
+                grid-row: 1;
             }
+
+            .item-record__context { grid-column: 1 / -1; }
         }
     }
 }
@@ -92,7 +91,7 @@
 
     @media (min-width: $lg) {
         // The rail runs the full height of the record so its LAST panel can
-        // stay in view (below). The rail itself is never sticky: "Access to
+        // stay in view while the record is read (below). The rail itself is never sticky: "Access to
         // this material" and "Cite this record" together outgrow a laptop
         // screen, and a sticky box taller than the viewport either hides its
         // foot or needs a scrollbar of its own beside the page's.
