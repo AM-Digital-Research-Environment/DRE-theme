@@ -11,6 +11,11 @@ to create.
 
 ## [Unreleased]
 
+### Changed
+
+- On an item page, the rail (*Access and contact*, *Cite this record*) now ends with the record. The blocks after it, such as a project's records, its visualisations and Similar items, take the full page width instead of running beside an empty rail column.
+- On a project page, DRE Search's *Project records* block comes first after the record, ahead of the visualisations, whatever order the blocks have under Resource pages. The list used to sit below several screens of charts.
+
 ## [2.41.0] - 2026-10-15
 
 ### Changed

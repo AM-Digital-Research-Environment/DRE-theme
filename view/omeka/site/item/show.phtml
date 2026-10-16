@@ -1,6 +1,7 @@
 <?php
 /**
- * Item record — a reading column beside a sticky apparatus rail.
+ * Item record — a reading column beside a sticky apparatus rail, then the
+ * blocks that put it in context at the full width.
  *
  * The page used to be a single flat column of resource-page blocks inside
  * `.regions-container`, which meant home, browse, item and static pages all had
@@ -31,9 +32,10 @@ $valueLang = $filterLocale ? [$lang, ''] : null;
 // (its media viewer and values) and, after it, everything that puts the record
 // in context (linked resources, visualisations, module blocks). On a phone the
 // rail no longer lands under every visualisation: "Cite this record" follows
-// the record directly. The split falls after the last record block, so the
-// admin's block order is kept as configured; an unknown block counts as
-// context.
+// the record directly. On a wide screen the rail ends with the record and the
+// context takes the full width. The split falls after the last record block,
+// so the admin's block order is kept as configured (but for a project's
+// records, below); an unknown block counts as context.
 $recordBlockNames = ['mirador', 'mediaEmbeds', 'mediaRender', 'mediaList', 'values', 'itemSets'];
 
 // `view.show.before` is triggered here, before any block renders, and its output
@@ -49,15 +51,24 @@ $mainBlocks = $this->resourcePageBlocks($item)->getBlocksArray();
 // A project's records are searched on its page (DRE Search's project records
 // block), so the generic list of links to the project — on a project, nothing
 // but those same records — goes when the search is there.
-if (trim((string) ($mainBlocks['dreSearchProjectRecords'] ?? '')) !== '') {
+$hasProjectRecords = trim((string) ($mainBlocks['dreSearchProjectRecords'] ?? '')) !== '';
+if ($hasProjectRecords) {
     unset($mainBlocks['linkedResources']);
 }
 $splitAt = 0;
 foreach (array_keys($mainBlocks) as $index => $blockName) {
     if (in_array($blockName, $recordBlockNames, true)) $splitAt = $index + 1;
 }
+$contextBlockList = array_slice($mainBlocks, $splitAt);
+// The one exception to the admin's order: a project's records lead what
+// follows the record. They are the project's material; the visualisations
+// summarise it and run to several screens, so the list would otherwise sit
+// far below the fold.
+if ($hasProjectRecords && isset($contextBlockList['dreSearchProjectRecords'])) {
+    $contextBlockList = ['dreSearchProjectRecords' => $contextBlockList['dreSearchProjectRecords']] + $contextBlockList;
+}
 $recordBlocks = trim(implode('', array_slice($mainBlocks, 0, $splitAt)));
-$contextBlocks = trim(implode('', array_slice($mainBlocks, $splitAt)));
+$contextBlocks = trim(implode('', $contextBlockList));
 $leftSidebarBlockContent = $this->resourcePageBlocks($item, 'left');
 $leftSidebarHasBlocks = $leftSidebarBlockContent->hasBlocks();
 $rightSidebarBlockContent = $this->resourcePageBlocks($item, 'right');
