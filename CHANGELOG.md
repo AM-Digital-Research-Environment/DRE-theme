@@ -11,6 +11,8 @@ to create.
 
 ## [Unreleased]
 
+## [2.42.0] - 2026-10-16
+
 ### Changed
 
 - On an item page, the rail (*Access and contact*, *Cite this record*) now ends with the record. The blocks after it, such as a project's records, its visualisations and Similar items, take the full page width instead of running beside an empty rail column.
@@ -626,7 +628,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.41.0...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.42.0...HEAD
+[2.42.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.41.0...v2.42.0
 [2.41.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.40.0...v2.41.0
 [2.40.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.39.0...v2.40.0
 [2.39.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.38.3...v2.39.0
