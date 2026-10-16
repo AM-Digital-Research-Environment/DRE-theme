@@ -209,10 +209,13 @@ jobs:
           echo "\`$(du -h DRE-theme.zip | cut -f1)\` · $(unzip -qq -l DRE-theme.zip | wc -l) files · \`sha256:$(sha256sum DRE-theme.zip | cut -c1-16)…\`" >> "$GITHUB_STEP_SUMMARY"
 
       # An existing release keeps its notes and just gets the asset. A tag
-      # pushed without one gets a DRAFT whose notes are that version's section
-      # of CHANGELOG.md as committed at the tag, because the notes on this
-      # repo's releases are written, not generated. Only a version with no
-      # changelog section falls back to GitHub's generated notes.
+      # pushed without one gets a published release whose notes are that
+      # version's section of CHANGELOG.md as committed at the tag, because the
+      # notes on this repo's releases are written, not generated. Only a
+      # version with no changelog section falls back to GitHub's generated
+      # notes. Never a draft: the deploy installs the Latest release, so a
+      # draft left the server on the previous version until someone published
+      # it by hand.
       - name: Attach to the release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -221,15 +224,15 @@ jobs:
             gh release upload "$TAG" DRE-theme.zip --clobber
           elif node scripts/changelog-section.mjs "$VERSION" > "$RUNNER_TEMP/release-notes.md"; then
             gh release create "$TAG" DRE-theme.zip \
-              --draft \
+              --verify-tag \
               --title "$TAG" \
               --notes-file "$RUNNER_TEMP/release-notes.md"
-            echo "::notice::No release existed for $TAG — created a DRAFT with the package and the CHANGELOG.md notes for $VERSION. Review and publish it."
+            echo "::notice::Published $TAG with the package and the CHANGELOG.md notes for $VERSION."
           else
-            echo "::warning::CHANGELOG.md has no section for $VERSION — the draft gets generated notes instead."
+            echo "::warning::CHANGELOG.md has no section for $VERSION — the release gets generated notes instead."
             gh release create "$TAG" DRE-theme.zip \
-              --draft \
+              --verify-tag \
               --title "$TAG" \
               --generate-notes
-            echo "::notice::No release existed for $TAG — created a DRAFT with the package attached. Write the notes and publish it."
+            echo "::notice::Published $TAG with the package and generated notes."
           fi
