@@ -11,6 +11,11 @@ to create.
 
 ## [Unreleased]
 
+### Changed
+
+- On every item page, *Linked resources* now comes first after the record, ahead of the visualisations, whatever order the blocks have under Resource pages. A person's publications or a project's members used to sit below several screens of charts. A project's *Project records* block still comes first and still replaces *Linked resources*.
+- On a card (*Linked resources*, browse and search results), "Save record" is now a bookmark icon instead of a full text button repeated under every card. In *Linked resources* it sits in the card's top corner. It fills once the record is saved, keeps a "Save record" tooltip, and screen readers still hear "Save record: *title*". On a record page the button keeps its label, with the same bookmark in place of the old check mark.
+
 ## [2.42.0] - 2026-10-16
 
 ### Changed

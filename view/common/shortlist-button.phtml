@@ -2,10 +2,17 @@
 // $placement (optional): 'rail' inside the record apparatus, 'narrow' under the
 // record title where the apparatus also carries one. Each shows at the widths
 // the other does not (components/metadata).
+//
+// On a record page ($detail) the toggle is a labelled button. On a card it is
+// the bookmark alone, pinned to the card's corner: a full "Save record" button
+// under every card repeated one phrase down a whole grid. The aria-label names
+// both, with the record's title; the tooltip carries the short name.
 $placement = isset($placement) && in_array($placement, ['rail', 'narrow'], true) ? $placement : null;
+$detail = !empty($detail);
+$label = $this->translate('Save record');
 ?>
-<button type="button" class="shortlist-save<?php echo $placement ? ' shortlist-save--' . $placement : ''; ?>" hidden data-shortlist-save<?php echo !empty($detail) ? ' data-shortlist-detail' : ''; ?>
+<button type="button" class="shortlist-save<?php echo $placement ? ' shortlist-save--' . $placement : ''; ?>" hidden data-shortlist-save<?php echo $detail ? ' data-shortlist-detail' : ''; ?>
     data-url="<?php echo $this->escapeHtmlAttr($resource->url(null, true)); ?>"
     data-title="<?php echo $this->escapeHtmlAttr($resource->displayTitle()); ?>"
     aria-label="<?php echo $this->escapeHtmlAttr(sprintf($this->translate('Save record: %s'), $resource->displayTitle())); ?>"
-    aria-pressed="false"><?php echo $this->escapeHtml($this->translate('Save record')); ?></button>
+    <?php echo $detail ? '' : 'title="' . $this->escapeHtmlAttr($label) . '" '; ?>aria-pressed="false"><svg class="shortlist-save__icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M6 3.75h12a.75.75 0 0 1 .75.75v16.2l-6.75-4.5-6.75 4.5V4.5A.75.75 0 0 1 6 3.75Z"/></svg><?php echo $detail ? '<span class="shortlist-save__label">' . $this->escapeHtml($label) . '</span>' : ''; ?></button>

@@ -775,11 +775,11 @@ msgstr ""
 msgid "Same as"
 msgstr ""
 
-#: view/common/shortlist-button.phtml:11
+#: view/common/shortlist-button.phtml:12
 msgid "Save record"
 msgstr ""
 
-#: view/common/shortlist-button.phtml:10
+#: view/common/shortlist-button.phtml:17
 msgid "Save record: %s"
 msgstr ""
 

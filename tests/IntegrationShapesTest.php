@@ -133,6 +133,12 @@ $html = $v->render('omeka/site/item/show', ['item' => $a]);
 $at = fn($marker) => strpos($html, $marker);
 dre_check($failures, $checks, "a project's records lead the context and replace Linked resources",
     $at('data-apparatus') < $at('data-project-records') && $at('data-project-records') < $at('data-charts') && !str_contains($html, 'data-linked'));
+$pageBlocks->regions['main'] = ['values' => '<div data-values></div>', 'dreLinkedItemsDashboard' => '<div data-charts></div>',
+    'linkedResources' => '<div data-linked></div>'];
+$html = $v->render('omeka/site/item/show', ['item' => $a]);
+$at = fn($marker) => strpos($html, $marker);
+dre_check($failures, $checks, 'linked resources lead the context, ahead of the visualisations',
+    $at('data-apparatus') < $at('data-linked') && $at('data-linked') < $at('data-charts'));
 $pageBlocks->regions['main'] = ['values' => '<div data-values></div>'];
 $html = $v->render('omeka/site/item/show', ['item' => $a]);
 dre_check($failures, $checks, 'item page without context blocks renders no empty context wrapper', str_contains($html, 'data-values') && !str_contains($html, 'item-record__context'));

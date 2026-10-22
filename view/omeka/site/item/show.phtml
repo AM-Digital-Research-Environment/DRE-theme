@@ -60,12 +60,15 @@ foreach (array_keys($mainBlocks) as $index => $blockName) {
     if (in_array($blockName, $recordBlockNames, true)) $splitAt = $index + 1;
 }
 $contextBlockList = array_slice($mainBlocks, $splitAt);
-// The one exception to the admin's order: a project's records lead what
-// follows the record. They are the project's material; the visualisations
-// summarise it and run to several screens, so the list would otherwise sit
-// far below the fold.
-if ($hasProjectRecords && isset($contextBlockList['dreSearchProjectRecords'])) {
-    $contextBlockList = ['dreSearchProjectRecords' => $contextBlockList['dreSearchProjectRecords']] + $contextBlockList;
+// The one exception to the admin's order: what the record links to leads what
+// follows it — a project's records, otherwise its linked resources (a
+// person's publications, a project's members). They are the record's material;
+// the visualisations summarise it and run to several screens, so the list
+// would otherwise sit far below the fold.
+foreach (['linkedResources', 'dreSearchProjectRecords'] as $leadBlock) {
+    if (isset($contextBlockList[$leadBlock])) {
+        $contextBlockList = [$leadBlock => $contextBlockList[$leadBlock]] + $contextBlockList;
+    }
 }
 $recordBlocks = trim(implode('', array_slice($mainBlocks, 0, $splitAt)));
 $contextBlocks = trim(implode('', $contextBlockList));

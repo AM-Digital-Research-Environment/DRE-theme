@@ -1,6 +1,9 @@
 @use "../../abstracts" as *;
 
 .shortlist-save {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
     font: inherit;
     font-size: var(--text-sm);
     color: var(--primary-text);
@@ -15,11 +18,37 @@
     &[aria-pressed="true"] { background: var(--surface-sunken); border-color: var(--primary); }
 }
 // "Save record" keeps one name and reports saving through aria-pressed. The
-// check carries the state visually, including in forced colors, where the
-// border and fill difference above is flattened. Alt text "" keeps it silent.
-.shortlist-save[aria-pressed="true"]::before {
-    content: "✓\00a0";
-    content: "✓\00a0" / "";
+// bookmark carries the state visually: an outline, filled once saved. Its
+// fill is currentColor, so the difference survives forced colors, where the
+// border and background difference above is flattened.
+.shortlist-save__icon {
+    flex-shrink: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    stroke-linejoin: round;
+}
+.shortlist-save[aria-pressed="true"] .shortlist-save__icon { fill: currentColor; }
+
+// On a card the toggle is the bookmark alone (common/shortlist-button), quiet
+// until the reader reaches for it.
+.shortlist-save:not([data-shortlist-detail]) {
+    justify-content: center;
+    width: var(--size-control-md);
+    min-height: var(--size-control-md);
+    height: var(--size-control-md);
+    padding: 0;
+    color: var(--ink-light);
+    background: transparent;
+    border-color: transparent;
+    border-radius: var(--radius-full);
+    transition: color var(--transition-fast), background-color var(--transition-fast);
+
+    &:hover { color: var(--primary-text); background: var(--surface-sunken); }
+    &:focus-visible { outline: none; box-shadow: var(--ring-focus); }
+    &[aria-pressed="true"] { color: var(--primary-text); background: transparent; border-color: transparent; }
 }
 .shortlist-open:not([hidden]) {
     display: inline-flex;
@@ -66,9 +95,22 @@
 [aria-busy="true"] .resources-linked { opacity: .7; }
 .linked-footer { display: flex; gap: var(--space-4); align-items: center; }
 
+// The bookmark sits in the card's top corner, over the card rather than in it
+// (a button cannot nest in the card's link); the card keeps a gutter for it.
 .connection {
+    position: relative;
+    .shortlist-save {
+        position: absolute;
+        inset-block-start: var(--space-1);
+        inset-inline-end: var(--space-1);
+        margin: 0;
+    }
+    &:has(> .shortlist-save:not([hidden])) .connection__card { padding-inline-end: calc(var(--size-control-md) + var(--space-1)); }
+}
+// A browse card ends with it, at the inline end of its content.
+.resource__content > .shortlist-save {
     display: flex;
-    flex-direction: column;
-    .connection__card { height: auto; flex: 1; }
-    .shortlist-save { align-self: flex-start; }
+    margin-inline-start: auto;
+    margin-block: var(--space-1) 0;
+    &[hidden] { display: none; }
 }
