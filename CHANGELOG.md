@@ -11,6 +11,8 @@ to create.
 
 ## [Unreleased]
 
+## [2.43.0] - 2026-10-22
+
 ### Changed
 
 - On every item page, *Linked resources* now comes first after the record, ahead of the visualisations, whatever order the blocks have under Resource pages. A person's publications or a project's members used to sit below several screens of charts. A project's *Project records* block still comes first and still replaces *Linked resources*.
@@ -633,7 +635,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.42.0...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.43.0...HEAD
+[2.43.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.42.0...v2.43.0
 [2.42.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.41.0...v2.42.0
 [2.41.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.40.0...v2.41.0
 [2.40.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.39.0...v2.40.0
