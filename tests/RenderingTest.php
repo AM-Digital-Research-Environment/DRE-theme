@@ -177,6 +177,45 @@ dre_check($failures, $checks, 'registers are named, with the identifier they hol
     && OmekaTheme\Helper\RecordLinkedData::register('https://doi.org/10.5281/zenodo.1') === ['label' => 'DOI', 'id' => '10.5281/zenodo.1']
     && OmekaTheme\Helper\RecordLinkedData::register('https://ror.org/0234wmv40') === ['label' => 'ROR', 'id' => '0234wmv40']);
 
+// --- Reconciled identifiers under the title ----------------------------------
+// MongoDB2OmekaS writes GND/ORCID/Wikidata/LoC as dcterms:identifier URI values
+// and a DOI as bibo:doi; literal identifiers and unknown hosts are not badges.
+$person = new ThemeTestResource('Vierke, Ulf', 7);
+$person->values = [
+    'dcterms:identifier' => [
+        new ThemeTestValue('https://d-nb.info/gnd/118540238', 'uri'),
+        new ThemeTestValue('http://www.wikidata.org/entity/Q42', 'uri'),
+        new ThemeTestValue('https://orcid.org/0000-0002-1825-0097', 'uri'),
+        new ThemeTestValue('https://www.wikidata.org/entity/Q42', 'uri'),
+        new ThemeTestValue('eprints-12345'),
+        new ThemeTestValue('https://unknown.example.org/x/1', 'uri'),
+        new ThemeTestValue('https://viaf.org/viaf/12345/', 'uri'),
+    ],
+    'bibo:doi' => [new ThemeTestValue('10.1234/example')],
+];
+$ids = $view->RecordIdentifiers($person);
+dre_check($failures, $checks, 'identifiers are read from dcterms:identifier and bibo:doi, deduped, DOI first then ORCID, Wikidata, GND',
+    array_column($ids, 'label') === ['DOI', 'ORCID', 'Wikidata', 'GND', 'VIAF']
+    && $ids[0]['href'] === 'https://doi.org/10.1234/example' && $ids[2]['id'] === 'Q42', json_encode(array_column($ids, 'label')));
+$doc = new DOMDocument(); @$doc->loadHTML('<?xml encoding="utf-8"?>' . $view->render('common/record-identifiers', ['resource' => $person]));
+$xp = new DOMXPath($doc);
+$badges = $xp->query('//ul[@class="record-identifiers"]/li/a[@class="record-identifiers__link"]');
+dre_check($failures, $checks, 'each identifier is an external link with the register mark, its name for screen readers and the id',
+    $badges->length === 5
+    && $badges->item(1)->getAttribute('href') === 'https://orcid.org/0000-0002-1825-0097'
+    && $badges->item(1)->getAttribute('rel') === 'external'
+    && $xp->query('.//svg[@aria-hidden="true"]', $badges->item(1))->length === 1
+    && preg_replace('/\s+/', ' ', trim($badges->item(1)->textContent)) === 'ORCID 0000-0002-1825-0097'
+    && $xp->query('.//span[@class="sr-only"]', $badges->item(1))->length === 1);
+dre_check($failures, $checks, 'a register without its own mark names itself visibly',
+    $xp->query('.//span[@class="record-identifiers__register"][.="VIAF "]', $badges->item(4))->length === 1);
+dre_check($failures, $checks, 'no reconciled identifier, no row',
+    trim($view->render('common/record-identifiers', ['resource' => new ThemeTestResource('Bare')])) === '');
+$person->values['bibo:doi'] = [new ThemeTestValue('https://doi.org/10.1234/example', 'uri')];
+$html = $view->render('common/record-apparatus', ['resource' => $person]);
+dre_check($failures, $checks, 'the rail DOI carries the DOI mark',
+    (bool) preg_match('~<a href="https://doi.org/10.1234/example" class="record-apparatus__marked"><svg class="identifier-icon"~', $html));
+
 // --- Access-rights gloss (issue #10, work package 1d) ------------------------
 class GlossValue extends ThemeTestValue
 {

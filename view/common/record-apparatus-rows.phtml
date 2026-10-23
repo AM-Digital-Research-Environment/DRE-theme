@@ -10,6 +10,7 @@
  *       ['label' => …, 'href' => …,
  *        'type'   => media type, for links to a document in another format,
  *        'detail' => a muted identifier after the label (Wikidata Q42),
+ *        'icon'   => a register's name, whose mark leads the value (helper/RecordIdentifiers.php),
  *        'gloss'  => a plain-language explanation under the value,
  *        'copy'   => the accessible name of a copy button beside the value], …]]
  *
@@ -27,6 +28,7 @@ $escHtml = $this->plugin('escapeHtml');
 $escAttr = $this->plugin('escapeHtmlAttr');
 $translate = $this->plugin('translate');
 $copyInRow = $copyInRow ?? true;
+$icons = $this->plugin('RecordIdentifiers');
 ?>
 <dl class="record-apparatus__rows">
     <?php foreach ($rows as $row): ?>
@@ -39,12 +41,14 @@ $copyInRow = $copyInRow ?? true;
                         $detail = ($value['detail'] ?? '') !== ''
                             ? ' <span class="record-apparatus__detail">' . $escHtml($value['detail']) . '</span>'
                             : '';
+                        $icon = $icons->icon((string) ($value['icon'] ?? ''));
                         if (($value['href'] ?? '') !== ''):
                             ?><a href="<?php echo $escAttr($value['href']); ?>"<?php
                                 if (($value['type'] ?? '') !== ''): ?> type="<?php echo $escAttr($value['type']); ?>"<?php endif;
-                            ?>><?php echo $escHtml($value['label']) . $detail; ?></a><?php
+                                if ($icon !== ''): ?> class="record-apparatus__marked"<?php endif;
+                            ?>><?php echo $icon !== '' ? $icon . '<span>' . $escHtml($value['label']) . $detail . '</span>' : $escHtml($value['label']) . $detail; ?></a><?php
                         else:
-                            echo $escHtml($value['label']) . $detail;
+                            echo $icon . $escHtml($value['label']) . $detail;
                         endif;
                         if (!empty($value['copy']) && $copyInRow):
                             // Revealed by record.js only where the clipboard API exists.

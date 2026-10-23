@@ -123,7 +123,7 @@ class RecordLinkedData extends AbstractHelper
             $rows[] = [
                 'label' => $translate('Same as'),
                 'layout' => 'inline',
-                'values' => array_map(fn (array $s) => ['label' => $s['label'], 'href' => $s['href'], 'detail' => $s['id']], $sameAs),
+                'values' => array_map(fn (array $s) => ['label' => $s['label'], 'href' => $s['href'], 'detail' => $s['id'], 'icon' => $s['id'] !== '' ? $s['label'] : ''], $sameAs),
             ];
         }
 

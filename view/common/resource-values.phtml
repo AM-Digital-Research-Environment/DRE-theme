@@ -136,6 +136,11 @@ $headingTag = $recordChrome ? 'h2' : 'h4';
                             if ($isResource && $value->valueResource()):
                                 echo $value->valueResource()->linkPretty('medium', null, null, null, $filterLocale ? $lang : []);
                             else:
+                                // A reconciled identifier (ORCID, Wikidata, GND…) carries
+                                // its register's mark, as under the title and in the rail.
+                                if ('uri' == $valueType && in_array($term, ['dcterms:identifier', 'bibo:doi'], true)) {
+                                    echo $this->plugin('RecordIdentifiers')->markFor((string) $value->uri());
+                                }
                                 echo $filterLocale ? $value->asHtml($lang) : $value->asHtml();
                             endif;
                         ?></span>

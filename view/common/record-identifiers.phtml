@@ -1,0 +1,35 @@
+<?php
+/**
+ * The registers a record is reconciled with — ORCID, Wikidata, GND, Library of
+ * Congress, a DOI — as a row of marked links under the title, so a reader sees
+ * at once that this person or subject is the one known elsewhere by that id.
+ *
+ * Each link shows the register's mark and the identifier; the register's name
+ * is in the link text for whoever cannot see the mark. Data comes from
+ * helper/RecordIdentifiers.php; with no reconciled identifier this renders
+ * nothing. The same identifiers stay in the grouped record ("Identifiers &
+ * sources"), which is the record in full.
+ *
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+ */
+$identifiers = $this->RecordIdentifiers($resource);
+if (!$identifiers) return;
+
+$escHtml = $this->plugin('escapeHtml');
+$escAttr = $this->plugin('escapeHtmlAttr');
+$translate = $this->plugin('translate');
+$icons = $this->plugin('RecordIdentifiers');
+?>
+<ul class="record-identifiers" aria-label="<?php echo $escAttr($translate('Identifiers in other registers')); ?>">
+    <?php foreach ($identifiers as $identifier):
+        // A register without its own mark (VIAF, ROR…) shows its name: a
+        // generic link glyph beside a bare number says nothing.
+        $nameClass = $icons->hasMark($identifier['label']) ? 'sr-only' : 'record-identifiers__register'; ?>
+        <li>
+            <a class="record-identifiers__link" href="<?php echo $escAttr($identifier['href']); ?>" rel="external" title="<?php echo $escAttr($identifier['label'] . ' ' . $identifier['id']); ?>"><?php
+                echo $icons->icon($identifier['label']);
+                ?><span class="<?php echo $nameClass; ?>"><?php echo $escHtml($identifier['label']); ?> </span><span class="record-identifiers__id"><?php echo $escHtml($identifier['id']); ?></span></a>
+        </li>
+    <?php endforeach; ?>
+</ul>

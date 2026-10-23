@@ -110,6 +110,9 @@ class RecordApparatus extends AbstractHelper
             if ($doiValue['href'] === '' && preg_match('~^10\.\d{4,9}/\S+$~', $doiValue['label'])) {
                 $doiValues[$i]['href'] = 'https://doi.org/' . $doiValue['label'];
             }
+            if ($doiValues[$i]['href'] !== '') {
+                $doiValues[$i]['icon'] = 'DOI';
+            }
         }
 
         // The page URL, absolute. It stays what the shortlist stores and what a

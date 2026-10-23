@@ -68,7 +68,7 @@ msgstr ""
 msgid "Access and contact"
 msgstr ""
 
-#: helper/RecordApparatus.php:161
+#: helper/RecordApparatus.php:164
 msgid "Access rights"
 msgstr ""
 
@@ -221,13 +221,13 @@ msgstr ""
 msgid "Continue to %s."
 msgstr ""
 
-#: view/common/record-apparatus-rows.phtml:53
+#: view/common/record-apparatus-rows.phtml:57
 #: view/common/record-apparatus.phtml:80
 #: view/common/record-apparatus.phtml:86
 msgid "Copied"
 msgstr ""
 
-#: view/common/record-apparatus-rows.phtml:54
+#: view/common/record-apparatus-rows.phtml:58
 msgid "Copy"
 msgstr ""
 
@@ -240,7 +240,7 @@ msgstr ""
 msgid "Copy link"
 msgstr ""
 
-#: helper/RecordApparatus.php:147
+#: helper/RecordApparatus.php:150
 #: view/common/record-linked-data.phtml:26
 msgid "Copy permanent link"
 msgstr ""
@@ -282,7 +282,7 @@ msgstr ""
 msgid "Document & media types"
 msgstr ""
 
-#: helper/RecordApparatus.php:142
+#: helper/RecordApparatus.php:145
 msgid "DOI"
 msgstr ""
 
@@ -290,7 +290,7 @@ msgstr ""
 msgid "Download"
 msgstr ""
 
-#: helper/RecordApparatus.php:164
+#: helper/RecordApparatus.php:167
 msgid "DRE ID"
 msgstr ""
 
@@ -379,6 +379,10 @@ msgstr ""
 msgid "Identifiers & sources"
 msgstr ""
 
+#: view/common/record-identifiers.phtml:24
+msgid "Identifiers in other registers"
+msgstr ""
+
 #: view/common/resource-page-block-layout/mirador.phtml:3
 msgid "Image viewer"
 msgstr ""
@@ -440,7 +444,7 @@ msgstr ""
 msgid "Languages represented"
 msgstr ""
 
-#: helper/RecordApparatus.php:158
+#: helper/RecordApparatus.php:161
 msgid "Licence of the material"
 msgstr ""
 
@@ -637,7 +641,7 @@ msgstr ""
 msgid "Peripheral memories of Capoeira Angola in Salvador"
 msgstr ""
 
-#: helper/RecordApparatus.php:147
+#: helper/RecordApparatus.php:150
 #: view/common/record-linked-data.phtml:26
 msgid "Permanent link"
 msgstr ""
@@ -669,7 +673,7 @@ msgid_plural "principal investigators"
 msgstr[0] ""
 msgstr[1] ""
 
-#: view/common/resource-values.phtml:154
+#: view/common/resource-values.phtml:159
 msgid "Private"
 msgstr ""
 

@@ -11,6 +11,10 @@ to create.
 
 ## [Unreleased]
 
+### Added
+
+- **Reconciled identifiers under the title.** A person, subject, place, institution or publication reconciled with another register now shows a row of links under its title: the register's own mark (the ORCID iD, the Wikidata barcode, the GND hexagon, the Library of Congress tile, the DOI disc) and the identifier, each opening the record in that register. They come from `dcterms:identifier` URI values and `bibo:doi`; literal identifiers and unknown hosts are left to the record. The same marks lead the DOI and *Same as* rows of the rail and the identifiers in *Identifiers & sources*. New helper `RecordIdentifiers`, registered in `theme.ini`.
+
 ## [2.43.0] - 2026-10-22
 
 ### Changed

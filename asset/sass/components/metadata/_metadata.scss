@@ -424,6 +424,108 @@
 }
 
 // --------------------------------------------------------------------------
+// Reconciled identifiers — ORCID, Wikidata, GND, LoC, DOI
+// --------------------------------------------------------------------------
+// A register's own mark (helper/RecordIdentifiers.php), sized to the text it
+// leads. The marks keep their brand colours in both modes: each sits on its own
+// disc, hexagon or tile, except the Wikidata barcode, whose dark red bars
+// vanish on a dark surface — in dark mode it gets a light tile of its own.
+.identifier-icon {
+    display: inline-block;
+    flex: none;
+    width: 1.125em;
+    height: 1.125em;
+    vertical-align: -0.2em;
+}
+
+// The two marks that are not square: the barcode is 810 × 500, the hexagon
+// 120 × 139.
+.identifier-icon--wikidata {
+    width: 1.82em;
+}
+
+// The theme's own dark switch, as the banner art uses: light-dark() would
+// follow `color-scheme`, which the root only carries for a manual choice.
+body[data-theme="dark"] .identifier-icon--wikidata {
+    background-color: var(--ink-strong);
+}
+
+@media (prefers-color-scheme: dark) {
+    body:not([data-theme="light"]) .identifier-icon--wikidata {
+        background-color: var(--ink-strong);
+    }
+}
+
+.identifier-icon--gnd {
+    width: 0.975em;
+}
+
+// Under the title: one pill per register, the mark then the identifier. Pills
+// like the subject chips (a real 32px target), quieter: an identifier is
+// evidence about the record, not a way into the collection.
+.record-identifiers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0 0 var(--space-6);
+    padding: 0;
+    list-style: none;
+
+    li {
+        margin: 0;
+    }
+}
+
+.record-identifiers__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 2rem;
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-full);
+    background-color: var(--surface);
+    color: var(--ink);
+    font-size: var(--text-sm);
+    font-variant-numeric: tabular-nums;
+    line-height: var(--leading-snug);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+    transition:
+        border-color var(--transition-fast),
+        background-color var(--transition-fast),
+        color var(--transition-fast);
+
+    &:hover {
+        border-color: var(--primary);
+        background-color: var(--primary-muted);
+        color: var(--primary-text);
+    }
+}
+
+.record-identifiers__register {
+    font-weight: 600;
+}
+
+// In the rail and the grouped record the mark leads the link's text. In the
+// rail it travels with that text: a long DOI wrapping under a right-aligned
+// row left the mark alone on the line above.
+.record-apparatus__marked {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+
+    > span {
+        min-width: 0;
+    }
+}
+
+.record-apparatus__marked > .identifier-icon,
+.record__group .value-content > .identifier-icon {
+    margin-right: var(--space-2);
+}
+
+// --------------------------------------------------------------------------
 // "Access to this material" — the first panel of the rail
 // --------------------------------------------------------------------------
 // The apparatus's sibling: same plate, same small-caps title, label/value rows.
