@@ -11,6 +11,8 @@ to create.
 
 ## [Unreleased]
 
+## [2.44.0] - 2026-10-23
+
 ### Added
 
 - **Reconciled identifiers under the title.** A person, subject, place, institution or publication reconciled with another register now shows a row of links under its title: the register's own mark (the ORCID iD, the Wikidata barcode, the GND hexagon, the Library of Congress tile, the DOI disc) and the identifier, each opening the record in that register. They come from `dcterms:identifier` URI values and `bibo:doi`; literal identifiers and unknown hosts are left to the record. The same marks lead the DOI and *Same as* rows of the rail and the identifiers in *Identifiers & sources*. New helper `RecordIdentifiers`, registered in `theme.ini`.
@@ -639,7 +641,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.43.0...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.44.0...HEAD
+[2.44.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.43.0...v2.44.0
 [2.43.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.42.0...v2.43.0
 [2.42.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.41.0...v2.42.0
 [2.41.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.40.0...v2.41.0
