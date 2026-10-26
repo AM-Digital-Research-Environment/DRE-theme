@@ -11,6 +11,10 @@ to create.
 
 ## [Unreleased]
 
+### Changed
+
+- Development dependencies updated: Sass 1.106, ESLint 10.13, Playwright 1.64.1, axe-core/playwright 4.14, PostCSS 8.5.31 and jsdom 30.1.3. The compiled stylesheet is unchanged.
+
 ## [2.44.0] - 2026-10-23
 
 ### Added
