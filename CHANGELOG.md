@@ -11,6 +11,14 @@ to create.
 
 ## [Unreleased]
 
+### Removed
+
+- The row of identifier pills under an item's title. The same identifiers already appear under *Identifiers & sources* and in the rail's *Same as*, so the row only repeated them.
+
+### Fixed
+
+- On wide screens an item page showed *Save record* twice, under the title and in the rail. The copy under the title is now hidden from the width where the rail sits beside the record, as intended; on narrower screens, where the rail drops below the record, it still shows.
+
 ## [2.44.1] - 2026-10-26
 
 ### Changed

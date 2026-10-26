@@ -379,10 +379,6 @@ msgstr ""
 msgid "Identifiers & sources"
 msgstr ""
 
-#: view/common/record-identifiers.phtml:24
-msgid "Identifiers in other registers"
-msgstr ""
-
 #: view/common/resource-page-block-layout/mirador.phtml:3
 msgid "Image viewer"
 msgstr ""

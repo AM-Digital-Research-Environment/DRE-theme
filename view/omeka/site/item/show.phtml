@@ -100,7 +100,6 @@ $hasRail = ($apparatus !== '') || ($recordAccess !== '') || $rightSidebarHasBloc
 <?php echo $this->partial('common/breadcrumb', ['resource' => $item]); ?>
 <?php echo $this->ResourceTags($item); ?>
 <?php echo $this->pageTitle($item->displayTitle(null, $valueLang), 1); ?>
-<?php echo $this->partial('common/record-identifiers', ['resource' => $item]); ?>
 <?php echo $this->partial('common/record-notice', ['access' => $access]); ?>
 
 <?php echo $this->partial('common/shortlist-button', ['resource' => $item, 'detail' => true, 'placement' => $apparatus !== '' ? 'narrow' : null]); ?>
