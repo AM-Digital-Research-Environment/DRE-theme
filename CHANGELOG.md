@@ -11,6 +11,8 @@ to create.
 
 ## [Unreleased]
 
+## [2.44.1] - 2026-10-26
+
 ### Changed
 
 - Development dependencies updated: Sass 1.106, ESLint 10.13, Playwright 1.64.1, axe-core/playwright 4.14, PostCSS 8.5.31 and jsdom 30.1.3. The compiled stylesheet is unchanged.
@@ -645,7 +647,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.44.0...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.44.1...HEAD
+[2.44.1]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.44.0...v2.44.1
 [2.44.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.43.0...v2.44.0
 [2.43.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.42.0...v2.43.0
 [2.42.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.41.0...v2.42.0
