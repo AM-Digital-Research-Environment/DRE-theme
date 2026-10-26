@@ -11,6 +11,8 @@ to create.
 
 ## [Unreleased]
 
+## [2.45.0] - 2026-10-26
+
 ### Removed
 
 - The row of identifier pills under an item's title. The same identifiers already appear under *Identifiers & sources* and in the rail's *Same as*, so the row only repeated them.
@@ -655,7 +657,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.44.1...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.45.0...HEAD
+[2.45.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.44.1...v2.45.0
 [2.44.1]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.44.0...v2.44.1
 [2.44.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.43.0...v2.44.0
 [2.43.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.42.0...v2.43.0
