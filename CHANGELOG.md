@@ -11,6 +11,8 @@ to create.
 
 ## [Unreleased]
 
+## [2.46.0] - 2026-10-27
+
 ### Added
 
 - A nightly Lighthouse audit of the production smoke pages, on mobile and desktop. Accessibility and SEO fail the run; performance, layout shift and the other metrics only warn for now. Pages that are noindex by design (media records, the federated search) are not held to the SEO score. The job summary lists findings and the JavaScript and CSS each repository served under that repository's name, so a slow or broken block points at the module that owns it. See *Lighthouse* in `docs/TESTING.md`.
@@ -661,7 +663,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.45.0...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.46.0...HEAD
+[2.46.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.45.0...v2.46.0
 [2.45.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.44.1...v2.45.0
 [2.44.1]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.44.0...v2.44.1
 [2.44.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.43.0...v2.44.0
