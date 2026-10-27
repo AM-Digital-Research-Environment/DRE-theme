@@ -183,6 +183,48 @@ wipes the local suite's `test-results/local/`. The published visualization
 snapshot alone (`current.json` and its required datasets) can be checked with
 `npx playwright test tests/browser/visualizations.spec.mjs -g snapshot`.
 
+### Lighthouse
+
+The same workflow's `lighthouse` job runs `npm run audit:lighthouse` once per
+form factor (mobile, desktop) over every `smoke: true` surface, the API-resolved
+media record included. Each surface gets three runs and the one with the median
+performance score is kept: its HTML report goes to the
+`lighthouse-<form factor>-<run id>` artifact, next to a `summary.json`.
+
+Thresholds live in `scripts/lib/lighthouse-report.mjs` and are **warn first**:
+a new threshold starts as `warn` and becomes `error` only once production has
+passed it for a while. Today only accessibility (≥ 95) and SEO (≥ 90) fail the
+job. The performance score (≥ 80), best practices (≥ 90), LCP and total
+blocking time only annotate, because they swing between runs on a shared runner
+and partly depend on nginx cache headers, which no repository here controls.
+Layout shift (CLS ≤ 0.1) annotates too until the DRESearch fix for the footer
+jump on `/s/amira/dre-search` (DRE Search 1.32.1) is deployed;
+then make it an `error`. Every other smoke surface stays under 0.03.
+
+A surface marked `indexable: false` in `surfaces.mjs` (the media record and
+the federated search, both `noindex` by design) is not held to the SEO score. On
+any other surface an accidental `noindex` costs about a third of the SEO score,
+so the SEO threshold catches it.
+
+A page score mixes the theme with module blocks, so the job summary is grouped
+by owner: each owner listed in `surfaces.mjs` gets the findings on the surfaces
+it owns, plus the JS, CSS and total bytes its own directory
+(`/themes/…`, `/modules/<Name>/`) served on each of them. That weight table is
+the baseline for any later per-module bundle budget.
+
+Lighthouse cannot route requests through `read-only-test.mjs`. It loads each
+page as an anonymous visitor with a cold cache, so it can do only what any
+visitor's browser does; it signs in to nothing and sends no form.
+
+Run it locally (about 25 s per run on a laptop, and slower machines score lower
+because Lighthouse's CPU throttling multiplies the host's own speed):
+
+```bash
+LIGHTHOUSE_RUNS=1 LIGHTHOUSE_SURFACES=home,item-record npm run audit:lighthouse -- --form-factor=mobile
+```
+
+Reports go to the Git-ignored `test-results/lighthouse/`.
+
 ### Acceptance audits
 
 Two heavier read-only scripts are run by hand, not by CI. They use the same

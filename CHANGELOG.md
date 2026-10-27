@@ -11,6 +11,10 @@ to create.
 
 ## [Unreleased]
 
+### Added
+
+- A nightly Lighthouse audit of the production smoke pages, on mobile and desktop. Accessibility and SEO fail the run; performance, layout shift and the other metrics only warn for now. Pages that are noindex by design (media records, the federated search) are not held to the SEO score. The job summary lists findings and the JavaScript and CSS each repository served under that repository's name, so a slow or broken block points at the module that owns it. See *Lighthouse* in `docs/TESTING.md`.
+
 ## [2.45.0] - 2026-10-26
 
 ### Removed

@@ -63,3 +63,41 @@ jobs:
           name: live-smoke-failure-${{ github.run_id }}
           path: test-results/live/
           retention-days: 7
+
+  # Lighthouse over the same smoke surfaces (tests/browser/surfaces.mjs), median
+  # of three runs. Thresholds are warn-first (scripts/lib/lighthouse-report.mjs):
+  # only accessibility and SEO fail the job; performance, layout shift and the
+  # other metrics annotate, since performance swings between runs on a shared
+  # runner and CLS waits on DRE Search 1.32.1 being deployed. The job summary
+  # groups findings and transferred JS/CSS under each surface owner.
+  lighthouse:
+    name: Lighthouse (${{ matrix.form-factor }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        form-factor: [mobile, desktop]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+
+      - name: Audit the production smoke surfaces
+        env:
+          LIVE_BASE_URL: https://data.africamultiple.uni-bayreuth.de
+        run: npm run audit:lighthouse -- --form-factor=${{ matrix.form-factor }}
+
+      - name: Keep the median reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: lighthouse-${{ matrix.form-factor }}-${{ github.run_id }}
+          path: test-results/lighthouse/
+          retention-days: 14

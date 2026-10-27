@@ -91,6 +91,8 @@ export const surfaces = [
         selectors: ['h1', 'main'],
         states: ['media available', 'metadata'],
         smoke: true,
+        // DRE-SEO marks media pages `noindex, follow`: the item page is the one to index.
+        indexable: false,
     },
     {
         id: 'federated-search',
@@ -102,6 +104,8 @@ export const surfaces = [
         selectors: ['h1', 'main', '.dre-search', '.dre-search__facets', '.dre-search__results'],
         states: ['initial', 'results', 'zero results', 'unavailable'],
         smoke: true,
+        // federated.phtml sets `noindex,follow`; search results are not landing pages.
+        indexable: false,
     },
     ...[
         ['research-items', 'Research items', '/s/amira/page/research-items'],
