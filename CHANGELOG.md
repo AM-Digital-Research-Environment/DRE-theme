@@ -11,6 +11,10 @@ to create.
 
 ## [Unreleased]
 
+### Changed
+
+- **Release workflow.** The package check reads its exclusions from `.gitattributes` instead of restating them, and allowlists the files at the package root, so a new top-level file cannot ship until it is either listed or excluded. A tag on a commit that is not on `master` is refused. Building and verifying the package now run with a read-only token; only the final job, which runs no repository code, can write the release.
+
 ## [2.46.0] - 2026-10-27
 
 ### Added

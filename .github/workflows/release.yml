@@ -5,7 +5,7 @@ name: Release
 # manifest — the file that decides what a site admin unpacks lives next to the
 # code it describes, not in this workflow.
 #
-# Two things this exists to make impossible:
+# Things this exists to make impossible:
 #
 #   1. A zip without the DRE-theme/ prefix. Omeka discovers a theme by
 #      directory: an archive whose files unpack loose contains no theme at all,
@@ -15,6 +15,15 @@ name: Release
 #      So the artefact people actually install has never been through a theme
 #      manager. Here it is: this job unpacks the zip it just built and runs the
 #      same discovery test against that.
+#   3. A development file in the package. The exclusions are read from
+#      .gitattributes rather than restated here, and the archive's root is
+#      allowlisted, because a denylist only catches a rule that stopped
+#      matching — never a file nobody thought to add a rule for.
+#   4. A release from a commit that is not on master.
+#
+# Only the last job can write to the repository, and it never checks the code
+# out: building and verifying run with a read-only token that is not persisted
+# into the checkout.
 
 on:
   push:
@@ -27,7 +36,7 @@ on:
         type: string
 
 permissions:
-  contents: write
+  contents: read
 
 env:
   # The Omeka S release the packaged theme is installed into. Keep it equal to
@@ -44,8 +53,6 @@ concurrency:
 jobs:
   resolve:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     outputs:
       sha: ${{ steps.ref.outputs.sha }}
       tag: ${{ steps.ref.outputs.tag }}
@@ -53,12 +60,18 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
       - id: ref
         env:
           REQUESTED_TAG: ${{ github.event.inputs.tag || github.ref_name }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
         run: |
-          [[ "$REQUESTED_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || exit 1
+          [[ "$REQUESTED_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::$REQUESTED_TAG is not a vX.Y.Z tag"; exit 1; }
           SHA="$(git rev-parse --verify "refs/tags/$REQUESTED_TAG^{commit}")"
+          if ! git merge-base --is-ancestor "$SHA" "origin/$DEFAULT_BRANCH"; then
+            echo "::error::$REQUESTED_TAG ($SHA) is not on origin/$DEFAULT_BRANCH; merge it before tagging"
+            exit 1
+          fi
           echo "sha=$SHA" >> "$GITHUB_OUTPUT"
           echo "tag=$REQUESTED_TAG" >> "$GITHUB_OUTPUT"
 
@@ -67,12 +80,10 @@ jobs:
     uses: ./.github/workflows/ci.yml
     with:
       ref: ${{ needs.resolve.outputs.sha }}
-    permissions:
-      contents: read
 
   package:
     needs: [resolve, validate]
-    name: Package and attach DRE-theme.zip
+    name: Package and verify DRE-theme.zip
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -82,6 +93,7 @@ jobs:
           # release notes step wants the history behind it.
           fetch-depth: 0
           ref: ${{ needs.resolve.outputs.sha }}
+          persist-credentials: false
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
@@ -120,9 +132,9 @@ jobs:
       - name: The package contains a theme, and only a theme
         run: |
           set -euo pipefail
-          unzip -qq -l DRE-theme.zip | awk '{ $1=$2=$3=""; sub(/^ +/,""); print }' | grep -v '^$' > paths.txt
+          unzip -Z1 DRE-theme.zip | grep -v '/$' > "$RUNNER_TEMP/paths.txt"
 
-          roots="$(sed 's|/.*||' paths.txt | sort -u)"
+          roots="$(sed 's|/.*||' "$RUNNER_TEMP/paths.txt" | sort -u)"
           if [ "$roots" != "DRE-theme" ]; then
             echo "::error::archive must have exactly one top-level directory, DRE-theme/ — found: $roots"
             exit 1
@@ -132,50 +144,51 @@ jobs:
 
           # What Omeka loads, plus what an admin reads.
           for required in \
-            DRE-theme/config/theme.ini \
-            DRE-theme/asset/css/style.css \
-            DRE-theme/view/layout/layout.phtml \
-            DRE-theme/theme.jpg \
-            DRE-theme/README.md \
-            DRE-theme/CHANGELOG.md \
-            DRE-theme/LICENSE \
-            DRE-theme/CITATION.cff \
-            DRE-theme/composer.json
+            config/theme.ini \
+            asset/css/style.css \
+            view/layout/layout.phtml \
+            theme.jpg \
+            README.md \
+            CHANGELOG.md \
+            LICENSE \
+            CITATION.cff \
+            composer.json
           do
-            grep -qxF "$required" paths.txt || { echo "::error::missing from package: $required"; fail=1; }
+            grep -qxF "DRE-theme/$required" "$RUNNER_TEMP/paths.txt" || { echo "::error::missing from package: $required"; fail=1; }
+          done
+          for dir in helper/ asset/fonts/ asset/img/ asset/js/; do
+            grep -q "^DRE-theme/$dir" "$RUNNER_TEMP/paths.txt" || { echo "::error::missing from package: $dir"; fail=1; }
           done
 
-          for dir in DRE-theme/helper/ DRE-theme/asset/fonts/ DRE-theme/asset/img/ DRE-theme/asset/js/; do
-            grep -q "^$dir" paths.txt || { echo "::error::missing from package: $dir"; fail=1; }
-          done
+          # Every export-ignore rule, read from .gitattributes. A rule that
+          # stopped matching (a renamed file, a typo) leaks here.
+          mapfile -t IGNORED < <(sed -n 's|^/\([^[:space:]]*\)[[:space:]]\{1,\}export-ignore.*|\1|p' .gitattributes)
+          if [ "${#IGNORED[@]}" -eq 0 ]; then
+            echo "::error::parsed no export-ignore rules from .gitattributes — this guard would pass vacuously"
+            exit 1
+          fi
+          echo "Checking ${#IGNORED[@]} export-ignore rules against $(wc -l < "$RUNNER_TEMP/paths.txt") archived files"
+          while IFS= read -r entry; do
+            rel="${entry#DRE-theme/}"
+            for pat in "${IGNORED[@]}"; do
+              case "$pat" in
+                */) [ "${rel#"$pat"}" != "$rel" ] && { echo "::error::$entry leaked (export-ignore /$pat)"; fail=1; } ;;
+                *)  [[ "$rel" == $pat ]] && { echo "::error::$entry leaked (export-ignore /$pat)"; fail=1; } ;;
+              esac
+            done
+          done < "$RUNNER_TEMP/paths.txt"
 
-          # What has no business being installed on someone else's server:
-          # every .gitattributes export-ignore entry, plus node_modules/.
-          for forbidden in \
-            'DRE-theme/scripts/' \
-            'DRE-theme/tests/' \
-            'DRE-theme/asset/sass/' \
-            'DRE-theme/\.github/' \
-            'DRE-theme/node_modules/' \
-            'DRE-theme/package\.json' \
-            'DRE-theme/package-lock\.json' \
-            'DRE-theme/playwright[^/]*\.config\.mjs' \
-            'DRE-theme/phpstan\.neon' \
-            'DRE-theme/eslint\.config\.mjs' \
-            'DRE-theme/\.impeccable/' \
-            'DRE-theme/docs/history/' \
-            'DRE-theme/docs/TESTING\.md' \
-            'DRE-theme/\.editorconfig' \
-            'DRE-theme/\.gitattributes' \
-            'DRE-theme/\.gitignore' \
-            'DRE-theme/language/[^/]*\.pot?$'
-          do
-            if grep -qE "^$forbidden" paths.txt; then
-              echo "::error::development file leaked into the package: $forbidden"
-              grep -E "^$forbidden" paths.txt | head -5
-              fail=1
-            fi
-          done
+          # The root is allowlisted: a new top-level file must be classified,
+          # either shipped (add it here) or export-ignored in .gitattributes.
+          ROOT_ALLOWED='CHANGELOG.md CITATION.cff DESIGN.md LICENSE PRODUCT.md README.md composer.json theme.jpg'
+          unexpected="$(comm -23 \
+            <(sed -n 's|^DRE-theme/\([^/][^/]*\)$|\1|p' "$RUNNER_TEMP/paths.txt" | sort -u) \
+            <(printf '%s\n' $ROOT_ALLOWED | sort))"
+          if [ -n "$unexpected" ]; then
+            echo "::error::unclassified file(s) at the package root: $(echo $unexpected)"
+            echo "::error::export-ignore them in .gitattributes or add them to ROOT_ALLOWED in release.yml"
+            fail=1
+          fi
 
           exit $fail
 
@@ -202,37 +215,65 @@ jobs:
           OMEKA_PATH="$OMEKA_ROOT" OMEKA_REPORT_DEPRECATED=1 \
             php -d error_reporting=E_ALL -d display_errors=1 tests/OmekaCompatibilityTest.php
 
+      # The notes of a release this workflow has to create are that version's
+      # section of CHANGELOG.md as committed at the tag, because the notes on
+      # this repo's releases are written, not generated. Written here, where
+      # the code is checked out, and handed to the publish job with the zip.
+      - name: Release notes from CHANGELOG.md
+        run: |
+          mkdir -p release
+          mv DRE-theme.zip release/
+          if node scripts/changelog-section.mjs "$VERSION" > release/notes.md; then
+            echo "Notes: the CHANGELOG.md section for $VERSION."
+          else
+            rm -f release/notes.md
+            echo "::warning::CHANGELOG.md has no section for $VERSION — a new release gets generated notes instead."
+          fi
+
       - name: Report the package
         run: |
           echo "### \`DRE-theme.zip\` — $TAG" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "\`$(du -h DRE-theme.zip | cut -f1)\` · $(unzip -qq -l DRE-theme.zip | wc -l) files · \`sha256:$(sha256sum DRE-theme.zip | cut -c1-16)…\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "\`$(du -h release/DRE-theme.zip | cut -f1)\` · $(unzip -Z1 release/DRE-theme.zip | grep -vc '/$') files · \`sha256:$(sha256sum release/DRE-theme.zip | cut -c1-16)…\`" >> "$GITHUB_STEP_SUMMARY"
 
-      # An existing release keeps its notes and just gets the asset. A tag
-      # pushed without one gets a published release whose notes are that
-      # version's section of CHANGELOG.md as committed at the tag, because the
-      # notes on this repo's releases are written, not generated. Only a
-      # version with no changelog section falls back to GitHub's generated
-      # notes. Never a draft: the deploy installs the Latest release, so a
-      # draft left the server on the previous version until someone published
-      # it by hand.
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-package
+          path: release/
+          retention-days: 14
+          if-no-files-found: error
+
+  # The only job with write access, and it runs no code from the repository.
+  # An existing release keeps its notes and just gets the asset. A tag pushed
+  # without one gets a published release. Never a draft: the deploy installs
+  # the Latest release, so a draft left the server on the previous version
+  # until someone published it by hand.
+  publish:
+    needs: [resolve, package]
+    name: Attach to the release
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-package
+
       - name: Attach to the release
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ needs.resolve.outputs.tag }}
         run: |
+          set -euo pipefail
+          test -f DRE-theme.zip
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" DRE-theme.zip --clobber
-          elif node scripts/changelog-section.mjs "$VERSION" > "$RUNNER_TEMP/release-notes.md"; then
-            gh release create "$TAG" DRE-theme.zip \
-              --verify-tag \
-              --title "$TAG" \
-              --notes-file "$RUNNER_TEMP/release-notes.md"
-            echo "::notice::Published $TAG with the package and the CHANGELOG.md notes for $VERSION."
+          elif [ -f notes.md ]; then
+            gh release create "$TAG" DRE-theme.zip --verify-tag --title "$TAG" --notes-file notes.md
+            echo "::notice::Published $TAG with the package and its CHANGELOG.md notes."
           else
-            echo "::warning::CHANGELOG.md has no section for $VERSION — the release gets generated notes instead."
-            gh release create "$TAG" DRE-theme.zip \
-              --verify-tag \
-              --title "$TAG" \
-              --generate-notes
+            gh release create "$TAG" DRE-theme.zip --verify-tag --title "$TAG" --generate-notes
             echo "::notice::Published $TAG with the package and generated notes."
           fi

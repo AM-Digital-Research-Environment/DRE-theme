@@ -12,15 +12,15 @@ Legend: `[x]` done · `[ ]` open · `[~]` dropped (rationale inline).
 
 ## D1 — Release workflow hardening
 
-- [ ] **Exclusions derived from `.gitattributes`, plus a root allowlist.**
+- [x] **Exclusions derived from `.gitattributes`, plus a root allowlist.**
   `release.yml` hard-coded a forbidden-path list that restated the
   `export-ignore` rules, so the two could drift, and a denylist can never catch
   a file nobody thought to exclude. IWAC parses the rules out of
   `.gitattributes` and separately allowlists the archive root, so a new root
   file fails the release until it is classified.
-- [ ] **The tag must be on master.** A tag pushed on a stray commit would
+- [x] **The tag must be on master.** A tag pushed on a stray commit would
   otherwise ship.
-- [ ] **Least privilege.** Build and verify with `contents: read` and
+- [x] **Least privilege.** Build and verify with `contents: read` and
   `persist-credentials: false`; only a final publish job, which handles no
   checkout, gets `contents: write`.
 
