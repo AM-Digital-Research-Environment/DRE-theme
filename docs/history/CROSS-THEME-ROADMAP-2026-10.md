@@ -50,7 +50,7 @@ Legend: `[x]` done · `[ ]` open · `[~]` dropped (rationale inline).
 
 ## D5 — Stylelint for CSS correctness
 
-- [ ] DRE's custom lints guard tokens and touch targets, not generic
+- [x] DRE's custom lints guard tokens and touch targets, not generic
   correctness (duplicate properties, unknown properties or units, invalid
   selectors). Add Stylelint with correctness rules only, as IWAC does.
 

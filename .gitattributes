@@ -39,6 +39,7 @@
 /playwright.visual.config.mjs export-ignore
 /phpstan.neon           export-ignore
 /eslint.config.mjs      export-ignore
+/stylelint.config.mjs   export-ignore
 /scripts/               export-ignore
 /asset/sass/            export-ignore
 # The 1024px icon master: scripts/gen-pwa-icons.mjs resizes every shipped

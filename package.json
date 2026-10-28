@@ -9,7 +9,7 @@
     "watch": "node scripts/build-css.mjs --watch",
     "verify": "npm run build && npm run i18n:check && npm run test:unit && npm run audit:deps && node scripts/check-stale-css.mjs",
     "lint": "npm run lint:source && npm run lint:css",
-    "lint:source": "npm run lint:tokens && npm run lint:touch && npm run lint:ini && npm run lint:templates && npm run lint:groups && npm run lint:js && npm run lint:php",
+    "lint:source": "npm run lint:tokens && npm run lint:touch && npm run lint:ini && npm run lint:templates && npm run lint:groups && npm run lint:js && npm run lint:styles && npm run lint:php",
     "lint:tokens": "node scripts/gen-token-fallbacks.mjs --check && node scripts/check-design-tokens.mjs",
     "lint:touch": "node scripts/check-touch-targets.mjs",
     "lint:css": "node scripts/check-compiled-css.mjs",
@@ -17,6 +17,7 @@
     "lint:templates": "node scripts/check-templates.mjs",
     "lint:groups": "node scripts/check-resource-groups.mjs",
     "lint:js": "eslint .",
+    "lint:styles": "stylelint \"asset/sass/**/*.scss\"",
     "lint:php": "node scripts/check-php.mjs",
     "lint:php:require": "node scripts/check-php.mjs --require",
     "test": "npm run test:unit && npm run test:browser",
@@ -66,8 +67,11 @@
     "jsdom": "^30.1.3",
     "lighthouse": "^13.5.0",
     "postcss": "^8.5.31",
+    "postcss-scss": "^4.0.9",
     "sass": "^1.106.1",
-    "sharp": "^0.35.5"
+    "sharp": "^0.35.5",
+    "stylelint": "^17.16.0",
+    "stylelint-scss": "^7.4.0"
   },
   "browserslist": [
     "last 2 versions",

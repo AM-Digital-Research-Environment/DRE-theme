@@ -16,7 +16,7 @@ npm run test:browser   # or `npm test` for test:unit + test:browser
 `npm run verify` runs, in order:
 
 1. `npm run build` — the design-token, theme.ini, template, metadata-group,
-   JavaScript-syntax and PHP checks (`lint:source`), then the Sass build, then
+   JavaScript (ESLint), Sass correctness (Stylelint) and PHP checks (`lint:source`), then the Sass build, then
    the compiled-CSS integrity check (`lint:css`);
 2. `npm run i18n:check` — `language/template.pot` matches the templates;
 3. `npm run test:unit` — the `node:test` suites in `tests/js/`, including the
