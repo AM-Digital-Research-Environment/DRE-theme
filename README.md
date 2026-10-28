@@ -56,7 +56,7 @@ successful CSS intact, and watch mode recovers after the source is corrected.
 | `npm run test:unit` | JavaScript behavior tests plus CSS compilation, metadata/prefixing, failed-build output preservation and watch-mode recovery |
 | `npm run test:browser` | Actual PHP-rendered fixtures in Chromium, Firefox and WebKit: navigation, keyboard access, no-JS fallback, shortlist exports, record sections and browse layouts |
 | `npm run i18n:check` | `language/template.pot` is up to date (regenerate with `npm run i18n:extract`) |
-| `npm run verify` | What CI's build job runs: `build`, `i18n:check`, `test:unit`, `npm audit --audit-level=high`, then a check that the committed `asset/css/style.css` matches the build |
+| `npm run verify` | What CI's build job runs: `build`, `i18n:check`, `test:unit`, `audit:deps` (`npm audit` at high, minus the written exceptions in `scripts/lib/audit-exceptions.mjs`), then a check that the committed `asset/css/style.css` matches the build |
 | `npm test` | `test:unit`, then `test:browser` |
 
 Run `npm run verify` before pushing. To bump the version, use `npm version <major|minor|patch>`: alongside `package.json` it updates `theme.ini`, `CITATION.cff`, the compiled CSS header and the changelog.

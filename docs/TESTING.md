@@ -23,7 +23,10 @@ npm run test:browser   # or `npm test` for test:unit + test:browser
    build tests (metadata header, prefixing, failed-compilation output
    preservation, watch-mode recovery) and negative tests proving each custom
    lint fails on a seeded violation;
-4. `npm audit --audit-level=high`;
+4. `npm run audit:deps` — `npm audit` at high and critical, minus the
+   exceptions in `scripts/lib/audit-exceptions.mjs`, each of which must say
+   why the advisory cannot be fixed or reached. An exception npm can now fix
+   in range, or that no longer appears, fails too, so the list retires itself;
 5. `scripts/check-stale-css.mjs` — the committed `asset/css/style.css` is what
    the build produces. In CI's clean checkout any difference fails. Locally, a
    difference that comes with uncommitted Sass, `theme.ini` or `package.json`

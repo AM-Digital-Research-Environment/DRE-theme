@@ -57,7 +57,7 @@ jobs:
       #               Sass build and the compiled-CSS integrity lint
       #   i18n:check  language/template.pot is up to date
       #   test:unit   JavaScript, CSS build and lint-negative tests
-      #   npm audit --audit-level=high
+      #   audit:deps  npm audit at high, minus the written exceptions
       #   scripts/check-stale-css.mjs — a stale asset/css/style.css is a real
       #               failure mode: the compiled CSS is committed, so a Sass
       #               change that was never rebuilt ships the old styles. It

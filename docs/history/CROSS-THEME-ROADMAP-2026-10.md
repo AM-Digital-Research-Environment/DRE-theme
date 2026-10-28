@@ -26,7 +26,7 @@ Legend: `[x]` done · `[ ]` open · `[~]` dropped (rationale inline).
 
 ## D2 — Smaller hygiene items
 
-- [ ] **`npm audit` exceptions that retire themselves** (IWAC
+- [x] **`npm audit` exceptions that retire themselves** (IWAC
   `scripts/check-audit.js`): a high/critical advisory fails unless a written
   exception explains why it is unreachable, and an exception that is no longer
   needed fails too, so the list cannot rot.
