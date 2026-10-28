@@ -1,0 +1,69 @@
+<?php
+/**
+ * The body of the theme's error pages (error/404, error/403, error/index).
+ *
+ * Core's versions are a bare heading and a sentence telling the reader to use
+ * the back button. These keep a reader who followed a dead link on the site:
+ * what happened, a search field where searching can help, and the ways back
+ * in. Ported from IWAC-theme in DRE's register.
+ *
+ * @var string $status   '404', '403' or '' (any other error)
+ * @var string $heading
+ * @var string $message
+ * @var bool   $search   offer the search field
+ * @var string $details  exception text, shown only when display_errors is on
+ */
+$translate = $this->plugin('translate');
+$escape = $this->plugin('escapeHtml');
+$escapeAttr = $this->plugin('escapeHtmlAttr');
+
+// An error can be raised before the site is resolved (an unknown site slug),
+// where there is no site to search or to link back to.
+$site = null;
+try {
+    $site = $this->currentSite();
+} catch (\Throwable $e) {
+    $site = null;
+}
+
+$searchAction = '';
+$searchParam = 'q';
+if ($site && !empty($search)) {
+    $searchUrl = $this->plugin('DreSearchUrl');
+    $searchAction = $searchUrl();
+    $searchParam = $searchUrl->queryParam();
+}
+$homeUrl = $site ? $site->url() : $this->basePath('/');
+$browseUrl = $site ? $this->url('site/resource', ['site-slug' => $site->slug(), 'controller' => 'item'], [], false) : '';
+?>
+<div class="error-page" role="region" aria-labelledby="error-page-title">
+    <p class="error-page__status">
+        <?php echo $escape($status !== '' ? sprintf($translate('Error %s'), $status) : $translate('Error')); ?>
+    </p>
+    <h1 class="error-page__title" id="error-page-title"><?php echo $escape($heading); ?></h1>
+    <p class="error-page__message"><?php echo $escape($message); ?></p>
+
+    <?php if ($searchAction !== ''): ?>
+    <form class="error-page__search" role="search" method="get" action="<?php echo $escapeAttr($searchAction); ?>"
+        aria-label="<?php echo $escapeAttr($translate('Search the collection')); ?>">
+        <label class="sr-only" for="error-page-query"><?php echo $escape($translate('Search the collection')); ?></label>
+        <input class="error-page__search-input" type="search" id="error-page-query" name="<?php echo $escapeAttr($searchParam); ?>"
+            placeholder="<?php echo $escapeAttr($translate('Search the collection')); ?>">
+        <button class="button" type="submit"><?php echo $escape($translate('Search')); ?></button>
+    </form>
+    <?php endif; ?>
+
+    <ul class="error-page__actions">
+        <li><a class="button" href="<?php echo $escapeAttr($homeUrl); ?>"><?php echo $escape($translate('Go to the home page')); ?></a></li>
+        <?php if ($browseUrl !== ''): ?>
+        <li><a class="btn--secondary" href="<?php echo $escapeAttr($browseUrl); ?>"><?php echo $escape($translate('Browse records')); ?></a></li>
+        <?php endif; ?>
+    </ul>
+
+    <?php if (!empty($details) && ini_get('display_errors')): ?>
+    <details class="error-page__details">
+        <summary><?php echo $escape($translate('Details')); ?></summary>
+        <pre><?php echo $escape($details); ?></pre>
+    </details>
+    <?php endif; ?>
+</div>

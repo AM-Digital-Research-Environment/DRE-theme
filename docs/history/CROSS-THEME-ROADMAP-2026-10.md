@@ -36,7 +36,7 @@ Legend: `[x]` done · `[ ]` open · `[~]` dropped (rationale inline).
 
 ## D3 — Theme-owned error pages
 
-- [ ] DRE fell back to Omeka core's bare `error/404` and `error/index` views.
+- [x] DRE fell back to Omeka core's bare `error/404` and `error/index` views.
   IWAC ships designed pages that keep the reader on the site: what happened,
   a search box, the way home. Port them in DRE's register.
 

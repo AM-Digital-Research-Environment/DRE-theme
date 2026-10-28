@@ -1,0 +1,83 @@
+@use "../../abstracts" as *;
+
+// Theme-owned error pages (view/error/*.phtml → view/common/error-page.phtml).
+// A reading column, not a splash: the status as a small-caps eyebrow, the
+// heading in the display face, then the ways back in.
+.error-page {
+    max-width: 40rem;
+    margin-inline: auto;
+    padding-block: var(--space-16) var(--space-20);
+
+    @media (max-width: $md) {
+        padding-block: var(--space-10) var(--space-12);
+    }
+}
+
+.error-page__status {
+    margin: 0 0 var(--space-4);
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--primary-text);
+}
+
+.error-page__title {
+    margin: 0 0 var(--space-4);
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    line-height: 1.15;
+    color: var(--ink-strong);
+}
+
+.error-page__message {
+    margin: 0 0 var(--space-8);
+    font-size: var(--text-lg);
+    color: var(--muted);
+}
+
+.error-page__search {
+    display: flex;
+    gap: var(--space-3);
+    margin-block-end: var(--space-8);
+
+    @media (max-width: $sm) {
+        flex-direction: column;
+    }
+}
+
+.error-page__search-input,
+.error-page__search .button {
+    height: var(--size-control-lg);
+    min-height: var(--size-control-lg);
+}
+
+.error-page__search-input {
+    flex: 1;
+    min-width: 0;
+}
+
+.error-page__search .button {
+    padding-block: 0;
+}
+
+.error-page__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.error-page__details {
+    margin-block-start: var(--space-10);
+    font-size: var(--text-sm);
+    color: var(--muted);
+
+    pre {
+        overflow-x: auto;
+        white-space: pre-wrap;
+    }
+}

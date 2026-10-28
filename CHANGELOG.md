@@ -11,6 +11,10 @@ to create.
 
 ## [Unreleased]
 
+### Added
+
+- **Error pages of the theme's own.** A missing page (404), a private record (403) and any other error now render in the site's chrome with a plain explanation, the ways back in (home page, browse records) and, for 404 and 403, a search field that goes to DRE Search when the module is installed. They replace Omeka core's bare pages, whose only advice was the back button, and are marked `noindex`. Exception details still appear when PHP's `display_errors` is on.
+
 ### Changed
 
 - **Release workflow.** The package check reads its exclusions from `.gitattributes` instead of restating them, and allowlists the files at the package root, so a new top-level file cannot ship until it is either listed or excluded. A tag on a commit that is not on `master` is refused. Building and verifying the package now run with a read-only token; only the final job, which runs no repository code, can write the release.

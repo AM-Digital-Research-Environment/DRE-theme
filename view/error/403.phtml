@@ -1,0 +1,13 @@
+<?php
+$translate = $this->plugin('translate');
+$this->htmlElement('body')->appendAttribute('class', 'error-page-body error-403');
+$this->headTitle($translate('Access denied'));
+$this->headMeta()->setName('robots', 'noindex');
+
+echo $this->partial('common/error-page', [
+    'status' => '403',
+    'heading' => $translate('Access denied'),
+    'message' => $translate('This page or record is not public. If you have an account with access to it, log in and try again.'),
+    'search' => true,
+    'details' => isset($exception) && $exception ? (string) $exception : '',
+]);

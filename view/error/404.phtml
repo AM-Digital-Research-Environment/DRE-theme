@@ -1,0 +1,19 @@
+<?php
+$translate = $this->plugin('translate');
+$this->htmlElement('body')->appendAttribute('class', 'error-page-body error-404');
+$this->headTitle($translate('Page not found'));
+$this->headMeta()->setName('robots', 'noindex');
+
+$details = trim(implode("\n\n", array_filter([
+    isset($message) ? (string) $message : '',
+    isset($reason) ? sprintf($translate('Reason: %s'), (string) $reason) : '',
+    isset($exception) && $exception ? (string) $exception : '',
+])));
+
+echo $this->partial('common/error-page', [
+    'status' => '404',
+    'heading' => $translate('Page not found'),
+    'message' => $translate('This page does not exist, or it has moved. The record you were looking for may still be in the collection: try searching for it.'),
+    'search' => true,
+    'details' => $details,
+]);

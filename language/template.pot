@@ -19,23 +19,23 @@ msgid_plural "(%s items)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: helper/RecordAccess.php:114
+#: helper/RecordAccess.php:125
 msgid "[AMIRA] Access request: project %1$s: %2$s"
 msgstr ""
 
-#: helper/RecordAccess.php:152
+#: helper/RecordAccess.php:163
 msgid "[AMIRA] Access request: record %1$s: %2$s"
 msgstr ""
 
-#: helper/RecordAccess.php:109
+#: helper/RecordAccess.php:120
 msgid "[AMIRA] Correction to project %1$s: %2$s"
 msgstr ""
 
-#: helper/RecordAccess.php:147
+#: helper/RecordAccess.php:158
 msgid "[AMIRA] Correction to record %1$s: %2$s"
 msgstr ""
 
-#: helper/HierarchyTree.php:63
+#: helper/HierarchyTree.php:79
 #: view/hierarchy/site/index/hierarchy.phtml:30
 msgid "[Untitled]"
 msgstr ""
@@ -44,7 +44,7 @@ msgstr ""
 msgid "%1$s–%2$s of %3$s"
 msgstr ""
 
-#: helper/HierarchyTree.php:64
+#: helper/HierarchyTree.php:80
 msgid "%s (unavailable)"
 msgstr ""
 
@@ -68,7 +68,12 @@ msgstr ""
 msgid "Access and contact"
 msgstr ""
 
-#: helper/RecordApparatus.php:164
+#: view/error/403.phtml:4
+#: view/error/403.phtml:9
+msgid "Access denied"
+msgstr ""
+
+#: helper/RecordApparatus.php:168
 msgid "Access rights"
 msgstr ""
 
@@ -138,7 +143,7 @@ msgstr ""
 msgid "Breadcrumb"
 msgstr ""
 
-#: helper/PwaManifest.php:53
+#: helper/PwaManifest.php:57
 msgid "Browse"
 msgstr ""
 
@@ -151,7 +156,11 @@ msgstr ""
 msgid "Browse projects interactively"
 msgstr ""
 
-#: helper/PwaManifest.php:52
+#: view/common/error-page.phtml:59
+msgid "Browse records"
+msgstr ""
+
+#: helper/PwaManifest.php:56
 msgid "Browse the collection"
 msgstr ""
 
@@ -168,7 +177,7 @@ msgstr ""
 msgid "Citation style"
 msgstr ""
 
-#: helper/RecordApparatus.php:100
+#: helper/RecordApparatus.php:104
 msgid "Cite this record"
 msgstr ""
 
@@ -185,7 +194,7 @@ msgstr ""
 msgid "Close menu"
 msgstr ""
 
-#: helper/RecordAccess.php:58
+#: helper/RecordAccess.php:65
 msgid "Collections@UBT, University of Bayreuth"
 msgstr ""
 
@@ -231,16 +240,16 @@ msgstr ""
 msgid "Copy"
 msgstr ""
 
-#: helper/RecordApparatus.php:101
+#: helper/RecordApparatus.php:105
 msgid "Copy citation"
 msgstr ""
 
-#: helper/RecordApparatus.php:101
+#: helper/RecordApparatus.php:105
 #: view/common/record-apparatus.phtml:87
 msgid "Copy link"
 msgstr ""
 
-#: helper/RecordApparatus.php:150
+#: helper/RecordApparatus.php:154
 #: view/common/record-linked-data.phtml:26
 msgid "Copy permanent link"
 msgstr ""
@@ -259,6 +268,10 @@ msgstr ""
 
 #: view/common/footer/footer-bottom.phtml:28
 msgid "Designed & developed by %s"
+msgstr ""
+
+#: view/common/error-page.phtml:65
+msgid "Details"
 msgstr ""
 
 #: view/common/footer/footer-masthead.phtml:63
@@ -282,7 +295,7 @@ msgstr ""
 msgid "Document & media types"
 msgstr ""
 
-#: helper/RecordApparatus.php:145
+#: helper/RecordApparatus.php:149
 msgid "DOI"
 msgstr ""
 
@@ -290,7 +303,7 @@ msgstr ""
 msgid "Download"
 msgstr ""
 
-#: helper/RecordApparatus.php:167
+#: helper/RecordApparatus.php:171
 msgid "DRE ID"
 msgstr ""
 
@@ -300,6 +313,14 @@ msgstr ""
 
 #: view/common/nav-menu.phtml:42
 msgid "Episode trends & transcripts"
+msgstr ""
+
+#: view/common/error-page.phtml:41
+msgid "Error"
+msgstr ""
+
+#: view/common/error-page.phtml:41
+msgid "Error %s"
 msgstr ""
 
 #: view/common/nav-menu.phtml:17
@@ -353,6 +374,10 @@ msgstr ""
 
 #: view/common/pagination.phtml:31
 msgid "Go"
+msgstr ""
+
+#: view/common/error-page.phtml:57
+msgid "Go to the home page"
 msgstr ""
 
 #: view/common/browse-layout-toggle.phtml:24
@@ -432,7 +457,7 @@ msgstr ""
 msgid "Knowledge-graph links"
 msgstr ""
 
-#: helper/CollectionStats.php:136
+#: helper/CollectionStats.php:148
 msgid "Languages"
 msgstr ""
 
@@ -440,7 +465,7 @@ msgstr ""
 msgid "Languages represented"
 msgstr ""
 
-#: helper/RecordApparatus.php:161
+#: helper/RecordApparatus.php:165
 msgid "Licence of the material"
 msgstr ""
 
@@ -465,7 +490,7 @@ msgstr ""
 msgid "Loading the full text…"
 msgstr ""
 
-#: helper/CollectionStats.php:135
+#: helper/CollectionStats.php:147
 msgid "Locations"
 msgstr ""
 
@@ -592,7 +617,7 @@ msgstr ""
 msgid "or the research team of %s"
 msgstr ""
 
-#: helper/CollectionStats.php:134
+#: helper/CollectionStats.php:146
 msgid "Organisations"
 msgstr ""
 
@@ -613,6 +638,11 @@ msgstr ""
 msgid "Page %1$s of %2$s"
 msgstr ""
 
+#: view/error/404.phtml:15
+#: view/error/404.phtml:4
+msgid "Page not found"
+msgstr ""
+
 #: view/omeka/site/page/browse.phtml:5
 msgid "Pages"
 msgstr ""
@@ -625,7 +655,7 @@ msgstr ""
 msgid "Part of %s"
 msgstr ""
 
-#: helper/CollectionStats.php:133
+#: helper/CollectionStats.php:145
 msgid "People"
 msgstr ""
 
@@ -637,7 +667,7 @@ msgstr ""
 msgid "Peripheral memories of Capoeira Angola in Salvador"
 msgstr ""
 
-#: helper/RecordApparatus.php:150
+#: helper/RecordApparatus.php:154
 #: view/common/record-linked-data.phtml:26
 msgid "Permanent link"
 msgstr ""
@@ -650,7 +680,7 @@ msgstr ""
 msgid "Places mapped & georeferenced"
 msgstr ""
 
-#: helper/CollectionStats.php:139
+#: helper/CollectionStats.php:151
 msgid "Podcasts"
 msgstr ""
 
@@ -673,7 +703,7 @@ msgstr[1] ""
 msgid "Private"
 msgstr ""
 
-#: helper/CollectionStats.php:132
+#: helper/CollectionStats.php:144
 msgid "Projects"
 msgstr ""
 
@@ -697,11 +727,11 @@ msgstr ""
 msgid "Publication trends & networks"
 msgstr ""
 
-#: helper/CollectionStats.php:138
+#: helper/CollectionStats.php:150
 msgid "Publications"
 msgstr ""
 
-#: helper/RecordAccess.php:60
+#: helper/RecordAccess.php:67
 msgid "Publisher’s page (DOI)"
 msgstr ""
 
@@ -713,7 +743,7 @@ msgstr ""
 msgid "RDF, dump & CC0 metadata"
 msgstr ""
 
-#: helper/RecordAccess.php:59
+#: helper/RecordAccess.php:66
 msgid "RDSpace, University of Bayreuth"
 msgstr ""
 
@@ -725,7 +755,11 @@ msgstr ""
 msgid "Read the metadata at a glance."
 msgstr ""
 
-#: helper/RecordAccess.php:168
+#: view/error/404.phtml:9
+msgid "Reason: %s"
+msgstr ""
+
+#: helper/RecordAccess.php:181
 msgid "Record: %s"
 msgstr ""
 
@@ -758,7 +792,7 @@ msgstr ""
 msgid "Requesting material & who to ask"
 msgstr ""
 
-#: helper/CollectionStats.php:131
+#: helper/CollectionStats.php:143
 msgid "Research items"
 msgstr ""
 
@@ -787,10 +821,11 @@ msgstr ""
 msgid "Saved in this browser only. Export your list to keep or share it."
 msgstr ""
 
-#: helper/PwaManifest.php:58
-#: helper/PwaManifest.php:59
+#: helper/PwaManifest.php:62
+#: helper/PwaManifest.php:63
 #: view/common/banner.phtml:189
 #: view/common/dre-search-redirect.phtml:35
+#: view/common/error-page.phtml:52
 #: view/common/main-header-search.phtml:13
 #: view/common/main-header-search.phtml:16
 msgid "Search"
@@ -821,6 +856,9 @@ msgstr ""
 #: view/common/banner.phtml:185
 #: view/common/dre-search-redirect.phtml:55
 #: view/common/dre-search-redirect.phtml:57
+#: view/common/error-page.phtml:48
+#: view/common/error-page.phtml:49
+#: view/common/error-page.phtml:51
 #: view/hierarchy/site/index/hierarchy.phtml:86
 #: view/omeka/site/item-set/browse.phtml:24
 #: view/omeka/site/item/browse.phtml:122
@@ -864,6 +902,11 @@ msgstr ""
 msgid "Social media"
 msgstr ""
 
+#: view/error/index.phtml:4
+#: view/error/index.phtml:9
+msgid "Something went wrong"
+msgstr ""
+
 #: view/common/linked-resources.phtml:139
 msgid "Sort this page"
 msgstr ""
@@ -886,7 +929,7 @@ msgstr ""
 msgid "Subjects"
 msgstr ""
 
-#: helper/CollectionStats.php:137
+#: helper/CollectionStats.php:149
 msgid "Subjects & tags"
 msgstr ""
 
@@ -948,6 +991,10 @@ msgstr ""
 msgid "The shortlist is full. Export or remove records, then choose Undo clear again to restore the remaining records."
 msgstr ""
 
+#: view/error/index.phtml:10
+msgid "The site could not complete this request. Please try again in a moment; if it keeps happening, let us know which page you were on."
+msgstr ""
+
 #: view/common/resource-page-block-layout/mirador.phtml:45
 msgid "The viewer is unavailable. Please try reloading the page."
 msgstr ""
@@ -956,11 +1003,19 @@ msgstr ""
 msgid "These records come from %s. The project’s page presents them with its description, its team and their visualisations."
 msgstr ""
 
+#: view/error/404.phtml:16
+msgid "This page does not exist, or it has moved. The record you were looking for may still be in the collection: try searching for it."
+msgstr ""
+
 #: view/common/record-notice.phtml:50
 msgid "This page is a catalogue record."
 msgstr ""
 
-#: helper/RecordApparatus.php:100
+#: view/error/403.phtml:10
+msgid "This page or record is not public. If you have an account with access to it, log in and try again."
+msgstr ""
+
+#: helper/RecordApparatus.php:104
 msgid "This record"
 msgstr ""
 
@@ -1038,13 +1093,13 @@ msgstr ""
 msgid "View as"
 msgstr ""
 
-#: helper/RecordAccess.php:110
-#: helper/RecordAccess.php:148
+#: helper/RecordAccess.php:121
+#: helper/RecordAccess.php:159
 msgid "What should be corrected or improved?"
 msgstr ""
 
-#: helper/RecordAccess.php:115
-#: helper/RecordAccess.php:153
+#: helper/RecordAccess.php:126
+#: helper/RecordAccess.php:164
 msgid "What would you like to access, and for what purpose?"
 msgstr ""
 
@@ -1068,6 +1123,6 @@ msgstr ""
 msgid "Years"
 msgstr ""
 
-#: helper/CollectionStats.php:140
+#: helper/CollectionStats.php:152
 msgid "YouTube videos"
 msgstr ""
