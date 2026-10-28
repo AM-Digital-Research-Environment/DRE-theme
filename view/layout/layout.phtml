@@ -100,7 +100,7 @@ $this->headScript()->prependFile($this->assetUrl('vendor/jquery/jquery.min.js', 
 // In <head> and deferred: available before any module initialises, blocking
 // nothing. See DESIGN.md §9 "Reading tokens from JavaScript".
 $this->headScript()->prependFile(
-    $this->assetUrl('js/dre-token-bridge.js'),
+    $this->assetUrl('js/dist/dre-token-bridge.min.js'),
     'text/javascript',
     ['defer' => true]
 );
@@ -237,14 +237,14 @@ if ($userBar) {
 		// Prepended in reverse: utils.js runs first, and every theme script
 		// (including the page scripts templates append) relies on window.DREUtils.
 		if ($this->themeSetting('research_shortlist') ?? true) {
-			$this->inlineScript()->prependFile($this->assetUrl('js/shortlist.js'));
+			$this->inlineScript()->prependFile($this->assetUrl('js/dist/shortlist.min.js'));
 		}
 		$this->inlineScript()
-            ->prependFile($this->assetUrl('js/theme-toggle.js'))
-			->prependFile($this->assetUrl('js/navigation.js'))
-			->prependFile($this->assetUrl('js/back-to-top.js'))
-			->prependFile($this->assetUrl('js/script.js'))
-			->prependFile($this->assetUrl('js/utils.js'));
+            ->prependFile($this->assetUrl('js/dist/theme-toggle.min.js'))
+			->prependFile($this->assetUrl('js/dist/navigation.min.js'))
+			->prependFile($this->assetUrl('js/dist/back-to-top.min.js'))
+			->prependFile($this->assetUrl('js/dist/script.min.js'))
+			->prependFile($this->assetUrl('js/dist/utils.min.js'));
 		// Deferred like the <head> scripts, so a file a module appends here that
 		// calls `$` still runs after jQuery. At the end of the body this costs
 		// nothing: the document is parsed by then.
@@ -255,7 +255,7 @@ if ($userBar) {
 		<?php // pwa-install.js — vanilla, deferred; reads the manifest island,
 		      // attaches the blob: manifest, and reveals the header install button
 		      // only when the browser can actually install (or on iOS Safari). ?>
-		<script defer src="<?php echo $this->escapeHtmlAttr($this->assetUrl('js/pwa-install.js')); ?>"></script>
+		<script defer src="<?php echo $this->escapeHtmlAttr($this->assetUrl('js/dist/pwa-install.min.js')); ?>"></script>
 		<?php endif; ?>
 	</body>
 </html>

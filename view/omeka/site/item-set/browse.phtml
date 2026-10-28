@@ -1,6 +1,6 @@
 <?php
 $translate = $this->plugin('translate');
-$this->inlineScript()->appendFile($this->assetUrl('js/browse.js'));
+$this->inlineScript()->appendFile($this->assetUrl('js/dist/browse.min.js'));
 $this->htmlElement('body')->appendAttribute('class', 'item-set resource browse');
 
 // See helper/BrowseLayout.php — resolves grid/list, the ?view= override, and

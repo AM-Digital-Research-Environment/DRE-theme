@@ -4,7 +4,7 @@ $escape = $this->plugin('escapeHtml');
 
 // browse.js fetches Masonry itself, and only where the engine cannot lay the
 // grid out natively (display: grid-lanes).
-$this->inlineScript()->appendFile($this->assetUrl('js/browse.js'));
+$this->inlineScript()->appendFile($this->assetUrl('js/dist/browse.min.js'));
 
 // See helper/BrowseLayout.php — resolves grid/list, the ?view= override, and
 // the body-property settings that used to be duplicated in every browse template.

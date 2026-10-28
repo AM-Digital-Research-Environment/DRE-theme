@@ -1,5 +1,9 @@
 import {defineConfig} from '@playwright/test';
 
+// The browser suite runs the minified scripts the templates load
+// (tests/support/theme-script.mjs); the unit suites cover both builds.
+process.env.DRE_SCRIPTS ??= 'dist';
+
 export default defineConfig({
     testDir: './tests/local',
     fullyParallel: true,

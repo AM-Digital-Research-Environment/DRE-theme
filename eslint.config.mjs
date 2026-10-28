@@ -17,6 +17,8 @@ export default [
             'asset/css/',
             // Vendored, minified third-party build (Masonry 4.2.2, MIT).
             'asset/js/masonry.pkgd.min.js',
+            // Generated from asset/js/*.js by scripts/build-js.mjs; the sources are linted.
+            'asset/js/dist/',
         ],
     },
     js.configs.recommended,

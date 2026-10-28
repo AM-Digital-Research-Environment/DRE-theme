@@ -19,6 +19,7 @@ import AxeBuilder from '@axe-core/playwright';
 import {existsSync, readFileSync} from 'node:fs';
 import {extname, resolve, sep} from 'node:path';
 import {renderFixture, routeFixture, types} from './fixtures.mjs';
+import {themeScript} from '../support/theme-script.mjs';
 
 const SEARCH = resolve('..', 'DRE-Search');
 const SEARCH_BUNDLE = resolve(SEARCH, 'asset', 'dist', 'dre-search.js');
@@ -53,8 +54,8 @@ function themedPage(main, title, head, bodyEnd = '') {
         // resolved mode is on <html> and <body> before anything paints.
         .replace('<html lang="en">', '<html lang="en" class="js" data-theme="light">')
         .replace('<body>', '<body data-theme="light">')
-        .replace('</head>', '<script src="/themes/dre/asset/js/dre-token-bridge.js"></script>'
-            + '<script src="/themes/dre/asset/js/theme-toggle.js" defer></script>'
+        .replace('</head>', `<script src="/themes/dre/${themeScript('dre-token-bridge')}"></script>`
+            + `<script src="/themes/dre/${themeScript('theme-toggle')}" defer></script>`
             + head + IMPORT_MAP_PROBE + '</head>')
         + `<main id="content" class="container">${main}</main>${bodyEnd}`
         + chrome.slice(end);

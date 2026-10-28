@@ -56,8 +56,16 @@ Legend: `[x]` done · `[ ]` open · `[~]` dropped (rationale inline).
 
 ## D6 — Minified JavaScript
 
-- [ ] DRE served ~93 KB of hand-written JavaScript unminified. IWAC builds
+- [x] DRE served ~93 KB of hand-written JavaScript unminified. IWAC builds
   `asset/js/dist/*.min.js` with esbuild, commits them with source maps, runs
   its unit tests against the minified files and fails CI when `dist/` is stale.
-- [ ] **Masonry → MiniMasonry.** The lazy-loaded Masonry bundle is 24 KB; IWAC's
-  MiniMasonry is 4 KB.
+- [x] Result: 25.6 KB → 11.0 KB gzipped across the fifteen scripts. Unit tests
+  run on sources and minified files; the local browser suite on the minified
+  ones; `check-stale-css.mjs` now also guards `asset/js/dist/`.
+- [~] **Masonry → MiniMasonry.** Dropped. `browse.js` fetches Masonry only
+  where the browser lacks `display: grid-lanes`, so its cost shrinks as
+  browsers ship native masonry, and it is never on a page's critical path.
+  MiniMasonry positions absolutely on fixed pixel columns; the grid here is
+  sized by percentage `.grid-sizer` / `.gutter-sizer` elements, so the swap
+  would be a rewrite of the grid with new visual risk, for ~7 KB gzipped on
+  browse pages in older engines.

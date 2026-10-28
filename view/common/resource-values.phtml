@@ -35,7 +35,7 @@ $filterLocaleCallback = function ($value) use ($lang) {
     return $valueLang == '' || strcasecmp($valueLang, $lang) === 0;
 };
 
-$this->inlineScript()->appendFile($this->assetUrl('js/annotations.js'));
+$this->inlineScript()->appendFile($this->assetUrl('js/dist/annotations.min.js'));
 $groups = [];
 $prefix = $this->SectionPrefix(isset($resource) ? $resource->id() : 0);
 foreach ($this->ResourceGroups($values) as $group) {
@@ -112,7 +112,7 @@ $headingTag = $recordChrome ? 'h2' : 'h4';
                             $textId = $group['id'] . '-text-' . $valueIndex;
                             $apiUrl = $this->url('api/default', ['resource' => $resource->resourceName(), 'id' => $resource->id()]);
                             // HeadScript skips a file it already holds.
-                            $this->inlineScript()->appendFile($this->assetUrl('js/fulltext.js'));
+                            $this->inlineScript()->appendFile($this->assetUrl('js/dist/fulltext.min.js'));
                             // No whitespace inside the span: it keeps the text's line
                             // breaks with white-space: pre-line, so the loaded text
                             // can be set as plain textContent.

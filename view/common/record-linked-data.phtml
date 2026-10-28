@@ -28,7 +28,7 @@ $rows = array_merge(
 );
 $id = 'record-linked-data-' . (int) $resource->id();
 
-$this->inlineScript()->appendFile($this->assetUrl('js/record.js'));
+$this->inlineScript()->appendFile($this->assetUrl('js/dist/record.min.js'));
 ?>
 <section class="record-linked-data" aria-labelledby="<?php echo $escAttr($id); ?>">
     <h2 class="record-apparatus__title" id="<?php echo $escAttr($id); ?>"><?php echo $escHtml($translate('Linked data')); ?></h2>

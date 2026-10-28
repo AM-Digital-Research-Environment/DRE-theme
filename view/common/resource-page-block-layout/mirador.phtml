@@ -45,7 +45,7 @@ try {
     echo '<p role="status">' . $this->escapeHtml($this->translate('The viewer is unavailable. Please try reloading the page.')) . '</p>';
 }
 if ($viewer !== ''):
-    $this->headScript()->appendFile($this->assetUrl('js/mirador-theme.js'), 'text/javascript', ['defer' => 'defer']);
+    $this->headScript()->appendFile($this->assetUrl('js/dist/mirador-theme.min.js'), 'text/javascript', ['defer' => 'defer']);
 ?>
 <div class="block resource-block block-mirador" role="application" aria-label="<?php echo $this->escapeHtmlAttr($viewerLabel); ?>">
     <?php echo $viewer; ?>

@@ -133,9 +133,9 @@ try {
         str_contains($xpath->query('//main[@id="content"]')->item(0)?->textContent ?? '', 'Page content'));
     $scripts = $view->inline->files;
     dre_check($failures, $checks, 'utils.js runs before every other theme script',
-        str_contains($scripts[0] ?? '', 'js/utils.js'), implode(', ', $scripts));
+        str_contains($scripts[0] ?? '', 'js/dist/utils.min.js'), implode(', ', $scripts));
     dre_check($failures, $checks, 'the shortlist script loads when the feature is on (default)',
-        (bool) array_filter($scripts, fn($file) => str_contains($file, 'js/shortlist.js')));
+        (bool) array_filter($scripts, fn($file) => str_contains($file, 'js/dist/shortlist.min.js')));
     dre_check($failures, $checks, 'the font preload targets the Spectral weight every page renders',
         str_contains($html, 'spectral-latin-800-normal.woff2') && !str_contains($html, 'spectral-latin-600-normal.woff2'));
     dre_check($failures, $checks, 'an interior page is titled "Page · Site", without the installation title by default',
@@ -143,7 +143,7 @@ try {
     dre_check($failures, $checks, 'favicons and theme-color render with the PWA on, once each',
         substr_count($html, 'img/pwa/favicon-32.png') === 1 && substr_count($html, 'name="theme-color"') === 2);
     dre_check($failures, $checks, 'PWA is on by default: manifest island and install script render',
-        str_contains($html, 'id="dre-pwa-manifest"') && str_contains($html, 'js/pwa-install.js'));
+        str_contains($html, 'id="dre-pwa-manifest"') && str_contains($html, 'js/dist/pwa-install.min.js'));
     $manifest = $xpath->query('//script[@id="dre-pwa-manifest"]')->item(0);
     dre_check($failures, $checks, 'the manifest island is valid JSON', is_array(json_decode($manifest?->textContent ?? '', true)));
     dre_check($failures, $checks, 'an interior page renders the slim page banner, not the home masthead',

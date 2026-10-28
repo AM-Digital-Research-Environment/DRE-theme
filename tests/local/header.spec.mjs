@@ -2,20 +2,21 @@ import {test, expect} from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import {readFileSync} from 'node:fs';
 import {renderFixture, routeFixture} from './fixtures.mjs';
+import {themeScript} from '../support/theme-script.mjs';
 const html = renderFixture('header');
 async function fixture(page, width, enhance = true) {
     await page.setViewportSize({width, height:850});
     await routeFixture(page, html);
     await page.goto('https://theme.test/');
     if (enhance) {
-        await page.addScriptTag({path:'asset/js/navigation.js'});
-        await page.addScriptTag({path:'asset/js/script.js'});
+        await page.addScriptTag({path: themeScript('navigation')});
+        await page.addScriptTag({path: themeScript('script')});
     }
 }
 for (const width of [320, 390]) {
     test(`navigation baseline survives a missing navigation script at ${width}`, async ({page}) => {
         await fixture(page, width, false);
-        await page.addScriptTag({path:'asset/js/script.js'});
+        await page.addScriptTag({path: themeScript('script')});
         await expect(page.locator('.main-navigation').getByRole('link', {name:'Project archive', exact:true})).toBeVisible();
         await expect(page.locator('.main-navigation__toggle')).toBeHidden();
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
@@ -52,7 +53,7 @@ test('navigation remains usable with all JavaScript disabled', async ({browser})
 });
 test('mobile drawer survives scrolling and resize, supports deep links, and releases focus at desktop', async ({page}) => {
     await fixture(page, 390);
-    await page.addScriptTag({path:'asset/js/shortlist.js'});
+    await page.addScriptTag({path: themeScript('shortlist')});
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
     const toggle = page.getByRole('button', {name:'Open menu',exact:true});
     await toggle.click();
@@ -96,7 +97,7 @@ test('complete chrome passes accessibility checks at enlarged text and forced co
 });
 test('shortlist saves, survives reload, clears with undo and exports', async ({page}) => {
     await fixture(page,1280);
-    await page.addScriptTag({path:'asset/js/shortlist.js'});
+    await page.addScriptTag({path: themeScript('shortlist')});
     // One name per toggle, with the record's title for context; the count is
     // part of the shortlist button's name.
     await page.getByRole('button',{name:'Save record: A record',exact:true}).click();
@@ -120,7 +121,7 @@ test('shortlist saves, survives reload, clears with undo and exports', async ({p
     await page.getByRole('button',{name:'Undo clear',exact:true}).click();
     await expect(page.locator('[data-shortlist-list]')).toContainText('A record');
     await page.reload();
-    await page.addScriptTag({path:'asset/js/shortlist.js'});
+    await page.addScriptTag({path: themeScript('shortlist')});
     await expect(page.getByRole('button',{name:'Save record: A record',exact:true})).toHaveAttribute('aria-pressed','true');
 });
 
@@ -139,7 +140,7 @@ test('desktop overflow switches to a usable drawer', async ({page}) => {
 test('a wide menu remains in drawer mode when crossing the desktop breakpoint', async ({page}) => {
     await fixture(page,390,false);
     await page.locator('.main-navigation .navigation > li > a').evaluateAll(links => links.forEach(link => { link.textContent = 'Long section name '.repeat(12); }));
-    await page.addScriptTag({path:'asset/js/navigation.js'});
+    await page.addScriptTag({path: themeScript('navigation')});
     await page.setViewportSize({width:1280,height:850});
     await page.waitForTimeout(180);
     await expect(page.locator('.main-header')).toHaveAttribute('data-nav','drawer');

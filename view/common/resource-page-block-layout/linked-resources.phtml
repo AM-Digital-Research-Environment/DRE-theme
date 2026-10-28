@@ -10,7 +10,7 @@ try {
 }
 if (array_filter($data['resourcePropertiesAll'])):
     $endpoint = $this->url('site/resource-id', ['controller' => 'index', 'action' => 'linked-resources', 'id' => $resource->id()], [], true);
-    $this->inlineScript()->appendFile($this->assetUrl('js/linked-resources.js'));
+    $this->inlineScript()->appendFile($this->assetUrl('js/dist/linked-resources.min.js'));
 ?>
 <div id="linked-resources-container" data-connection-endpoint="<?php echo $this->escapeHtmlAttr($endpoint); ?>"
     data-loading="<?php echo $this->escapeHtmlAttr($this->translate('Loading connections…')); ?>"

@@ -16,10 +16,13 @@ npm run test:browser   # or `npm test` for test:unit + test:browser
 `npm run verify` runs, in order:
 
 1. `npm run build` — the design-token, theme.ini, template, metadata-group,
-   JavaScript (ESLint), Sass correctness (Stylelint) and PHP checks (`lint:source`), then the Sass build, then
-   the compiled-CSS integrity check (`lint:css`);
+   JavaScript (ESLint), Sass correctness (Stylelint) and PHP checks (`lint:source`), then the Sass build, the
+   script minification (`build:js`), then the compiled-CSS integrity check
+   (`lint:css`);
 2. `npm run i18n:check` — `language/template.pot` matches the templates;
-3. `npm run test:unit` — the `node:test` suites in `tests/js/`, including the
+3. `npm run test:unit` — the `node:test` suites in `tests/js/`, run twice: on
+   the script sources, then (`tests/dist.env`) on the minified files in
+   `asset/js/dist/` that the templates load. They include the
    build tests (metadata header, prefixing, failed-compilation output
    preservation, watch-mode recovery) and negative tests proving each custom
    lint fails on a seeded violation;
@@ -27,10 +30,12 @@ npm run test:browser   # or `npm test` for test:unit + test:browser
    exceptions in `scripts/lib/audit-exceptions.mjs`, each of which must say
    why the advisory cannot be fixed or reached. An exception npm can now fix
    in range, or that no longer appears, fails too, so the list retires itself;
-5. `scripts/check-stale-css.mjs` — the committed `asset/css/style.css` is what
-   the build produces. In CI's clean checkout any difference fails. Locally, a
-   difference that comes with uncommitted Sass, `theme.ini` or `package.json`
-   changes is only a reminder to commit the rebuilt CSS with them.
+5. `scripts/check-stale-css.mjs` — the committed `asset/css/style.css` and
+   `asset/js/dist/` are what the build produces. In CI's clean checkout any
+   difference fails. Locally, a difference that comes with uncommitted changes
+   to that output's inputs (Sass, `theme.ini`, `package.json`; script sources,
+   `scripts/build-js.mjs`, the lockfile) is only a reminder to commit the
+   rebuilt output with them.
 
 ### PHP
 

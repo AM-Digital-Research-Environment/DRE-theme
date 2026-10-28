@@ -33,7 +33,7 @@ $apparatus = $this->RecordApparatus($resource);
 if (!$apparatus) return;
 extract($apparatus, EXTR_SKIP);
 
-$this->inlineScript()->appendFile($this->assetUrl('js/record.js'));
+$this->inlineScript()->appendFile($this->assetUrl('js/dist/record.min.js'));
 ?>
 <section class="record-apparatus" data-shortlist-record-url="<?php echo $escAttr($permalink); ?>" aria-labelledby="<?php echo $escAttr($citeId . '-title'); ?>">
     <h2 class="record-apparatus__title" id="<?php echo $escAttr($citeId . '-title'); ?>"><?php echo $escHtml($panelTitle); ?></h2>

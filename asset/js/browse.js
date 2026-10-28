@@ -2,10 +2,11 @@
 (function () {
     'use strict';
     // Masonry (~24 KiB) is only fetched where the engine cannot lay the grid out
-    // itself. It lives next to this file, so its URL (and ?v= cache-buster) is
-    // derived from ours rather than appended to every browse page up front.
+    // itself. It lives in asset/js/, beside this source and one level above its
+    // minified copy in dist/, so its URL (and ?v= cache-buster) is derived from
+    // ours rather than appended to every browse page up front.
     const ownSrc = document.currentScript?.src || '';
-    const masonrySrc = ownSrc ? ownSrc.replace(/browse\.js(?=\?|#|$)/, 'masonry.pkgd.min.js') : '';
+    const masonrySrc = ownSrc ? ownSrc.replace(/(?:dist\/)?browse(?:\.min)?\.js(?=\?|#|$)/, 'masonry.pkgd.min.js') : '';
     let masonryLoad = null;
     function loadMasonry() {
         if (typeof Masonry === 'function') return Promise.resolve(true);

@@ -41,6 +41,11 @@ compiles styles directly; `npm run watch` (or `npm start`) builds once and watch
 Sass, theme metadata and browser targets. A failed compilation leaves the last
 successful CSS intact, and watch mode recovers after the source is corrected.
 
+Scripts are written in `asset/js/*.js` and served minified: `npm run build:js`
+(part of `build`) runs esbuild over each one into `asset/js/dist/<name>.min.js`
+with a source map, and the templates load those. Edit the sources, never
+`dist/`; `node scripts/build-js.mjs --watch` rebuilds on save.
+
 ### Checks
 
 `npm run build` runs `npm run lint` first, so a contract violation fails the build rather than shipping. Each check encodes a bug that actually reached a release:
@@ -54,10 +59,10 @@ successful CSS intact, and watch mode recovers after the source is corrected.
 | `npm run lint:styles` | Stylelint (`stylelint.config.mjs`) over the Sass, correctness rules only: unknown properties, units, selectors and at-rules, invalid hex, duplicate or overridden declarations, `@import` |
 | `npm run lint:js` | ESLint (`eslint.config.mjs`, the recommended rules) over the theme scripts as ES2022 browser scripts — the Safari 16.2 floor — and the tooling and tests as Node modules: undefined globals, unused variables, unreachable code, suspicious regular expressions |
 | `npm run lint:php` | **Real `php -l`** over every `.php`/`.phtml`, then the theme's PHP tests |
-| `npm run test:unit` | JavaScript behavior tests plus CSS compilation, metadata/prefixing, failed-build output preservation and watch-mode recovery |
+| `npm run test:unit` | JavaScript behavior tests, run twice (against the sources, then against the minified `asset/js/dist/` files), plus CSS compilation, metadata/prefixing, failed-build output preservation and watch-mode recovery |
 | `npm run test:browser` | Actual PHP-rendered fixtures in Chromium, Firefox and WebKit: navigation, keyboard access, no-JS fallback, shortlist exports, record sections and browse layouts |
 | `npm run i18n:check` | `language/template.pot` is up to date (regenerate with `npm run i18n:extract`) |
-| `npm run verify` | What CI's build job runs: `build`, `i18n:check`, `test:unit`, `audit:deps` (`npm audit` at high, minus the written exceptions in `scripts/lib/audit-exceptions.mjs`), then a check that the committed `asset/css/style.css` matches the build |
+| `npm run verify` | What CI's build job runs: `build`, `i18n:check`, `test:unit`, `audit:deps` (`npm audit` at high, minus the written exceptions in `scripts/lib/audit-exceptions.mjs`), then a check that the committed `asset/css/style.css` and `asset/js/dist/` match the build |
 | `npm test` | `test:unit`, then `test:browser` |
 
 Run `npm run verify` before pushing. To bump the version, use `npm version <major|minor|patch>`: alongside `package.json` it updates `theme.ini`, `CITATION.cff`, the compiled CSS header and the changelog.

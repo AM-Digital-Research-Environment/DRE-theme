@@ -1,6 +1,7 @@
 import {execFileSync} from 'node:child_process';
 import {readFileSync} from 'node:fs';
 import {extname, resolve, sep} from 'node:path';
+import {themeScript} from '../support/theme-script.mjs';
 
 export function renderFixture(name) {
     return execFileSync('php', [`tests/support/${name}-fixture.php`], {encoding: 'utf8'});
@@ -32,6 +33,6 @@ export async function routeFixture(page, html, handle = () => false) {
         // the specs then add the scripts under test.
         return route.fulfill({contentType: 'text/html', body: html.replace('</head>',
             '<link rel="stylesheet" href="/themes/dre/asset/css/style.css">'
-            + '<script src="/themes/dre/asset/js/utils.js"></script></head>')});
+            + `<script src="/themes/dre/${themeScript('utils')}"></script></head>`)});
     });
 }

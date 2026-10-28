@@ -48,6 +48,11 @@ OMEKA_PATH=/abs/path/omeka-s php /abs/path/phpstan.phar analyse --no-progress --
   `view/layout/layout.phtml` or anything it includes is a site-wide 500.
   `$this->status()` has no `getRouteMatch()`; `helper/IsHomePage.php` detects
   the home page from the request path.
+- **Scripts ship minified.** Templates load `asset/js/dist/<name>.min.js`,
+  built from `asset/js/<name>.js` by `npm run build:js` (part of `build`).
+  Edit the source, rebuild, commit both; a new script needs its template
+  reference to point at `js/dist/`. The unit tests run on both builds and the
+  local browser suite on the minified one (`tests/support/theme-script.mjs`).
 - **Compiled CSS is committed.** A Sass edit without `npm run build` ships the
   old styles; CI fails a stale `asset/css/style.css`. The stylesheet header is
   prepended by `scripts/build-css.mjs`, not written in `style.scss`, and Sass's

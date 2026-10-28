@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { JSDOM } from 'jsdom';
 
-const source = file => readFileSync(new URL('../../asset/js/' + file, import.meta.url), 'utf8');
+import {themeScript} from '../support/theme-script.mjs';
+const source = file => readFileSync(new URL('../../' + themeScript(file.replace(/\.js$/, '')), import.meta.url), 'utf8');
 const frame = w => new Promise(resolve => w.requestAnimationFrame(() => resolve()));
 
 function header() {

@@ -287,7 +287,7 @@ dre_check($failures, $checks, 'the record carries the opening of a long full tex
     str_contains($html, 'data-term="bibo:content" data-index="0">&lt;b&gt;Première ligne') && !str_contains($html, 'mot fin'), $html);
 dre_check($failures, $checks, 'the full text loads from the record\'s API representation',
     str_contains($html, 'href="/api/items/41980" rel="nofollow"') && str_contains($html, 'data-fulltext-load')
-    && in_array('/themes/dre/asset/js/fulltext.js', $view->assets, true));
+    && in_array('/themes/dre/asset/js/dist/fulltext.min.js', $view->assets, true));
 $html = $view->render('common/resource-values', ['resource' => new ThemeTestResource('Thesis', 41980), 'values' => $values, 'recordChrome' => false]);
 dre_check($failures, $checks, 'an embedded record renders the full text whole', str_contains($html, 'mot fin') && !str_contains($html, 'data-fulltext-load'));
 

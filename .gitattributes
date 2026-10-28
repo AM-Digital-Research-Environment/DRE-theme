@@ -82,3 +82,4 @@
 /asset/css/dre-tokens-fallback.css    linguist-generated
 /asset/css/dre-tokens-fallback.json   linguist-generated
 /language/template.pot                linguist-generated
+/asset/js/dist/**                     linguist-generated

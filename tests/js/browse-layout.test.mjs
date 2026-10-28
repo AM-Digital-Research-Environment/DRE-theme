@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {JSDOM} from 'jsdom';
-const source = readFileSync(new URL('../../asset/js/browse.js', import.meta.url), 'utf8');
+import {themeScript} from '../support/theme-script.mjs';
+const source = readFileSync(new URL('../../' + themeScript('browse'), import.meta.url), 'utf8');
 
 test('browse toggles own one Masonry instance and restore state through history', async () => {
     const dom = new JSDOM(`<div><div class="layout-toggle"><button class="grid">Grid</button><button class="list">List</button></div>

@@ -1,6 +1,7 @@
 import {test, expect} from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import {renderFixture, routeFixture} from './fixtures.mjs';
+import {themeScript} from '../support/theme-script.mjs';
 
 const html = renderFixture('research');
 async function fixture(page, width = 1280, mode = 'light') {
@@ -12,7 +13,7 @@ async function fixture(page, width = 1280, mode = 'light') {
         document.body.dataset.theme = mode;
     }, mode);
     for (const name of ['navigation', 'script', 'shortlist']) {
-        await page.addScriptTag({path: `asset/js/${name}.js`});
+        await page.addScriptTag({path: themeScript(name)});
     }
     await page.evaluate(() => document.fonts.ready);
 }
@@ -41,7 +42,7 @@ test('failed Masonry leaves readable cards and grid/list/history switching works
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     await page.evaluate(() => { window.Masonry = function () { throw Error('Unavailable'); }; });
-    await page.addScriptTag({path: 'asset/js/browse.js'});
+    await page.addScriptTag({path: themeScript('browse')});
     await expect(page.locator('.resources')).not.toHaveClass(/is-masonry/);
     await expect(page.locator('.resource').first()).toBeVisible();
     await page.getByRole('button', {name: 'List', exact: true}).click();
@@ -59,7 +60,7 @@ test('working Masonry handles a delayed image without overlapping cards', async 
     test.skip(await page.evaluate(() => CSS.supports('display', 'grid-lanes')), 'native grid-lanes engine');
     await page.emulateMedia({reducedMotion: 'no-preference'});
     await page.addScriptTag({path: 'asset/js/masonry.pkgd.min.js'});
-    await page.addScriptTag({path: 'asset/js/browse.js'});
+    await page.addScriptTag({path: themeScript('browse')});
     await expect(page.locator('.resources')).toHaveClass(/is-masonry/);
     await page.evaluate(async () => {
         const image = document.createElement('img');
@@ -92,7 +93,7 @@ test('Masonry is fetched only where the engine lacks grid-lanes, and cards never
     page.on('request', request => { if (request.url().includes('masonry.pkgd.min.js')) masonryRequests++; });
     const native = await page.evaluate(() => CSS.supports('display', 'grid-lanes'));
     // Loaded by URL, as on a real page: browse.js derives Masonry's URL from its own.
-    await page.addScriptTag({url: '/themes/dre/asset/js/browse.js'});
+    await page.addScriptTag({url: '/themes/dre/' + themeScript('browse')});
     if (native) {
         await expect(page.locator('.resources')).not.toHaveClass(/is-masonry/);
         expect(masonryRequests).toBe(0);
@@ -105,7 +106,7 @@ test('Masonry is fetched only where the engine lacks grid-lanes, and cards never
 
 test('the view toggle keeps keyboard focus and reports the pressed view', async ({page}) => {
     await fixture(page);
-    await page.addScriptTag({path: 'asset/js/browse.js'});
+    await page.addScriptTag({path: themeScript('browse')});
     const list = page.getByRole('button', {name: 'List', exact: true});
     await list.focus();
     await page.keyboard.press('Enter');
@@ -134,7 +135,7 @@ test('in-page links never refetch connections; a new connection page still does'
         <button type="button" data-lr-facet="p1" aria-pressed="false">Authors</button>
         <ul data-lr-list><li class="connection" data-props="p1">Author record</li><li class="connection" data-props="p2">Editor record</li></ul>
         <a data-connection-page href="?lr_page=2#linked-resources">Next connections</a></details></div>`));
-    await page.addScriptTag({path: 'asset/js/linked-resources.js'});
+    await page.addScriptTag({path: themeScript('linked-resources')});
     await page.getByRole('button', {name: 'Authors', exact: true}).click();
     await expect(page.getByText('Editor record', {exact: true})).toBeHidden();
 

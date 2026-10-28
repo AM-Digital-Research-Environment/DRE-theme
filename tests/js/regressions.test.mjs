@@ -6,7 +6,8 @@ import { spawnSync } from 'node:child_process';
 import { JSDOM } from 'jsdom';
 
 const root = resolve(import.meta.dirname, '../..');
-const source = file => readFileSync(join(root, 'asset/js', file), 'utf8');
+import {themeScript} from '../support/theme-script.mjs';
+const source = file => readFileSync(join(root, themeScript(file.replace(/\.js$/, ''))), 'utf8');
 const dom = html => new JSDOM(html, { url: 'https://example.test/?view=grid', runScripts: 'outside-only', pretendToBeVisual: true });
 const start = (d, file) => { d.window.eval(source('utils.js')); d.window.eval(source(file)); d.window.document.dispatchEvent(new d.window.Event('DOMContentLoaded')); };
 
