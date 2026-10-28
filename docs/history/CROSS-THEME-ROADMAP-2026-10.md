@@ -30,7 +30,7 @@ Legend: `[x]` done · `[ ]` open · `[~]` dropped (rationale inline).
   `scripts/check-audit.js`): a high/critical advisory fails unless a written
   exception explains why it is unreachable, and an exception that is no longer
   needed fails too, so the list cannot rot.
-- [ ] **Generated files marked `linguist-generated`** so `style.css`, the token
+- [x] **Generated files marked `linguist-generated`** so `style.css`, the token
   fallbacks and minified scripts collapse in diffs.
 - [ ] **PHPStan level 6** (IWAC's level) against the real Omeka classes.
 

@@ -213,7 +213,7 @@ jobs:
           php-version: '8.5'
           coverage: none
           extensions: mbstring, pdo_mysql, pdo_sqlite, xml
-          tools: phpstan:2.3.0
+          tools: phpstan:2.3.3
 
       - name: Validate Composer metadata
         run: composer validate --strict --no-check-publish

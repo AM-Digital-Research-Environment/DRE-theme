@@ -69,3 +69,13 @@
 /.gitignore             export-ignore
 /language/*.pot         export-ignore
 /language/*.po          export-ignore
+
+# ==========================================================================
+# Generated files — collapsed in diffs and pull-request review
+# ==========================================================================
+# Each is written by a script and checked for staleness by `npm run verify`;
+# review the source change, not the regenerated output.
+/asset/css/style.css                  linguist-generated
+/asset/css/dre-tokens-fallback.css    linguist-generated
+/asset/css/dre-tokens-fallback.json   linguist-generated
+/language/template.pot                linguist-generated
