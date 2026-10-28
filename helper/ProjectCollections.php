@@ -33,7 +33,11 @@ class ProjectCollections extends AbstractHelper
         return $this;
     }
 
-    /** Whether a resource is a research project item. */
+    /**
+     * Whether a resource is a research project item.
+     *
+     * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null $resource
+     */
     public static function isProject($resource): bool
     {
         try {
@@ -44,7 +48,12 @@ class ProjectCollections extends AbstractHelper
         }
     }
 
-    /** The (visible) project whose records an item set holds, or null. */
+    /**
+     * The (visible) project whose records an item set holds, or null.
+     *
+     * @param \Omeka\Api\Representation\ItemSetRepresentation $itemSet
+     * @return \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null
+     */
     public function projectOf($itemSet)
     {
         try {
@@ -77,7 +86,8 @@ class ProjectCollections extends AbstractHelper
      * The (visible) item sets holding a project's records: those whose
      * `dcterms:isPartOf` names it, then any sharing its `dre:id`.
      *
-     * @return list<object>
+     * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $project
+     * @return list<\Omeka\Api\Representation\ItemSetRepresentation>
      */
     public function collectionsOf($project): array
     {
@@ -99,7 +109,11 @@ class ProjectCollections extends AbstractHelper
         return array_values($sets);
     }
 
-    /** How many visible records link to the project through `dcterms:isPartOf`. */
+    /**
+     * How many visible records link to the project through `dcterms:isPartOf`.
+     *
+     * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $project
+     */
     public function recordCount($project): int
     {
         try {
@@ -116,6 +130,8 @@ class ProjectCollections extends AbstractHelper
      * Where a project's records are explored: DRE Search's research items with
      * the project facet applied (the facet holds the project's title), else
      * core's item browse filtered on `dcterms:isPartOf`.
+     *
+     * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $project
      */
     public function recordsUrl($project): string
     {
@@ -134,16 +150,19 @@ class ProjectCollections extends AbstractHelper
         }
     }
 
+    /** @return array{joiner: string, property: string, type: string, text: string} */
     private static function eq(string $term, string $text): array
     {
         return ['joiner' => 'and', 'property' => $term, 'type' => 'eq', 'text' => $text];
     }
 
+    /** @return array{joiner: string, property: string, type: string, text: string} */
     private static function res(string $term, int $id): array
     {
         return ['joiner' => 'and', 'property' => $term, 'type' => 'res', 'text' => (string) $id];
     }
 
+    /** @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
     private static function firstLiteral($resource, string $term): string
     {
         try {

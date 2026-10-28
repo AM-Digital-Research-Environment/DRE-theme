@@ -6,6 +6,7 @@ use Laminas\View\Helper\AbstractHelper;
 /** Accessible custom-brand fills. The authored default palette remains unchanged. */
 class BrandPalette extends AbstractHelper
 {
+    /** @return array<'light'|'dark', array{primary: string, 'primary-hover': string, 'primary-active': string, 'primary-text': string, 'primary-contrast': string}> */
     public function __invoke(string $seed): array
     {
         if (!preg_match('/^#[0-9a-f]{6}$/iD', $seed) || strtolower($seed) === '#009260') {
@@ -32,16 +33,22 @@ class BrandPalette extends AbstractHelper
         return $palettes;
     }
 
+    /**
+     * @param list<int|float> $rgb
+     * @return list<int>
+     */
     private static function mix(array $rgb, int $target, float $amount): array
     {
         return array_map(static fn($channel) => (int) round($channel * (1 - $amount) + $target * $amount), $rgb);
     }
 
+    /** @param list<int|float> $rgb */
     private static function hex(array $rgb): string
     {
         return sprintf('#%02x%02x%02x', ...$rgb);
     }
 
+    /** @param list<int|float> $rgb */
     private static function luminance(array $rgb): float
     {
         $linear = array_map(static function ($channel) {

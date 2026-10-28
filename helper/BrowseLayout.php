@@ -25,6 +25,7 @@ use Laminas\View\Helper\AbstractHelper;
  */
 class BrowseLayout extends AbstractHelper
 {
+    /** @return array{setting: string, isGrid: bool, hasToggle: bool, bodyTerm: string|null, truncate: string} */
     public function __invoke(): array
     {
         $view = $this->getView();

@@ -6,7 +6,12 @@ use Laminas\View\Helper\AbstractHelper;
 /** Validated state shared by the record page and Omeka's terminal endpoint. */
 class ConnectionQuery extends AbstractHelper
 {
-    /** Omeka 4.2.1: type:property[-templatePropertyIds]; zero means no template. */
+    /**
+     * Omeka 4.2.1: type:property[-templatePropertyIds]; zero means no template.
+     *
+     * @param array<mixed> $query
+     * @return array{property: string|null, page: int, search: string}
+     */
     public function __invoke(array $query): array
     {
         $property = $query['lr_property'] ?? $query['resource_property'] ?? null;

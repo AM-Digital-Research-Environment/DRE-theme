@@ -45,6 +45,7 @@ class RecordIdentifiers extends AbstractHelper
      * Without a resource the helper itself, so a template can reach icon():
      * `$this->plugin('RecordIdentifiers')->icon('ORCID')`.
      *
+     * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null $resource
      * @return array<int, array{label: string, id: string, href: string}>|self
      */
     public function __invoke($resource = null)
@@ -107,6 +108,8 @@ class RecordIdentifiers extends AbstractHelper
      * through a factory that require_once's its file on first use; theme helper
      * classes are not autoloaded, so the class exists only once something has
      * asked for the plugin.
+     *
+     * @return array{label: string, id: string}
      */
     private function register(string $href): array
     {
@@ -123,6 +126,8 @@ class RecordIdentifiers extends AbstractHelper
     /**
      * The http(s) link a value points at: a URI value's URI, a literal that is
      * itself a URL, or — for bibo:doi only — a bare `10.x/…` DOI.
+     *
+     * @param \Omeka\Api\Representation\ValueRepresentation $value
      */
     private static function href($value, bool $isDoi): string
     {

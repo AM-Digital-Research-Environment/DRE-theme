@@ -7,9 +7,16 @@ use Laminas\View\Helper\AbstractHelper;
  * One page of distinct inbound records, using Omeka's ACL/site-aware builder.
  * Selector queries project DISTINCT property/template pairs, never all edges.
  * IDs are paged before representations are hydrated through the authorized API.
+ *
+ * @phpstan-type PropertyGroup array{label: string, property_id: int, label_is_translatable: bool, compound_id: string}
  */
 class ConnectionPage extends AbstractHelper
 {
+    /**
+     * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+     * @param array<mixed> $query
+     * @return array{subjectValues: array{}|array{0: list<array{resource_id: int, property_id: int, property_label: string, property_alternate_label: string|null, resource: \Omeka\Api\Representation\AbstractResourceEntityRepresentation}>}, totalCount: int, page: int, perPage: int, resourceType: string, resourceProperty: string, resourcePropertiesAll: array{items: list<PropertyGroup>, media: list<PropertyGroup>}, objectResource: \Omeka\Api\Representation\AbstractResourceEntityRepresentation, connectionSearch: string}
+     */
     public function __invoke($resource, array $query = []): array
     {
         $view = $this->getView();
@@ -74,7 +81,12 @@ class ConnectionPage extends AbstractHelper
             'connectionSearch' => $state['search']];
     }
 
-    /** Mirrors Omeka's grouping contract without retaining duplicate edge rows. */
+    /**
+     * Mirrors Omeka's grouping contract without retaining duplicate edge rows.
+     *
+     * @param list<array{property_id: int, property_label: string, resource_template_property_id: int|null, property_alternate_label: string|null}> $rows
+     * @return list<PropertyGroup>
+     */
     public static function properties(array $rows, string $type): array
     {
         $groups = [];

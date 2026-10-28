@@ -9,7 +9,13 @@
 # Templates (.phtml) are not analysed: they are rendered by PhpRenderer, and
 # tests/*Test.php plus tests/LayoutTest.php render them instead.
 parameters:
-    level: 5
+    level: 6
+    # Parameter and return types are PHPDoc, not native declarations: a wrong
+    # native type is a TypeError, a 500 on every page. PHPDoc is not enforced
+    # at runtime, and Omeka's own is not always right (resourceClass() can
+    # return null), so the helpers' defensive null and method_exists() guards
+    # are not reported as always true.
+    treatPhpDocTypesAsCertain: false
     # Omeka 4.2.1's floor through production's runtime (8.5.10).
     phpVersion:
         min: 80100

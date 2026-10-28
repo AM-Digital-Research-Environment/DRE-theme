@@ -5,6 +5,11 @@ use Laminas\View\Helper\AbstractHelper;
 /** Common locale, description and primary-thumbnail preparation for browse cards. */
 class ResourceCardData extends AbstractHelper
 {
+    /**
+     * @param \Omeka\Api\Representation\ItemRepresentation|\Omeka\Api\Representation\ItemSetRepresentation|\Omeka\Api\Representation\MediaRepresentation $resource
+     * @param array{showBody?: bool, showThumbnail?: bool, thumbnailSize?: string} $options
+     * @return array{resource: \Omeka\Api\Representation\ItemRepresentation|\Omeka\Api\Representation\ItemSetRepresentation|\Omeka\Api\Representation\MediaRepresentation, heading: \Omeka\Api\Representation\ValueRepresentation|string|null, body: \Omeka\Api\Representation\ValueRepresentation|string|null, thumbnail: string}
+     */
     public function __invoke($resource, array $options = []): array
     {
         $view = $this->getView();

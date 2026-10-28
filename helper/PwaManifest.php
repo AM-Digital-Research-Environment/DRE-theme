@@ -5,6 +5,10 @@ use Laminas\View\Helper\AbstractHelper;
 /** Build the per-site manifest; encoding/routing failure disables installation. */
 class PwaManifest extends AbstractHelper
 {
+    /**
+     * @param \Omeka\Api\Representation\SiteRepresentation $site
+     * @return array{enabled: bool, shortName: string, json: string}
+     */
     public function __invoke($site): array
     {
         $view = $this->getView();

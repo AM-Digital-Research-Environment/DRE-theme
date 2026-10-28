@@ -5,6 +5,10 @@ use Laminas\View\Helper\AbstractHelper;
 /** Resolve citation and identifier data without emitting markup. */
 class RecordApparatus extends AbstractHelper
 {
+    /**
+     * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+     * @return array{citation: string, citeStyles: array<string, array{label: string, html: string}>, citeDefault: string, citeDownloads: array<string, array{url: string, label: string, ext: string}>, citeId: string, panelTitle: string, copyLabel: string, copyText: string, copyLink: string, permalink: string, identifier: string, rows: list<array{label: string, layout: string, values: list<array<string, string>>}>, copyInRow: bool}|array{}
+     */
     public function __invoke($resource): array
     {
         $view = $this->getView();

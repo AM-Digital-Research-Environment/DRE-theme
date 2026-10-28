@@ -32,7 +32,7 @@ Legend: `[x]` done · `[ ]` open · `[~]` dropped (rationale inline).
   needed fails too, so the list cannot rot.
 - [x] **Generated files marked `linguist-generated`** so `style.css`, the token
   fallbacks and minified scripts collapse in diffs.
-- [ ] **PHPStan level 6** (IWAC's level) against the real Omeka classes.
+- [x] **PHPStan level 6** (IWAC's level) against the real Omeka classes.
 
 ## D3 — Theme-owned error pages
 

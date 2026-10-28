@@ -29,7 +29,11 @@ class BrowseSort extends AbstractHelper
     /** @var array<int,string>|null property id => label */
     private ?array $dateProperties = null;
 
-    /** The curated sort configuration for a resource type ('' when unavailable). */
+    /**
+     * The curated sort configuration for a resource type ('' when unavailable).
+     *
+     * @return array<string,string>
+     */
     public function __invoke(string $resourceType = 'items'): array
     {
         try {

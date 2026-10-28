@@ -2,9 +2,19 @@
 namespace OmekaTheme\Helper;
 use Laminas\View\Helper\AbstractHelper;
 
-/** Indexed, cycle-safe hierarchy data with bounded batches of authorized item sets. */
+/**
+ * Indexed, cycle-safe hierarchy data with bounded batches of authorized item sets.
+ *
+ * @phpstan-type Node array{id: int, label: string, url: string|null, active: bool, count: int|null, children: list<array<string, mixed>>, setIds: array<int, true>}
+ * @phpstan-type Tree array{nodes: list<Node>, itemSets: list<\Omeka\Api\Representation\ItemSetRepresentation>}
+ */
 class HierarchyTree extends AbstractHelper
 {
+    /**
+     * @param object $selected
+     * @param list<string>|string|null $valueLang
+     * @return Tree
+     */
     public function __invoke($selected, $valueLang = null): array
     {
         $view = $this->getView();
@@ -26,6 +36,12 @@ class HierarchyTree extends AbstractHelper
         return $this->build(array_values($groupings), (int) $selected->id(), $siteSets, $valueLang);
     }
 
+    /**
+     * @param list<object> $groupings
+     * @param list<int> $siteSetIds
+     * @param list<string>|string|null $valueLang
+     * @return Tree
+     */
     public function build(array $groupings, int $activeId, array $siteSetIds, $valueLang = null): array
     {
         $view = $this->getView();

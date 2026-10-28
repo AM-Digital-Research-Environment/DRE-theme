@@ -50,6 +50,7 @@ class CollectionStats extends AbstractHelper
      */
     private const CACHE_VERSION = 'v10';
 
+    /** @return array<array<string, mixed>> */
     public function __invoke(?int $siteId = null): array
     {
         $cacheKey = sprintf('dre_stats_%s_%s', self::CACHE_VERSION, $siteId ?: 'x');
@@ -79,7 +80,11 @@ class CollectionStats extends AbstractHelper
         return $this->localize($stats);
     }
 
-    /** Optional integration: source membership is owned by DRESearch's profiles. */
+    /**
+     * Optional integration: source membership is owned by DRESearch's profiles.
+     *
+     * @return array<array<string, mixed>>|null
+     */
     private function fromSearchProfiles(?int $siteId): ?array
     {
         try {
@@ -113,6 +118,8 @@ class CollectionStats extends AbstractHelper
      * The application's services, reached through the current site. The helper
      * plugin manager's getServiceLocator() is deprecated in laminas-servicemanager
      * 3 and raises E_USER_DEPRECATED on every call.
+     *
+     * @return \Laminas\ServiceManager\ServiceLocatorInterface
      */
     private function services()
     {
@@ -123,7 +130,12 @@ class CollectionStats extends AbstractHelper
         return $site->getServiceLocator();
     }
 
-    /** Counts are shared across locales; labels belong to the current request. */
+    /**
+     * Counts are shared across locales; labels belong to the current request.
+     *
+     * @param array<array<string, mixed>> $stats
+     * @return array<array<string, mixed>>
+     */
     private function localize(array $stats): array
     {
         $translate = $this->getView()->plugin('translate');
@@ -148,6 +160,7 @@ class CollectionStats extends AbstractHelper
 
     // ------------------------------------------------------------------ cache
 
+    /** @return \Omeka\Settings\SettingsInterface|null */
     private function settings()
     {
         try {
@@ -159,6 +172,7 @@ class CollectionStats extends AbstractHelper
         }
     }
 
+    /** @return array<mixed>|null */
     private function readCache(string $key, int $ttl = self::TTL): ?array
     {
         $settings = $this->settings();
@@ -180,6 +194,7 @@ class CollectionStats extends AbstractHelper
         return null;
     }
 
+    /** @param array<mixed> $stats */
     private function writeCache(string $key, array $stats): void
     {
         $settings = $this->settings();
@@ -198,6 +213,8 @@ class CollectionStats extends AbstractHelper
     /**
      * The theme's own counts — a smaller set, no subtitles. 'k' selects the
      * Lucide glyph in the banner template.
+     *
+     * @return list<array{k: string, l: string, n: int, s: string}>|null
      */
     private function fromApi(?int $siteId): ?array
     {

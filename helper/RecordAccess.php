@@ -38,6 +38,13 @@ use Laminas\View\Helper\AbstractHelper;
  * A PI or mediator whose Person item carries a `fabio:hasURL` (the institutional
  * staff page, synced from MongoDB) brings it along as `staffPage`, so a visitor
  * can reach a current address without first opening the Person record.
+ *
+ * @phpstan-type Link array{label: string, href: string}
+ * @phpstan-type Person array{label: string, href: string, staffPage?: string}
+ * @phpstan-type Contact array{source: 'mediator'|'team'|'dre', contacts: list<Person>, pis: list<Person>, researchers: list<Person>}
+ * @phpstan-type ProjectRecords array{href: string, count: int, collections: list<string>}|array{}
+ * @phpstan-type ProjectAccess array{email: string, accessPageUrl: string, kind: 'project', id: int, title: string, permalink: string, sections: list<Person>, years: string, records: ProjectRecords, contactSource: 'mediator'|'team'|'dre', contacts: list<Person>, pis: list<Person>, researchers: list<Person>, reportMailto: string, requestMailto: string}
+ * @phpstan-type RecordAccessData array{email: string, accessPageUrl: string, kind: 'record', id: int, title: string, permalink: string, projects: list<Link>, contactSource: 'mediator'|'team'|'dre', contacts: list<Person>, pis: list<Person>, researchers: list<Person>, holders: list<string>, links: list<Link>, hasMedia: bool, reportMailto: string, requestMailto: string}
  */
 class RecordAccess extends AbstractHelper
 {
@@ -60,6 +67,10 @@ class RecordAccess extends AbstractHelper
         'doi.org' => 'Publisher’s page (DOI)', // @translate
     ];
 
+    /**
+     * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+     * @return ProjectAccess|RecordAccessData|array{}
+     */
     public function __invoke($resource): array
     {
         $view = $this->getView();
@@ -160,6 +171,8 @@ class RecordAccess extends AbstractHelper
      * A mailto to the DRE mailbox that carries the record's id, title and
      * permalink, so the DRE never has to ask which record was meant: one for an
      * error report (when no form module is active), one for an access request.
+     *
+     * @param array{id: int, title: string, email: string, permalink?: string} $access
      */
     private function mailto(array $access, string $subjectFormat, string $prompt): string
     {
@@ -172,7 +185,11 @@ class RecordAccess extends AbstractHelper
             . '&body=' . rawurlencode($body);
     }
 
-    /** The resource's canonical page, '' when it cannot be built. */
+    /**
+     * The resource's canonical page, '' when it cannot be built.
+     *
+     * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+     */
     private function permalink($resource): string
     {
         try {
@@ -182,7 +199,12 @@ class RecordAccess extends AbstractHelper
         }
     }
 
-    /** Projects an item belongs to: `dcterms:isPartOf` links of class foaf:Project. */
+    /**
+     * Projects an item belongs to: `dcterms:isPartOf` links of class foaf:Project.
+     *
+     * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+     * @return list<\Omeka\Api\Representation\AbstractResourceEntityRepresentation>
+     */
     private function projectsOf($resource): array
     {
         $projects = [];
@@ -207,7 +229,8 @@ class RecordAccess extends AbstractHelper
      * researchers, who are not listed on records, do not.
      *  - 'dre': nobody is known, so the DRE mailbox answers.
      *
-     * @return array{source:string,contacts:array,pis:array,researchers:array}
+     * @param list<\Omeka\Api\Representation\AbstractResourceEntityRepresentation> $projects
+     * @return Contact
      */
     private function contactFor(array $projects): array
     {
@@ -239,6 +262,9 @@ class RecordAccess extends AbstractHelper
      * Labels (and record links) of a property's values. A linked value shows its
      * title, a URI its label or itself, a literal its text — the rail's rule.
      * With $staffPages, a linked item's staff page rides along as `staffPage`.
+     *
+     * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+     * @return list<Person>
      */
     private function linkedTitles($resource, string $term, bool $linksOnly = false, bool $staffPages = false): array
     {
@@ -281,6 +307,8 @@ class RecordAccess extends AbstractHelper
     /**
      * A person's staff page: the first web address under `fabio:hasURL`, which
      * MongoDB2OmekaS writes from `dev.persons.url`. '' when there is none.
+     *
+     * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $person
      */
     private function staffPage($person): string
     {
@@ -302,7 +330,12 @@ class RecordAccess extends AbstractHelper
         return '';
     }
 
-    /** Online copies, named by the system they lead to. Duplicate URLs collapse. */
+    /**
+     * Online copies, named by the system they lead to. Duplicate URLs collapse.
+     *
+     * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+     * @return list<Link>
+     */
     private function links($resource): array
     {
         $translate = $this->getView()->plugin('translate');
@@ -371,6 +404,7 @@ class RecordAccess extends AbstractHelper
         return $first === $last ? $first : $first . '–' . $last;
     }
 
+    /** @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
     private function firstLiteral($resource, string $term): string
     {
         try {
@@ -390,7 +424,8 @@ class RecordAccess extends AbstractHelper
      * project (the U-Matic tapes of project 1797). [] when no visible record
      * links to the project: the statement then simply carries no link.
      *
-     * @return array{href:string,count:int,collections:list<string>}|array{}
+     * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+     * @return ProjectRecords
      */
     private function projectRecords($resource): array
     {
@@ -411,6 +446,7 @@ class RecordAccess extends AbstractHelper
         return ['href' => $href, 'count' => $count, 'collections' => array_values(array_unique($collections))];
     }
 
+    /** @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
     private function hasMedia($resource): bool
     {
         try {

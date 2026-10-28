@@ -38,6 +38,8 @@ class DeferScripts extends AbstractHelper
     /**
      * Defer every external classic script in a HeadScript/InlineScript
      * container. Without one, returns the helper, for asModules().
+     *
+     * @param object|null $scripts
      */
     public function __invoke($scripts = null): self
     {
@@ -54,7 +56,11 @@ class DeferScripts extends AbstractHelper
         return $this;
     }
 
-    /** Run the inline classic scripts from item $from onwards as module scripts. */
+    /**
+     * Run the inline classic scripts from item $from onwards as module scripts.
+     *
+     * @param object|null $scripts
+     */
     public function asModules($scripts, int $from): self
     {
         foreach ($this->items($scripts) as $index => $item) {
@@ -68,7 +74,10 @@ class DeferScripts extends AbstractHelper
         return $this;
     }
 
-    /** @return array<int, object> */
+    /**
+     * @param object|null $scripts
+     * @return array<int, object>
+     */
     private function items($scripts): array
     {
         try {

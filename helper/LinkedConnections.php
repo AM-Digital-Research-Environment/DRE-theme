@@ -2,9 +2,18 @@
 namespace OmekaTheme\Helper;
 use Laminas\View\Helper\AbstractHelper;
 
-/** Normalize one bounded page of subject values into distinct connection cards. */
+/**
+ * Normalize one bounded page of subject values into distinct connection cards.
+ *
+ * @phpstan-type Facet array{id: string, propertyId: int, label: string, count: int, groupOrder: int}
+ */
 class LinkedConnections extends AbstractHelper
 {
+    /**
+     * @param array<array<array<string, mixed>>> $subjectValues
+     * @param list<string>|string|null $valueLang
+     * @return array{connections: array<int, array{resource: \Omeka\Api\Representation\AbstractResourceEntityRepresentation, heading: string, rels: list<array{id: string, propertyId: int, label: string}>, relIds: list<string>, relOrder: int}>, facets: list<Facet>, ranked: list<Facet>}
+     */
     public function __invoke(array $subjectValues, ?string $headingTerm = null, $valueLang = null): array
     {
         $view = $this->getView();

@@ -22,6 +22,8 @@ use Laminas\View\Helper\AbstractHelper;
  *   sameAs     [['label', 'id', 'href'], …] — the owl:sameAs / skos:exactMatch
  *              targets (0.3.0+), labelled by the register they belong to;
  *              [] with 0.2.0, which does not send the key
+ *
+ * @phpstan-type LinkedData array{uri: string, page: string, downloads: list<array{label: string, type: string, url: string}>, sameAs: list<array{label: string, id: string, href: string}>}
  */
 class RecordLinkedData extends AbstractHelper
 {
@@ -45,6 +47,10 @@ class RecordLinkedData extends AbstractHelper
         'catalogue.bnf.fr' => 'BnF',
     ];
 
+    /**
+     * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+     * @return LinkedData|array{}
+     */
     public function __invoke($resource): array
     {
         $view = $this->getView();
@@ -98,9 +104,11 @@ class RecordLinkedData extends AbstractHelper
      * the shape common/record-apparatus-rows.phtml renders. The permanent link
      * row is the caller's, since its fallback differs by page.
      *
+     * @param LinkedData|array{} $linked
      * @param string[] $skip hrefs already shown elsewhere on the panel (a DOI row)
      * @param string|null $formatsLabel the label of the formats row, when the
      *   panel around it is already headed "Linked data"
+     * @return list<array{label: string, layout: string, values: list<array<string, string>>}>
      */
     public function rows(array $linked, array $skip = [], ?string $formatsLabel = null): array
     {
@@ -134,6 +142,8 @@ class RecordLinkedData extends AbstractHelper
      * The register an external IRI belongs to, and its identifier there:
      * `http://www.wikidata.org/entity/Q42` → ['label' => 'Wikidata', 'id' => 'Q42'].
      * An unknown host is named by itself, with no separate identifier.
+     *
+     * @return array{label: string, id: string}
      */
     public static function register(string $href): array
     {
@@ -162,6 +172,7 @@ class RecordLinkedData extends AbstractHelper
         return ['label' => $host !== '' ? $host : $href, 'id' => ''];
     }
 
+    /** @param mixed $value */
     private static function httpUrl($value): string
     {
         if (!is_string($value)) {

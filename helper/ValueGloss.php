@@ -18,6 +18,7 @@ use Laminas\View\Helper\AbstractHelper;
  */
 class ValueGloss extends AbstractHelper
 {
+    /** @param \Omeka\Api\Representation\ValueRepresentation $value */
     public function __invoke($value, ?string $lang = null): string
     {
         try {

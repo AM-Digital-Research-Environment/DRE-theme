@@ -42,6 +42,8 @@ use Laminas\View\Helper\AbstractHelper;
  * The map is keyed on the vocabularies the DRE actually uses, verified against
  * resource template 10 ("Research Items", 98 properties: marcrel 54, dcterms 32,
  * dre 5, fabio 4, bibo 2, frapo 1) and the publication templates.
+ *
+ * @phpstan-type PropertyValues array{property: \Omeka\Api\Representation\PropertyRepresentation, alternate_label: string|null, alternate_comment: string|null, values: list<\Omeka\Api\Representation\ValueRepresentation>}
  */
 class ResourceGroups extends AbstractHelper
 {
@@ -162,8 +164,8 @@ class ResourceGroups extends AbstractHelper
     ];
 
     /**
-     * @param array $values Omeka's `[term => ['property' => …, 'values' => […]]]`.
-     * @return array<int, array{key:string,title:string,layout:string,values:array}>
+     * @param array<string, PropertyValues> $values Omeka's `[term => ['property' => …, 'values' => […]]]`.
+     * @return array<int, array{key:string,title:string,layout:string,values:array<string, PropertyValues>}>
      */
     public function __invoke(array $values): array
     {
@@ -259,6 +261,8 @@ class ResourceGroups extends AbstractHelper
      * Exposed so the test can assert the map against the property list of a
      * REAL resource template rather than re-declaring it — a copy of the map in
      * the test would pass happily while the map itself was wrong.
+     *
+     * @return list<array{key:string,title:string,layout:string,terms:list<string>,prefixes?:list<string>,trailing?:bool}>
      */
     public static function groups(): array
     {

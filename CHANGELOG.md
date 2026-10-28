@@ -17,6 +17,7 @@ to create.
 
 ### Changed
 
+- **PHPStan level 6.** Every view helper documents its parameter and return types, with exact array shapes where a helper builds a fixed one. The types are PHPDoc only, so nothing changes at runtime.
 - **Stylelint** checks the Sass for correctness (unknown properties, units and selectors, invalid colours, duplicate or overridden declarations) as part of `npm run lint` and `npm run verify`. The current sources pass it unchanged.
 - **Release workflow.** The package check reads its exclusions from `.gitattributes` instead of restating them, and allowlists the files at the package root, so a new top-level file cannot ship until it is either listed or excluded. A tag on a commit that is not on `master` is refused. Building and verifying the package now run with a read-only token; only the final job, which runs no repository code, can write the release.
 - **Dependency audit with written exceptions.** `npm run verify` runs `npm run audit:deps` instead of a bare `npm audit --audit-level=high`. A high or critical advisory still fails, unless `scripts/lib/audit-exceptions.mjs` lists it with the reason it cannot be fixed or reached; an exception npm can now fix, or that no longer appears, fails as well, so the list cannot outlive its reason.

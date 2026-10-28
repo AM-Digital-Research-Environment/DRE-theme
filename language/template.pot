@@ -60,7 +60,7 @@ msgstr ""
 msgid "about %s words"
 msgstr ""
 
-#: helper/ResourceGroups.php:61
+#: helper/ResourceGroups.php:63
 msgid "Abstract"
 msgstr ""
 
@@ -262,7 +262,7 @@ msgstr ""
 msgid "Days"
 msgstr ""
 
-#: helper/ResourceGroups.php:67
+#: helper/ResourceGroups.php:69
 msgid "Description"
 msgstr ""
 
@@ -360,7 +360,7 @@ msgstr ""
 msgid "Found a mistake in this record? Tell the DRE."
 msgstr ""
 
-#: helper/ResourceGroups.php:150
+#: helper/ResourceGroups.php:152
 msgid "Full text"
 msgstr ""
 
@@ -368,7 +368,7 @@ msgstr ""
 msgid "Full text loaded"
 msgstr ""
 
-#: helper/ResourceGroups.php:160
+#: helper/ResourceGroups.php:162
 msgid "Further details"
 msgstr ""
 
@@ -400,7 +400,7 @@ msgstr ""
 msgid "How to reach the material, and how to reuse what AMIRA publishes."
 msgstr ""
 
-#: helper/ResourceGroups.php:134
+#: helper/ResourceGroups.php:136
 msgid "Identifiers & sources"
 msgstr ""
 
@@ -469,7 +469,7 @@ msgstr ""
 msgid "Licence of the material"
 msgstr ""
 
-#: helper/RecordLinkedData.php:116
+#: helper/RecordLinkedData.php:124
 #: view/common/record-linked-data.phtml:34
 msgid "Linked data"
 msgstr ""
@@ -621,7 +621,7 @@ msgstr ""
 msgid "Organisations"
 msgstr ""
 
-#: helper/ResourceGroups.php:98
+#: helper/ResourceGroups.php:100
 msgid "Origins & context"
 msgstr ""
 
@@ -659,7 +659,7 @@ msgstr ""
 msgid "People"
 msgstr ""
 
-#: helper/ResourceGroups.php:83
+#: helper/ResourceGroups.php:85
 msgid "People & roles"
 msgstr ""
 
@@ -801,11 +801,11 @@ msgstr ""
 msgid "Research shortlist"
 msgstr ""
 
-#: helper/ResourceGroups.php:123
+#: helper/ResourceGroups.php:125
 msgid "Rights & access"
 msgstr ""
 
-#: helper/RecordLinkedData.php:124
+#: helper/RecordLinkedData.php:132
 msgid "Same as"
 msgstr ""
 
@@ -925,7 +925,7 @@ msgstr ""
 msgid "Staff page of %s"
 msgstr ""
 
-#: helper/ResourceGroups.php:73
+#: helper/ResourceGroups.php:75
 msgid "Subjects"
 msgstr ""
 

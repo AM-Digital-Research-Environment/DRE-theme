@@ -5,6 +5,7 @@ use Laminas\View\Helper\AbstractHelper;
 /** Stable per-record anchors; repeated metadata blocks receive unique suffixes. */
 class SectionPrefix extends AbstractHelper
 {
+    /** @var array<int, int> */
     private array $uses = [];
     public function __invoke(int $id): string
     {

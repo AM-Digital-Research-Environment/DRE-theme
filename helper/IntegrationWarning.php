@@ -5,7 +5,9 @@ use Laminas\View\Helper\AbstractHelper;
 /** Bound unexpected optional-module diagnostics without exposing errors to visitors. */
 class IntegrationWarning extends AbstractHelper
 {
+    /** @var array<string, true> */
     private array $reported = [];
+    /** @param \Omeka\Api\Representation\AbstractRepresentation|null $resource */
     public function __invoke($resource, string $component, \Throwable $error): void
     {
         if (isset($this->reported[$component])) return;

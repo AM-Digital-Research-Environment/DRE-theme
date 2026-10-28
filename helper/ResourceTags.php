@@ -30,6 +30,7 @@ class ResourceTags extends AbstractHelper
     /** Offset applied to resource-class ids so they never map onto a type hue. */
     private const CLASS_ID_OFFSET = 10;
 
+    /** @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null $resource */
     public function __invoke($resource): string
     {
         if (!$resource) {
