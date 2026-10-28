@@ -42,7 +42,7 @@ Legend: `[x]` done · `[ ]` open · `[~]` dropped (rationale inline).
 
 ## D4 — Agent and contributor instructions in the repository
 
-- [ ] `AGENTS.md` (read by Codex and, through `CLAUDE.md`, by Claude Code):
+- [x] `AGENTS.md` (read by Codex and, through `CLAUDE.md`, by Claude Code):
   the gotchas that so far lived only in private agent memory (helper-name
   casing, `::details-content` box-sizing, the nav fallback gating, Mirador's
   light-DOM button leak, the BOM in compressed Sass, the template-deletion

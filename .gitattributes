@@ -60,6 +60,8 @@
 /docs/history/          export-ignore
 /docs/TESTING.md        export-ignore
 /CONTRIBUTING.md        export-ignore
+/AGENTS.md              export-ignore
+/CLAUDE.md              export-ignore
 /.impeccable/           export-ignore
 
 # --- Repository metadata --------------------------------------------------
