@@ -56,7 +56,7 @@ msgstr ""
 msgid "A project’s collection."
 msgstr ""
 
-#: view/common/resource-values.phtml:126
+#: view/common/resource-values.phtml:142
 msgid "about %s words"
 msgstr ""
 
@@ -364,7 +364,7 @@ msgstr ""
 msgid "Full text"
 msgstr ""
 
-#: view/common/resource-values.phtml:124
+#: view/common/resource-values.phtml:140
 msgid "Full text loaded"
 msgstr ""
 
@@ -486,7 +486,7 @@ msgstr ""
 msgid "Loading connections…"
 msgstr ""
 
-#: view/common/resource-values.phtml:123
+#: view/common/resource-values.phtml:139
 msgid "Loading the full text…"
 msgstr ""
 
@@ -699,7 +699,7 @@ msgid_plural "principal investigators"
 msgstr[0] ""
 msgstr[1] ""
 
-#: view/common/resource-values.phtml:159
+#: view/common/resource-values.phtml:175
 msgid "Private"
 msgstr ""
 
@@ -747,7 +747,7 @@ msgstr ""
 msgid "RDSpace, University of Bayreuth"
 msgstr ""
 
-#: view/common/resource-values.phtml:125
+#: view/common/resource-values.phtml:141
 msgid "Read the full text"
 msgstr ""
 
@@ -963,7 +963,7 @@ msgstr[1] ""
 msgid "The Digital Research Environment (DRE): %s"
 msgstr ""
 
-#: view/common/resource-values.phtml:125
+#: view/common/resource-values.phtml:141
 msgid "The full text could not be loaded. Try again"
 msgstr ""
 

@@ -11,6 +11,10 @@ to create.
 
 ## [Unreleased]
 
+### Fixed
+
+- **"Read the full text" on a private full text.** A signed-in curator got "The full text could not be loaded" on a record whose `bibo:content` is private: the link fetched the record from Omeka's API, which never reads the sign-in session and so leaves private values out. A private text now loads from the record page itself (`?full-text=1`, which renders every full text whole and, without JavaScript, is where the link leads). Public texts still load from the API.
+
 ## [2.47.0] - 2026-10-29
 
 ### Added

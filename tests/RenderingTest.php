@@ -288,8 +288,28 @@ dre_check($failures, $checks, 'the record carries the opening of a long full tex
 dre_check($failures, $checks, 'the full text loads from the record\'s API representation',
     str_contains($html, 'href="/api/items/41980" rel="nofollow"') && str_contains($html, 'data-fulltext-load')
     && in_array('/themes/dre/asset/js/dist/fulltext.min.js', $view->assets, true));
+dre_check($failures, $checks, 'a public full text loads from the API', !str_contains($html, 'data-fulltext-source'));
 $html = $view->render('common/resource-values', ['resource' => new ThemeTestResource('Thesis', 41980), 'values' => $values, 'recordChrome' => false]);
 dre_check($failures, $checks, 'an embedded record renders the full text whole', str_contains($html, 'mot fin') && !str_contains($html, 'data-fulltext-load'));
+// The API never reads the sign-in session, so a private text loads from the page.
+class PrivateFullTextValue extends FullTextValue
+{
+    public function isPublic() { return false; }
+}
+$values['bibo:content']['values'] = [new PrivateFullTextValue($long)];
+$html = $view->render('common/resource-values', ['resource' => new ThemeTestResource('Thesis', 41980), 'values' => $values]);
+preg_match('/id="([^"]+-text-0)"/', $html, $textId);
+dre_check($failures, $checks, 'a private full text loads from the record page, not the API',
+    isset($textId[1]) && str_contains($html, 'href="/s/a/item/41980?full-text=1#' . $textId[1] . '"')
+    && str_contains($html, 'data-fulltext-source="page"') && !str_contains($html, 'mot fin'), $html);
+// SectionPrefix counts renders per request: the page fetched with ?full-text=1
+// renders once, as the record did, but this process has rendered it before.
+$view->query = ['full-text' => '1'];
+$html = $view->render('common/resource-values', ['resource' => new ThemeTestResource('Thesis', 41980), 'values' => $values]);
+dre_check($failures, $checks, '?full-text=1 renders the text whole under the opening\'s id',
+    isset($textId[1]) && preg_match('/id="record-41980(-\d+)?-fulltext-text-0"[^>]*>Première ligne/', $html) && str_contains($html, 'mot fin')
+    && !str_contains($html, 'data-fulltext-load'), $html);
+$view->query = [];
 
 // The breadcrumb shows DRE SEO's trail, the one its BreadcrumbList states (issue #14).
 $crumbs = new ThemeTestView();

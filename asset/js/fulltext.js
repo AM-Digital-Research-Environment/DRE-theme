@@ -5,7 +5,8 @@
  * "Read the full text" is a link to the record's API representation, which
  * carries the whole text. Here the link fetches it and puts the text in place
  * of the opening, so a reader who never asks for it never downloads it.
- * Without JavaScript the link still leads to the text, as JSON.
+ * Without JavaScript the link still leads to the text: as JSON, or for a
+ * private value the record page with the text whole.
  */
 (function () {
     'use strict';
@@ -26,19 +27,35 @@
         return found ? found['@value'] : null;
     }
 
+    // A private value is not in the API's representation (Omeka's API ignores
+    // the sign-in session), so its link is this record page with ?full-text=1,
+    // which renders the text whole under the same id.
+    async function fromPage(link, text) {
+        const response = await fetch(link.href.split('#')[0], { credentials: 'same-origin' });
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        const page = new DOMParser().parseFromString(await response.text(), 'text/html');
+        return page.getElementById(text.id)?.textContent ?? null;
+    }
+
+    async function fromApi(link, text) {
+        const response = await fetch(link.href, {
+            headers: { Accept: 'application/json' },
+            credentials: 'same-origin',
+        });
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        const record = await response.json();
+        const opening = text.textContent.replace(/…$/, '');
+        return pick(record[text.dataset.term], Number(text.dataset.index), opening);
+    }
+
     async function load(link, text) {
         if (link.getAttribute('aria-busy') === 'true') return;
         link.setAttribute('aria-busy', 'true');
         link.textContent = link.dataset.loading;
         try {
-            const response = await fetch(link.href, {
-                headers: { Accept: 'application/json' },
-                credentials: 'same-origin',
-            });
-            if (!response.ok) throw new Error('HTTP ' + response.status);
-            const record = await response.json();
-            const opening = text.textContent.replace(/…$/, '');
-            const full = pick(record[text.dataset.term], Number(text.dataset.index), opening);
+            const full = link.dataset.fulltextSource === 'page'
+                ? await fromPage(link, text)
+                : await fromApi(link, text);
             if (full === null) throw new Error('Full text not found');
 
             text.textContent = full;

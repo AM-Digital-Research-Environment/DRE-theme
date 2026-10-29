@@ -47,6 +47,9 @@ foreach ($this->ResourceGroups($values) as $group) {
     if ($rendered) $groups[] = $group + ['rendered' => $rendered, 'id' => $prefix . '-' . $group['key']];
 }
 $headingTag = $recordChrome ? 'h2' : 'h4';
+// ?full-text=1 renders every full text whole: where "Read the full text" leads
+// for a private value, and what fulltext.js reads it from (see below).
+$fullTextWhole = '1' === $this->params()->fromQuery('full-text');
 ?>
 <div class="record">
 <?php foreach ($groups as $group):
@@ -88,8 +91,10 @@ $headingTag = $recordChrome ? 'h2' : 'h4';
                     // array: array_filter() above keeps the keys.
                     $fullText = null;
                     if ($term === 'bibo:content' && $recordChrome && isset($resource) && 'literal' === $valueType) {
-                        $fullText = $this->FullTextPreview((string) $value->value());
-                        if (!$fullText['truncated']) $fullText = null;
+                        $fullText = $fullTextWhole
+                            ? ['preview' => (string) $value->value(), 'truncated' => false, 'whole' => true]
+                            : $this->FullTextPreview((string) $value->value());
+                        if (!$fullText['truncated'] && empty($fullText['whole'])) $fullText = null;
                     }
                     $valueLang = $value->lang();
                     $valueAnnotation = $value->valueAnnotation();
@@ -108,9 +113,20 @@ $headingTag = $recordChrome ? 'h2' : 'h4';
                         <?php if ($showLocale && $valueLang) : ?>
                             <span class="language"><?php echo $escape($valueLang); ?></span>
                         <?php endif; ?>
-                        <?php if ($fullText):
+                        <?php if ($fullText && !empty($fullText['whole'])):
+                            // The id is the one the opening carries: fulltext.js finds
+                            // the text by it in this page fetched with ?full-text=1. ?>
+                        <span class="value-content record-fulltext is-complete" id="<?php echo $escapeAttr($group['id'] . '-text-' . $valueIndex); ?>" tabindex="-1"><?php echo $escape($fullText['preview']); ?></span>
+                        <?php elseif ($fullText):
                             $textId = $group['id'] . '-text-' . $valueIndex;
-                            $apiUrl = $this->url('api/default', ['resource' => $resource->resourceName(), 'id' => $resource->id()]);
+                            // Omeka's API never reads the sign-in session (key
+                            // authentication only), so it omits a private value even
+                            // for a signed-in curator. A private text loads from this
+                            // page instead, which does.
+                            $fromPage = !$value->isPublic();
+                            $loadUrl = $fromPage
+                                ? $resource->url() . '?full-text=1#' . $textId
+                                : $this->url('api/default', ['resource' => $resource->resourceName(), 'id' => $resource->id()]);
                             // HeadScript skips a file it already holds.
                             $this->inlineScript()->appendFile($this->assetUrl('js/dist/fulltext.min.js'));
                             // No whitespace inside the span: it keeps the text's line
@@ -119,7 +135,7 @@ $headingTag = $recordChrome ? 'h2' : 'h4';
                             ?>
                         <span class="value-content record-fulltext" id="<?php echo $escapeAttr($textId); ?>" tabindex="-1" data-term="<?php echo $escapeAttr($term); ?>" data-index="<?php echo (int) $valueIndex; ?>"><?php echo $escape($fullText['preview']); ?>…</span>
                         <span class="record-fulltext__more">
-                            <a class="record-fulltext__load" href="<?php echo $escapeAttr($apiUrl); ?>" rel="nofollow" aria-controls="<?php echo $escapeAttr($textId); ?>" data-fulltext-load
+                            <a class="record-fulltext__load" href="<?php echo $escapeAttr($loadUrl); ?>" rel="nofollow" aria-controls="<?php echo $escapeAttr($textId); ?>" data-fulltext-load<?php echo $fromPage ? ' data-fulltext-source="page"' : ''; ?>
                                 data-loading="<?php echo $escapeAttr($translate('Loading the full text…')); ?>"
                                 data-loaded="<?php echo $escapeAttr($translate('Full text loaded')); ?>"
                                 data-error="<?php echo $escapeAttr($translate('The full text could not be loaded. Try again')); ?>"><?php echo $escape($translate('Read the full text')); ?></a>
