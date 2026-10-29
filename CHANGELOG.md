@@ -11,6 +11,8 @@ to create.
 
 ## [Unreleased]
 
+## [2.47.0] - 2026-10-29
+
 ### Added
 
 - **Error pages of the theme's own.** A missing page (404), a private record (403) and any other error now render in the site's chrome with a plain explanation, the ways back in (home page, browse records) and, for 404 and 403, a search field that goes to DRE Search when the module is installed. They replace Omeka core's bare pages, whose only advice was the back button, and are marked `noindex`. Exception details still appear when PHP's `display_errors` is on.
@@ -675,7 +677,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.46.0...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.47.0...HEAD
+[2.47.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.46.0...v2.47.0
 [2.46.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.45.0...v2.46.0
 [2.45.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.44.1...v2.45.0
 [2.44.1]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.44.0...v2.44.1
