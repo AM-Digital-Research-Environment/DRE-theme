@@ -11,6 +11,8 @@ to create.
 
 ## [Unreleased]
 
+## [2.47.1] - 2026-10-29
+
 ### Fixed
 
 - **"Read the full text" on a private full text.** A signed-in curator got "The full text could not be loaded" on a record whose `bibo:content` is private: the link fetched the record from Omeka's API, which never reads the sign-in session and so leaves private values out. A private text now loads from the record page itself (`?full-text=1`, which renders every full text whole and, without JavaScript, is where the link leads). Public texts still load from the API.
@@ -681,7 +683,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.47.0...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.47.1...HEAD
+[2.47.1]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.47.0...v2.47.1
 [2.47.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.46.0...v2.47.0
 [2.46.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.45.0...v2.46.0
 [2.45.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.44.1...v2.45.0
