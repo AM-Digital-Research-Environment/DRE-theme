@@ -89,8 +89,8 @@ $found = ['items' => array_fill(0, 487, $set)];
 dre_check($failures, $checks, 'a project\'s record count is the isPartOf count', $helper->recordCount($project) === 487);
 
 $view->callbacks['dreSearchBar'] = fn() => '';
-dre_check($failures, $checks, 'a project\'s records open in DRE Search on the project facet',
-    $helper->recordsUrl($project) === '/s/a/dre-search?profile=research_items&f.project_s=African%20Knowledges%20and%20the%20History%20Publication%20since%20the%201970s');
+dre_check($failures, $checks, 'a project\'s records open in DRE Search on the project id, not its title',
+    $helper->recordsUrl($project) === '/s/a/dre-search?profile=research_items&f.project_id_s=1797');
 dre_check($failures, $checks, 'the search URL helper drops empty facet values and repeats multi-values',
     $view->helper('DreSearchUrl')->filtered('research_items', ['type_s' => ['Text', 'Image'], 'project_s' => ' ']) === '/s/a/dre-search?profile=research_items&f.type_s=Text&f.type_s=Image');
 unset($view->callbacks['dreSearchBar']);

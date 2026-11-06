@@ -11,6 +11,12 @@ to create.
 
 ## [Unreleased]
 
+**Deploy after DRE Search 1.35** and its Research items reindex: until the index has `project_id_s`, the project records links open a search that fails.
+
+### Changed
+
+- **Project records links use the project's id.** "Search its records" and the project browse link open DRE Search on `f.project_id_s=<item id>` instead of the project's title, so they keep working when a title changes and never mix two projects with the same title (DRE Search #45). The filter chip still shows the title.
+
 ## [2.47.1] - 2026-10-29
 
 ### Fixed

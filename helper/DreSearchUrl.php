@@ -33,8 +33,8 @@ class DreSearchUrl extends AbstractHelper
 
     /**
      * DRE Search opened on one corpus with facets already applied, e.g. a
-     * project's records: `filtered('research_items', ['project_s' => $title])`
-     * gives `…/dre-search?profile=research_items&f.project_s=…`, the search
+     * project's records: `filtered('research_items', ['project_id_s' => '1797'])`
+     * gives `…/dre-search?profile=research_items&f.project_id_s=1797`, the search
      * page's own shareable URL. '' without the module: core search has no
      * facets, so callers fall back to their own link.
      *

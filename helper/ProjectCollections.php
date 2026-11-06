@@ -127,9 +127,11 @@ class ProjectCollections extends AbstractHelper
     }
 
     /**
-     * Where a project's records are explored: DRE Search's research items with
-     * the project facet applied (the facet holds the project's title), else
-     * core's item browse filtered on `dcterms:isPartOf`.
+     * Where a project's records are explored: DRE Search's research items
+     * filtered on the project's item id (`project_id_s`, DRE Search 1.35+),
+     * which survives a title change and tells same-titled projects apart while
+     * the chip still shows the title; else core's item browse filtered on
+     * `dcterms:isPartOf`.
      *
      * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $project
      */
@@ -138,7 +140,7 @@ class ProjectCollections extends AbstractHelper
         $view = $this->getView();
         try {
             $search = $view->plugin('DreSearchUrl');
-            $url = $search->filtered('research_items', ['project_s' => (string) $project->displayTitle()]);
+            $url = $search->filtered('research_items', ['project_id_s' => (string) $project->id()]);
             if ($url !== '') {
                 return $url;
             }

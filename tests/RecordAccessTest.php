@@ -220,13 +220,13 @@ $countQuery = array_values(array_filter($queries, fn ($q) => $q[0] === 'items'))
 dre_check($failures, $checks, 'a project counts the records that link to it through dcterms:isPartOf, not an item set',
     ($countQuery['property'][0]['property'] ?? null) === 'dcterms:isPartOf' && ($countQuery['property'][0]['type'] ?? null) === 'res'
     && ($countQuery['property'][0]['text'] ?? null) === '1790' && ($access['records']['count'] ?? null) === 487);
-dre_check($failures, $checks, 'the records link opens DRE Search on the project facet',
-    ($access['records']['href'] ?? '') === '/s/a/dre-search?profile=research_items&f.project_s=Of%20Art%20Worlds');
+dre_check($failures, $checks, 'the records link opens DRE Search on the project id',
+    ($access['records']['href'] ?? '') === '/s/a/dre-search?profile=research_items&f.project_id_s=1790');
 dre_check($failures, $checks, 'only a collection named differently from its project is named',
     ($access['records']['collections'] ?? null) === ['U-Matic Tapes of the Liberia Broadcasting System']);
 $panel = $view->render('common/record-access', ['resource' => $project, 'access' => $access]);
 dre_check($failures, $checks, 'the project panel links to its records with their number and names the corpus',
-    str_contains($panel, 'href="/s/a/dre-search?profile=research_items&amp;f.project_s=Of%20Art%20Worlds"')
+    str_contains($panel, 'href="/s/a/dre-search?profile=research_items&amp;f.project_id_s=1790"')
     && str_contains($panel, 'Search its 487 records')
     && str_contains($panel, 'The collection U-Matic Tapes of the Liberia Broadcasting System')
     && !str_contains($panel, 'item-set'));
