@@ -11,6 +11,8 @@ to create.
 
 ## [Unreleased]
 
+## [2.48.0] - 2026-11-06
+
 **Deploy after DRE Search 1.35** and its Research items reindex: until the index has `project_id_s`, the project records links open a search that fails.
 
 ### Changed
@@ -689,7 +691,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.47.1...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.48.0...HEAD
+[2.48.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.47.1...v2.48.0
 [2.47.1]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.47.0...v2.47.1
 [2.47.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.46.0...v2.47.0
 [2.46.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.45.0...v2.46.0
