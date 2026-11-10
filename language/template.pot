@@ -19,19 +19,19 @@ msgid_plural "(%s items)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: helper/RecordAccess.php:125
+#: helper/RecordAccess.php:132
 msgid "[AMIRA] Access request: project %1$s: %2$s"
 msgstr ""
 
-#: helper/RecordAccess.php:163
+#: helper/RecordAccess.php:170
 msgid "[AMIRA] Access request: record %1$s: %2$s"
 msgstr ""
 
-#: helper/RecordAccess.php:120
+#: helper/RecordAccess.php:127
 msgid "[AMIRA] Correction to project %1$s: %2$s"
 msgstr ""
 
-#: helper/RecordAccess.php:158
+#: helper/RecordAccess.php:165
 msgid "[AMIRA] Correction to record %1$s: %2$s"
 msgstr ""
 
@@ -143,7 +143,7 @@ msgstr ""
 msgid "Breadcrumb"
 msgstr ""
 
-#: helper/PwaManifest.php:57
+#: helper/PwaManifest.php:58
 msgid "Browse"
 msgstr ""
 
@@ -160,7 +160,7 @@ msgstr ""
 msgid "Browse records"
 msgstr ""
 
-#: helper/PwaManifest.php:56
+#: helper/PwaManifest.php:57
 msgid "Browse the collection"
 msgstr ""
 
@@ -194,7 +194,7 @@ msgstr ""
 msgid "Close menu"
 msgstr ""
 
-#: helper/RecordAccess.php:65
+#: helper/RecordAccess.php:72
 msgid "Collections@UBT, University of Bayreuth"
 msgstr ""
 
@@ -741,7 +741,7 @@ msgstr ""
 msgid "Publications"
 msgstr ""
 
-#: helper/RecordAccess.php:67
+#: helper/RecordAccess.php:74
 msgid "Publisher’s page (DOI)"
 msgstr ""
 
@@ -753,7 +753,7 @@ msgstr ""
 msgid "RDF, dump & CC0 metadata"
 msgstr ""
 
-#: helper/RecordAccess.php:66
+#: helper/RecordAccess.php:73
 msgid "RDSpace, University of Bayreuth"
 msgstr ""
 
@@ -769,7 +769,7 @@ msgstr ""
 msgid "Reason: %s"
 msgstr ""
 
-#: helper/RecordAccess.php:181
+#: helper/RecordAccess.php:188
 msgid "Record: %s"
 msgstr ""
 
@@ -831,8 +831,8 @@ msgstr ""
 msgid "Saved in this browser only. Export your list to keep or share it."
 msgstr ""
 
-#: helper/PwaManifest.php:62
 #: helper/PwaManifest.php:63
+#: helper/PwaManifest.php:64
 #: view/common/banner.phtml:189
 #: view/common/dre-search-redirect.phtml:35
 #: view/common/error-page.phtml:52
@@ -1103,13 +1103,13 @@ msgstr ""
 msgid "View as"
 msgstr ""
 
-#: helper/RecordAccess.php:121
-#: helper/RecordAccess.php:159
+#: helper/RecordAccess.php:128
+#: helper/RecordAccess.php:166
 msgid "What should be corrected or improved?"
 msgstr ""
 
-#: helper/RecordAccess.php:126
-#: helper/RecordAccess.php:164
+#: helper/RecordAccess.php:133
+#: helper/RecordAccess.php:171
 msgid "What would you like to access, and for what purpose?"
 msgstr ""
 

@@ -456,9 +456,12 @@ zero-result recovery must be tested together with theme chrome.
 ### Mirador
 
 Mirador is framed as scholarly media apparatus, not a second application pasted
-into the page. The theme supplies `window.DRE_MIRADOR_CONFIG`; the local default
-uses the Braun accent rather than Mirador's cyan, restrained controls, no
-language switcher, and no workspace menu for the theme's single-item use case.
+into the page. Its configuration (the light and dark palettes, using the Braun
+accent rather than Mirador's cyan, restrained controls, no language switcher,
+and no workspace menu for the theme's single-item use case) lives in the
+Mirador module's site settings JSON; the theme supplies no configuration object.
+The theme's `asset/js/mirador-theme.js` only switches which of the two palettes
+is active to follow the site's light/dark toggle.
 The wrapper provides the accessible name and constrains viewer elevation. Do not
 style unstable internals when a supported configuration option exists.
 

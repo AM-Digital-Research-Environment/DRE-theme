@@ -49,7 +49,14 @@ use Laminas\View\Helper\AbstractHelper;
 class RecordAccess extends AbstractHelper
 {
     public const DEFAULT_EMAIL = 'africamultiple-digital@uni-bayreuth.de';
-    public const DEFAULT_PAGE_SLUG = 'access';
+    /**
+     * The "Access & contact" page of the menu's Access & reuse section
+     * (view/common/nav-menu.phtml). The default used to be `access`, a slug no
+     * AMIRA page has, so "More about access" never rendered; a site whose saved
+     * settings still hold the old default falls through to this one.
+     */
+    public const DEFAULT_PAGE_SLUG = 'access-contact';
+    private const LEGACY_PAGE_SLUG = 'access';
 
     private const PROJECT_CLASS = 'foaf:Project';
     private const LINK_TYPES = ['resource', 'resource:item', 'resource:itemset', 'resource:media'];
@@ -472,10 +479,19 @@ class RecordAccess extends AbstractHelper
         if ($slug === '') {
             return '';
         }
+        $slugs = $slug === self::LEGACY_PAGE_SLUG ? [$slug, self::DEFAULT_PAGE_SLUG] : [$slug];
         try {
             $site = $view->currentSite();
-            $page = $site ? $view->api()->searchOne('site_pages', ['site_id' => $site->id(), 'slug' => $slug])->getContent() : null;
-            return $page ? (string) $page->siteUrl() : '';
+            if (!$site) {
+                return '';
+            }
+            foreach ($slugs as $candidate) {
+                $page = $view->api()->searchOne('site_pages', ['site_id' => $site->id(), 'slug' => $candidate])->getContent();
+                if ($page) {
+                    return (string) $page->siteUrl();
+                }
+            }
+            return '';
         } catch (\Throwable $e) {
             return '';
         }

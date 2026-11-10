@@ -171,6 +171,40 @@ $memo($record);
 $memo($project);
 dre_check($failures, $checks, 'the access page is found and queried once, however many records ask',
     $first['accessPageUrl'] === '/s/a/page/access' && $lookups === 1, "lookups: {$lookups}");
+
+// The default slug is the menu's Access & contact page; a site still holding the
+// old default `access`, which has no page, falls through to it.
+$asked = [];
+$view->callbacks['api'] = function () use (&$asked) {
+    return new class($asked) {
+        public function __construct(private array &$asked) {}
+        public function searchOne(string $resource, array $query) {
+            $this->asked[] = $query['slug'];
+            $slug = $query['slug'];
+            return new class($slug) {
+                public function __construct(private string $slug) {}
+                public function getContent() {
+                    return $this->slug === 'access-contact'
+                        ? new class { public function siteUrl() { return '/s/a/page/access-contact'; } } : null;
+                }
+            };
+        }
+    };
+};
+$pageUrl = function (?string $setting) use ($view, $record, &$asked): string {
+    $asked = [];
+    if ($setting === null) unset($view->themeSettings['access_page_slug']);
+    else $view->themeSettings['access_page_slug'] = $setting;
+    $helper = new RecordAccess();
+    $helper->setView($view);
+    return $helper($record)['accessPageUrl'];
+};
+dre_check($failures, $checks, 'unset, the access page is access-contact', $pageUrl(null) === '/s/a/page/access-contact' && $asked === ['access-contact']);
+dre_check($failures, $checks, 'the old default access falls through to access-contact',
+    $pageUrl('access') === '/s/a/page/access-contact' && $asked === ['access', 'access-contact'], implode(',', $asked));
+dre_check($failures, $checks, 'any other slug is taken as set, without a fallback', $pageUrl('help') === '' && $asked === ['help']);
+dre_check($failures, $checks, 'an empty slug switches the link off without a query', $pageUrl('') === '' && $asked === []);
+unset($view->themeSettings['access_page_slug']);
 unset($view->callbacks['currentSite'], $view->callbacks['api']);
 
 // --- A project links to its records ------------------------------------------

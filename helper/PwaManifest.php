@@ -28,8 +28,9 @@ class PwaManifest extends AbstractHelper
                 }
 
                 // Locale → lang/dir. All shipped locales are LTR; derive dir defensively.
+                // Hausa (ha) is not listed: it is written in Latin script (Boko).
                 $lang = $view->lang() ?: 'en';
-                $rtl = ['ar', 'arc', 'dv', 'fa', 'ha', 'he', 'khw', 'ks', 'ku', 'ps', 'sd', 'ug', 'ur', 'yi'];
+                $rtl = ['ar', 'arc', 'dv', 'fa', 'he', 'khw', 'ks', 'ku', 'ps', 'sd', 'ug', 'ur', 'yi'];
                 $dir = in_array(strtolower(substr($lang, 0, 3)), $rtl, true)
                     || in_array(strtolower(substr($lang, 0, 2)), $rtl, true) ? 'rtl' : 'ltr';
 
