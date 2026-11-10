@@ -2,6 +2,8 @@
 namespace OmekaTheme\Helper;
 use Laminas\View\Helper\AbstractHelper;
 
+require_once __DIR__ . '/ValueReader.php';
+
 /** Resolve citation and identifier data without emitting markup. */
 class RecordApparatus extends AbstractHelper
 {
@@ -24,45 +26,26 @@ class RecordApparatus extends AbstractHelper
         // All values, not just the first: records legitimately carry two access-rights
         // statements, one linked and one spelled out.
         $displayValues = function (string $term, bool $withGloss = false) use ($resource, $view): array {
-            try {
-                $values = $resource->value($term, ['all' => true]) ?: [];
-            } catch (\Throwable $e) {
-                return [];
-            }
-
             $out = [];
-            foreach ($values as $value) {
-                try {
-                    $type = (string) $value->type();
-                    $label = '';
-                    $href = '';
-
-                    if (false !== strpos($type, 'resource') && $value->valueResource()) {
-                        $label = trim((string) $value->valueResource()->displayTitle());
-                        $href = (string) $value->valueResource()->url();
-                    } elseif ('uri' === $type) {
-                        $href = (string) $value->uri();
-                        $label = trim((string) $value) ?: $href;
-                    } else {
-                        $label = trim((string) $value);
-                    }
-
-                    if ($label !== '') {
-                        $entry = ['label' => $label, 'href' => $href];
-                        // "Public" under Access rights reads as "downloadable
-                        // here"; its authority record says what it means.
-                        $gloss = $withGloss ? $view->ValueGloss($value) : '';
-                        if ($gloss !== '' && $gloss !== $label) {
-                            $entry['gloss'] = $gloss;
-                        }
-                        $out[] = $entry;
-                    }
-                } catch (\Throwable $e) {
-                    // One malformed value must not cost the reader the whole rail.
+            foreach (ValueReader::values($resource, $term) as $value) {
+                $entry = ValueReader::entry($value);
+                if ($entry === null) {
                     continue;
                 }
+                $row = ['label' => $entry['label'], 'href' => $entry['href']];
+                // "Public" under Access rights reads as "downloadable
+                // here"; its authority record says what it means.
+                try {
+                    $gloss = $withGloss ? $view->ValueGloss($value) : '';
+                } catch (\Throwable $e) {
+                    // One malformed value must not cost the reader the whole rail.
+                    $gloss = '';
+                }
+                if ($gloss !== '' && $gloss !== $entry['label']) {
+                    $row['gloss'] = $gloss;
+                }
+                $out[] = $row;
             }
-
             return $out;
         };
 
@@ -109,10 +92,10 @@ class RecordApparatus extends AbstractHelper
         $accessRights = $displayValues('dcterms:accessRights', true);
         $dreId = $displayValues('dre:id');
 
-        // A bare DOI string is still a resolvable link.
+        // A bare DOI string (`10.x/…`, `doi:10.x/…`) is still a resolvable link.
         foreach ($doiValues as $i => $doiValue) {
-            if ($doiValue['href'] === '' && preg_match('~^10\.\d{4,9}/\S+$~', $doiValue['label'])) {
-                $doiValues[$i]['href'] = 'https://doi.org/' . $doiValue['label'];
+            if ($doiValue['href'] === '') {
+                $doiValues[$i]['href'] = ValueReader::doiUrl($doiValue['label']);
             }
             if ($doiValues[$i]['href'] !== '') {
                 $doiValues[$i]['icon'] = 'DOI';

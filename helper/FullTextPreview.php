@@ -3,6 +3,8 @@ namespace OmekaTheme\Helper;
 
 use Laminas\View\Helper\AbstractHelper;
 
+require_once __DIR__ . '/FormatNumber.php';
+
 /**
  * The opening of a long full text, for a record page that loads the rest on
  * request.
@@ -44,24 +46,7 @@ class FullTextPreview extends AbstractHelper
         return [
             'preview' => rtrim($preview),
             'truncated' => true,
-            'words' => $this->formatCount((int) preg_match_all('/\S+/u', $text)),
+            'words' => FormatNumber::format((int) preg_match_all('/\S+/u', $text)),
         ];
-    }
-
-    private function formatCount(int $count): string
-    {
-        // number_format() is locale-blind; the banner counts do the same. The
-        // constructor throws on a locale ICU does not know ("C" under POSIX).
-        if (class_exists(\NumberFormatter::class)) {
-            try {
-                $formatted = (new \NumberFormatter(\Locale::getDefault(), \NumberFormatter::DECIMAL))->format($count);
-                if (is_string($formatted)) {
-                    return $formatted;
-                }
-            } catch (\Throwable $e) {
-                // number_format() below.
-            }
-        }
-        return number_format($count);
     }
 }

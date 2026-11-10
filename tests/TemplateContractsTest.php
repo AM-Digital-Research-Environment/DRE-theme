@@ -40,18 +40,11 @@ dre_check($failures, $checks, 'Mirador has an application boundary inside the re
 dre_check($failures, $checks, 'the Mirador application boundary has an escaped accessible name',
     str_contains($mirador, 'escapeHtmlAttr($viewerLabel)'));
 
-// The rail once printed `https://…/item/10297` where the licence should read
-// "CC-BY-NC-SA-4.0": casting a linked value to string yields the linked item's
-// URL. These pin the reading idiom, not the markup.
+// How the apparatus reads a linked, repeated or URI value (the rail once
+// printed a licence as its item's URL) is tested by rendering it, in
+// tests/RenderingTest.php and tests/ValueReaderTest.php; this file used to pin
+// the reading idiom as source text, which blocked moving it to ValueReader.
 $apparatus = $read('view/common/record-apparatus.phtml') . $read('helper/RecordApparatus.php');
-dre_check($failures, $checks, 'the apparatus resolves linked values through the linked record',
-    str_contains($apparatus, '$value->valueResource()->displayTitle()'));
-dre_check($failures, $checks, 'the apparatus reads every value, not only the first',
-    str_contains($apparatus, "['all' => true]"));
-dre_check($failures, $checks, 'the apparatus permalink is absolute',
-    str_contains($apparatus, '$resource->url(null, true)'));
-dre_check($failures, $checks, 'the apparatus never renders a value by casting the value object',
-    !preg_match('/\(string\)\s*\$resource->value\(/', $apparatus));
 
 // DRE-SEO supplies the formatted citations, and it may be absent or older than
 // the theme on any given deploy. These pin the degradation path, not the markup.

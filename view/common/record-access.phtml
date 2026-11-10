@@ -84,7 +84,7 @@ if ($this->getHelperPluginManager()->has('contactUs')) {
             <dd>
                 <a class="record-access__item" href="<?php echo $escAttr($access['records']['href']); ?>"><?php echo $escHtml(sprintf(
                     $translatePlural('Search its %s record', 'Search its %s records', $access['records']['count']),
-                    number_format($access['records']['count'])
+                    $this->FormatNumber($access['records']['count'])
                 )); ?></a>
                 <?php if (!empty($access['records']['collections'])): ?>
                     <span class="record-access__note"><?php echo $escHtml(sprintf(

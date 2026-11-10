@@ -2,6 +2,8 @@
 namespace OmekaTheme\Helper;
 use Laminas\View\Helper\AbstractHelper;
 
+require_once __DIR__ . '/ValueReader.php';
+
 /**
  * A record's Linked Data identity — its permanent URI, its RDF documents and
  * the external records it is the same as — without emitting markup.
@@ -116,7 +118,7 @@ class RecordLinkedData extends AbstractHelper
             return [];
         }
         $translate = $this->getView()->plugin('translate');
-        $skip = array_map(fn ($href) => self::comparable((string) $href), $skip);
+        $skip = array_map(fn ($href) => ValueReader::comparableUrl((string) $href), $skip);
 
         $rows = [];
         if ($linked['downloads']) {
@@ -126,7 +128,7 @@ class RecordLinkedData extends AbstractHelper
                 'values' => array_map(fn (array $d) => ['label' => $d['label'], 'href' => $d['url'], 'type' => $d['type']], $linked['downloads']),
             ];
         }
-        $sameAs = array_values(array_filter($linked['sameAs'], fn (array $s) => !in_array(self::comparable($s['href']), $skip, true)));
+        $sameAs = array_values(array_filter($linked['sameAs'], fn (array $s) => !in_array(ValueReader::comparableUrl($s['href']), $skip, true)));
         if ($sameAs) {
             $rows[] = [
                 'label' => $translate('Same as'),
@@ -147,29 +149,26 @@ class RecordLinkedData extends AbstractHelper
      */
     public static function register(string $href): array
     {
-        $host = strtolower((string) parse_url($href, PHP_URL_HOST));
-        $host = (string) preg_replace('~^www\.~', '', $host);
-        $path = trim((string) parse_url($href, PHP_URL_PATH), '/');
-
-        foreach (self::REGISTERS as $known => $label) {
-            if ($host === $known || str_ends_with($host, '.' . $known)) {
-                // A DOI is its whole path; elsewhere the identifier is the last
-                // segment (…/entity/Q42, …/gnd/118540238, …/2950159/).
-                if ($known === 'doi.org') {
-                    $id = rawurldecode($path);
-                } else {
-                    $segments = explode('/', $path);
-                    $id = rawurldecode((string) end($segments));
-                    // GeoNames' RDF IRI ends in about.rdf: the id is before it.
-                    if (preg_match('~\.(?:rdf|html)$~', $id) && count($segments) > 1) {
-                        $id = rawurldecode($segments[count($segments) - 2]);
-                    }
-                }
-                return ['label' => $label, 'id' => $id];
-            }
+        $known = ValueReader::matchHost($href, self::REGISTERS);
+        if ($known === null) {
+            $host = ValueReader::host($href);
+            return ['label' => $host !== '' ? $host : $href, 'id' => ''];
         }
 
-        return ['label' => $host !== '' ? $host : $href, 'id' => ''];
+        // A DOI is its whole path; elsewhere the identifier is the last
+        // segment (…/entity/Q42, …/gnd/118540238, …/2950159/).
+        $path = trim((string) parse_url($href, PHP_URL_PATH), '/');
+        if ($known === 'doi.org') {
+            $id = rawurldecode($path);
+        } else {
+            $segments = explode('/', $path);
+            $id = rawurldecode((string) end($segments));
+            // GeoNames' RDF IRI ends in about.rdf: the id is before it.
+            if (preg_match('~\.(?:rdf|html)$~', $id) && count($segments) > 1) {
+                $id = rawurldecode($segments[count($segments) - 2]);
+            }
+        }
+        return ['label' => self::REGISTERS[$known], 'id' => $id];
     }
 
     /** @param mixed $value */
@@ -179,12 +178,6 @@ class RecordLinkedData extends AbstractHelper
             return '';
         }
         $value = trim($value);
-        return preg_match('~^https?://\S+$~i', $value) ? $value : '';
-    }
-
-    /** http/https and case do not make two identifiers different. */
-    private static function comparable(string $href): string
-    {
-        return strtolower((string) preg_replace('~^https?://(?:dx\.)?~i', '', rtrim($href, '/')));
+        return ValueReader::isHttpUrl($value) ? $value : '';
     }
 }

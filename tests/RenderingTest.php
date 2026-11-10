@@ -35,6 +35,23 @@ $html = $view->render('common/record-apparatus', ['resource' => $resource]);
 dre_check($failures, $checks, 'curated citation is escaped in actual output', str_contains($html, '&lt;script&gt;citation&lt;/script&gt;'));
 dre_check($failures, $checks, 'all license values render with readable linked titles', str_contains($html, 'CC BY') && str_contains($html, 'Additional terms') && str_contains($html, '/item/2'));
 dre_check($failures, $checks, 'DOI and canonical permalink are usable links', str_contains($html, 'href="https://doi.org/10.1234/example"') && str_contains($html, 'href="https://example.test/s/a/item/1"'));
+// The rail once printed `https://…/item/10297` where the licence should read
+// "CC-BY-NC-SA-4.0": Omeka's ValueRepresentation casts a linked value to the
+// linked record's URL. A value that behaves that way must still read as a title.
+$castsToUrl = new class('', 'resource', new ThemeTestResource('CC-BY-NC-SA-4.0', 10297)) extends ThemeTestValue {
+    public function __toString(): string { return $this->linked->url(); }
+};
+$licences = $resource->values['dcterms:license'];
+$resource->values['dcterms:license'] = [$castsToUrl];
+$html = $view->render('common/record-apparatus', ['resource' => $resource]);
+dre_check($failures, $checks, 'a linked licence reads as its title, never as the URL its value casts to',
+    str_contains($html, '>CC-BY-NC-SA-4.0<') && !str_contains($html, '>/s/a/item/10297<'));
+$resource->values['dcterms:license'] = $licences;
+$resource->values['bibo:doi'] = [new ThemeTestValue('doi:10.1234/prefixed')];
+$html = $view->render('common/record-apparatus', ['resource' => $resource]);
+dre_check($failures, $checks, 'a DOI entered with a doi: prefix is a doi.org link', str_contains($html, 'href="https://doi.org/10.1234/prefixed"'));
+$resource->values['bibo:doi'] = [new ThemeTestValue('10.1234/example')];
+$html = $view->render('common/record-apparatus', ['resource' => $resource]);
 $view->callbacks['dreCitation'] = fn() => ['styles' => ['apa' => ['label' => 'APA', 'html' => '<em>Generated</em>']], 'defaultStyle' => 'apa', 'citable' => false];
 $html = $view->render('common/record-apparatus', ['resource' => $resource]);
 dre_check($failures, $checks, 'authority uses honest labels', str_contains($html, 'This record') && str_contains($html, 'Copy link'));

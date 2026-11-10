@@ -2,6 +2,9 @@
 namespace OmekaTheme\Helper;
 use Laminas\View\Helper\AbstractHelper;
 
+require_once __DIR__ . '/ValueReader.php';
+require_once __DIR__ . '/ProjectCollections.php';
+
 /**
  * Who to ask, and where the material is: access data for a record, no markup.
  *
@@ -58,9 +61,6 @@ class RecordAccess extends AbstractHelper
     public const DEFAULT_PAGE_SLUG = 'access-contact';
     private const LEGACY_PAGE_SLUG = 'access';
 
-    private const PROJECT_CLASS = 'foaf:Project';
-    private const LINK_TYPES = ['resource', 'resource:item', 'resource:itemset', 'resource:media'];
-
     /**
      * Where an online copy can be, in the order a reader should try them, with the
      * name of the system as a visitor would recognise it. A host match wins over the
@@ -85,13 +85,8 @@ class RecordAccess extends AbstractHelper
             return [];
         }
 
-        try {
-            $class = $resource->resourceClass();
-            $isProject = $class && $class->term() === self::PROJECT_CLASS;
-            $projects = $isProject ? [] : $this->projectsOf($resource);
-        } catch (\Throwable $e) {
-            return [];
-        }
+        $isProject = ProjectCollections::isProject($resource);
+        $projects = $isProject ? [] : ProjectCollections::projectsOf($resource);
         if (!$isProject && !$projects) {
             return [];
         }
@@ -114,7 +109,7 @@ class RecordAccess extends AbstractHelper
                 'title' => (string) $resource->displayTitle(),
                 'permalink' => $this->permalink($resource),
                 'sections' => $this->linkedTitles($resource, 'dcterms:isPartOf'),
-                'years' => self::years($this->firstLiteral($resource, 'dcterms:temporal')),
+                'years' => self::years(ValueReader::firstLiteral($resource, 'dcterms:temporal')),
                 'records' => $this->projectRecords($resource),
                 'contactSource' => $contact['source'],
                 'contacts' => $contact['contacts'],
@@ -207,25 +202,6 @@ class RecordAccess extends AbstractHelper
     }
 
     /**
-     * Projects an item belongs to: `dcterms:isPartOf` links of class foaf:Project.
-     *
-     * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
-     * @return list<\Omeka\Api\Representation\AbstractResourceEntityRepresentation>
-     */
-    private function projectsOf($resource): array
-    {
-        $projects = [];
-        foreach ($resource->value('dcterms:isPartOf', ['all' => true, 'type' => self::LINK_TYPES]) ?: [] as $value) {
-            $linked = $value->valueResource();
-            $class = $linked ? $linked->resourceClass() : null;
-            if ($class && $class->term() === self::PROJECT_CLASS) {
-                $projects[(int) $linked->id()] = $linked;
-            }
-        }
-        return array_values($projects);
-    }
-
-    /**
      * Who answers access requests for these projects.
      *
      *  - 'mediator': the hand-set `dcterms:mediator` override, in `contacts`;
@@ -276,37 +252,17 @@ class RecordAccess extends AbstractHelper
     private function linkedTitles($resource, string $term, bool $linksOnly = false, bool $staffPages = false): array
     {
         $out = [];
-        try {
-            $values = $resource->value($term, ['all' => true]) ?: [];
-        } catch (\Throwable $e) {
-            return [];
-        }
-        foreach ($values as $value) {
-            try {
-                $linked = $value->valueResource();
-                if ($linked) {
-                    $label = trim((string) $linked->displayTitle());
-                    $href = (string) $linked->url();
-                } elseif ($linksOnly) {
-                    continue;
-                } elseif ('uri' === (string) $value->type()) {
-                    $href = (string) $value->uri();
-                    $label = trim((string) $value) ?: $href;
-                } else {
-                    $label = trim((string) $value);
-                    $href = '';
-                }
-                if ($label !== '') {
-                    $entry = ['label' => $label, 'href' => $href];
-                    $staffPage = $staffPages && $linked ? $this->staffPage($linked) : '';
-                    if ($staffPage !== '') {
-                        $entry['staffPage'] = $staffPage;
-                    }
-                    $out[] = $entry;
-                }
-            } catch (\Throwable $e) {
+        foreach (ValueReader::values($resource, $term) as $value) {
+            $entry = ValueReader::entry($value, $linksOnly);
+            if ($entry === null) {
                 continue;
             }
+            $person = ['label' => $entry['label'], 'href' => $entry['href']];
+            $staffPage = $staffPages && $entry['resource'] ? $this->staffPage($entry['resource']) : '';
+            if ($staffPage !== '') {
+                $person['staffPage'] = $staffPage;
+            }
+            $out[] = $person;
         }
         return $out;
     }
@@ -319,18 +275,9 @@ class RecordAccess extends AbstractHelper
      */
     private function staffPage($person): string
     {
-        try {
-            $values = $person->value('fabio:hasURL', ['all' => true]) ?: [];
-        } catch (\Throwable $e) {
-            return '';
-        }
-        foreach ($values as $value) {
-            try {
-                $href = 'uri' === (string) $value->type() ? (string) $value->uri() : trim((string) $value);
-            } catch (\Throwable $e) {
-                continue;
-            }
-            if (preg_match('~^https?://~i', $href)) {
+        foreach (ValueReader::values($person, 'fabio:hasURL') as $value) {
+            $href = ValueReader::url($value);
+            if ($href !== '') {
                 return $href;
             }
         }
@@ -348,21 +295,9 @@ class RecordAccess extends AbstractHelper
         $translate = $this->getView()->plugin('translate');
         $out = [];
         foreach (self::LINK_TERMS as $term) {
-            try {
-                $values = $resource->value($term, ['all' => true]) ?: [];
-            } catch (\Throwable $e) {
-                continue;
-            }
-            foreach ($values as $value) {
-                try {
-                    $href = 'uri' === (string) $value->type() ? (string) $value->uri() : trim((string) $value);
-                } catch (\Throwable $e) {
-                    continue;
-                }
-                if ($term === 'bibo:doi' && preg_match('~^10\.\d{4,9}/\S+$~', $href)) {
-                    $href = 'https://doi.org/' . $href;
-                }
-                if (!preg_match('~^https?://~i', $href) || isset($out[$href])) {
+            foreach (ValueReader::values($resource, $term) as $value) {
+                $href = ValueReader::url($value, $term === 'bibo:doi');
+                if ($href === '' || isset($out[$href])) {
                     continue;
                 }
                 $out[$href] = ['label' => $translate(self::linkLabel($href)), 'href' => $href];
@@ -374,13 +309,11 @@ class RecordAccess extends AbstractHelper
     /** The visitor-facing name for a link: a known system, else its host. */
     public static function linkLabel(string $href): string
     {
-        $host = strtolower((string) parse_url($href, PHP_URL_HOST));
-        $host = preg_replace('~^www\.~', '', $host);
-        foreach (self::HOST_LABELS as $known => $label) {
-            if ($host === $known || str_ends_with($host, '.' . $known)) {
-                return $label;
-            }
+        $known = ValueReader::matchHost($href, self::HOST_LABELS);
+        if ($known !== null) {
+            return self::HOST_LABELS[$known];
         }
+        $host = ValueReader::host($href);
         return $host !== '' ? $host : $href;
     }
 
@@ -409,17 +342,6 @@ class RecordAccess extends AbstractHelper
         $first = $m[1][0];
         $last = end($m[1]);
         return $first === $last ? $first : $first . '–' . $last;
-    }
-
-    /** @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
-    private function firstLiteral($resource, string $term): string
-    {
-        try {
-            $value = $resource->value($term);
-            return $value ? trim((string) $value) : '';
-        } catch (\Throwable $e) {
-            return '';
-        }
     }
 
     /**

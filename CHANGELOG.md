@@ -11,7 +11,9 @@ to create.
 
 ## [Unreleased]
 
-### Fixed
+### Changed
+
+- **One value reader, one project rule, one number formatter.** How a value becomes a label and a link, the web address it holds, a bare DOI, a comparable URL and a known host are read in one place, the new `ValueReader` helper, instead of five copies across `RecordAccess`, `RecordApparatus`, `RecordIdentifiers` and `RecordLinkedData`. The copies had drifted: a DOI entered as `doi:10.…` is now a link in the rail and the access notice too, not only in the identifier list; a `www.` URL is the same identifier everywhere; and a Custom Vocab value that links to a record reads as the record's title in the rail. "Is this a project?" is `ProjectCollections::isProject()` / `projectsOf()` everywhere (`RecordAccess` also accepted links to item sets and media, which on AMIRA are never projects). Counts go through the new `FormatNumber` helper (`NumberFormatter` with the site locale): the project statement's "Search its 1,234 records" used `number_format()` and so ignored the locale (#31).
 
 - **"More about access" renders without configuration.** The access notices linked to the page under the *Access page slug* setting, which defaulted to `access`; the menu's Access & contact page, and the one AMIRA publishes, is `access-contact`, so the link never appeared. The default is now `access-contact`, and a site whose saved settings still hold `access`, with no page under it, gets the `access-contact` page (#30).
 - **Hausa is left-to-right in the web app manifest.** It was in the right-to-left list; Hausa is written in Latin script (#30).

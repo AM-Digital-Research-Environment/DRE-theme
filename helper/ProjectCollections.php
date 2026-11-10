@@ -3,6 +3,8 @@ namespace OmekaTheme\Helper;
 
 use Laminas\View\Helper\AbstractHelper;
 
+require_once __DIR__ . '/ValueReader.php';
+
 /**
  * A research project and the item sets that hold its records.
  *
@@ -21,11 +23,16 @@ use Laminas\View\Helper\AbstractHelper;
  *    (e.g. UFB_AfroDigital).
  *
  * Projects are recognised by class, never by template or item-set id: the theme
- * pins no Omeka ids. Everything degrades to "no project" / [] / 0.
+ * pins no Omeka ids. isProject() and projectsOf() are the theme's one rule for
+ * that (RecordAccess asks them too). Everything degrades to "no project" / [] / 0.
  */
 class ProjectCollections extends AbstractHelper
 {
     private const PROJECT_CLASS = 'foaf:Project';
+    /**
+     * A project is an item, so only links to items can name one (on AMIRA no
+     * item set or media carries the class).
+     */
     private const LINK_TYPES = ['resource', 'resource:item'];
 
     public function __invoke(): self
@@ -49,6 +56,29 @@ class ProjectCollections extends AbstractHelper
     }
 
     /**
+     * The (visible) projects a resource belongs to: its `dcterms:isPartOf`
+     * links to foaf:Project items, once each, in value order.
+     *
+     * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+     * @return list<\Omeka\Api\Representation\AbstractResourceEntityRepresentation>
+     */
+    public static function projectsOf($resource): array
+    {
+        $projects = [];
+        foreach (ValueReader::values($resource, 'dcterms:isPartOf', ['type' => self::LINK_TYPES]) as $value) {
+            try {
+                $linked = $value->valueResource();
+                if (self::isProject($linked)) {
+                    $projects[(int) $linked->id()] = $linked;
+                }
+            } catch (\Throwable $e) {
+                continue;
+            }
+        }
+        return array_values($projects);
+    }
+
+    /**
      * The (visible) project whose records an item set holds, or null.
      *
      * @param \Omeka\Api\Representation\ItemSetRepresentation $itemSet
@@ -57,13 +87,11 @@ class ProjectCollections extends AbstractHelper
     public function projectOf($itemSet)
     {
         try {
-            foreach ($itemSet->value('dcterms:isPartOf', ['all' => true, 'type' => self::LINK_TYPES]) ?: [] as $value) {
-                $linked = $value->valueResource();
-                if (self::isProject($linked)) {
-                    return $linked;
-                }
+            $projects = self::projectsOf($itemSet);
+            if ($projects) {
+                return $projects[0];
             }
-            $code = self::firstLiteral($itemSet, 'dre:id');
+            $code = ValueReader::firstLiteral($itemSet, 'dre:id');
             if ($code === '') {
                 return null;
             }
@@ -97,7 +125,7 @@ class ProjectCollections extends AbstractHelper
             foreach ($api->search('item_sets', ['property' => [self::res('dcterms:isPartOf', (int) $project->id())]])->getContent() ?: [] as $set) {
                 $sets[(int) $set->id()] = $set;
             }
-            $code = self::firstLiteral($project, 'dre:id');
+            $code = ValueReader::firstLiteral($project, 'dre:id');
             if ($code !== '') {
                 foreach ($api->search('item_sets', ['property' => [self::eq('dre:id', $code)]])->getContent() ?: [] as $set) {
                     $sets[(int) $set->id()] ??= $set;
@@ -162,16 +190,5 @@ class ProjectCollections extends AbstractHelper
     private static function res(string $term, int $id): array
     {
         return ['joiner' => 'and', 'property' => $term, 'type' => 'res', 'text' => (string) $id];
-    }
-
-    /** @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
-    private static function firstLiteral($resource, string $term): string
-    {
-        try {
-            $value = $resource->value($term);
-            return $value ? trim((string) $value) : '';
-        } catch (\Throwable $e) {
-            return '';
-        }
     }
 }

@@ -306,7 +306,7 @@ present and keep a local fallback for isolated rendering.
 Client-side `Intl` formatting takes its locale from `document.documentElement.lang`
 and falls back to `'en'` — the same locale the server used for the page — never
 from `navigator.language`. Server-side counts use `NumberFormatter` with the site
-locale. Counts, years, and paging use tabular numerals.
+locale (in the theme, the `FormatNumber` helper). Counts, years, and paging use tabular numerals.
 
 ### Print
 

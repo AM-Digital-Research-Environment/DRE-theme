@@ -19,19 +19,19 @@ msgid_plural "(%s items)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: helper/RecordAccess.php:132
+#: helper/RecordAccess.php:127
 msgid "[AMIRA] Access request: project %1$s: %2$s"
 msgstr ""
 
-#: helper/RecordAccess.php:170
+#: helper/RecordAccess.php:165
 msgid "[AMIRA] Access request: record %1$s: %2$s"
 msgstr ""
 
-#: helper/RecordAccess.php:127
+#: helper/RecordAccess.php:122
 msgid "[AMIRA] Correction to project %1$s: %2$s"
 msgstr ""
 
-#: helper/RecordAccess.php:165
+#: helper/RecordAccess.php:160
 msgid "[AMIRA] Correction to record %1$s: %2$s"
 msgstr ""
 
@@ -73,7 +73,7 @@ msgstr ""
 msgid "Access denied"
 msgstr ""
 
-#: helper/RecordApparatus.php:168
+#: helper/RecordApparatus.php:151
 msgid "Access rights"
 msgstr ""
 
@@ -177,7 +177,7 @@ msgstr ""
 msgid "Citation style"
 msgstr ""
 
-#: helper/RecordApparatus.php:104
+#: helper/RecordApparatus.php:87
 msgid "Cite this record"
 msgstr ""
 
@@ -240,16 +240,16 @@ msgstr ""
 msgid "Copy"
 msgstr ""
 
-#: helper/RecordApparatus.php:105
+#: helper/RecordApparatus.php:88
 msgid "Copy citation"
 msgstr ""
 
-#: helper/RecordApparatus.php:105
+#: helper/RecordApparatus.php:88
 #: view/common/record-apparatus.phtml:87
 msgid "Copy link"
 msgstr ""
 
-#: helper/RecordApparatus.php:154
+#: helper/RecordApparatus.php:137
 #: view/common/record-linked-data.phtml:26
 msgid "Copy permanent link"
 msgstr ""
@@ -295,7 +295,7 @@ msgstr ""
 msgid "Document & media types"
 msgstr ""
 
-#: helper/RecordApparatus.php:149
+#: helper/RecordApparatus.php:132
 msgid "DOI"
 msgstr ""
 
@@ -303,7 +303,7 @@ msgstr ""
 msgid "Download"
 msgstr ""
 
-#: helper/RecordApparatus.php:171
+#: helper/RecordApparatus.php:154
 msgid "DRE ID"
 msgstr ""
 
@@ -465,11 +465,11 @@ msgstr ""
 msgid "Languages represented"
 msgstr ""
 
-#: helper/RecordApparatus.php:165
+#: helper/RecordApparatus.php:148
 msgid "Licence of the material"
 msgstr ""
 
-#: helper/RecordLinkedData.php:124
+#: helper/RecordLinkedData.php:126
 #: view/common/record-linked-data.phtml:34
 msgid "Linked data"
 msgstr ""
@@ -676,7 +676,7 @@ msgstr ""
 msgid "Peripheral memories of Capoeira Angola in Salvador"
 msgstr ""
 
-#: helper/RecordApparatus.php:154
+#: helper/RecordApparatus.php:137
 #: view/common/record-linked-data.phtml:26
 msgid "Permanent link"
 msgstr ""
@@ -769,7 +769,7 @@ msgstr ""
 msgid "Reason: %s"
 msgstr ""
 
-#: helper/RecordAccess.php:188
+#: helper/RecordAccess.php:183
 msgid "Record: %s"
 msgstr ""
 
@@ -815,7 +815,7 @@ msgstr ""
 msgid "Rights & access"
 msgstr ""
 
-#: helper/RecordLinkedData.php:132
+#: helper/RecordLinkedData.php:134
 msgid "Same as"
 msgstr ""
 
@@ -833,7 +833,7 @@ msgstr ""
 
 #: helper/PwaManifest.php:63
 #: helper/PwaManifest.php:64
-#: view/common/banner.phtml:189
+#: view/common/banner.phtml:178
 #: view/common/dre-search-redirect.phtml:35
 #: view/common/error-page.phtml:52
 #: view/common/main-header-search.phtml:13
@@ -855,7 +855,7 @@ msgid_plural "Search its %s records"
 msgstr[0] ""
 msgstr[1] ""
 
-#: view/common/banner.phtml:188
+#: view/common/banner.phtml:177
 msgid "Search records, people, places, subjects…"
 msgstr ""
 
@@ -863,7 +863,7 @@ msgstr ""
 msgid "Search results for “%s”"
 msgstr ""
 
-#: view/common/banner.phtml:185
+#: view/common/banner.phtml:174
 #: view/common/dre-search-redirect.phtml:55
 #: view/common/dre-search-redirect.phtml:57
 #: view/common/error-page.phtml:48
@@ -1025,7 +1025,7 @@ msgstr ""
 msgid "This page or record is not public. If you have an account with access to it, log in and try again."
 msgstr ""
 
-#: helper/RecordApparatus.php:104
+#: helper/RecordApparatus.php:87
 msgid "This record"
 msgstr ""
 
@@ -1103,13 +1103,13 @@ msgstr ""
 msgid "View as"
 msgstr ""
 
-#: helper/RecordAccess.php:128
-#: helper/RecordAccess.php:166
+#: helper/RecordAccess.php:123
+#: helper/RecordAccess.php:161
 msgid "What should be corrected or improved?"
 msgstr ""
 
-#: helper/RecordAccess.php:133
-#: helper/RecordAccess.php:171
+#: helper/RecordAccess.php:128
+#: helper/RecordAccess.php:166
 msgid "What would you like to access, and for what purpose?"
 msgstr ""
 

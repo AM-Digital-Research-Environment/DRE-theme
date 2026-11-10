@@ -2,6 +2,8 @@
 namespace OmekaTheme\Helper;
 use Laminas\View\Helper\AbstractHelper;
 
+require_once __DIR__ . '/ValueReader.php';
+
 /**
  * The records a resource is reconciled with in other registers — its ORCID,
  * Wikidata, GND and Library of Congress identifiers, and a publication's DOI —
@@ -56,17 +58,10 @@ class RecordIdentifiers extends AbstractHelper
 
         $found = [];
         foreach (['bibo:doi', 'dcterms:identifier'] as $term) {
-            try {
-                $values = $resource->value($term, ['all' => true]) ?: [];
-            } catch (\Throwable $e) {
-                continue;
-            }
-            foreach ($values as $value) {
-                try {
-                    $href = self::href($value, $term === 'bibo:doi');
-                } catch (\Throwable $e) {
-                    continue;
-                }
+            foreach (ValueReader::values($resource, $term) as $value) {
+                // A URI value's URI, a literal that is itself a URL, or (for
+                // bibo:doi only) a bare `10.x/…` DOI.
+                $href = ValueReader::url($value, $term === 'bibo:doi');
                 if ($href === '') {
                     continue;
                 }
@@ -75,8 +70,7 @@ class RecordIdentifiers extends AbstractHelper
                 if ($register['id'] === '') {
                     continue;
                 }
-                $key = strtolower((string) preg_replace('~^https?://(?:dx\.|www\.)?~i', '', rtrim($href, '/')));
-                $found[$key] ??= $register + ['href' => $href];
+                $found[ValueReader::comparableUrl($href)] ??= $register + ['href' => $href];
             }
         }
 
@@ -121,27 +115,5 @@ class RecordIdentifiers extends AbstractHelper
     public static function hasMark(string $label): bool
     {
         return isset(self::ICONS[$label]);
-    }
-
-    /**
-     * The http(s) link a value points at: a URI value's URI, a literal that is
-     * itself a URL, or — for bibo:doi only — a bare `10.x/…` DOI.
-     *
-     * @param \Omeka\Api\Representation\ValueRepresentation $value
-     */
-    private static function href($value, bool $isDoi): string
-    {
-        $text = 'uri' === (string) $value->type() ? (string) $value->uri() : trim((string) $value);
-        $text = trim($text);
-        if (preg_match('~^https?://\S+$~i', $text)) {
-            return $text;
-        }
-        if ($isDoi) {
-            $doi = (string) preg_replace('/^doi:\s*/i', '', $text);
-            if (preg_match('~^10\.\d{4,9}/\S+$~', $doi)) {
-                return 'https://doi.org/' . $doi;
-            }
-        }
-        return '';
     }
 }

@@ -104,19 +104,8 @@ if ($statsTitle === '') {
     $statsTitle = $translate('In the collection');
 }
 
-// Locale-aware thousands separators. number_format() is locale-blind — it always
-// renders 1,234 in the US convention, which is wrong for a German deployment
-// (1.234) and for the theme's other locales.
-$formatNumber = static function ($value): string {
-    if (class_exists(\NumberFormatter::class)) {
-        $formatter = new \NumberFormatter(\Locale::getDefault(), \NumberFormatter::DECIMAL);
-        $formatted = $formatter->format((int) $value);
-        if (false !== $formatted) {
-            return (string) $formatted;
-        }
-    }
-    return number_format((int) $value);
-};
+// Locale-aware thousands separators (1,234 in English, 1.234 in German).
+$formatNumber = $this->plugin('FormatNumber');
 
 // Each catalogue row links to its authority page. Every metric both sources
 // emit is mapped here since 2.24.1 (Resource Types, the one that never had a
