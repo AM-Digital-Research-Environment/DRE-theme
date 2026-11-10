@@ -40,7 +40,7 @@ msgstr ""
 msgid "[Untitled]"
 msgstr ""
 
-#: view/common/pagination.phtml:11
+#: view/common/pagination.phtml:20
 msgid "%1$s–%2$s of %3$s"
 msgstr ""
 
@@ -48,7 +48,7 @@ msgstr ""
 msgid "%s (unavailable)"
 msgstr ""
 
-#: view/common/pagination.phtml:45
+#: view/common/pagination.phtml:55
 msgid "0 results"
 msgstr ""
 
@@ -372,7 +372,7 @@ msgstr ""
 msgid "Further details"
 msgstr ""
 
-#: view/common/pagination.phtml:31
+#: view/common/pagination.phtml:41
 msgid "Go"
 msgstr ""
 
@@ -543,7 +543,8 @@ msgid "Names may appear transliterated — try a variant spelling."
 msgstr ""
 
 #: view/common/linked-resources.phtml:198
-#: view/common/pagination.phtml:36
+#: view/common/pagination.phtml:46
+#: view/common/pagination.phtml:48
 msgid "Next"
 msgstr ""
 
@@ -580,7 +581,7 @@ msgstr ""
 msgid "Nothing in the collections matched this search."
 msgstr ""
 
-#: view/common/pagination.phtml:30
+#: view/common/pagination.phtml:40
 msgid "of %s"
 msgstr ""
 
@@ -629,8 +630,8 @@ msgstr ""
 msgid "Orishas — Gregório de Mattos Foundation"
 msgstr ""
 
-#: view/common/pagination.phtml:27
-#: view/common/pagination.phtml:28
+#: view/common/pagination.phtml:37
+#: view/common/pagination.phtml:38
 msgid "Page"
 msgstr ""
 
@@ -647,8 +648,16 @@ msgstr ""
 msgid "Pages"
 msgstr ""
 
-#: view/common/pagination.phtml:4
+#: view/common/pagination.phtml:10
 msgid "Pagination"
+msgstr ""
+
+#: view/common/pagination.phtml:9
+msgid "Pagination, bottom"
+msgstr ""
+
+#: view/common/pagination.phtml:8
+msgid "Pagination, top"
 msgstr ""
 
 #: view/omeka/site/media/show.phtml:69
@@ -685,7 +694,8 @@ msgid "Podcasts"
 msgstr ""
 
 #: view/common/linked-resources.phtml:196
-#: view/common/pagination.phtml:18
+#: view/common/pagination.phtml:27
+#: view/common/pagination.phtml:30
 msgid "Previous"
 msgstr ""
 

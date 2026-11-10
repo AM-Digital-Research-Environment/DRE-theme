@@ -13,6 +13,7 @@ to create.
 
 ### Fixed
 
+- **Pagination markup.** The unavailable Previous/Next arrow was a `<span disabled>`, which is not valid HTML and told assistive technology nothing; it is now announced as an unavailable link (`aria-disabled="true"`, named Previous or Next). Previous is `previous` whether it is a link or not (the span was `prev`). Item, item-set and hierarchy browse pages show two pagers, which were two landmarks both named "Pagination"; they are now "Pagination, top" and "Pagination, bottom" (`$this->pagination('common/pagination-top')`, `-bottom`). `tests/PaginationTest.php` renders the template (#29).
 - **Focus rings survive forced-colours mode everywhere.** Six focus styles (the linked-resources filter field, tabs, relationship pills and cards, the full-text panel and the research view toggle) paired their ring with `outline: none`, so Windows High Contrast showed no focus at all. They now use `outline: 2px solid transparent`, as `docs/DESIGN-INTEGRATION.md` requires, and Stylelint refuses `outline: none` / `outline: 0` in the Sass (#28).
 - **`npm run vendor:lint` finds DRE Search again.** It looked for `../DRE-Search`, a folder no local checkout is called, so it skipped DRE Search with a warning and `--check` passed without checking it. The sibling checkouts are now resolved in one place (`scripts/lib/siblings.mjs`: `../DRESearch`, with CI's `../DRE-Search` as a fallback), which the module browser tests and the acceptance audits use too. A module that is not checked out is reported as missing, and `--check` fails on it (#27).
 

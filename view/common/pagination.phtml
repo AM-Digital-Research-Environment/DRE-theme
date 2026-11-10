@@ -1,7 +1,16 @@
 <?php
 $translate = $this->plugin('translate');
+// A browse page shows the pager above and below its results: two navigation
+// landmarks need two names. The top/bottom wrappers (pagination-top.phtml,
+// pagination-bottom.phtml) set $position; a lone pager keeps the plain name.
+$position = $position ?? null;
+$landmark = match ($position) {
+    'top' => $translate('Pagination, top'),
+    'bottom' => $translate('Pagination, bottom'),
+    default => $translate('Pagination'),
+};
 ?>
-<nav class="pagination" aria-label="<?php echo $this->escapeHtmlAttr($translate('Pagination')); ?>">
+<nav class="pagination" aria-label="<?php echo $this->escapeHtmlAttr($landmark); ?>">
     <?php if ($totalCount): ?>
 
         <?php
@@ -17,7 +26,8 @@ $translate = $this->plugin('translate');
                 <?php if ($currentPage != 1): ?>
                     <?php echo $this->hyperlink('', $previousPageUrl, ['class' => 'previous o-icon-prev button', 'title' => $translate('Previous'), 'aria-label' => $translate('Previous')]); ?>
                 <?php else: ?>
-                    <span class="prev o-icon-prev button disabled" disabled></span>
+                    <?php // A span cannot be `disabled`; it is announced as a link that is unavailable. ?>
+                    <span class="previous o-icon-prev button disabled" role="link" aria-disabled="true" aria-label="<?php echo $this->escapeHtmlAttr($translate('Previous')); ?>"></span>
                 <?php endif; ?>
 
                 <!-- Pager -->
@@ -35,7 +45,7 @@ $translate = $this->plugin('translate');
                 <?php if ($currentPage < $pageCount): ?>
                     <?php echo $this->hyperlink('', $nextPageUrl, ['class' => 'next o-icon-next button', 'title' => $translate('Next'), 'aria-label' => $translate('Next')]); ?>
                 <?php else: ?>
-                    <span class="next o-icon-next button disabled" disabled></span>
+                    <span class="next o-icon-next button disabled" role="link" aria-disabled="true" aria-label="<?php echo $this->escapeHtmlAttr($translate('Next')); ?>"></span>
                 <?php endif; ?>
             </div>
 
