@@ -7,6 +7,7 @@ import { chromium, expect } from '@playwright/test';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { resolve, extname } from 'node:path';
 import { productionRequestDecision } from '../tests/browser/production-request-policy.mjs';
+import { sibling } from './lib/siblings.mjs';
 
 const base = process.env.LIVE_BASE_URL || 'https://data.africamultiple.uni-bayreuth.de';
 const local = process.argv.includes('--local-assets');
@@ -29,7 +30,7 @@ try {
                 }
                 const pathname = new URL(request.url()).pathname;
                 let file;
-                if (local && pathname.startsWith('/modules/DRESearch/asset/dist/')) file = resolve('../DRE-Search/asset/dist', pathname.split('/asset/dist/')[1]);
+                if (local && pathname.startsWith('/modules/DRESearch/asset/dist/')) file = resolve(sibling('search').path, 'asset/dist', pathname.split('/asset/dist/')[1]);
                 if (local && pathname === '/themes/DRE-theme/asset/css/style.css') file = resolve('asset/css/style.css');
                 if (file) return route.fulfill({ body: await readFile(file), contentType: extname(file) === '.css' ? 'text/css' : 'application/javascript' });
                 return route.continue();

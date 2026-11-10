@@ -7,6 +7,7 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { resolve, extname } from 'node:path';
 import { productionRequestDecision } from '../tests/browser/production-request-policy.mjs';
+import { sibling } from './lib/siblings.mjs';
 const base = process.env.LIVE_BASE_URL || 'https://data.africamultiple.uni-bayreuth.de';
 const browser = await chromium.launch();
 const report = [];
@@ -25,7 +26,7 @@ try {
             if (!productionRequestDecision(route.request().method(), route.request().url(), route.request().headers(), base).allowed) return route.abort();
             const path = new URL(route.request().url()).pathname;
             if (local && /^\/modules\/DreVisualizations\/asset\/(js|css)\//.test(path)) {
-                const file = resolve('../DREVisualizations', path.split('/DreVisualizations/')[1]);
+                const file = resolve(sibling('visualizations').path, path.split('/DreVisualizations/')[1]);
                 return route.fulfill({ body: await readFile(file), contentType: extname(file) === '.css' ? 'text/css' : 'application/javascript' });
             }
             return route.continue();

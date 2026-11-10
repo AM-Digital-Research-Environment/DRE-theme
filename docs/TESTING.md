@@ -86,11 +86,12 @@ representative desktop/mobile screenshots.
 `tests/local/modules.spec.mjs` mounts the modules' built front-ends inside the
 PHP-rendered theme header, with the theme's real stylesheet, token bridge and
 toggle, and stubs each module's network. It needs the two module repositories
-checked out next to this one: `../DRE-Search` built with `npm run build`, and
+checked out next to this one: `../DRESearch` built with `npm run build`, and
 `../DREVisualizations`, whose bundles are committed. Without them every test in
 the file is skipped with the command that would enable it. CI's
 `module-integration` job lays the three repositories out that way, using each
-module's default branch.
+module's default branch (DRE Search under the older folder name `DRE-Search`,
+which `scripts/lib/siblings.mjs` accepts as a fallback).
 
 - **DRE Search:**
   - a titled block's heading outline (one `h1`, inner headings under the block
@@ -247,7 +248,7 @@ Git-ignored `artifacts/roadmap-acceptance/`:
   narrows the route list.
 
 Append `-- --local-assets` to either to serve sibling checkouts' builds
-(`../DRE-Search`, `../DREVisualizations`, this theme's CSS) in place of the
+(`../DRESearch`, `../DREVisualizations`, this theme's CSS) in place of the
 deployed assets, inside that browser only.
 
 The scheduled job is intentionally separate from pull-request CI because a

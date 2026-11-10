@@ -20,10 +20,12 @@ import {existsSync, readFileSync} from 'node:fs';
 import {extname, resolve, sep} from 'node:path';
 import {renderFixture, routeFixture, types} from './fixtures.mjs';
 import {themeScript} from '../support/theme-script.mjs';
+import {sibling as siblingCheckout} from '../../scripts/lib/siblings.mjs';
 
-const SEARCH = resolve('..', 'DRE-Search');
+// ../DRESearch locally, ../DRE-Search in CI's checkout layout.
+const SEARCH = siblingCheckout('search').path;
 const SEARCH_BUNDLE = resolve(SEARCH, 'asset', 'dist', 'dre-search.js');
-const VIZ = resolve('..', 'DREVisualizations');
+const VIZ = siblingCheckout('visualizations').path;
 const VIZ_BUNDLE = resolve(VIZ, 'asset', 'js', 'dashboard-charts.bundle.js');
 
 const chrome = renderFixture('header');
@@ -158,7 +160,7 @@ async function seriousViolations(page) {
 }
 
 test.describe('DRE Search inside the theme', () => {
-    test.skip(!existsSync(SEARCH_BUNDLE), `needs ../DRE-Search built: cd ../DRE-Search && npm ci && npm run build`);
+    test.skip(!existsSync(SEARCH_BUNDLE), `needs ${SEARCH} built: cd ${SEARCH} && npm ci && npm run build`);
 
     for (const width of [320, 390, 1280]) {
         test(`a titled block sits in the theme's outline and never scrolls sideways at ${width}`, async ({page}) => {

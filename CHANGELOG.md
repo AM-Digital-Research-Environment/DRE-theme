@@ -11,6 +11,10 @@ to create.
 
 ## [Unreleased]
 
+### Fixed
+
+- **`npm run vendor:lint` finds DRE Search again.** It looked for `../DRE-Search`, a folder no local checkout is called, so it skipped DRE Search with a warning and `--check` passed without checking it. The sibling checkouts are now resolved in one place (`scripts/lib/siblings.mjs`: `../DRESearch`, with CI's `../DRE-Search` as a fallback), which the module browser tests and the acceptance audits use too. A module that is not checked out is reported as missing, and `--check` fails on it (#27).
+
 ## [2.48.0] - 2026-11-06
 
 **Deploy after DRE Search 1.35** and its Research items reindex: until the index has `project_id_s`, the project records links open a search that fails.

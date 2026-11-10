@@ -5,8 +5,16 @@
  *
  *   node scripts/vendor-lint.mjs [path-to-module …]     (npm run vendor:lint)
  *
- * Defaults to ../DREVisualizations, ../DRE-Search and ../DRE-LinkedData, which
- * is how the four repos are checked out side by side.
+ *   node scripts/vendor-lint.mjs --check                (CI's contract-drift job)
+ *
+ * Defaults to ../DREVisualizations, ../DRESearch and ../DRE-LinkedData, which
+ * is how the four repos are checked out side by side (scripts/lib/siblings.mjs
+ * resolves them; CI's `../DRE-Search` alias is accepted too).
+ *
+ * A module that is not checked out is reported as MISSING, never as current,
+ * and `--check` fails on it: a check that cannot see a copy cannot vouch for
+ * it. Until 2.48 the default looked for ../DRE-Search, which no local checkout
+ * is called, so `--check` skipped DRE Search with a warning and exited 0.
  *
  * WHY VENDOR RATHER THAN DEPEND. The modules are separate repositories on their
  * own release cadence, installed into an Omeka site independently of the theme;
@@ -23,12 +31,14 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 
+import { sibling } from './lib/siblings.mjs';
+
 const ROOT = join(import.meta.dirname, '..');
-const DEFAULT_TARGETS = ['../DREVisualizations', '../DRE-Search', '../DRE-LinkedData'];
+const DEFAULT_TARGETS = ['visualizations', 'search', 'linkedData'].map((key) => sibling(key, ROOT).path);
 
 const targets = process.argv.slice(2).filter((a) => !a.startsWith('-'));
 const check = process.argv.includes('--check');
-const list = (targets.length ? targets : DEFAULT_TARGETS).map((t) => resolve(ROOT, t));
+const list = targets.length ? targets.map((t) => resolve(ROOT, t)) : DEFAULT_TARGETS;
 
 const BANNER = `/**
  * VENDORED from DRE-theme — do not edit here.
@@ -73,11 +83,14 @@ files.push({
 });
 
 let stale = 0;
+const missing = [];
 for (const target of list) {
   if (!existsSync(target)) {
-    console.warn(`  skipped (not found): ${target}`);
+    console.warn(`  MISSING (not checked out): ${target}`);
+    missing.push(target);
     continue;
   }
+  let targetStale = 0;
   for (const { to, content } of files) {
     const dest = join(target, ...to);
     const current = existsSync(dest) ? readFileSync(dest, 'utf8') : null;
@@ -85,16 +98,22 @@ for (const target of list) {
     if (check) {
       console.error(`  STALE: ${join(target, ...to)}`);
       stale++;
+      targetStale++;
       continue;
     }
     mkdirSync(join(target, ...to.slice(0, -1)), { recursive: true });
     writeFileSync(dest, content);
     console.log(`  wrote ${join(target, ...to)}`);
   }
+  if (check && !targetStale) console.log(`  current: ${target}`);
 }
 
 if (check && stale) {
   console.error(`\n${stale} vendored artefact(s) out of date. Run \`npm run vendor:lint\`.`);
-  process.exit(1);
 }
-if (!check) console.log('Vendored lint rules + token table.');
+if (missing.length) {
+  console.error(`\n${missing.length} module checkout(s) missing, so ${check ? 'not checked' : 'not written'}.`
+    + ' Check them out beside this repository.');
+}
+if (check && (stale || missing.length)) process.exit(1);
+if (!check) console.log(`Vendored lint rules + token table into ${list.length - missing.length} of ${list.length} module(s).`);

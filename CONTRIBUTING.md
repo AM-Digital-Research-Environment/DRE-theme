@@ -22,14 +22,16 @@ the production smoke suite.
 ## Changing a token or a shared lint rule
 
 The modules carry copies of `scripts/lib/token-rules.mjs` and the generated
-`asset/css/dre-tokens-fallback.json`. After changing either, with the three
-repositories checked out side by side:
+`asset/css/dre-tokens-fallback.json`. After changing either, with the module
+repositories checked out beside this one under their GitHub names:
 
 ```bash
 npm run build:tokens   # when a token changed
-npm run vendor:lint    # copies both, plus a hash manifest, into ../DREVisualizations and ../DRE-Search
+npm run vendor:lint    # copies both, plus a hash manifest, into ../DREVisualizations, ../DRESearch and ../DRE-LinkedData
 ```
 
+A module that is not checked out is reported as missing, and
+`npm run vendor:lint -- --check` fails on it rather than passing unchecked.
 Commit the copies in each module. The `Contract drift` workflow reports a
 module whose copy has fallen behind; each module's own `lint:tokens` refuses a
 copy edited in place.
