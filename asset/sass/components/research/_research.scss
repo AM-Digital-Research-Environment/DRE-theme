@@ -47,7 +47,7 @@
     transition: color var(--transition-fast), background-color var(--transition-fast);
 
     &:hover { color: var(--primary-text); background: var(--surface-sunken); }
-    &:focus-visible { outline: none; box-shadow: var(--ring-focus); }
+    &:focus-visible { outline: 2px solid transparent; box-shadow: var(--ring-focus); }
     &[aria-pressed="true"] { color: var(--primary-text); background: transparent; border-color: transparent; }
 }
 .shortlist-open:not([hidden]) {

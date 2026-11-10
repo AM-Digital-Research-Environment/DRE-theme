@@ -174,7 +174,7 @@
             &::placeholder { color: var(--ink-subtle); }
 
             &:focus {
-                outline: none;
+                outline: 2px solid transparent;
                 border-color: var(--primary);
                 box-shadow: var(--ring-focus);
             }
@@ -244,7 +244,7 @@
     }
 
     &:focus-visible {
-        outline: none;
+        outline: 2px solid transparent;
         box-shadow: var(--ring-focus);
     }
 }
@@ -274,7 +274,7 @@
     }
 
     &:focus-visible {
-        outline: none;
+        outline: 2px solid transparent;
         box-shadow: var(--ring-focus);
     }
 
@@ -384,7 +384,7 @@
     }
 
     &:focus-visible {
-        outline: none;
+        outline: 2px solid transparent;
         border-color: var(--primary);
         box-shadow: var(--ring-focus);
     }

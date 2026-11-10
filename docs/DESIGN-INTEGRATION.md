@@ -211,6 +211,7 @@ more than one repository, so it must not be implemented two ways.
   `outline: 2px solid transparent`, never `outline: none`. Forced-colors mode
   (Windows High Contrast) drops box-shadows and paints the transparent outline
   in the system focus colour; `outline: none` leaves no focus indicator at all.
+  In the theme, `npm run lint:styles` refuses `outline: none` and `outline: 0`.
 - A control that uses an outline instead takes `2px solid var(--focus-color)`
   with `outline-offset: 2px`, as the theme's buttons do.
 - A CSS-mask icon (`mask: url(...)` over `background-color: currentColor`)

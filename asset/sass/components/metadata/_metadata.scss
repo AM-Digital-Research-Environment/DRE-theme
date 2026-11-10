@@ -283,8 +283,10 @@
     white-space: pre-line;
     overflow-wrap: anywhere;
 
+    // Programmatic focus (the full text is a tabindex="-1" target) shows no
+    // ring; the transparent outline still paints in forced-colours mode.
     &:focus {
-        outline: none;
+        outline: 2px solid transparent;
     }
 
     &:focus-visible {

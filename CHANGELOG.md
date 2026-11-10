@@ -13,6 +13,7 @@ to create.
 
 ### Fixed
 
+- **Focus rings survive forced-colours mode everywhere.** Six focus styles (the linked-resources filter field, tabs, relationship pills and cards, the full-text panel and the research view toggle) paired their ring with `outline: none`, so Windows High Contrast showed no focus at all. They now use `outline: 2px solid transparent`, as `docs/DESIGN-INTEGRATION.md` requires, and Stylelint refuses `outline: none` / `outline: 0` in the Sass (#28).
 - **`npm run vendor:lint` finds DRE Search again.** It looked for `../DRE-Search`, a folder no local checkout is called, so it skipped DRE Search with a warning and `--check` passed without checking it. The sibling checkouts are now resolved in one place (`scripts/lib/siblings.mjs`: `../DRESearch`, with CI's `../DRE-Search` as a fallback), which the module browser tests and the acceptance audits use too. A module that is not checked out is reported as missing, and `--check` fails on it (#27).
 
 ## [2.48.0] - 2026-11-06

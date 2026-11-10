@@ -45,6 +45,15 @@ export default {
         'scss/no-duplicate-mixins': true,
         'scss/operator-no-unspaced': true,
         'scss/declaration-nested-properties-no-divided-groups': true,
+        // A focus ring is a box-shadow plus `outline: 2px solid transparent`:
+        // forced-colours mode drops the shadow and paints the outline, so
+        // `outline: none` / `0` leaves no focus indicator at all
+        // (docs/DESIGN-INTEGRATION.md, "Focus").
+        'declaration-property-value-disallowed-list': [{
+            '/^outline(-style|-width)?$/': ['/^none$/', '/^0(px)?$/'],
+        }, {
+            message: 'Use `outline: 2px solid transparent` beside a box-shadow ring, never `outline: none` or `0`.',
+        }],
         'at-rule-disallowed-list': [['import'], {
             message: 'Use @use / @forward: the theme is on the Sass module system.',
         }],
