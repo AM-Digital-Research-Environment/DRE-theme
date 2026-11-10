@@ -31,7 +31,8 @@ const OUT_DIR = join(ROOT, 'language');
 const OUT = join(OUT_DIR, 'template.pot');
 const CHECK = process.argv.includes('--check');
 
-const SCAN = ['view', 'helper'];
+// config/ holds amira-pages.php, the menu copy marked `// @translate`.
+const SCAN = ['view', 'helper', 'config'];
 
 const PLURAL_SEPARATOR = '\u0000';
 

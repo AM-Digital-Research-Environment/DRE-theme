@@ -195,7 +195,9 @@ try {
     $html = $banner->render('common/banner', ['site' => $site, 'isHome' => true]);
     dre_check($failures, $checks, 'known metrics link to their authority page with a formatted count',
         // Formatted in the process locale: "3,975", "3 975" or, under POSIX, "3975".
-        (bool) preg_match('#<a class="site-banner__entry" href="/s/a/page/research-items">.*?Research items.*?3\D{0,3}975#su', $html));
+        (bool) preg_match('#<a class="site-banner__entry" href="/s/a/page/'
+            . preg_quote((require dirname(__DIR__) . '/config/amira-pages.php')['statPages']['researchItems'], '#')
+            . '">.*?Research items.*?3\D{0,3}975#su', $html));
     dre_check($failures, $checks, 'an unknown metric renders as an unlinked, escaped row',
         str_contains($html, '<div class="site-banner__entry">') && str_contains($html, '&lt;b&gt;Unknown&lt;/b&gt;'));
 } catch (Throwable $e) {

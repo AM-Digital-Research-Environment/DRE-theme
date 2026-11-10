@@ -56,7 +56,7 @@ if (process.env.DRE_SKIP_PHP_LINT && !REQUIRE_PHP) {
   process.exit(0);
 }
 
-const SCAN_DIRS = ['view', 'helper', 'tests'];
+const SCAN_DIRS = ['view', 'helper', 'config', 'tests'];
 
 const files = SCAN_DIRS.flatMap(d => [...walkFiles(join(ROOT, d), /\.(?:php|phtml)$/)]);
 

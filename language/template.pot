@@ -102,7 +102,7 @@ msgstr ""
 msgid "Africa Multiple Cluster of Excellence"
 msgstr ""
 
-#: view/common/nav-menu.phtml:47
+#: config/amira-pages.php:58
 msgid "Africa's foremost music archive"
 msgstr ""
 
@@ -127,11 +127,11 @@ msgstr ""
 msgid "Apply"
 msgstr ""
 
-#: view/common/nav-menu.phtml:35
+#: config/amira-pages.php:46
 msgid "Audio series"
 msgstr ""
 
-#: view/common/nav-menu.phtml:28
+#: config/amira-pages.php:39
 msgid "Authors & named persons"
 msgstr ""
 
@@ -152,7 +152,7 @@ msgstr ""
 msgid "Browse all items"
 msgstr ""
 
-#: view/common/nav-menu.phtml:38
+#: config/amira-pages.php:49
 msgid "Browse projects interactively"
 msgstr ""
 
@@ -291,7 +291,7 @@ msgstr ""
 msgid "Dismiss"
 msgstr ""
 
-#: view/common/nav-menu.phtml:30
+#: config/amira-pages.php:41
 msgid "Document & media types"
 msgstr ""
 
@@ -311,7 +311,7 @@ msgstr ""
 msgid "DRE Search"
 msgstr ""
 
-#: view/common/nav-menu.phtml:42
+#: config/amira-pages.php:53
 msgid "Episode trends & transcripts"
 msgstr ""
 
@@ -323,7 +323,7 @@ msgstr ""
 msgid "Error %s"
 msgstr ""
 
-#: view/common/nav-menu.phtml:17
+#: config/amira-pages.php:28
 msgid "Explore the Cluster's featured collections through timelines, image galleries and maps."
 msgstr ""
 
@@ -396,7 +396,7 @@ msgstr ""
 msgid "Hours"
 msgstr ""
 
-#: view/common/nav-menu.phtml:18
+#: config/amira-pages.php:29
 msgid "How to reach the material, and how to reuse what AMIRA publishes."
 msgstr ""
 
@@ -416,7 +416,7 @@ msgstr ""
 msgid "Install app"
 msgstr ""
 
-#: view/common/nav-menu.phtml:29
+#: config/amira-pages.php:40
 msgid "Institutions & bodies"
 msgstr ""
 
@@ -453,7 +453,7 @@ msgstr ""
 msgid "Items"
 msgstr ""
 
-#: view/common/nav-menu.phtml:44
+#: config/amira-pages.php:55
 msgid "Knowledge-graph links"
 msgstr ""
 
@@ -461,7 +461,7 @@ msgstr ""
 msgid "Languages"
 msgstr ""
 
-#: view/common/nav-menu.phtml:31
+#: config/amira-pages.php:42
 msgid "Languages represented"
 msgstr ""
 
@@ -626,7 +626,7 @@ msgstr ""
 msgid "Origins & context"
 msgstr ""
 
-#: view/common/nav-menu.phtml:49
+#: config/amira-pages.php:60
 msgid "Orishas — Gregório de Mattos Foundation"
 msgstr ""
 
@@ -672,7 +672,7 @@ msgstr ""
 msgid "People & roles"
 msgstr ""
 
-#: view/common/nav-menu.phtml:48
+#: config/amira-pages.php:59
 msgid "Peripheral memories of Capoeira Angola in Salvador"
 msgstr ""
 
@@ -681,11 +681,11 @@ msgstr ""
 msgid "Permanent link"
 msgstr ""
 
-#: view/common/nav-menu.phtml:32
+#: config/amira-pages.php:43
 msgid "Places & georeferences"
 msgstr ""
 
-#: view/common/nav-menu.phtml:40
+#: config/amira-pages.php:51
 msgid "Places mapped & georeferenced"
 msgstr ""
 
@@ -717,23 +717,23 @@ msgstr ""
 msgid "Projects"
 msgstr ""
 
-#: view/common/nav-menu.phtml:25
+#: config/amira-pages.php:36
 msgid "Projects across the AMRCs"
 msgstr ""
 
-#: view/common/nav-menu.phtml:39
+#: config/amira-pages.php:50
 msgid "Projects side by side"
 msgstr ""
 
-#: view/common/nav-menu.phtml:13
+#: config/amira-pages.php:24
 msgid "Projects, sections and the primary materials they produce."
 msgstr ""
 
-#: view/common/nav-menu.phtml:15
+#: config/amira-pages.php:26
 msgid "Public-facing media from the Cluster."
 msgstr ""
 
-#: view/common/nav-menu.phtml:41
+#: config/amira-pages.php:52
 msgid "Publication trends & networks"
 msgstr ""
 
@@ -749,7 +749,7 @@ msgstr ""
 msgid "Query"
 msgstr ""
 
-#: view/common/nav-menu.phtml:53
+#: config/amira-pages.php:64
 msgid "RDF, dump & CC0 metadata"
 msgstr ""
 
@@ -761,7 +761,7 @@ msgstr ""
 msgid "Read the full text"
 msgstr ""
 
-#: view/common/nav-menu.phtml:16
+#: config/amira-pages.php:27
 msgid "Read the metadata at a glance."
 msgstr ""
 
@@ -777,7 +777,7 @@ msgstr ""
 msgid "Records"
 msgstr ""
 
-#: view/common/nav-menu.phtml:45
+#: config/amira-pages.php:56
 msgid "Records grouped by meaning"
 msgstr ""
 
@@ -798,7 +798,7 @@ msgstr ""
 msgid "Report an error in this record"
 msgstr ""
 
-#: view/common/nav-menu.phtml:52
+#: config/amira-pages.php:63
 msgid "Requesting material & who to ask"
 msgstr ""
 
@@ -833,7 +833,7 @@ msgstr ""
 
 #: helper/PwaManifest.php:63
 #: helper/PwaManifest.php:64
-#: view/common/banner.phtml:178
+#: view/common/banner.phtml:167
 #: view/common/dre-search-redirect.phtml:35
 #: view/common/error-page.phtml:52
 #: view/common/main-header-search.phtml:13
@@ -855,7 +855,7 @@ msgid_plural "Search its %s records"
 msgstr[0] ""
 msgstr[1] ""
 
-#: view/common/banner.phtml:177
+#: view/common/banner.phtml:166
 msgid "Search records, people, places, subjects…"
 msgstr ""
 
@@ -863,7 +863,7 @@ msgstr ""
 msgid "Search results for “%s”"
 msgstr ""
 
-#: view/common/banner.phtml:174
+#: view/common/banner.phtml:163
 #: view/common/dre-search-redirect.phtml:55
 #: view/common/dre-search-redirect.phtml:57
 #: view/common/error-page.phtml:48
@@ -921,7 +921,7 @@ msgstr ""
 msgid "Sort this page"
 msgstr ""
 
-#: view/common/nav-menu.phtml:26
+#: config/amira-pages.php:37
 msgid "Sources, media & datasets"
 msgstr ""
 
@@ -955,11 +955,11 @@ msgstr ""
 msgid "Switch to light mode"
 msgstr ""
 
-#: view/common/nav-menu.phtml:36
+#: config/amira-pages.php:47
 msgid "Talks & recordings"
 msgstr ""
 
-#: view/common/nav-menu.phtml:24
+#: config/amira-pages.php:35
 msgid "The Cluster's thematic areas"
 msgstr ""
 
@@ -977,7 +977,7 @@ msgstr ""
 msgid "The full text could not be loaded. Try again"
 msgstr ""
 
-#: view/common/nav-menu.phtml:14
+#: config/amira-pages.php:25
 msgid "The named entities that link every record together."
 msgstr ""
 
@@ -1050,7 +1050,7 @@ msgstr ""
 msgid "Toggle dark mode"
 msgstr ""
 
-#: view/common/nav-menu.phtml:33
+#: config/amira-pages.php:44
 msgid "Topics & keywords"
 msgstr ""
 
@@ -1087,11 +1087,11 @@ msgstr ""
 msgid "Value must be an integer"
 msgstr ""
 
-#: view/common/nav-menu.phtml:43
+#: config/amira-pages.php:54
 msgid "Video trends & playlists"
 msgstr ""
 
-#: view/common/nav-menu.phtml:115
+#: view/common/nav-menu.phtml:76
 msgid "View all"
 msgstr ""
 
@@ -1117,7 +1117,7 @@ msgstr ""
 msgid "Who to ask"
 msgstr ""
 
-#: view/common/nav-menu.phtml:50
+#: config/amira-pages.php:61
 msgid "Workers in/from Bahia"
 msgstr ""
 

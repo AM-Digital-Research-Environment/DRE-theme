@@ -7,6 +7,7 @@ import {
     SNAPSHOT_ROOT,
 } from './read-only-test.mjs';
 import { getSurface } from './surfaces.mjs';
+import { amiraPagePath } from '../../scripts/lib/amira-pages.mjs';
 
 async function expectUniqueIds(page) {
     const duplicates = await page.locator('[id]').evaluateAll((elements) => {
@@ -80,11 +81,11 @@ test('the research gateway links to the canonical research surfaces', async ({ p
 
     await expect(page.getByRole('heading', { level: 1, name: 'Research', exact: true })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Research sections', exact: true }))
-        .toHaveAttribute('href', /\/s\/amira\/page\/research-sections$/);
+        .toHaveAttribute('href', new RegExp(`${amiraPagePath('research-sections')}$`));
     await expect(page.getByRole('link', { name: 'Research projects', exact: true }))
-        .toHaveAttribute('href', /\/s\/amira\/page\/research-projects$/);
+        .toHaveAttribute('href', new RegExp(`${amiraPagePath('research-projects')}$`));
     await expect(page.getByRole('link', { name: 'Research items', exact: true }))
-        .toHaveAttribute('href', /\/s\/amira\/page\/research-items$/);
+        .toHaveAttribute('href', new RegExp(`${amiraPagePath('research-items')}$`));
     await expectUniqueIds(page);
     expect(errors).toEqual([]);
 });

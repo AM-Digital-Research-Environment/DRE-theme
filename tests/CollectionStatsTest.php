@@ -137,10 +137,13 @@ dre_check($failures, $checks, 'API fallback emits the ten catalogue metrics in D
         'languages', 'subjectsTags', 'publications', 'podcasts', 'youtube',
     ]);
 
-// Every remaining key resolves to a page in the masthead's $statLinks map, so
-// the catalogue has no dead rows. Resource Types was the one that never did.
+// Every key resolves to a page in config/amira-pages.php's statPages, which
+// the masthead links each row to, so the catalogue has no dead rows. Resource
+// Types was the one that never did.
+$statPages = (require dirname(__DIR__) . '/config/amira-pages.php')['statPages'];
 dre_check($failures, $checks, 'no metric without an authority page',
-    !in_array('resourceTypes', $keys, true));
+    !in_array('resourceTypes', $keys, true) && array_diff($keys, array_keys($statPages)) === [],
+    implode(', ', array_diff($keys, array_keys($statPages))));
 
 $api->queries = [];
 $settings->values = [];

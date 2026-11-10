@@ -112,18 +112,7 @@ $formatNumber = $this->plugin('FormatNumber');
 // route, was dropped from both), but the plain-row fallback stays: a stale
 // hourly cache or an older visualizations module can still hand us a key we
 // have no page for, and a dead link is worse than an unlinked row.
-$statLinks = [
-    'researchItems' => 'research-items',
-    'projects'      => 'research-projects',
-    'people'        => 'people',
-    'organisations' => 'organisations',
-    'locations'     => 'locations',
-    'languages'     => 'languages',
-    'subjectsTags'  => 'subjects-tags',
-    'publications'  => 'publications',
-    'podcasts'      => 'podcasts',
-    'youtube'       => 'youtube-videos',
-];
+$statLinks = (require dirname(__DIR__, 2) . '/config/amira-pages.php')['statPages'];
 $siteBase = $site ? rtrim((string) $site->url(), '/') : '';
 
 $hasColumn = $isHome && ($stats || $asideTitle || $asideText);

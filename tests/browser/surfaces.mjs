@@ -5,6 +5,13 @@
  * marks the deliberately small production-monitoring sample; the remaining
  * entries are available for focused audit runs and manual evidence gathering.
  */
+import { amiraPagePath } from '../../scripts/lib/amira-pages.mjs';
+
+// AMIRA page paths come from config/amira-pages.php, the slugs the theme's
+// menu and banner link to, so the inventory cannot name a page the theme
+// does not. The home page is Omeka's, not one of them.
+const page = (slug) => amiraPagePath(slug);
+
 export const surfaceGroups = ['core', 'search', 'visualizations'];
 
 export const surfaces = [
@@ -23,15 +30,15 @@ export const surfaces = [
         id: 'research-gateway',
         label: 'Research gateway',
         group: 'core',
-        path: '/s/amira/page/research',
+        path: page('research'),
         mode: 'stable',
         owners: ['DRE-theme'],
         selectors: [
             'h1',
             'main',
-            'a[href$="/page/research-sections"]',
-            'a[href$="/page/research-projects"]',
-            'a[href$="/page/research-items"]',
+            `a[href$="${page('research-sections')}"]`,
+            `a[href$="${page('research-projects')}"]`,
+            `a[href$="${page('research-items')}"]`,
         ],
         states: ['light', 'dark', 'mobile'],
         smoke: false,
@@ -40,7 +47,7 @@ export const surfaces = [
         id: 'index-gateway',
         label: 'Index gateway',
         group: 'core',
-        path: '/s/amira/page/index',
+        path: page('index'),
         mode: 'stable',
         owners: ['DRE-theme'],
         selectors: ['h1', 'main'],
@@ -108,20 +115,20 @@ export const surfaces = [
         indexable: false,
     },
     ...[
-        ['research-items', 'Research items', '/s/amira/page/research-items'],
-        ['research-projects', 'Research projects', '/s/amira/page/research-projects'],
-        ['people', 'People', '/s/amira/page/people'],
-        ['organisations', 'Organisations', '/s/amira/page/organisations'],
-        ['locations', 'Locations', '/s/amira/page/locations'],
-        ['subjects-tags', 'Subjects and tags', '/s/amira/page/subjects-tags'],
-        ['publications', 'Publications', '/s/amira/page/publications'],
-        ['podcasts', 'Podcasts', '/s/amira/page/podcasts'],
-        ['youtube-videos', 'YouTube videos', '/s/amira/page/youtube-videos'],
-    ].map(([id, label, path]) => ({
+        ['research-items', 'Research items'],
+        ['research-projects', 'Research projects'],
+        ['people', 'People'],
+        ['organisations', 'Organisations'],
+        ['locations', 'Locations'],
+        ['subjects-tags', 'Subjects and tags'],
+        ['publications', 'Publications'],
+        ['podcasts', 'Podcasts'],
+        ['youtube-videos', 'YouTube videos'],
+    ].map(([id, label]) => ({
         id,
         label,
         group: 'search',
-        path,
+        path: page(id),
         mode: 'stable',
         owners: ['DRESearch', 'DRE-theme'],
         selectors: ['h1', 'main'],
@@ -129,18 +136,18 @@ export const surfaces = [
         smoke: false,
     })),
     ...[
-        ['project-explorer', 'Project explorer', '/s/amira/page/project-explorer'],
-        ['compare', 'Compare', '/s/amira/page/compare'],
-        ['spatial-exploration', 'Spatial exploration', '/s/amira/page/spatial-exploration'],
-        ['networks', 'Networks', '/s/amira/page/networks'],
-        ['publications-visualisations', 'Publications analytics', '/s/amira/page/publications-visualisations'],
-        ['podcasts-visualisations', 'Podcast analytics', '/s/amira/page/podcasts-visualisations'],
-        ['youtube-visualisations', 'YouTube analytics', '/s/amira/page/youtube-visualisations'],
-    ].map(([id, label, path]) => ({
+        ['project-explorer', 'Project explorer'],
+        ['compare', 'Compare'],
+        ['spatial-exploration', 'Spatial exploration'],
+        ['networks', 'Networks'],
+        ['publications-visualisations', 'Publications analytics'],
+        ['podcasts-visualisations', 'Podcast analytics'],
+        ['youtube-visualisations', 'YouTube analytics'],
+    ].map(([id, label]) => ({
         id,
         label,
         group: 'visualizations',
-        path,
+        path: page(id),
         mode: 'stable',
         owners: ['DRE-Visualizations', 'DRE-theme'],
         selectors: ['h1', 'main'],
