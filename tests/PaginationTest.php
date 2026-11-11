@@ -71,11 +71,7 @@ $both = $view->render('common/pagination-top', dre_pager(2, 4)) . $view->render(
 $labels = array_map(fn($n) => $n->getAttribute('aria-label'), iterator_to_array(dre_xpath($both)->query('//nav')));
 dre_check($failures, $checks, 'the top and bottom pagers have different names', $labels === ['Pagination, top', 'Pagination, bottom'], implode(' | ', $labels));
 
-// The browse templates ask for the positioned wrappers, top then bottom.
-foreach (['view/omeka/site/item/browse.phtml', 'view/omeka/site/item-set/browse.phtml', 'view/hierarchy/site/index/hierarchy.phtml'] as $template) {
-    preg_match_all("~\\\$this->pagination\\(([^)]*)\\)~", file_get_contents(dirname(__DIR__) . '/' . $template), $calls);
-    dre_check($failures, $checks, "$template renders a top and a bottom pager",
-        $calls[1] === ["'common/pagination-top'", "'common/pagination-bottom'"], implode(', ', $calls[1]));
-}
+// Which pager each browse page asks for (top, then bottom) is rendered by
+// tests/TemplateRenderTest.php.
 
 dre_report('Pagination', $failures, $checks);

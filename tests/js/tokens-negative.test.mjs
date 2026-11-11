@@ -96,3 +96,23 @@ test('removing the field-border token is reported, not silently skipped', (t) =>
     assert.equal(status, 1, output);
     assert.match(output, /light: --field-border is not declared/);
 });
+
+// The ratchet counts: an allow-listed file may not gain findings, and one that
+// lost some fails until the baseline is lowered, so the list cannot go slack.
+const COPY = 'asset/sass/base/typography/_copy.scss';
+
+test('an allow-listed file that gains a finding fails, naming its count', (t) => {
+    const root = fixture(t);
+    edit(root, COPY, (src) => `${src}\n.seeded-violation {\n    font-size: 4.5rem;\n}\n`);
+    const {status, output} = lint(root);
+    assert.equal(status, 1, output);
+    assert.match(output, /_copy\.scss\s+\[fontSize\] 2 finding\(s\), the baseline allows 1/);
+});
+
+test('an allow-listed file that lost its finding fails until the baseline is lowered', (t) => {
+    const root = fixture(t);
+    edit(root, COPY, (src) => src.replace('font-size: 4.5rem;', 'font-size: var(--text-lg);'));
+    const {status, output} = lint(root);
+    assert.equal(status, 1, output);
+    assert.match(output, /_copy\.scss\s+\[fontSize\] now has 0 finding\(s\), the baseline says 1: run .*--update-allowlist/);
+});

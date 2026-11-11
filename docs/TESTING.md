@@ -108,7 +108,10 @@ which `scripts/lib/siblings.mjs` accepts as a fallback).
   on every module control in forced-colors mode under the theme stylesheet, and
   the per-chart data table.
 
-PHP tests cover rendered block/citation output, bounded endpoint queries,
+PHP tests cover rendered block/citation output, every page template the
+theme overrides (`tests/TemplateRenderTest.php` renders item and item-set
+browse, the item-set and media pages, the hierarchy page, the footer and the
+numeric inputs), bounded endpoint queries,
 manifest failures, hierarchy batching, cycles and private sets, site-scoped
 statistics and outages, brand contrast, compound relationship selections and
 optional viewer fallbacks. JavaScript tests cover history/pager

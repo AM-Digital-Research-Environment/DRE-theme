@@ -12,22 +12,19 @@ dre_check($failures, $checks, 'the site lockup never owns the document h1',
 dre_check($failures, $checks, 'theme-toggle translations are supplied by the template',
     str_contains($header, 'data-label-light=') && str_contains($header, 'data-label-dark='));
 
-// No media browse here: core's Controller\Site\MediaController implements
-// showAction() and nothing else, so /s/:site/media has no template to render.
+// Item and item-set browse are rendered, h1 included, by
+// tests/TemplateRenderTest.php. No media browse here: core's
+// Controller\Site\MediaController implements showAction() and nothing else,
+// so /s/:site/media has no template to render.
 foreach ([
-    'view/omeka/site/item/browse.phtml',
-    'view/omeka/site/item-set/browse.phtml',
     'view/omeka/site/page/browse.phtml',
 ] as $file) {
     dre_check($failures, $checks, "{$file} has a level-one page title",
         (bool) preg_match('/pageTitle\([^;]+,\s*1\)/s', $read($file)));
 }
 
-$attachment = $read('view/common/block-layout/item-with-metadata.phtml');
-dre_check($failures, $checks, 'an attached item without a title value is null-safe',
-    str_contains($attachment, '$titleObj ? (string) $titleObj->lang() :'));
-dre_check($failures, $checks, 'attached item title and language are escaped separately',
-    str_contains($attachment, '$escape($title)') && str_contains($attachment, '$escape($titleLang)'));
+// item-with-metadata (a title without a value, its escaped language) is
+// rendered by tests/TemplateRenderTest.php.
 
 $values = $read('view/common/resource-values.phtml');
 dre_check($failures, $checks, 'resource language and class attributes use attribute escaping',
@@ -76,9 +73,8 @@ dre_check($failures, $checks, 'the apparatus takes its identifier from RecordLin
 $rowsTemplate = $read('view/common/record-apparatus-rows.phtml');
 dre_check($failures, $checks, 'RDF links are followable: typed, and never marked download',
     str_contains($rowsTemplate, 'type="<?php echo $escAttr($value[\'type\']); ?>"') && !preg_match('/\sdownload[\s>=]/', $rowsTemplate));
-dre_check($failures, $checks, 'item-set and media pages carry the compact linked-data block',
-    str_contains($read('view/omeka/site/item/browse.phtml'), "partial('common/record-linked-data', ['resource' => \$itemSet])")
-        && str_contains($read('view/omeka/site/media/show.phtml'), "partial('common/record-linked-data', ['resource' => \$media])"));
+// That item-set and media pages carry the compact linked-data block is
+// rendered by tests/TemplateRenderTest.php.
 dre_check($failures, $checks, 'record.js copies an exact value for a value-level copy button',
     str_contains($read('asset/js/record.js'), "hasAttribute('data-copy-exact')"));
 

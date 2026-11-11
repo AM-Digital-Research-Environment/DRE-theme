@@ -29,7 +29,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { parseOklch, contrastRatio, contrastRatioResolved } from './lib/contrast.mjs';
-import { runRules, report, parseAllowlist, formatAllowlist } from './lib/token-rules.mjs';
+import { runRules, report } from './lib/token-rules.mjs';
 
 /** `--root <dir>` / `--root=<dir>` / DRE_TOKENS_ROOT, else this repository. */
 function rootArg(argv) {
@@ -98,39 +98,104 @@ const SCAN = { root: ROOT, dirs: ['asset/sass'], extensions: ['.scss'], table };
 // scale, concentrated in exactly the components a researcher touches.
 //
 // Every rule now runs over the WHOLE tree, and what has not been converted yet
-// is written down, per rule per file, in the allowlist. The list is the backlog:
-// shrinking it is the unit of work, and nothing new can be added to the tree
-// without either being on-scale or being recorded.
+// is written down, per rule per file, in the allowlist, with how many
+// findings that file has. The list is the backlog: shrinking it is the unit of
+// work, and nothing new can be added to the tree without either being on-scale
+// or being recorded.
+//
+// The count is the ratchet's teeth. A per-file exemption let an allow-listed
+// file gain any number of new violations unseen; now a file that exceeds its
+// count fails with every finding in it listed, and a file that has improved
+// fails until the baseline is lowered to match, so the list cannot go slack.
+// (The shared parseAllowlist() in token-rules.mjs stays per file: the modules
+// use it, and this format is the theme's own.)
 //
 //   node scripts/check-design-tokens.mjs --update-allowlist
 //
 // regenerates it from the current state — use after a conversion pass, and read
-// the diff: lines should only ever disappear.
+// the diff: lines and counts should only ever go down.
 // ==========================================================================
+
+/** `rule  path  count` lines → Map("rule path" → count). */
+function parseRatchet(text) {
+  const out = new Map();
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.replace(/#.*$/, '').trim();
+    if (!line) continue;
+    const [rule, path, count, ...extra] = line.split(/\s+/);
+    if (!rule || !path || !/^\d+$/.test(count ?? '') || extra.length) {
+      throw new Error(`scripts/design-token-allowlist.txt: expected "rule  path  count", got "${line}"`);
+    }
+    out.set(`${rule} ${path}`, Number(count));
+  }
+  return out;
+}
+
+/** Findings grouped by "rule path". */
+function groupFindings(list) {
+  const groups = new Map();
+  for (const f of list) {
+    const key = `${f.rule} ${f.file}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(f);
+  }
+  return groups;
+}
+
+const all = runRules({ ...SCAN, rules: BASE_RULES });
+
 if (updateAllowlist) {
-  const all = runRules({ ...SCAN, rules: BASE_RULES });
-  writeFileSync(
-    ALLOWLIST,
-    formatAllowlist(
-      all,
-      `# GENERATED baseline for scripts/check-design-tokens.mjs — the RATCHET.\n` +
-        `#\n` +
-        `# Each line exempts one rule in one file. This is a backlog, not a set of\n` +
-        `# exemptions: every line is a conversion someone still owes. Lines should\n` +
-        `# only ever be REMOVED. Regenerate with --update-allowlist after a pass,\n` +
-        `# and check the diff — a new line means new drift got in.\n` +
-        `#\n` +
-        `# Rules exempt by design (the theme authors the scales) live in the script.`
-    )
-  );
-  console.log(`Wrote ${all.length} allowlist entr(ies) to scripts/design-token-allowlist.txt`);
+  const groups = groupFindings(all);
+  const byRule = new Map();
+  for (const [key, list] of groups) {
+    const [rule, file] = key.split(' ');
+    if (!byRule.has(rule)) byRule.set(rule, []);
+    byRule.get(rule).push([file, list.length]);
+  }
+  const out = [
+    `# GENERATED baseline for scripts/check-design-tokens.mjs — the RATCHET.`,
+    `#`,
+    `# Each line allows one rule in one file up to a COUNT of findings. This is a`,
+    `# backlog, not a set of exemptions: every finding is a conversion someone`,
+    `# still owes. Lines and counts should only ever go DOWN. Regenerate with`,
+    `# --update-allowlist after a pass, and check the diff — a new line or a`,
+    `# higher count means new drift got in.`,
+    `#`,
+    `# Rules exempt by design (the theme authors the scales) live in the script.`,
+    '',
+  ];
+  for (const rule of [...byRule.keys()].sort()) {
+    const files = byRule.get(rule).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
+    const total = files.reduce((n, [, c]) => n + c, 0);
+    out.push(`# ${rule} — ${files.length} file(s), ${total} finding(s)`);
+    const width = Math.max(...files.map(([f]) => f.length));
+    for (const [file, count] of files) out.push(`${rule}  ${file.padEnd(width)}  ${count}`);
+    out.push('');
+  }
+  writeFileSync(ALLOWLIST, out.join('\n'));
+  console.log(`Wrote ${groups.size} allowlist entr(ies), ${all.length} finding(s), to scripts/design-token-allowlist.txt`);
   process.exit(0);
 }
 
-const findings = runRules({
-  ...SCAN,
-  rules: parseAllowlist(readFileSync(ALLOWLIST, 'utf8'), BASE_RULES),
-});
+const ratchet = parseRatchet(readFileSync(ALLOWLIST, 'utf8'));
+const findings = [];
+for (const [key, list] of groupFindings(all)) {
+  const allowed = ratchet.get(key) ?? 0;
+  if (list.length > allowed) {
+    // Which of a file's findings is the new one cannot be told apart; list them all.
+    if (allowed > 0) {
+      findings.push(`${key.split(' ')[1]}  [${key.split(' ')[0]}] ${list.length} finding(s), the baseline allows ${allowed}:`);
+    }
+    findings.push(...list);
+  }
+}
+for (const [key, allowed] of ratchet) {
+  const found = groupFindings(all).get(key)?.length ?? 0;
+  if (found < allowed) {
+    findings.push(`${key.split(' ')[1]}  [${key.split(' ')[0]}] now has ${found} finding(s), the baseline says ${allowed}: `
+      + 'run `node scripts/check-design-tokens.mjs --update-allowlist` to lower it');
+  }
+}
 
 // ==========================================================================
 // Contrast assertion — the one check only the theme can make.
