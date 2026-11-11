@@ -135,7 +135,7 @@ msgstr ""
 msgid "Authors & named persons"
 msgstr ""
 
-#: view/layout/layout.phtml:228
+#: view/layout/layout.phtml:230
 msgid "Back to top"
 msgstr ""
 
@@ -457,7 +457,7 @@ msgstr ""
 msgid "Knowledge-graph links"
 msgstr ""
 
-#: helper/CollectionStats.php:148
+#: helper/CollectionStats.php:189
 msgid "Languages"
 msgstr ""
 
@@ -490,7 +490,7 @@ msgstr ""
 msgid "Loading the full text…"
 msgstr ""
 
-#: helper/CollectionStats.php:147
+#: helper/CollectionStats.php:188
 msgid "Locations"
 msgstr ""
 
@@ -618,7 +618,7 @@ msgstr ""
 msgid "or the research team of %s"
 msgstr ""
 
-#: helper/CollectionStats.php:146
+#: helper/CollectionStats.php:187
 msgid "Organisations"
 msgstr ""
 
@@ -664,7 +664,7 @@ msgstr ""
 msgid "Part of %s"
 msgstr ""
 
-#: helper/CollectionStats.php:145
+#: helper/CollectionStats.php:186
 msgid "People"
 msgstr ""
 
@@ -689,7 +689,7 @@ msgstr ""
 msgid "Places mapped & georeferenced"
 msgstr ""
 
-#: helper/CollectionStats.php:151
+#: helper/CollectionStats.php:192
 msgid "Podcasts"
 msgstr ""
 
@@ -713,7 +713,7 @@ msgstr[1] ""
 msgid "Private"
 msgstr ""
 
-#: helper/CollectionStats.php:144
+#: helper/CollectionStats.php:185
 msgid "Projects"
 msgstr ""
 
@@ -737,7 +737,7 @@ msgstr ""
 msgid "Publication trends & networks"
 msgstr ""
 
-#: helper/CollectionStats.php:150
+#: helper/CollectionStats.php:191
 msgid "Publications"
 msgstr ""
 
@@ -802,7 +802,7 @@ msgstr ""
 msgid "Requesting material & who to ask"
 msgstr ""
 
-#: helper/CollectionStats.php:143
+#: helper/CollectionStats.php:184
 msgid "Research items"
 msgstr ""
 
@@ -904,7 +904,7 @@ msgstr ""
 msgid "Site pages"
 msgstr ""
 
-#: view/layout/layout.phtml:214
+#: view/layout/layout.phtml:216
 msgid "Skip to main content"
 msgstr ""
 
@@ -939,7 +939,7 @@ msgstr ""
 msgid "Subjects"
 msgstr ""
 
-#: helper/CollectionStats.php:149
+#: helper/CollectionStats.php:190
 msgid "Subjects & tags"
 msgstr ""
 
@@ -1133,6 +1133,6 @@ msgstr ""
 msgid "Years"
 msgstr ""
 
-#: helper/CollectionStats.php:152
+#: helper/CollectionStats.php:193
 msgid "YouTube videos"
 msgstr ""

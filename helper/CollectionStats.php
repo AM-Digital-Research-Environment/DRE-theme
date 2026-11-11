@@ -66,6 +66,21 @@ class CollectionStats extends AbstractHelper
         if ($this->readCache($cacheKey . '_retry', 60) !== null) {
             return $this->localize($stale ?? []);
         }
+        if (null === $stale) {
+            // First computation under this key (a new site, or a CACHE_VERSION
+            // bump): the keys of earlier versions are dead weight in the
+            // settings table, and nothing else ever deletes them.
+            $this->pruneLegacyKeys($siteId);
+        } else {
+            // The hourly expiry is a stampede: every request that lands while
+            // one recomputes would recompute too, and each would rewrite the
+            // row. The retry marker, taken first, sends the others to the stale
+            // counts for the minute it lasts. Settings have no atomic
+            // compare-and-set, so a few may still slip through together; the
+            // marker narrows the window, it does not close it. Without stale
+            // counts every request still computes, so a cold start shows a band.
+            $this->writeCache($cacheKey . '_retry', []);
+        }
         $stats = $this->fromSearchProfiles($siteId);
         if (null === $stats) {
             $stats = $this->fromApi($siteId);
@@ -107,11 +122,37 @@ class CollectionStats extends AbstractHelper
     }
 
     /** Rate-limited operational diagnostics, without metadata or visitor input. */
-    private function reportFailure(string $stage, \Throwable $error): void
+    private function reportFailure(string $stage, \Throwable $error, string $detail = ''): void
     {
         try {
-            $this->getView()->IntegrationWarning($this->getView()->currentSite(), 'statistics ' . $stage, $error);
+            $this->getView()->IntegrationWarning($this->getView()->currentSite(), 'statistics ' . $stage, $error, $detail);
         } catch (\Throwable $ignored) { /* Diagnostics must not prevent rendering. */ }
+    }
+
+    /**
+     * Delete what earlier theme versions cached for this site: the stats keys
+     * of CACHE_VERSION v3–v9 and their retry markers, the first item-set map
+     * and the per-stage warning markers (now IntegrationWarning's one row).
+     */
+    private function pruneLegacyKeys(?int $siteId): void
+    {
+        $settings = $this->settings();
+        if (!$settings) {
+            return;
+        }
+        $keys = ['dre_stats_set_ids_v1', 'dre_stats_warning_search-counts', 'dre_stats_warning_api-counts'];
+        for ($version = 3; $version <= 9; $version++) {
+            $key = sprintf('dre_stats_v%d_%s', $version, $siteId ?: 'x');
+            $keys[] = $key;
+            $keys[] = $key . '_retry';
+        }
+        try {
+            foreach ($keys as $key) {
+                $settings->delete($key);
+            }
+        } catch (\Throwable $e) {
+            // Housekeeping only; the counts do not depend on it.
+        }
     }
 
     /**
@@ -258,11 +299,24 @@ class CollectionStats extends AbstractHelper
                 $query['is_public'] = true;
                 return (int) $api->search('items', $query)->getTotalResults();
             };
-            $byTemplate = function (string $label) use ($total) {
-                return $total(['resource_template_label' => $label]);
+            // The fallback finds its corpora by template label and item-set
+            // title, so a renamed template or set reads as 0 records with no
+            // other sign. What found nothing is named in one rate-limited log
+            // line (IntegrationWarning: once an hour, as the cache recomputes).
+            $nothing = [];
+            $byTemplate = function (string $label) use ($total, &$nothing) {
+                $n = $total(['resource_template_label' => $label]);
+                if ($n === 0) $nothing[] = 'template "' . $label . '"';
+                return $n;
             };
-            $bySet = function (string $label) use ($setId, $total) {
-                return !empty($setId[$label]) ? $total(['item_set_id' => $setId[$label]]) : 0;
+            $bySet = function (string $label) use ($setId, $total, &$nothing) {
+                if (empty($setId[$label])) {
+                    $nothing[] = 'item set "' . $label . '" (no public set has this title)';
+                    return 0;
+                }
+                $n = $total(['item_set_id' => $setId[$label]]);
+                if ($n === 0) $nothing[] = 'item set "' . $label . '"';
+                return $n;
             };
 
             // Same metrics, same ORDER as DRESearch's CorpusCounts::METRICS, so
@@ -280,7 +334,7 @@ class CollectionStats extends AbstractHelper
             // every new upstream type, and the set is also curated: records
             // detached from it keep their publication template, so a label sum
             // both missed new types and counted removed records.
-            return [
+            $stats = [
                 ['k' => 'researchItems', 'l' => 'Research items',  'n' => $byTemplate('Research Items'), 's' => ''],
                 ['k' => 'projects',      'l' => 'Projects',        'n' => $byTemplate('Projects'),       's' => ''],
                 ['k' => 'people',        'l' => 'People',          'n' => $byTemplate('Persons'),        's' => ''],
@@ -292,6 +346,11 @@ class CollectionStats extends AbstractHelper
                 ['k' => 'podcasts',      'l' => 'Podcasts',        'n' => $bySet('Podcasts'),            's' => ''],
                 ['k' => 'youtube',       'l' => 'YouTube videos',  'n' => $bySet('YouTube videos'),      's' => ''],
             ];
+            if ($nothing) {
+                $this->reportFailure('api-counts empty', new \UnderflowException('No records'),
+                    'the fallback found no public records for ' . implode(', ', $nothing) . '; was a template or item set renamed?');
+            }
+            return $stats;
         } catch (\Throwable $e) {
             $this->reportFailure('api-counts', $e);
             return null;

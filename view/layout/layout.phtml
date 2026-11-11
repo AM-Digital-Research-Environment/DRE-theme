@@ -149,9 +149,11 @@ if ($userBar) {
 
 		<?php // Browser chrome and icons — on every page, whatever the PWA setting:
 		      // a favicon and the address-bar tint are not "app install". The
-		      // theme-color pair tracks the surface tokens in both modes. ?>
-		<meta name="theme-color" content="#fdfcf9" media="(prefers-color-scheme: light)">
-		<meta name="theme-color" content="#0e1612" media="(prefers-color-scheme: dark)">
+		      // theme-color pair tracks the surface tokens in both modes. The
+		      // media queries follow the OS until the page knows the visitor's
+		      // own choice: theme-toggle.js then points both at it. ?>
+		<meta name="theme-color" content="#fdfcf9" media="(prefers-color-scheme: light)" data-theme-color="light">
+		<meta name="theme-color" content="#0e1612" media="(prefers-color-scheme: dark)" data-theme-color="dark">
 		<?php // Favicons: the official Africa Multiple colour compass on white, all
 		      // resized from asset/img/pwa/compass-source.png (as is every other
 		      // icon). The 192/96 sizes are for search engines — Google shows the

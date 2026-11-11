@@ -40,6 +40,7 @@ $settings = new class {
     public array $values = [];
     public function get(string $key, string $default = '') { return $this->values[$key] ?? $default; }
     public function set(string $key, string $value): void { $this->values[$key] = $value; }
+    public function delete(string $key): void { unset($this->values[$key]); }
 };
 $logger = new class {
     public array $warnings = [];
@@ -89,10 +90,10 @@ $view = new class($site, $api) {
     public function __construct(private object $site, private object $api) {}
     public function getHelperPluginManager(): object { throw new LogicException('Deprecated service locator path used'); }
     public function currentSite(): object { return $this->site; }
-    public function IntegrationWarning($resource, string $component, Throwable $error): void
+    public function IntegrationWarning($resource, string $component, Throwable $error, string $detail = ''): void
     {
         if (!$this->warning) { $this->warning = new IntegrationWarning(); $this->warning->setView($this); }
-        ($this->warning)($resource, $component, $error);
+        ($this->warning)($resource, $component, $error, $detail);
     }
     public function api(): object { return $this->api; }
     public function plugin(string $name): callable {
@@ -102,11 +103,25 @@ $view = new class($site, $api) {
 
 $singleSite = new CollectionStats();
 $singleSite->setView($view);
+// What theme ≤ 2.48 left in the settings table for this site.
+$settings->values = [
+    'dre_stats_v9_1' => '{}', 'dre_stats_v9_1_retry' => '{}', 'dre_stats_v4_1' => '{}',
+    'dre_stats_set_ids_v1' => '{}', 'dre_stats_warning_api-counts' => '1',
+    'dre_stats_v9_2' => '{}',
+];
 $stats = $singleSite(1);
 dre_check($failures, $checks, 'a leftover visualizations snapshot is never read',
     count($stats) === 10 && $stats[0]['n'] === 0);
 dre_check($failures, $checks, 'statistics are cached under a site-specific key',
     isset($settings->values['dre_stats_v10_1']));
+dre_check($failures, $checks, 'the first computation under a key deletes this site\'s keys from earlier versions, and only those',
+    !array_intersect(array_keys($settings->values), ['dre_stats_v9_1', 'dre_stats_v9_1_retry', 'dre_stats_v4_1', 'dre_stats_set_ids_v1', 'dre_stats_warning_api-counts'])
+    && isset($settings->values['dre_stats_v9_2']));
+// The test API counts 0 for everything: exactly what a renamed template looks like.
+dre_check($failures, $checks, 'a fallback that finds nothing says what it looked for, once',
+    count($logger->warnings) === 1 && str_contains($logger->warnings[0], 'statistics api-counts empty: the fallback found no public records for')
+    && str_contains($logger->warnings[0], 'template "Research Items"') && str_contains($logger->warnings[0], 'item set "Languages" (no public set has this title)')
+    && str_contains($logger->warnings[0], 'item set "Publications"'), $logger->warnings[0] ?? '');
 
 $queries = count($api->queries);
 $view->locale = 'fr';
@@ -185,7 +200,26 @@ $stats = $singleSite(1);
 dre_check($failures, $checks, 'configured search corpora take priority over legacy totals',
     $stats[0]['n'] === 205 && $services->counts->site === 1);
 
+// An expired cache with stale counts: the recomputing request takes the retry
+// marker first, so requests landing meanwhile serve the stale counts.
+$services->counts = new class($settings) {
+    public bool $markerSeen = false;
+    public function __construct(private object $settings) {}
+    public function forSite($site) {
+        $this->markerSeen = isset($this->settings->values['dre_stats_v10_77_retry']);
+        return [['k' => 'locations', 'l' => 'Locations', 'n' => 9, 's' => '']];
+    }
+};
+$settings->values = ['dre_stats_v10_77' => json_encode(['t' => time() - 4000, 'stats' => [['k' => 'locations', 'n' => 5]]])];
+dre_check($failures, $checks, 'a recompute over stale counts takes the retry marker before it starts',
+    $singleSite(77)[0]['n'] === 9 && $services->counts->markerSeen);
+$settings->values = [];
+$services->counts->markerSeen = false;
+$singleSite(78);
+dre_check($failures, $checks, 'a cold start takes no marker, so its visitors still get a band', !$services->counts->markerSeen);
+
 // Keep last good site counts during an outage, then throttle retries.
+$logger->warnings = [];
 $settings->values = ['dre_stats_v10_88' => json_encode(['t' => time() - 4000, 'stats' => [['k' => 'locations', 'n' => 123]]])];
 $services->counts = new class { public function forSite($site) { return [['invalid' => true]]; } };
 $api->fail = true;
@@ -194,13 +228,30 @@ dre_check($failures, $checks, 'malformed upstream counts and API failure preserv
 $queries = count($api->queries);
 $singleSite(88);
 dre_check($failures, $checks, 'outage retries are throttled', count($api->queries) === $queries);
-dre_check($failures, $checks, 'failures record rate-limit markers through IntegrationWarning',
-    isset($settings->values['dre_theme_warning_' . hash('sha256', 'statistics search-counts')],
-        $settings->values['dre_theme_warning_' . hash('sha256', 'statistics api-counts')]));
+$warned = json_decode($settings->values[IntegrationWarning::SETTING] ?? '', true);
+dre_check($failures, $checks, 'failures record their rate-limit markers in IntegrationWarning\'s one settings row',
+    isset($warned['statistics search-counts'], $warned['statistics api-counts'])
+    && !preg_grep('/^dre_theme_warning_/', array_keys($settings->values)));
 dre_check($failures, $checks, 'failures are logged once per stage',
     count($logger->warnings) === 2 && str_contains($logger->warnings[0], 'statistics search-counts'));
 $stats = $singleSite(89);
 dre_check($failures, $checks, 'outage without cached values returns an empty band', $stats === []);
+
+// IntegrationWarning keeps one row: an hour-old entry is dropped when another
+// component is logged, and the per-component row of earlier versions deleted.
+$settings->values = [
+    IntegrationWarning::SETTING => json_encode(['old component' => time() - 7200, 'mirador' => time() - 60]),
+    'dre_theme_warning_' . hash('sha256', 'citation') => (string) time(),
+];
+$logger->warnings = [];
+$warning = new IntegrationWarning();
+$warning->setView($view);
+$warning($site, 'citation', new RuntimeException('x'));
+$warning($site, 'mirador', new RuntimeException('x'));
+$warned = json_decode($settings->values[IntegrationWarning::SETTING], true);
+dre_check($failures, $checks, 'IntegrationWarning prunes expired entries, keeps recent ones and deletes the legacy row',
+    array_keys($warned) === ['mirador', 'citation'] && !isset($settings->values['dre_theme_warning_' . hash('sha256', 'citation')]));
+dre_check($failures, $checks, 'IntegrationWarning still logs a component once an hour', count($logger->warnings) === 1 && str_contains($logger->warnings[0], 'citation'));
 
 $remove = function (string $path) use (&$remove): void {
     if (!is_dir($path)) {

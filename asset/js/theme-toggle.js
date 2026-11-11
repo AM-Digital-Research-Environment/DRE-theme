@@ -48,7 +48,20 @@
         // drives subtree theming and is what chart modules observe.
         document.documentElement.setAttribute(THEME_ATTRIBUTE, theme);
         document.body.setAttribute(THEME_ATTRIBUTE, theme);
+        updateThemeColor(theme);
         updateToggleButton(theme);
+    }
+
+    /**
+     * The address-bar tint. The two theme-color metas carry OS media queries,
+     * so a visitor who picked dark on a light OS got a light bar over a dark
+     * page. Once a theme is applied, the meta for it matches everything and
+     * the other matches nothing.
+     */
+    function updateThemeColor(theme) {
+        document.querySelectorAll('meta[name="theme-color"][data-theme-color]').forEach(function (meta) {
+            meta.setAttribute('media', meta.getAttribute('data-theme-color') === theme ? 'all' : 'not all');
+        });
     }
 
     function updateToggleButton(theme) {

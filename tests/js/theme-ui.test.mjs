@@ -39,6 +39,24 @@ test('theme toggle uses translated labels and persists a valid preference', () =
     dom.window.close();
 });
 
+test('the address-bar tint follows the applied theme, not only the OS', () => {
+    const dom = new JSDOM(`<!doctype html><html><head>
+        <meta name="theme-color" content="#fdfcf9" media="(prefers-color-scheme: light)" data-theme-color="light">
+        <meta name="theme-color" content="#0e1612" media="(prefers-color-scheme: dark)" data-theme-color="dark">
+    </head><body data-theme="light">
+        <button data-theme-toggle data-label-light="Light" data-label-dark="Dark"></button>
+    </body></html>`, { url: 'https://example.test/', runScripts: 'outside-only' });
+    dom.window.matchMedia = () => matchMedia(false);
+    dom.window.eval(source('utils.js'));dom.window.eval(source('theme-toggle.js'));
+    ready(dom);
+
+    const media = () => [...dom.window.document.querySelectorAll('meta[name="theme-color"]')].map(m => m.getAttribute('media'));
+    assert.deepEqual(media(), ['all', 'not all']);
+    dom.window.document.querySelector('[data-theme-toggle]').click();
+    assert.deepEqual(media(), ['not all', 'all'], 'an explicit dark choice tints the bar dark on a light OS');
+    dom.window.close();
+});
+
 test('theme toggle still works when storage is blocked', () => {
     const dom = new JSDOM(`<!doctype html><html><body>
         <button data-theme-toggle data-label-light="Light" data-label-dark="Dark"></button>
