@@ -13,11 +13,11 @@ $this->htmlElement('body')->appendAttribute('class', 'index search');
           // the archive just has no match. The query itself is already restated
           // by the page title above, so don't repeat it here. ?>
     <div class="search-empty">
-        <p class="search-empty__lead"><?php echo $translate('Nothing in the collections matched this search.'); ?></p>
+        <p class="search-empty__lead"><?php echo $this->escapeHtml($translate('Nothing in the collections matched this search.')); ?></p>
         <ul class="search-empty__hints">
-            <li><?php echo $translate('Check the spelling, or try another form of the word.'); ?></li>
-            <li><?php echo $translate('Fewer, broader terms cast a wider net.'); ?></li>
-            <li><?php echo $translate('Names may appear transliterated — try a variant spelling.'); ?></li>
+            <li><?php echo $this->escapeHtml($translate('Check the spelling, or try another form of the word.')); ?></li>
+            <li><?php echo $this->escapeHtml($translate('Fewer, broader terms cast a wider net.')); ?></li>
+            <li><?php echo $this->escapeHtml($translate('Names may appear transliterated — try a variant spelling.')); ?></li>
         </ul>
         <div class="search-empty__actions">
             <a class="button" href="<?php echo $this->escapeHtmlAttr($this->DreSearchUrl()); ?>"><?php echo $this->escapeHtml($translate('Search with filters')); ?></a>
@@ -26,7 +26,7 @@ $this->htmlElement('body')->appendAttribute('class', 'index search');
                 ['controller' => 'item', 'action' => 'browse'],
                 [],
                 true
-            )); ?>"><?php echo $translate('Browse all items'); ?></a>
+            )); ?>"><?php echo $this->escapeHtml($translate('Browse all items')); ?></a>
         </div>
     </div>
 <?php else: ?>
@@ -46,7 +46,7 @@ $this->htmlElement('body')->appendAttribute('class', 'index search');
     ?>
     <?php foreach ($results as $resourceName => $result): ?>
         <div class="<?php echo $this->escapeHtmlAttr($resourceName); ?> results">
-            <h2><?php echo $translate($resourceLabels[$resourceName]); ?></h2>
+            <h2><?php echo $this->escapeHtml($translate($resourceLabels[$resourceName])); ?></h2>
             <ul class="resources resource-list">
                 <?php foreach ($result['resources'] as $resource): ?>
                     <?php if ('site_pages' === $resourceName): ?>

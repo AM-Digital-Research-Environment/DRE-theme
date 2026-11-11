@@ -211,7 +211,7 @@ if ($userBar) {
 			} catch (e) {}
 		})();
 		</script>
-		<a id="skipnav" href="#content"><?php echo $this->translate('Skip to main content'); ?></a>
+		<a id="skipnav" href="#content"><?php echo $this->escapeHtml($this->translate('Skip to main content')); ?></a>
 
 		<?php echo $this->partial('common/header', ['userBar' => $userBar, 'site' => $site, 'isHome' => $isHome, 'pwaEnabled' => $pwaEnabled]); ?>
 

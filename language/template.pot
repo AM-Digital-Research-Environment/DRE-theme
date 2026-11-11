@@ -660,7 +660,7 @@ msgstr ""
 msgid "Pagination, top"
 msgstr ""
 
-#: view/omeka/site/media/show.phtml:69
+#: view/omeka/site/media/show.phtml:67
 msgid "Part of %s"
 msgstr ""
 

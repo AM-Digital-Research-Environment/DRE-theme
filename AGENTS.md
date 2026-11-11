@@ -34,8 +34,12 @@ Before committing a change to `helper/*.php`:
 curl -fsSL https://github.com/omeka/omeka-s/releases/download/v4.2.1/omeka-s-4.2.1.zip -o omeka.zip && unzip -q omeka.zip
 curl -fsSL https://github.com/phpstan/phpstan/releases/download/2.3.3/phpstan.phar -o phpstan.phar
 # from the theme root
-OMEKA_PATH=/abs/path/omeka-s php /abs/path/phpstan.phar analyse --no-progress --memory-limit=1G
+OMEKA_PATH=/abs/path/omeka-s PHPSTAN=/abs/path/phpstan.phar npm run lint:phpstan
 ```
+
+`npm run lint:php` needs a PHP with mbstring (and intl for the number
+tests); without a PHP it warns loudly and passes locally, and fails under
+`CI=true`.
 
 ## Gotchas
 

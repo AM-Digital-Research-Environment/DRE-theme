@@ -48,11 +48,7 @@ if (!isset($typeClass) || null === $typeClass) {
     ][$resource->resourceName()] ?? 'resource';
 }
 
-$classes = array_filter([
-    $typeClass,
-    'resource',
-    $isGrid ? '' : 'media-object',
-]);
+$classes = [$typeClass, 'resource'];
 ?>
 <<?php echo $tag; ?> class="<?php echo $escapeAttr(implode(' ', $classes)); ?>"<?php
     echo (null !== $reveal) ? ' data-rv-reveal="' . (int) $reveal . '"' : ''; ?>>
@@ -68,7 +64,7 @@ $classes = array_filter([
             <?php echo $this->ResourceTags($resource); ?>
         <?php endif; ?>
 
-        <div class="resource__meta<?php echo $isGrid ? '' : ' media-object-section'; ?>">
+        <div class="resource__meta">
             <?php if ($showHeading): ?>
                 <?php echo $resource->link($heading); ?>
             <?php endif; ?>

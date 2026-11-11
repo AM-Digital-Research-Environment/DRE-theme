@@ -10,28 +10,28 @@ $this->headScript()->appendFile($this->assetUrl('js/numeric-data-types.js', 'Num
     <?php echo $this->formHidden($element->getValueElement()); ?>
     <div class="numeric-datetime-inputs">
         <div class="numeric-date-inputs">
-            <label class="sub-label"><?php echo $this->translate('Year'); ?>
+            <label class="sub-label"><?php echo $this->escapeHtml($this->translate('Year')); ?>
                 <?php echo $this->formNumber($element->getYearElement()); ?>
             </label>
-            <label class="sub-label"><?php echo $this->translate('Month'); ?>
+            <label class="sub-label"><?php echo $this->escapeHtml($this->translate('Month')); ?>
                 <?php echo $this->formSelect($element->getMonthElement()); ?>
             </label>
-            <label class="sub-label"><?php echo $this->translate('Day'); ?>
+            <label class="sub-label"><?php echo $this->escapeHtml($this->translate('Day')); ?>
                 <?php echo $this->formSelect($element->getDayElement()); ?>
             </label>
             <label class="numeric-toggle-time button" aria-label="<?php echo $this->escapeHtmlAttr($this->translate('Time')); ?>" title="<?php echo $this->escapeHtmlAttr($this->translate('Time')); ?>"><input type="checkbox" name="numeric-toggle-time-checkbox"/></label>
         </div>
         <div class="numeric-time-inputs">
-            <label class="sub-label"><?php echo $this->translate('Hour'); ?>
+            <label class="sub-label"><?php echo $this->escapeHtml($this->translate('Hour')); ?>
                 <?php echo $this->formSelect($element->getHourElement()); ?>
             </label>
-            <label class="sub-label"><?php echo $this->translate('Minute'); ?>
+            <label class="sub-label"><?php echo $this->escapeHtml($this->translate('Minute')); ?>
                 <?php echo $this->formSelect($element->getMinuteElement()); ?>
             </label>
-            <label class="sub-label"><?php echo $this->translate('Second'); ?>
+            <label class="sub-label"><?php echo $this->escapeHtml($this->translate('Second')); ?>
                 <?php echo $this->formSelect($element->getSecondElement()); ?>
             </label>
-            <label class="sub-label"><?php echo $this->translate('Offset'); ?>
+            <label class="sub-label"><?php echo $this->escapeHtml($this->translate('Offset')); ?>
                 <?php echo $this->formSelect($element->getOffsetElement()); ?>
             </label>
         </div>

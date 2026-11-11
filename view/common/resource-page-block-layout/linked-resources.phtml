@@ -17,8 +17,8 @@ if (array_filter($data['resourcePropertiesAll'])):
     data-failed="<?php echo $this->escapeHtmlAttr($this->translate('Connections could not be loaded. Your previous results are still shown.')); ?>">
     <p data-connection-status role="status" aria-live="polite"></p>
     <div data-connection-recovery hidden>
-        <button type="button" class="btn--secondary" data-connection-retry><?php echo $this->translate('Try again'); ?></button>
-        <a data-connection-continue href="<?php echo $this->escapeHtmlAttr($resource->url()); ?>#linked-resources"><?php echo $this->translate('Open results as a page'); ?></a>
+        <button type="button" class="btn--secondary" data-connection-retry><?php echo $this->escapeHtml($this->translate('Try again')); ?></button>
+        <a data-connection-continue href="<?php echo $this->escapeHtmlAttr($resource->url()); ?>#linked-resources"><?php echo $this->escapeHtml($this->translate('Open results as a page')); ?></a>
     </div>
     <?php echo $this->partial('common/linked-resources', $data); ?>
 </div>

@@ -29,9 +29,12 @@
  *                                Set only by CI's CSS job, whose PHP coverage
  *                                comes from the dedicated PHP matrix jobs.
  *
- * WHEN IT FINDS NEITHER it prints how to get one and exits 0, so a contributor
- * without PHP is not blocked — but CI passes `--require`, so the check is a hard
- * gate exactly where it can always run. That asymmetry is deliberate and stated;
+ * WHEN IT FINDS NEITHER it prints a loud warning and how to get one, and exits 0,
+ * so a contributor without PHP is not blocked — but `npm run verify` is then
+ * green with zero PHP checks run, which the warning says in so many words. Under
+ * CI=true (every CI provider sets it) a missing PHP fails, as `--require` does:
+ * a CI job either has PHP or opts out explicitly with DRE_SKIP_PHP_LINT. So the
+ * check is a hard gate exactly where it can always run. That asymmetry is deliberate and stated;
  * it is NOT the accidental version this repo already had, where `lint:ini`
  * shelled out to `grep`, silently got nothing on Windows, and reported every
  * admin field as dead.
@@ -47,11 +50,15 @@ import { spawnSync } from 'node:child_process';
 import { walkFiles } from './files.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
-const REQUIRE_PHP = process.argv.includes('--require');
+const IN_CI = Boolean(process.env.CI) && process.env.CI !== 'false';
+const REQUIRE_FLAG = process.argv.includes('--require');
+// Under CI a missing PHP fails like --require, but DRE_SKIP_PHP_LINT still
+// opts a job out (CI's CSS job, whose PHP coverage is the PHP matrix).
+const REQUIRE_PHP = REQUIRE_FLAG || IN_CI;
 const DOCKER_IMAGE = process.env.DRE_PHP_IMAGE ?? 'php:8.3-cli';
 const RUNNER = process.env.DRE_PHP_RUNNER ?? 'auto';
 
-if (process.env.DRE_SKIP_PHP_LINT && !REQUIRE_PHP) {
+if (process.env.DRE_SKIP_PHP_LINT && !REQUIRE_FLAG) {
   console.log('PHP verification: SKIPPED (DRE_SKIP_PHP_LINT is set; the PHP jobs run it with --require).');
   process.exit(0);
 }
@@ -141,20 +148,28 @@ if (!php) {
   const message = [
     `PHP verification: no PHP binary available${RUNNER === 'auto' ? '' : ` (DRE_PHP_RUNNER=${RUNNER})`} — SKIPPED.`,
     '',
+    '  No template was parsed and no PHP test ran: this run says nothing about',
+    '  the PHP, however green the rest of it is.',
+    '',
     '  Get one, cheapest first:',
     '    winget install PHP.PHP.8.3            # Windows, ~30s, then reopen the shell',
     '    brew install php                      # macOS',
     '    sudo apt install php-cli              # Debian/Ubuntu',
     `    docker pull ${DOCKER_IMAGE}                # no local install`,
     '',
-    '  CI runs this with --require, so a syntax error still cannot reach a release.',
+    '  CI fails here instead (CI=true, or --require), so a syntax error still cannot reach a release.',
   ].join('\n');
 
   if (REQUIRE_PHP) {
-    console.error(message.replace('SKIPPED.', 'REQUIRED but not found.'));
+    console.error(message.replace('SKIPPED.', `REQUIRED${IN_CI ? ' (CI=true)' : ''} but not found.`));
     process.exit(1);
   }
-  console.log(message);
+  const rule = '!'.repeat(78);
+  console.warn(`
+${rule}
+${message}
+${rule}
+`);
   process.exit(0);
 }
 

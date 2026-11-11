@@ -42,8 +42,13 @@ npm run test:browser   # or `npm test` for test:unit + test:browser
 `npm run lint:php` (part of `build`) runs `php -l` over every template, helper
 and test, then the dependency-free PHP behavior suites. It uses a `php` on
 `PATH` if there is one, otherwise a pulled Docker image (`php:8.3-cli`, or
-`DRE_PHP_IMAGE`), and skips with instructions when it finds neither. CI always
-has PHP and runs `npm run lint:php:require`, where a missing PHP is a failure.
+`DRE_PHP_IMAGE`), and skips with a loud warning and instructions when it finds
+neither: `npm run verify` is then green with no PHP checked. Under `CI=true`,
+and with `npm run lint:php:require`, a missing PHP is a failure instead.
+
+`npm run lint:phpstan` runs CI's PHPStan gate on `helper/` locally. It is
+opt-in: set `OMEKA_PATH` to an unpacked Omeka S release and `PHPSTAN` to a
+`phpstan.phar` (or have `phpstan` on `PATH`), both outside the repository.
 The PHP runner installs an error handler before every behavior suite, so
 warnings and deprecations fail the job instead of merely printing to the log.
 

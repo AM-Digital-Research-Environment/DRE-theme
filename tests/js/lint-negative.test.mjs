@@ -124,6 +124,10 @@ test('check-templates.mjs fails on a seeded structural violation', async t => {
             files: {'view/common/header.phtml': '<header><?php echo $this->sample(); ?></header>\n'},
             message: /must match the theme\.ini helper name exactly/,
         },
+        'translation echoed without escaping': {
+            files: {'view/common/header.phtml': "<header><?php echo $this->translate('Menu'); ?></header>\n"},
+            message: /unescaped translate\(\)/,
+        },
     });
 });
 

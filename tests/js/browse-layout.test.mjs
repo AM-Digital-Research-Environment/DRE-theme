@@ -20,7 +20,7 @@ test('browse toggles own one Masonry instance and restore state through history'
     assert.equal(created, 1);
     w.document.querySelector('button.list').click();
     assert.equal(destroyed, 1);
-    assert.equal(w.document.querySelector('.resource').classList.contains('media-object'), true);
+    assert.equal(w.document.querySelector('.resources').classList.contains('resource-list'), true);
     w.document.querySelector('button.grid').click();
     assert.equal(created, 2);
     const before = layouts;

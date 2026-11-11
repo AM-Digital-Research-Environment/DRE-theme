@@ -6,21 +6,21 @@
     data-storage-error="<?php echo $this->escapeHtmlAttr($this->translate('Browser storage is unavailable. This list will last for this page only. Export it to keep a copy.')); ?>"
     data-limit="<?php echo $this->escapeHtmlAttr($this->translate('The shortlist is full (200 records). Export or remove records before saving more.')); ?>">
     <form method="dialog" class="research-shortlist__head">
-        <h2 id="shortlist-title"><?php echo $this->translate('Research shortlist'); ?></h2>
-        <button type="submit"><?php echo $this->translate('Close'); ?></button>
+        <h2 id="shortlist-title"><?php echo $this->escapeHtml($this->translate('Research shortlist')); ?></h2>
+        <button type="submit"><?php echo $this->escapeHtml($this->translate('Close')); ?></button>
     </form>
-    <p><?php echo $this->translate('Saved in this browser only. Export your list to keep or share it.'); ?></p>
+    <p><?php echo $this->escapeHtml($this->translate('Saved in this browser only. Export your list to keep or share it.')); ?></p>
     <p data-shortlist-status role="status" aria-live="polite"></p>
     <ul data-shortlist-list></ul>
     <div class="research-shortlist__actions">
-        <label for="shortlist-format"><?php echo $this->translate('Export format'); ?></label>
+        <label for="shortlist-format"><?php echo $this->escapeHtml($this->translate('Export format')); ?></label>
         <select id="shortlist-format" data-shortlist-format>
             <option value="md">Markdown</option>
             <option value="csv">CSV</option>
             <option value="json">JSON</option>
         </select>
-        <button type="button" data-shortlist-export><?php echo $this->translate('Export list'); ?></button>
-        <button type="button" data-shortlist-clear><?php echo $this->translate('Clear list'); ?></button>
-        <button type="button" data-shortlist-undo hidden><?php echo $this->translate('Undo clear'); ?></button>
+        <button type="button" data-shortlist-export><?php echo $this->escapeHtml($this->translate('Export list')); ?></button>
+        <button type="button" data-shortlist-clear><?php echo $this->escapeHtml($this->translate('Clear list')); ?></button>
+        <button type="button" data-shortlist-undo hidden><?php echo $this->escapeHtml($this->translate('Undo clear')); ?></button>
     </div>
 </dialog>

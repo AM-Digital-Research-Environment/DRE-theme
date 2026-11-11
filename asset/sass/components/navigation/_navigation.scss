@@ -38,7 +38,7 @@
         margin: 0;          // was `20px auto` — the auto centred the hamburger and
         flex-shrink: 0;     // the 20px bloated the mobile bar height
         transform: rotate(0deg);
-        transition: .5s ease-in-out;
+        transition: var(--transition-slow);
         background-color: transparent;
         padding: 0;
         // Reset the UA-default `2px outset` button border. Until v2.13.0 the
@@ -79,7 +79,7 @@
             opacity: 1;
             left: calc(50% - 17.5px);
             transform: rotate(0deg);
-            transition: .25s ease-in-out;
+            transition: var(--transition-base);
         }
 
         span:nth-child(2) {

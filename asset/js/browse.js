@@ -53,8 +53,6 @@
                 state.root.classList.toggle('resource-grid', grid);
                 state.root.classList.toggle('resource-list', !grid);
                 state.root.querySelectorAll('.resource').forEach(card => {
-                    card.classList.toggle('media-object', !grid);
-                    card.querySelector('.resource__meta')?.classList.toggle('media-object-section', !grid);
                     const thumb = card.querySelector('.resource__thumbnail');
                     if (thumb?.classList.contains('decoration')) thumb.classList.toggle('decoration--thumbnail', !grid);
                 });

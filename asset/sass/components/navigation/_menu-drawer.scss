@@ -19,7 +19,7 @@
     border-left: 1px solid var(--border);
     box-shadow: var(--shadow-xl);
     overflow-x: hidden;
-    transition: transform 0.3s var(--ease-out-quart), visibility 0.3s var(--ease-out-quart);
+    transition: transform var(--transition-slow), visibility var(--transition-slow);
     visibility: hidden;
 
     @media (max-width: ($sm - 1)) {
@@ -97,7 +97,7 @@
     .menu-container {
         max-width: none;
         width: 100%;
-        transition: all 0.25s ease-in-out;
+        transition: all var(--transition-base);
 
         ul {
             list-style: none;

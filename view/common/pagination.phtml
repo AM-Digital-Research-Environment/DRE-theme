@@ -34,7 +34,7 @@ $landmark = match ($position) {
                 <form class="pager" method="GET" action="">
                     <?php echo $this->queryToHiddenInputs(['page']); ?>
                     <label>
-                        <?php echo $translate('Page'); ?>
+                        <?php echo $this->escapeHtml($translate('Page')); ?>
                         <input type="text" name="page" class="page-input-top" value="<?php echo (int) $currentPage; ?>" size="4" <?php echo ($pageCount == 1) ? 'readonly' : ''; ?> aria-label="<?php echo $this->escapeHtmlAttr($translate('Page')); ?>">
                     </label>
                     <span class="page-count"><?php echo sprintf($translate('of %s'), $pageCount); ?></span>
@@ -52,6 +52,6 @@ $landmark = match ($position) {
         <?php endif; ?>
 
     <?php else: ?>
-        <?php echo $translate('0 results'); ?>
+        <?php echo $this->escapeHtml($translate('0 results')); ?>
     <?php endif; ?>
 </nav>

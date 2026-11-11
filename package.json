@@ -21,6 +21,7 @@
     "lint:styles": "stylelint \"asset/sass/**/*.scss\"",
     "lint:php": "node scripts/check-php.mjs",
     "lint:php:require": "node scripts/check-php.mjs --require",
+    "lint:phpstan": "node scripts/run-phpstan.mjs",
     "test": "npm run test:unit && npm run test:browser",
     "test:unit": "node --test tests/js/*.test.mjs && node --env-file=tests/dist.env --test tests/js/*.test.mjs",
     "test:live": "playwright test",

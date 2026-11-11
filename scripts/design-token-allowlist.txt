@@ -8,12 +8,11 @@
 #
 # Rules exempt by design (the theme authors the scales) live in the script.
 
-# fontSize — 10 file(s), 16 finding(s)
+# fontSize — 9 file(s), 15 finding(s)
 fontSize  asset/sass/base/typography/_copy.scss                                   1
 fontSize  asset/sass/components/blocks/table-of-contents/_table-of-contents.scss  1
 fontSize  asset/sass/components/header/_search.scss                               1
 fontSize  asset/sass/components/hierarchy/_hierarchy.scss                         1
-fontSize  asset/sass/components/linked-resources/_linked-resources.scss           1
 fontSize  asset/sass/components/mapping/_mapping-map.scss                         1
 fontSize  asset/sass/components/navigation/_menu-drawer.scss                      3
 fontSize  asset/sass/components/navigation/_navigation.scss                       5
@@ -65,12 +64,12 @@ radius  asset/sass/components/header/_search.scss                               
 radius  asset/sass/components/navigation/_navigation.scss                         1
 radius  asset/sass/utilities/_accessibility.scss                                  1
 
-# spacing — 9 file(s), 31 finding(s)
+# spacing — 9 file(s), 23 finding(s)
 spacing  asset/sass/base/elements/_fields.scss                                   2
 spacing  asset/sass/base/elements/_resource-description.scss                     1
 spacing  asset/sass/base/elements/_titles.scss                                   2
 spacing  asset/sass/components/blocks/table-of-contents/_table-of-contents.scss  1
-spacing  asset/sass/components/linked-resources/_linked-resources.scss           17
+spacing  asset/sass/components/linked-resources/_linked-resources.scss           9
 spacing  asset/sass/components/mapping/_mapping-map.scss                         1
 spacing  asset/sass/components/navigation/_menu-drawer.scss                      3
 spacing  asset/sass/components/navigation/_navigation.scss                       3

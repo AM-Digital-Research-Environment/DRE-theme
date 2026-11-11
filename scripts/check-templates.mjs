@@ -14,6 +14,7 @@
  *   1. Unbalanced `<?php` / `?>` tags.
  *   2. Unbalanced braces / parens / brackets in PHP regions.
  *   3. `$this->partial('name')` referring to a view script that does not exist.
+ *   3b. `echo $translate(…)` without escaping.
  *   4. Helper files: class name matches file name, correct namespace, and every
  *      helper/*.php is registered in theme.ini (and vice versa).
  *
@@ -193,6 +194,15 @@ for (const file of walk(VIEW)) {
         if (existsSync(target)) continue;
         const line = src.slice(0, m.index).split('\n').length;
         add(rel, line, `partial('${name}') → view/${name}.phtml does not exist (add to CORE_PARTIALS if Omeka supplies it)`);
+    }
+
+    // 3b. A translation is text: it is escaped where it is printed. A
+    // translator's "<" or "&" (or a hostile catalogue) must not become markup.
+    // The record partials always did this; a bare `echo $translate(…)` is the
+    // one form that slipped through, so it is the one form refused.
+    for (const m of src.matchAll(/\becho\s+(?:\$this->|\$)translate(?:Plural)?\s*\(/g)) {
+        const line = src.slice(0, m.index).split('\n').length;
+        add(rel, line, 'echo of an unescaped translate(): wrap it in escapeHtml() (or escapeHtmlAttr() in an attribute)');
     }
 }
 

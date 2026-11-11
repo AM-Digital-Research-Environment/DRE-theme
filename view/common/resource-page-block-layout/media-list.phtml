@@ -5,7 +5,7 @@ $resourceMedia = $resource->media();
 <?php if ($resourceMedia): ?>
 <dl class="media-list">
     <div class="property">
-        <dt><?php echo $this->translate('Media'); ?></dt>
+        <dt><?php echo $this->escapeHtml($this->translate('Media')); ?></dt>
         <?php foreach ($resourceMedia as $media): ?>
             <?php
             $altText = $media->altText() ?: $media->displayTitle() ?: '';

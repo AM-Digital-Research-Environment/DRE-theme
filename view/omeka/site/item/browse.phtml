@@ -136,14 +136,14 @@ $bodyTruncate = $layout['truncate'];
     ?>
     <div class="search-empty">
         <?php if ($fulltext !== ''): ?>
-            <p class="search-empty__lead"><?php echo $translate('Nothing in the collections matched this search.'); ?></p>
+            <p class="search-empty__lead"><?php echo $this->escapeHtml($translate('Nothing in the collections matched this search.')); ?></p>
             <ul class="search-empty__hints">
-                <li><?php echo $translate('Check the spelling, or try another form of the word.'); ?></li>
-                <li><?php echo $translate('Fewer, broader terms cast a wider net.'); ?></li>
-                <li><?php echo $translate('Names may appear transliterated — try a variant spelling.'); ?></li>
+                <li><?php echo $this->escapeHtml($translate('Check the spelling, or try another form of the word.')); ?></li>
+                <li><?php echo $this->escapeHtml($translate('Fewer, broader terms cast a wider net.')); ?></li>
+                <li><?php echo $this->escapeHtml($translate('Names may appear transliterated — try a variant spelling.')); ?></li>
             </ul>
         <?php else: ?>
-            <p class="search-empty__lead"><?php echo $translate('No items match the current filters.'); ?></p>
+            <p class="search-empty__lead"><?php echo $this->escapeHtml($translate('No items match the current filters.')); ?></p>
         <?php endif; ?>
         <div class="search-empty__actions">
             <a class="button" href="<?php echo $this->escapeHtmlAttr($this->DreSearchUrl()); ?>"><?php echo $escape($translate('Search with filters')); ?></a>
@@ -152,7 +152,7 @@ $bodyTruncate = $layout['truncate'];
                 ['controller' => 'item', 'action' => 'browse'],
                 [],
                 true
-            )); ?>"><?php echo $translate('Browse all items'); ?></a>
+            )); ?>"><?php echo $this->escapeHtml($translate('Browse all items')); ?></a>
         </div>
     </div>
 <?php else: ?>

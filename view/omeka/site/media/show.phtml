@@ -32,8 +32,6 @@ $rightSidebarHasBlocks = $rightSidebarBlockContent->hasBlocks();
     $additionalContainerClasses = '';
     if ($mainHasBlocks && $leftSidebarHasBlocks && $rightSidebarHasBlocks) {
         $additionalContainerClasses = 'regions-container--all';
-    } elseif ($mainHasBlocks && !$leftSidebarHasBlocks && !$rightSidebarHasBlocks) {
-        $additionalContainerClasses = 'regions-container--main';
     }
     ?>
 
