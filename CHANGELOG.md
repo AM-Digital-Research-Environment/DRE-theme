@@ -11,6 +11,8 @@ to create.
 
 ## [Unreleased]
 
+## [2.49.0] - 2026-11-11
+
 Released together with DRE Search 1.36.0, DRE Visualizations 2.51.0, DRE SEO 0.17.0 and DRE Linked Data 0.7.0. CI's `module-integration` job (which the release workflow reuses) now checks the theme–module contract against each module's default branch, so those releases are the minimum this theme is tested with.
 
 ### Added
@@ -714,7 +716,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.48.0...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.49.0...HEAD
+[2.49.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.48.0...v2.49.0
 [2.48.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.47.1...v2.48.0
 [2.47.1]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.47.0...v2.47.1
 [2.47.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.46.0...v2.47.0

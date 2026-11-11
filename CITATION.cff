@@ -32,8 +32,8 @@ abstract: >-
   published contract, consumed by name by the Cluster's DRE Search and
   ResourceVisualizations modules.
 
-version: 2.48.0
-date-released: 2026-11-06
+version: 2.49.0
+date-released: 2026-11-11
 license: GPL-3.0-or-later
 
 repository-code: "https://github.com/AM-Digital-Research-Environment/DRE-theme"
