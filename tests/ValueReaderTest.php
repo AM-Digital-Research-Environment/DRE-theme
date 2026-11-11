@@ -145,6 +145,7 @@ dre_check($failures, $checks, 'a record outside every project gets no statement'
 if (class_exists(\NumberFormatter::class)) {
     dre_check($failures, $checks, 'English groups with commas', FormatNumber::format(12345, 'en') === '12,345');
     dre_check($failures, $checks, 'German groups with full stops', FormatNumber::format(12345, 'de_DE') === '12.345');
+    dre_check($failures, $checks, 'a POSIX locale (LANG=C) still groups', FormatNumber::format(12345, 'en_US_POSIX') === '12,345');
     $default = \Locale::getDefault();
     \Locale::setDefault('de_DE');
     dre_check($failures, $checks, 'the default locale is the site locale Omeka sets', FormatNumber::format(1234) === '1.234' && (new FormatNumber())('1234') === '1.234');

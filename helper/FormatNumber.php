@@ -28,7 +28,7 @@ class FormatNumber extends AbstractHelper
     {
         if (class_exists(\NumberFormatter::class)) {
             try {
-                $formatted = (new \NumberFormatter($locale ?? \Locale::getDefault(), \NumberFormatter::DECIMAL))->format($value);
+                $formatted = (new \NumberFormatter(self::icuLocale($locale), \NumberFormatter::DECIMAL))->format($value);
                 if (is_string($formatted)) {
                     return $formatted;
                 }
@@ -37,5 +37,21 @@ class FormatNumber extends AbstractHelper
             }
         }
         return number_format($value);
+    }
+
+    /**
+     * The locale to format in: the given one, else PHP's default. A POSIX or
+     * root default (`en_US_POSIX` under `LANG=C`, as on CI runners and CLI
+     * jobs) formats without grouping, so it reads as English, which is what a
+     * site with no locale shows anyway.
+     */
+    private static function icuLocale(?string $locale): string
+    {
+        $locale = $locale ?? \Locale::getDefault();
+        $plain = strtolower($locale);
+        if (in_array($plain, ['', 'c', 'posix', 'root'], true) || str_contains($plain, 'posix')) {
+            return 'en';
+        }
+        return $locale;
     }
 }
