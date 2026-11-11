@@ -16,6 +16,7 @@ npm run test:browser   # or `npm test` for test:unit + test:browser
 `npm run verify` runs, in order:
 
 1. `npm run build` — the design-token, theme.ini, template, metadata-group,
+   module-contract (`lint:contract`, the theme's half: see below),
    JavaScript (ESLint), Sass correctness (Stylelint) and PHP checks (`lint:source`), then the Sass build, the
    script minification (`build:js`), then the compiled-CSS integrity check
    (`lint:css`);
@@ -36,6 +37,26 @@ npm run test:browser   # or `npm test` for test:unit + test:browser
    to that output's inputs (Sass, `theme.ini`, `package.json`; script sources,
    `scripts/build-js.mjs`, the lockfile) is only a reminder to commit the
    rebuilt output with them.
+
+### The module contract
+
+`npm run check:contract` (`scripts/check-integration-contract.mjs`) checks the
+PHP and DOM names the theme shares with DRE Search, DRE Visualizations, DRE SEO
+and DRE Linked Data, listed in `scripts/lib/integration-contract.mjs` and
+explained in [`INTEGRATION-CONTRACT.md`](INTEGRATION-CONTRACT.md): each view
+helper registered under its exact name, the `CorpusCounts` service and its
+method, keys and metric order, the search route, profile and facet, every
+`--dre-search-bar-*` property the theme sets read by DRE Search, the page
+events, the members the modules call on `window.DRETokens` and
+`window.DREUtils`, and the two identity tables byte-identical. It reads the
+module checkouts beside this repository (`scripts/lib/siblings.mjs`); a
+missing one is reported as `MISSING` and skipped, which fails under `CI=true`.
+CI runs it in the `module-integration` job and in the weekly `Contract drift`
+workflow, both against the modules' default branches. `npm run verify` runs
+only the theme's half (`lint:contract`, `--theme-only`): the theme still reads
+what the list says, sets exactly the listed properties, and the document names
+every entry. `tests/js/integration-contract.test.mjs` proves each kind of
+check fails on a seeded drift.
 
 ### PHP
 
@@ -94,9 +115,10 @@ toggle, and stubs each module's network. It needs the two module repositories
 checked out next to this one: `../DRESearch` built with `npm run build`, and
 `../DREVisualizations`, whose bundles are committed. Without them every test in
 the file is skipped with the command that would enable it. CI's
-`module-integration` job lays the three repositories out that way, using each
+`module-integration` job lays the repositories out that way, using each
 module's default branch (DRE Search under the older folder name `DRE-Search`,
-which `scripts/lib/siblings.mjs` accepts as a fallback).
+which `scripts/lib/siblings.mjs` accepts as a fallback), and also checks out
+DRE SEO and DRE Linked Data for `npm run check:contract`.
 
 - **DRE Search:**
   - a titled block's heading outline (one `h1`, inner headings under the block
@@ -368,4 +390,5 @@ problem; systemic duplicates should link to one shared cause.
 The complete surface matrix, example Playwright experiment configuration,
 Impeccable command sequence and cross-repository release gates are in
 [`history/IMPECCABLE-ROADMAP.md`](history/IMPECCABLE-ROADMAP.md). The shared token and module
-contract is in [`DESIGN-INTEGRATION.md`](DESIGN-INTEGRATION.md).
+contract is in [`DESIGN-INTEGRATION.md`](DESIGN-INTEGRATION.md), the PHP and DOM
+names in [`INTEGRATION-CONTRACT.md`](INTEGRATION-CONTRACT.md).

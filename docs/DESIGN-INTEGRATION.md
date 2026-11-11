@@ -2,7 +2,13 @@
 
 This document defines how DRE-theme, DRE Search, and DRE Visualizations render
 as one interface. `DESIGN.md` is the portable visual authority. This file owns
-the engineering contract that crosses repository boundaries.
+the engineering contract that crosses repository boundaries: tokens, modes and
+shared behaviour. The PHP and DOM names the theme shares with the modules (view
+helpers and their return shapes, the `CorpusCounts` service, DRE Search's
+route, profile and facet, the search bar's `--dre-search-bar-*` properties,
+page events, data attributes and globals, head links) are listed in
+[`INTEGRATION-CONTRACT.md`](INTEGRATION-CONTRACT.md) and checked by
+`npm run check:contract`.
 
 ## Repositories and ownership
 

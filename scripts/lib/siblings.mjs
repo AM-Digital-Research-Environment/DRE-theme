@@ -2,7 +2,7 @@
  * Where the sibling module checkouts live, relative to this repository.
  *
  * The local checkouts are named after their GitHub repositories (DRESearch,
- * DREVisualizations, DRE-LinkedData). CI's workflows check DRE Search out
+ * DREVisualizations, DRE-LinkedData, DRE-SEO). CI's workflows check DRE Search out
  * under the older alias `DRE-Search`, so that name stays a fallback: the first
  * candidate that exists wins, and when none does the canonical name is
  * returned so a "not found" message names the folder a contributor should
@@ -19,6 +19,7 @@ export const SIBLINGS = {
   search: ['DRESearch', 'DRE-Search'],
   visualizations: ['DREVisualizations'],
   linkedData: ['DRE-LinkedData'],
+  seo: ['DRE-SEO'],
 };
 
 /**

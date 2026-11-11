@@ -53,7 +53,8 @@ jobs:
 
       # The same command a contributor runs before pushing. In order:
       #   build       lint:tokens (incl. computed WCAG contrast), lint:touch,
-      #               lint:ini, lint:templates, lint:groups, lint:js, then the
+      #               lint:ini, lint:templates, lint:groups, lint:contract (the
+      #               theme half of the module contract), lint:js, then the
       #               Sass build and the compiled-CSS integrity lint
       #   i18n:check  language/template.pot is up to date
       #   test:unit   JavaScript, CSS build and lint-negative tests
@@ -119,7 +120,11 @@ jobs:
   # tests/local/modules.spec.mjs mounts the modules' BUILT front-ends inside
   # this theme's chrome (DESIGN.md: "tested together with theme chrome"). It
   # skips when the siblings are absent, as in the job above, so this job lays
-  # the three repositories out side by side, as on a contributor's machine.
+  # the repositories out side by side, as on a contributor's machine. It also
+  # checks the PHP and DOM contract with all four modules
+  # (docs/INTEGRATION-CONTRACT.md): every helper, service, route, facet,
+  # custom property, event and global the theme and a module share must still
+  # exist on both sides; under CI=true a module that is not checked out fails.
   module-integration:
     name: DRE Search + DRE Visualizations inside the theme
     runs-on: ubuntu-latest
@@ -137,6 +142,14 @@ jobs:
         with:
           repository: AM-Digital-Research-Environment/DRE-Visualizations
           path: DREVisualizations
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: AM-Digital-Research-Environment/DRE-SEO
+          path: DRE-SEO
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: AM-Digital-Research-Environment/DRE-LinkedData
+          path: DRE-LinkedData
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
@@ -154,6 +167,10 @@ jobs:
         run: npm ci && npm run build
       - run: npm ci
         working-directory: DRE-theme
+      # Node built-ins only; before the browsers, so a renamed helper fails fast.
+      - name: Theme and module contract
+        working-directory: DRE-theme
+        run: npm run check:contract
       - run: npx playwright install --with-deps chromium
         working-directory: DRE-theme
       - name: Theme + modules

@@ -9,6 +9,11 @@ name: Contract drift
 # Not a gate on theme pull requests: a token change lands here first and the
 # modules are re-vendored after it, so a red run is the reminder to do that
 # (DESIGN-INTEGRATION.md, "Coordinated change procedure"), not a broken build.
+#
+# The same job checks the PHP and DOM contract (docs/INTEGRATION-CONTRACT.md)
+# against the modules' default branches, so a module that renames a helper,
+# the CorpusCounts service, a facet or a search-bar custom property shows up
+# here within a week even when no theme change runs the module-integration job.
 
 on:
   push:
@@ -17,6 +22,9 @@ on:
       - scripts/lib/token-rules.mjs
       - asset/css/dre-tokens-fallback.json
       - scripts/vendor-lint.mjs
+      - scripts/lib/integration-contract.mjs
+      - scripts/check-integration-contract.mjs
+      - docs/INTEGRATION-CONTRACT.md
       - .github/workflows/contract-drift.yml
   schedule:
     - cron: '17 6 * * 1'
@@ -50,10 +58,21 @@ jobs:
           repository: AM-Digital-Research-Environment/DRE-LinkedData
           path: DRE-LinkedData
 
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: AM-Digital-Research-Environment/DRE-SEO
+          path: DRE-SEO
+
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
 
       # Node built-ins only: no install step.
       - run: node scripts/vendor-lint.mjs --check
+        working-directory: DRE-theme
+
+      # Runs even when the copies are stale: the two answer different questions.
+      - name: Theme and module contract
+        if: success() || failure()
+        run: node scripts/check-integration-contract.mjs
         working-directory: DRE-theme

@@ -14,14 +14,20 @@ compiled to the committed `asset/css/style.css`, vanilla JavaScript in
 Visualizations, which consume its design tokens by name: read
 [DESIGN.md](DESIGN.md) before a visual change and
 [docs/DESIGN-INTEGRATION.md](docs/DESIGN-INTEGRATION.md) before changing a
-token, a shared widget or a string the modules also show.
+token, a shared widget or a string the modules also show. The PHP and DOM
+names shared with the modules (helpers such as `dreCitation`, the
+`DRESearch\Search\CorpusCounts` service, `research_items` / `project_id_s`,
+the `--dre-search-bar-*` properties, page events, `window.DRETokens`) are in
+[docs/INTEGRATION-CONTRACT.md](docs/INTEGRATION-CONTRACT.md), listed as data in
+`scripts/lib/integration-contract.mjs`.
 
 ## Commands
 
 ```bash
-npm run verify        # the CI contract: lints, Sass build, i18n check, unit tests, audit, stale-CSS check
-npm run test:browser  # Playwright on PHP-rendered partials, Chromium/Firefox/WebKit + axe
-npm run i18n:extract  # after adding, changing or removing a translate() string
+npm run verify          # the CI contract: lints, Sass build, i18n check, unit tests, audit, stale-CSS check
+npm run test:browser    # Playwright on PHP-rendered partials, Chromium/Firefox/WebKit + axe
+npm run i18n:extract    # after adding, changing or removing a translate() string
+npm run check:contract  # the theme–module contract, against ../DRESearch, ../DRE-SEO, … (CI: module-integration)
 npm version minor -m "Release v%s"   # the only way to bump; see "Releasing"
 ```
 

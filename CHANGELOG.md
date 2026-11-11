@@ -11,6 +11,12 @@ to create.
 
 ## [Unreleased]
 
+**Merge the modules' pending branches first.** CI's `module-integration` job (which the release workflow reuses) now checks the theme–module contract against each module's default branch, and fails until those branches carry DRE Search's search-bar custom properties (DRE Search #59), DRE Visualizations' `asset/js/core/` sources, DRE SEO's citation markup test and the identity table in DRE SEO and DRE Linked Data.
+
+### Added
+
+- **The contract between the theme and the modules is written down and checked.** `docs/INTEGRATION-CONTRACT.md` lists every PHP and DOM name the theme shares with DRE Search, DRE Visualizations, DRE SEO and DRE Linked Data — the view helpers `dreSearchAssets`, `dreSearchBar`, `dreCitation`, `dreBreadcrumb` and `dreLinkedData` with their signatures and return shapes, the `DRESearch\Search\CorpusCounts` service, DRE Search's route, `research_items` profile, `project_id_s` facet and project-records block, the search bar's custom properties, the page events the theme's templates trigger, `data-rv-reveal`, `window.DRETokens`, `window.DREUtils`, `RV_LIBS`, `RV_MAP_CONFIG`, the `describedby` and `alternate` head links and the shared identity table — with who provides and consumes each, and what happens without it. Every consumer guards these names, so a rename used to degrade silently. `npm run check:contract` now asserts, against the module checkouts, that each still exists on both sides (`scripts/lib/integration-contract.mjs` is the list, and the document must name every entry); CI's `module-integration` job checks DRE SEO and DRE Linked Data out for it, the weekly `Contract drift` workflow runs it too, and `npm run verify` runs the theme's half (#36).
+
 ### Changed
 
 - **The header search bar is laid out through DRE Search's public custom properties.** The desktop field's height and its full-width suggestions, and the mobile magnifier's drop-down field and suggestions, are set with `--dre-search-bar-*` properties on the theme's own wrappers instead of overrides of DRE Search's internal `.dre-search-bar__input-wrap` and `.dre-search-bar__suggest` classes. The header looks exactly as before. DRE Search 1.35.0 does not read the properties yet, so the old overrides stay in a marked block of `components/header/_search.scss`, to delete once the DRE Search release that ships them is deployed. A new browser test checks the bar's geometry with the sibling DRE Search build, with and without that block (#36).

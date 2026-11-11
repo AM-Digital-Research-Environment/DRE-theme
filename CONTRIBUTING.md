@@ -5,7 +5,11 @@ The theme is one of three repositories that render as one interface, with
 [DRE Visualizations](https://github.com/AM-Digital-Research-Environment/DRE-Visualizations).
 Read [`DESIGN.md`](DESIGN.md) for the visual system and
 [`docs/DESIGN-INTEGRATION.md`](docs/DESIGN-INTEGRATION.md) before changing a
-token, a shared widget or a string the modules also show.
+token, a shared widget or a string the modules also show, and
+[`docs/INTEGRATION-CONTRACT.md`](docs/INTEGRATION-CONTRACT.md) before renaming
+or reshaping anything a module provides or reads: a view helper, the
+`CorpusCounts` service, a search route or facet, a search-bar custom property,
+a page event or a JavaScript global.
 
 ## Before you commit
 
@@ -17,7 +21,10 @@ npm run test:browser
 ```
 
 [`docs/TESTING.md`](docs/TESTING.md) describes every layer, the PHP checks and
-the production smoke suite.
+the production smoke suite. With the modules checked out beside this
+repository (`../DRESearch`, `../DREVisualizations`, `../DRE-SEO`,
+`../DRE-LinkedData`), `npm run check:contract` checks the names they share with
+the theme; `npm run verify` runs only the theme's half of it.
 
 ## Changing a token or a shared lint rule
 
