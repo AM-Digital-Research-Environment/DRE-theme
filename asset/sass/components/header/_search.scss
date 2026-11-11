@@ -80,25 +80,25 @@ button.main-search-button {
 // desktop instance to fill its own prominent search tier (#07), so it reads as
 // the primary action rather than a cramped afterthought. The mobile instance is
 // a collapsible magnifier button, so it stays intrinsically small.
+//
+// The theme adjusts the bar through DRE Search's public custom properties
+// (its README, "Styling the header search bar"; docs/INTEGRATION-CONTRACT.md),
+// set on the theme's own wrappers, which are ancestors of the module's
+// `.dre-search-bar`: no class of the module's is named here except in the
+// compatibility block below. `npm run check:contract` asserts that DRE Search
+// still reads every `--dre-search-bar-*` property this file sets.
 .main-header__search {
+    // The field gets presence on its tier, and the suggestions dropdown spans
+    // it edge to edge: the module's default is a narrow (26rem), right-anchored
+    // box, which would float mid-bar under the full-width field.
+    --dre-search-bar-min-height: var(--size-control-lg);
+    --dre-search-bar-suggest-inset-inline-start: 0;
+    --dre-search-bar-suggest-inset-inline-end: 0;
+    --dre-search-bar-suggest-width: auto;
+    --dre-search-bar-suggest-max-width: none;
+
     .main-header__search-bar {
         width: 100%;
-    }
-
-    // The module's field; give it presence on its tier.
-    .dre-search-bar__input-wrap {
-        min-height: var(--size-control-lg);
-    }
-
-    // The suggestions dropdown: the module defaults it to a narrow (26rem),
-    // right-anchored box, which floats mid-bar under the now full-width field.
-    // Re-lay it to span the field, aligned edge-to-edge with the input. The
-    // extra `.dre-search-bar` ancestor lifts specificity above the module's
-    // own `.dre-search-bar__suggest.svelte-*` rule regardless of load order.
-    .dre-search-bar .dre-search-bar__suggest {
-        inset-inline: 0;
-        width: auto;
-        max-width: none;
     }
 }
 
@@ -117,47 +117,82 @@ button.main-search-button {
     margin-left: auto;
 
     // Out-of-bounds fix: the module anchors the expanded field to this compact
-    // wrapper (position: absolute; inset-inline-end: 0; width: min(20rem, 80vw)),
-    // so on a narrow screen the field overhangs the left edge. Drop the two
-    // intermediate positioning contexts so it anchors to .main-header__main-bar
-    // (already position: relative) instead.
-    &,
-    .dre-search-bar--collapsible {
-        position: static;
+    // wrapper (by default `inset-inline-end: 0; width: min(20rem, 80vw)`), so on
+    // a narrow screen the field overhangs the left edge. Drop the two
+    // positioning contexts (this wrapper, which the module's stylesheet makes
+    // `relative`, and the bar inside it) so the field and its suggestions anchor
+    // to .main-header__main-bar (already position: relative) instead.
+    position: static;
+    --dre-search-bar-position: static;
+
+    // …then lay the expanded field out as a tidy full-width drop-down within
+    // the viewport gutters, just below the header row.
+    --dre-search-bar-overlay-inset-inline-start: var(--space-3);   // 12px gutters
+    --dre-search-bar-overlay-inset-inline-end: var(--space-3);
+    --dre-search-bar-overlay-width: auto;                          // gutter to gutter
+    --dre-search-bar-overlay-top: 100%;                            // below the bar…
+    --dre-search-bar-overlay-transform: translateY(var(--space-2)); // …with a small gap
+
+    // The suggestions panel is a SIBLING of the field, anchored to the same
+    // header bar, so it needs the matching lay-out: left alone it starts at the
+    // bar's bottom edge, on top of the floating field, flush right. Drop it
+    // below the field (the field's offset, its height and a matching gap) and
+    // match the gutters so it lines up with the input.
+    --dre-search-bar-suggest-inset-inline-start: var(--space-3);
+    --dre-search-bar-suggest-inset-inline-end: var(--space-3);
+    --dre-search-bar-suggest-width: auto;
+    --dre-search-bar-suggest-offset: calc(var(--space-2) + var(--size-control-lg) + var(--space-2));
+}
+
+// ==========================================================================
+// COMPATIBILITY with DRE Search 1.35.0 and earlier — DELETE this block once
+// the DRE Search release that ships the `--dre-search-bar-*` properties (the
+// first after 1.35.0; DRE Search #59) is deployed on AMIRA.
+// ==========================================================================
+// Those releases read none of the properties above, so the same look is
+// forced here through the module's internal classes, which DRE Search does not
+// promise to keep. Every value equals the property set above, so with a newer
+// DRE Search both apply and agree. The selectors carry an extra class to
+// out-rank the module's `.svelte-*`-scoped rules regardless of load order.
+.main-header__search {
+    .dre-search-bar__input-wrap {
+        min-height: var(--size-control-lg);
+    }
+
+    .dre-search-bar .dre-search-bar__suggest {
+        inset-inline: 0;
+        width: auto;
+        max-width: none;
     }
 }
 
-// …then re-lay the expanded field as a tidy full-width drop-down within the
-// viewport gutters, just below the header row. Five classes out-specify the
-// module's four-class rule, so no !important is needed.
+.main-header__search-bar.d-xl-none .dre-search-bar--collapsible {
+    position: static;
+}
+
+// Five classes out-specify the module's four-class rule, so no !important.
 .main-header__search-bar.d-xl-none
     .dre-search-bar--collapsible.dre-search-bar--expanded
     .dre-search-bar__input-wrap {
-    inset-inline: var(--space-3);            // 12px gutters on both edges
-    width: auto;                             // span gutter-to-gutter
-    top: 100%;                               // drop just below the header bar
-    transform: translateY(var(--space-2));   // small gap under the bar
+    inset-inline: var(--space-3);
+    width: auto;
+    top: 100%;
+    transform: translateY(var(--space-2));
 }
 
-// The suggestions panel is a SIBLING of the field above, anchored to the same
-// header bar — so it needs the matching re-lay. Left alone it keeps the module's
-// `top: calc(100% + .3rem)` / `inset-inline-end: 0`, which lands it ON TOP of the
-// floating input (both originate at the bar's bottom edge) and right-flush to the
-// bar instead of the gutter. Drop it below the field — past the field's own
-// offset plus its height — and match the gutters so it lines up with the input.
 .main-header__search-bar.d-xl-none
     .dre-search-bar--collapsible.dre-search-bar--expanded
     .dre-search-bar__suggest {
-    inset-inline: var(--space-3);            // align with the field's gutters
-    width: auto;                             // span gutter-to-gutter, like the field
-    top: 100%;                               // same origin as the field…
-    // …then clear it: field offset (--space-2) + field height + a matching gap.
+    inset-inline: var(--space-3);
+    width: auto;
+    top: 100%;
     transform: translateY(
         calc(var(--space-2) + var(--size-control-lg, 2.75rem) + var(--space-2))
     );
 }
-
-
+// ==========================================================================
+// End of the DRE Search 1.35.0 compatibility block.
+// ==========================================================================
 
 .core-search {
     flex-shrink: 0;

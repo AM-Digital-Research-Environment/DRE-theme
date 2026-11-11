@@ -47,7 +47,8 @@ function probe(url, route) {
 }
 
 /** The header fixture's page with `main` replaced and extra theme scripts loaded. */
-function themedPage(main, title, head, bodyEnd = '') {
+function themedPage(main, title, head, bodyEnd = '', base = chrome) {
+    const chrome = base;
     const start = chrome.indexOf('<main');
     const end = chrome.indexOf('</main>') + '</main>'.length;
     return chrome.slice(0, start)
@@ -264,6 +265,108 @@ test.describe('DRE Search inside the theme', () => {
         // The project chip is a <button>: the theme hides every other one.
         await expect(page.getByRole('article').first().locator('[data-print]', {hasText: 'Lived Religion'})).toBeVisible();
     });
+});
+
+// --- DRE Search's header bar ---------------------------------------------
+
+/**
+ * The header with both DRE Search bars (desktop field, mobile magnifier),
+ * which the theme lays out through DRE Search's `--dre-search-bar-*` custom
+ * properties (components/header/_search.scss; docs/INTEGRATION-CONTRACT.md).
+ */
+const SEARCH_CSS = resolve(SEARCH, 'asset', 'dist', 'dre-search.css');
+const barPage = () => themedPage('<h1>Research archive</h1><p>Read and explore this collection.</p>', 'Header search',
+    '<link rel="stylesheet" href="/modules/DreSearch/asset/css/dre-search.css">'
+    + '<link rel="stylesheet" href="/modules/DreSearch/asset/dist/dre-search.css">',
+    '<script type="module" src="/modules/DreSearch/asset/dist/dre-search.js"></script>',
+    renderFixture('header', '--dre-search-bar'));
+
+/**
+ * The theme's compiled CSS without its rules on DRE Search's internal classes
+ * (the block _search.scss marks for deletion once DRE Search reads the
+ * properties), to prove the properties alone give the same header.
+ */
+function withoutCompatibilityBlock(css) {
+    return css.replace(/[^{}]*\.dre-search-bar(?:__|--)[^{}]*\{[^{}]*\}/g, '');
+}
+
+async function serveBar(page, width, {properties = false} = {}) {
+    await page.setViewportSize({width, height: 900});
+    await page.emulateMedia({reducedMotion: 'reduce'});
+    await routeFixture(page, barPage(), async (url, route) => {
+        if (await probe(url, route)) return true;
+        if (properties && url.pathname === '/themes/dre/asset/css/style.css') {
+            const css = withoutCompatibilityBlock(readFileSync('asset/css/style.css', 'utf8'));
+            return route.fulfill({contentType: 'text/css', body: css}).then(() => true);
+        }
+        if (url.pathname.startsWith('/modules/DreSearch/asset/')) {
+            return sibling(SEARCH, url, route, '/modules/DreSearch/asset/');
+        }
+        if (url.pathname === '/dre-search/api/suggest-all') {
+            const suggestions = HITS.map(h => ({id: h.id, title: h.title, subtitle: String(h.year)}));
+            return route.fulfill({contentType: 'application/json',
+                body: JSON.stringify({available: true, groups: [{profile: 'research_items', label: 'Research items', kind: 'item', suggestions}]})})
+                .then(() => true);
+        }
+        return false;
+    });
+    await page.goto('https://theme.test/');
+}
+
+const box = locator => locator.evaluate(el => {
+    const r = el.getBoundingClientRect();
+    return {left: r.left, right: r.right, top: r.top, bottom: r.bottom, height: r.height};
+});
+const near = (actual, expected, label) => expect(Math.abs(actual - expected), `${label}: ${actual} vs ${expected}`).toBeLessThanOrEqual(1);
+
+test.describe('DRE Search\'s header bar inside the theme', () => {
+    test.skip(!existsSync(SEARCH_BUNDLE), `needs ${SEARCH} built: cd ${SEARCH} && npm ci && npm run build`);
+
+    // Without the compatibility block only a DRE Search that reads the
+    // properties can pass; a checkout older than that is skipped for it.
+    const readsProperties = existsSync(SEARCH_CSS) && readFileSync(SEARCH_CSS, 'utf8').includes('--dre-search-bar-overlay-top');
+    for (const properties of [false, true]) {
+        const how = properties ? 'through the custom properties alone' : 'as shipped';
+        test(`desktop: the field fills its tier and the suggestions span it, ${how}`, async ({page}) => {
+            test.skip(properties && !readsProperties, `${SEARCH} does not read the --dre-search-bar-* properties yet`);
+            await serveBar(page, 1280, {properties});
+            const bar = page.locator('.main-header__search');
+            const field = bar.getByRole('combobox');
+            await field.fill('Bayreuth');
+            await expect(bar.getByRole('option', {name: /Photograph of the Bayreuth market/})).toBeVisible();
+            const wrap = await box(bar.locator('.dre-search-bar__input-wrap'));
+            const suggest = await box(bar.getByRole('listbox'));
+            const tier = await box(bar);
+            expect(wrap.height).toBeGreaterThanOrEqual(44);
+            near(wrap.left, tier.left, 'field starts with its tier');
+            near(wrap.right, tier.right, 'field ends with its tier');
+            near(suggest.left, wrap.left, 'suggestions start under the field');
+            near(suggest.right, wrap.right, 'suggestions end under the field');
+            expect(suggest.top).toBeGreaterThanOrEqual(wrap.bottom);
+        });
+
+        test(`mobile: the expanded field and its suggestions drop below the header inside the gutters, ${how}`, async ({page}) => {
+            test.skip(properties && !readsProperties, `${SEARCH} does not read the --dre-search-bar-* properties yet`);
+            await serveBar(page, 390, {properties});
+            const mobile = page.locator('.main-header__search-bar.d-xl-none');
+            await mobile.getByRole('button', {name: 'Search…'}).click();
+            const field = mobile.getByRole('combobox');
+            await expect(field).toBeFocused();
+            await field.fill('Bayreuth');
+            await expect(mobile.getByRole('option', {name: /Photograph of the Bayreuth market/})).toBeVisible();
+            const row = await box(page.locator('.main-header__main-bar'));
+            const wrap = await box(mobile.locator('.dre-search-bar__input-wrap'));
+            const suggest = await box(mobile.getByRole('listbox'));
+            // --space-3 gutters (12px) and a --space-2 gap (8px) under the row.
+            near(wrap.left, row.left + 12, 'field start gutter');
+            near(wrap.right, row.right - 12, 'field end gutter');
+            near(wrap.top, row.bottom + 8, 'field drops below the header row');
+            near(suggest.left, wrap.left, 'suggestions start with the field');
+            near(suggest.right, wrap.right, 'suggestions end with the field');
+            near(suggest.top, wrap.bottom + 8, 'suggestions clear the field');
+            expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+        });
+    }
 });
 
 // --- DRE Visualizations ---------------------------------------------------

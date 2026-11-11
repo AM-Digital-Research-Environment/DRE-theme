@@ -107,7 +107,15 @@ which `scripts/lib/siblings.mjs` accepts as a fallback).
   - `--field-border` and a focus outline on its fields;
   - autocomplete, a facet, the empty state and **Try again**;
   - print, where content chips survive the theme's hide-every-button rule
-    through `data-print`.
+    through `data-print`;
+  - the header bar (`dreSearchBar`'s markup, from
+    `tests/support/header-fixture.php --dre-search-bar`): the desktop field
+    fills its tier with suggestions spanning it, and the mobile field drops
+    below the header row inside 12px gutters with its suggestions below it. The
+    same geometry is checked again with the theme's compatibility rules on
+    DRE Search's internal classes stripped, when the Search build reads the
+    `--dre-search-bar-*` properties, so the properties alone are proved
+    sufficient before that block is deleted.
 - **DRE Visualizations:** a record dashboard's outline and overflow, ECharts
   repainting after the theme toggle, axe in both modes, a visible focus outline
   on every module control in forced-colors mode under the theme stylesheet, and

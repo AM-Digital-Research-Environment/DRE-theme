@@ -3,8 +3,8 @@ import {readFileSync} from 'node:fs';
 import {extname, resolve, sep} from 'node:path';
 import {themeScript} from '../support/theme-script.mjs';
 
-export function renderFixture(name) {
-    return execFileSync('php', [`tests/support/${name}-fixture.php`], {encoding: 'utf8'});
+export function renderFixture(name, ...args) {
+    return execFileSync('php', [`tests/support/${name}-fixture.php`, ...args], {encoding: 'utf8'});
 }
 
 export const types = {'.css': 'text/css', '.js': 'text/javascript', '.mjs': 'text/javascript',
