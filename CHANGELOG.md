@@ -11,7 +11,7 @@ to create.
 
 ## [Unreleased]
 
-**Merge the modules' pending branches first.** CI's `module-integration` job (which the release workflow reuses) now checks the theme–module contract against each module's default branch, and fails until those branches carry DRE Search's search-bar custom properties (DRE Search #59), DRE Visualizations' `asset/js/core/` sources, DRE SEO's citation markup test and the identity table in DRE SEO and DRE Linked Data.
+Released together with DRE Search 1.36.0, DRE Visualizations 2.51.0, DRE SEO 0.17.0 and DRE Linked Data 0.7.0. CI's `module-integration` job (which the release workflow reuses) now checks the theme–module contract against each module's default branch, so those releases are the minimum this theme is tested with.
 
 ### Added
 
