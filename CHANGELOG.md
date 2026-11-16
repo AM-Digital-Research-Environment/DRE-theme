@@ -11,6 +11,8 @@ to create.
 
 ## [Unreleased]
 
+## [2.50.0] - 2026-11-16
+
 ### Added
 
 - **The Cluster Chronicles.** The Cluster's writers-in-residence works (item set 50105, resource template 34: essays, poems, photographs and drawings, events) join the outreach collections. The main menu describes a `cluster-chronicles` page as "Writers in residence", and the home masthead links a Cluster Chronicles count to it: the theme's own fallback counts the item set now, and DRE Search's count appears once its `CorpusCounts::METRICS` gains `clusterChronicles` after `youtube`. The site page itself is site content, created in Omeka's admin.
@@ -737,7 +739,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.49.0...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.50.0...HEAD
+[2.50.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.49.0...v2.50.0
 [2.49.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.48.0...v2.49.0
 [2.48.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.47.1...v2.48.0
 [2.47.1]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.47.0...v2.47.1
