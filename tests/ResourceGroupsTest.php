@@ -58,6 +58,23 @@ check(
     $uncovered ? count($uncovered) . ' fall through to "Further details": ' . implode(', ', array_slice($uncovered, 0, 8)) . (count($uncovered) > 8 ? ' …' : '') : ''
 );
 
+// The Cluster Chronicles template (34): every role, the series number and who
+// a picture depicts land in named groups, not "Further details".
+$chronicles = json_decode((string) file_get_contents(__DIR__ . '/fixtures/cluster-chronicles-template.json'), true);
+$uncovered = [];
+foreach ($chronicles['template']['properties'] ?? [] as $property) {
+    if (null === ResourceGroups::groupKeyFor($property['term'])) {
+        $uncovered[] = $property['term'] . ' ("' . $property['label'] . '")';
+    }
+}
+check(
+    'every property on the live "Cluster Chronicles" template is placed in a named group',
+    ($chronicles['template']['propertyCount'] ?? 0) > 0 && $uncovered === [],
+    implode(', ', $uncovered)
+);
+check('the series number groups with its series', ResourceGroups::groupKeyFor('bibo:number') === 'origins');
+check('who a picture depicts groups with the people', ResourceGroups::groupKeyFor('foaf:depicts') === 'people');
+
 // The placements docs/history/AUDIT.md §A5 actually depends on.
 $mustLandIn = [
     'marcrel:aut' => 'people',

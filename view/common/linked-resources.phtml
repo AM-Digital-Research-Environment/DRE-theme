@@ -154,8 +154,12 @@ $groupByType = count($typesWithValues) > 1;
                 $propAttr = implode(' ', $c['relIds']);
                 // Item type = the record's resource class label (e.g. Person,
                 // Still Image, Bibliographic Resource); empty when unclassed.
+                // FaBiO's labels are lower case ("poem", "still image"), which
+                // beside "Event" on a series' works read as a typo: the first
+                // letter is raised, as a label starts a line.
                 $resourceClass = $resource->resourceClass();
                 $typeLabel = $resourceClass ? $translate($resourceClass->label()) : '';
+                $typeLabel = mb_strtoupper(mb_substr($typeLabel, 0, 1)) . mb_substr($typeLabel, 1);
                 // Relationship(s), already rank-ordered, joined with a middot.
                 $relText = implode(' · ', array_map(function ($rel) {
                     return $rel['label'];

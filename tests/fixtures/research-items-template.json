@@ -415,6 +415,7 @@
       "dcterms:isPartOf",
       "frapo:isFundedBy",
       "dcterms:spatial",
+      "dcterms:provenance",
       "marcrel:aut",
       "dcterms:license",
       "dcterms:accessRights",

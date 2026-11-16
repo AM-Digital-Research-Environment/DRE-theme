@@ -41,7 +41,8 @@ use Laminas\View\Helper\AbstractHelper;
  *
  * The map is keyed on the vocabularies the DRE actually uses, verified against
  * resource template 10 ("Research Items", 98 properties: marcrel 54, dcterms 32,
- * dre 5, fabio 4, bibo 2, frapo 1) and the publication templates.
+ * dre 5, fabio 4, bibo 2, frapo 1), the publication templates and template 34
+ * ("Cluster Chronicles", 22 properties, with role labels of its own).
  *
  * @phpstan-type PropertyValues array{property: \Omeka\Api\Representation\PropertyRepresentation, alternate_label: string|null, alternate_comment: string|null, values: list<\Omeka\Api\Representation\ValueRepresentation>}
  */
@@ -92,6 +93,9 @@ class ResourceGroups extends AbstractHelper
                 'dcterms:creator', 'bibo:authorList',
                 'dcterms:contributor', 'bibo:editor', 'bibo:editorList',
                 'foaf:member',
+                // Who a photograph or drawing shows (the Cluster Chronicles,
+                // template 34): a person the work is about, beside its makers.
+                'foaf:depicts',
             ],
             'prefixes' => ['marcrel:'],
         ],
@@ -103,7 +107,9 @@ class ResourceGroups extends AbstractHelper
                 'dcterms:title', 'dcterms:alternative',
                 'fabio:hasSubtitle', 'fabio:hasTranslatedTitle',
                 'dcterms:type', 'dcterms:language', 'dcterms:audience',
-                'dcterms:isPartOf', 'frapo:isFundedBy', 'dcterms:publisher',
+                // The number follows the series it numbers: the record renders
+                // the pair as one "Series: Cluster Chronicles no. 4" row.
+                'dcterms:isPartOf', 'bibo:number', 'frapo:isFundedBy', 'dcterms:publisher',
                 'bibo:presentedAt', 'dre:series', 'dre:generatedBy',
                 'dcterms:spatial', 'dcterms:provenance', 'dcterms:temporal',
                 'dcterms:date', 'dcterms:created', 'dcterms:issued',

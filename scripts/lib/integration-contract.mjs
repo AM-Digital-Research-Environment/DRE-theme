@@ -143,9 +143,12 @@ export const CONTRACT = [
         type: 'listKeys', repo: 'search', file: 'src/Search/CorpusCounts.php', list: 'METRICS',
         keys: ['researchItems', 'projects', 'people', 'organisations', 'locations', 'languages', 'subjectsTags', 'publications', 'podcasts', 'youtube'],
       },
+      // The theme maps one metric ahead of DRE Search: `clusterChronicles`
+      // (item set 50105), which the theme's fallback already counts. DRE
+      // Search adds it to METRICS after `youtube`, and the list above follows.
       {
         type: 'listKeys', repo: 'theme', file: 'config/amira-pages.php', list: 'statPages',
-        keys: ['researchItems', 'projects', 'people', 'organisations', 'locations', 'languages', 'subjectsTags', 'publications', 'podcasts', 'youtube'],
+        keys: ['researchItems', 'projects', 'people', 'organisations', 'locations', 'languages', 'subjectsTags', 'publications', 'podcasts', 'youtube', 'clusterChronicles'],
       },
       { type: 'includes', repo: 'theme', file: 'helper/CollectionStats.php', text: ["'DRESearch\\Search\\CorpusCounts'", '->forSite($siteId)'] },
       { type: 'reads', repo: 'theme', files: ['helper/CollectionStats.php', 'view/common/banner.phtml'], keys: ['k', 'l', 'n', 's'] },

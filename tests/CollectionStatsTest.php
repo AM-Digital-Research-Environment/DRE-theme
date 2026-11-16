@@ -111,9 +111,9 @@ $settings->values = [
 ];
 $stats = $singleSite(1);
 dre_check($failures, $checks, 'a leftover visualizations snapshot is never read',
-    count($stats) === 10 && $stats[0]['n'] === 0);
+    count($stats) === 11 && $stats[0]['n'] === 0);
 dre_check($failures, $checks, 'statistics are cached under a site-specific key',
-    isset($settings->values['dre_stats_v10_1']));
+    isset($settings->values['dre_stats_v11_1']));
 dre_check($failures, $checks, 'the first computation under a key deletes this site\'s keys from earlier versions, and only those',
     !array_intersect(array_keys($settings->values), ['dre_stats_v9_1', 'dre_stats_v9_1_retry', 'dre_stats_v4_1', 'dre_stats_set_ids_v1', 'dre_stats_warning_api-counts'])
     && isset($settings->values['dre_stats_v9_2']));
@@ -131,13 +131,13 @@ dre_check($failures, $checks, 'a cache hit translates labels for the current vis
 $view->locale = 'en';
 dre_check($failures, $checks, 'translation does not mutate shared cached labels',
     $singleSite(1)[0]['l'] === 'Research items'
-    && json_decode($settings->values['dre_stats_v10_1'], true)['stats'][0]['l'] === 'Research items');
+    && json_decode($settings->values['dre_stats_v11_1'], true)['stats'][0]['l'] === 'Research items');
 
 $settings->values = [];
 $api->queries = [];
 $singleSite(null);
 dre_check($failures, $checks, 'unscoped requests use their own cache key and no site predicate',
-    isset($settings->values['dre_stats_v10_x'])
+    isset($settings->values['dre_stats_v11_x'])
     && !array_filter($api->queries, fn($call) => $call[0] === 'items' && isset($call[1]['site_id'])));
 
 // The fallback's metric set is a contract, not an implementation detail. The
@@ -146,10 +146,11 @@ dre_check($failures, $checks, 'unscoped requests use their own cache key and no 
 // catalogue silently reshuffles when an install gains or loses DRESearch. A bare `count($stats) === 8` used to stand here, which
 // broke on the first metric change while saying nothing about what diverged.
 $keys = array_column($stats, 'k');
-dre_check($failures, $checks, 'API fallback emits the ten catalogue metrics in DRESearch order',
+dre_check($failures, $checks, 'API fallback emits the eleven catalogue metrics in DRESearch order',
     $keys === [
         'researchItems', 'projects', 'people', 'organisations', 'locations',
         'languages', 'subjectsTags', 'publications', 'podcasts', 'youtube',
+        'clusterChronicles',
     ]);
 
 // Every key resolves to a page in config/amira-pages.php's statPages, which
@@ -168,10 +169,15 @@ $api->queries = [];
 $singleSite(102);
 dre_check($failures, $checks, 'fallback does not hydrate the template catalogue',
     !array_filter($firstQueries, fn($call) => $call[0] === 'resource_templates'));
-dre_check($failures, $checks, 'fallback resolves only five exact public item-set titles',
+dre_check($failures, $checks, 'fallback resolves only six exact public item-set titles',
     count(array_filter($firstQueries, fn($call) => $call[0] === 'item_sets'
         && $call[1]['is_public'] === true
-        && $call[1]['property'][0]['type'] === 'eq')) === 5);
+        && $call[1]['property'][0]['type'] === 'eq')) === 6);
+// The Cluster Chronicles are counted by their item set, like the other
+// outreach collections, never by their template.
+dre_check($failures, $checks, 'the Cluster Chronicles are resolved by their item-set title',
+    (bool) array_filter($firstQueries, fn($call) => $call[0] === 'item_sets'
+        && ($call[1]['property'][0]['text'] ?? '') === 'Cluster Chronicles'));
 dre_check($failures, $checks, 'item-set mappings are reused across site count caches',
     !array_filter($api->queries, fn($call) => $call[0] === 'item_sets'));
 dre_check($failures, $checks, 'fallback count predicates retain public site scope and do not fetch content',
@@ -206,11 +212,11 @@ $services->counts = new class($settings) {
     public bool $markerSeen = false;
     public function __construct(private object $settings) {}
     public function forSite($site) {
-        $this->markerSeen = isset($this->settings->values['dre_stats_v10_77_retry']);
+        $this->markerSeen = isset($this->settings->values['dre_stats_v11_77_retry']);
         return [['k' => 'locations', 'l' => 'Locations', 'n' => 9, 's' => '']];
     }
 };
-$settings->values = ['dre_stats_v10_77' => json_encode(['t' => time() - 4000, 'stats' => [['k' => 'locations', 'n' => 5]]])];
+$settings->values = ['dre_stats_v11_77' => json_encode(['t' => time() - 4000, 'stats' => [['k' => 'locations', 'n' => 5]]])];
 dre_check($failures, $checks, 'a recompute over stale counts takes the retry marker before it starts',
     $singleSite(77)[0]['n'] === 9 && $services->counts->markerSeen);
 $settings->values = [];
@@ -220,7 +226,7 @@ dre_check($failures, $checks, 'a cold start takes no marker, so its visitors sti
 
 // Keep last good site counts during an outage, then throttle retries.
 $logger->warnings = [];
-$settings->values = ['dre_stats_v10_88' => json_encode(['t' => time() - 4000, 'stats' => [['k' => 'locations', 'n' => 123]]])];
+$settings->values = ['dre_stats_v11_88' => json_encode(['t' => time() - 4000, 'stats' => [['k' => 'locations', 'n' => 123]]])];
 $services->counts = new class { public function forSite($site) { return [['invalid' => true]]; } };
 $api->fail = true;
 $stats = $singleSite(88);
