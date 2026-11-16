@@ -11,6 +11,8 @@ to create.
 
 ## [Unreleased]
 
+## [2.50.1] - 2026-11-16
+
 ### Changed
 
 - The integration contract expects DRE Search's `CorpusCounts::METRICS` to end with `clusterChronicles`, after `youtube`, as the theme's `statPages` already did. DRE Search emits it from its new Cluster Chronicles profile (AM-Digital-Research-Environment/DRESearch#64), so the masthead row shows on production once that module is updated and reindexed.
@@ -743,7 +745,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.50.0...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.50.1...HEAD
+[2.50.1]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.50.0...v2.50.1
 [2.50.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.49.0...v2.50.0
 [2.49.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.48.0...v2.49.0
 [2.48.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.47.1...v2.48.0
