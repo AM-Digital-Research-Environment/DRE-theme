@@ -11,6 +11,10 @@ to create.
 
 ## [Unreleased]
 
+### Changed
+
+- The integration contract expects DRE Search's `CorpusCounts::METRICS` to end with `clusterChronicles`, after `youtube`, as the theme's `statPages` already did. DRE Search emits it from its new Cluster Chronicles profile (AM-Digital-Research-Environment/DRESearch#64), so the masthead row shows on production once that module is updated and reindexed.
+
 ## [2.50.0] - 2026-11-16
 
 ### Added

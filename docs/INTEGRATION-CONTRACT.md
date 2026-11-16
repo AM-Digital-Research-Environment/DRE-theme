@@ -226,10 +226,9 @@ helper first.
   `list<array{k: string, l: string, n: int, s: string}>`: one row per metric,
   in the order of `CorpusCounts::METRICS`, `researchItems`, `projects`,
   `people`, `organisations`, `locations`, `languages`, `subjectsTags`,
-  `publications`, `podcasts`, `youtube`; a metric whose profile is not
-  configured is left out. The theme also maps `clusterChronicles` (the Cluster
-  Chronicles, item set 50105), last, which its own fallback counts; DRE Search
-  emits it once it has a profile for the collection.
+  `publications`, `podcasts`, `youtube`, `clusterChronicles` (the Cluster
+  Chronicles, item set 50105, DRE Search's `research_chronicles`); a metric
+  whose profile is not configured is left out.
 - **Consumers:**
   - `helper/CollectionStats.php` fetches it from the site's service locator by
     the string `'DRESearch\Search\CorpusCounts'`, validates `k` (string) and `n`
