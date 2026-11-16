@@ -45,6 +45,7 @@ return [
         // Outreach
         'podcasts'       => "Audio series", // @translate
         'youtube-videos' => "Talks & recordings", // @translate
+        'cluster-chronicles' => "Writers in residence", // @translate
         // Visualisations
         'project-explorer'            => "Browse projects interactively", // @translate
         'compare'                     => "Projects side by side", // @translate
@@ -77,5 +78,6 @@ return [
         'publications'  => 'publications',
         'podcasts'      => 'podcasts',
         'youtube'       => 'youtube-videos',
+        'clusterChronicles' => 'cluster-chronicles',
     ],
 ];

@@ -118,7 +118,7 @@ $annotated = fn($text, $note) => new class($text, $note) {
     public function valueResource() { return null; }
     public function asHtml(...$args) { return htmlspecialchars($this->text, ENT_QUOTES); }
 };
-$note = new class { public function displayValues() { return '<p>Editorial note</p>'; } };
+$note = new class { public function displayValues() { return '<p>Editorial note</p>'; } public function value(string $term, array $options = []) { return []; } };
 $values = [];
 foreach (['dcterms:description' => 'An abstract.', 'dcterms:subject' => 'Archives', 'dcterms:date' => '2026'] as $term => $text) {
     $values[$term] = ['property' => $property, 'alternate_label' => '', 'values' => [$annotated($text, $note)]];

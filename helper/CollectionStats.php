@@ -47,8 +47,9 @@ class CollectionStats extends AbstractHelper
      * v8: stale-on-error values and retry markers.
      * v9: snapshots must match the requested site scope exactly.
      * v10: API-fallback Publications counts the Publications item set, not template labels.
+     * v11: added Cluster Chronicles (item set 50105, the writers-in-residence works).
      */
-    private const CACHE_VERSION = 'v10';
+    private const CACHE_VERSION = 'v11';
 
     /** @return array<array<string, mixed>> */
     public function __invoke(?int $siteId = null): array
@@ -131,8 +132,8 @@ class CollectionStats extends AbstractHelper
 
     /**
      * Delete what earlier theme versions cached for this site: the stats keys
-     * of CACHE_VERSION v3–v9 and their retry markers, the first item-set map
-     * and the per-stage warning markers (now IntegrationWarning's one row).
+     * of CACHE_VERSION v3–v10 and their retry markers, the earlier item-set
+     * maps and the per-stage warning markers (now IntegrationWarning's one row).
      */
     private function pruneLegacyKeys(?int $siteId): void
     {
@@ -140,8 +141,8 @@ class CollectionStats extends AbstractHelper
         if (!$settings) {
             return;
         }
-        $keys = ['dre_stats_set_ids_v1', 'dre_stats_warning_search-counts', 'dre_stats_warning_api-counts'];
-        for ($version = 3; $version <= 9; $version++) {
+        $keys = ['dre_stats_set_ids_v1', 'dre_stats_set_ids_v2', 'dre_stats_warning_search-counts', 'dre_stats_warning_api-counts'];
+        for ($version = 3; $version <= 10; $version++) {
             $key = sprintf('dre_stats_v%d_%s', $version, $siteId ?: 'x');
             $keys[] = $key;
             $keys[] = $key . '_retry';
@@ -191,6 +192,7 @@ class CollectionStats extends AbstractHelper
             'publications' => $translate('Publications'),
             'podcasts' => $translate('Podcasts'),
             'youtube' => $translate('YouTube videos'),
+            'clusterChronicles' => $translate('Cluster Chronicles'),
         ];
         foreach ($stats as &$stat) {
             $stat['l'] = $labels[$stat['k'] ?? ''] ?? $translate((string) ($stat['l'] ?? ''));
@@ -265,13 +267,13 @@ class CollectionStats extends AbstractHelper
 
 
             // Exact template-label predicates avoid hydrating the template catalogue.
-            // Resolve only the five public item-set titles needed by this fallback.
+            // Resolve only the six public item-set titles needed by this fallback.
             // The key is versioned with that title list: a mapping cached before a
             // title was added would count it as 0 until the entry expired.
-            $setId = $this->readCache('dre_stats_set_ids_v2', 86400);
+            $setId = $this->readCache('dre_stats_set_ids_v3', 86400);
             if (null === $setId) {
                 $setId = [];
-                foreach (['Languages', 'Subjects', 'Publications', 'Podcasts', 'YouTube videos'] as $title) {
+                foreach (['Languages', 'Subjects', 'Publications', 'Podcasts', 'YouTube videos', 'Cluster Chronicles'] as $title) {
                     $setId[$title] = [];
                     $page = 1;
                     do {
@@ -288,7 +290,7 @@ class CollectionStats extends AbstractHelper
                         ++$page;
                     } while ($sets && ($page - 1) * 100 < $response->getTotalResults());
                 }
-                $this->writeCache('dre_stats_set_ids_v2', $setId);
+                $this->writeCache('dre_stats_set_ids_v3', $setId);
             }
 
             $total = function (array $query) use ($api, $siteId) {
@@ -345,6 +347,9 @@ class CollectionStats extends AbstractHelper
                 ['k' => 'publications',  'l' => 'Publications',    'n' => $bySet('Publications'),        's' => ''],
                 ['k' => 'podcasts',      'l' => 'Podcasts',        'n' => $bySet('Podcasts'),            's' => ''],
                 ['k' => 'youtube',       'l' => 'YouTube videos',  'n' => $bySet('YouTube videos'),      's' => ''],
+                // The Cluster's writers in residence (2021–): essays, poems,
+                // photographs and events, one record per work, in item set 50105.
+                ['k' => 'clusterChronicles', 'l' => 'Cluster Chronicles', 'n' => $bySet('Cluster Chronicles'), 's' => ''],
             ];
             if ($nothing) {
                 $this->reportFailure('api-counts empty', new \UnderflowException('No records'),

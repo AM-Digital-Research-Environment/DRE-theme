@@ -36,11 +36,23 @@ $filterLocaleCallback = function ($value) use ($lang) {
 };
 
 $this->inlineScript()->appendFile($this->assetUrl('js/dist/annotations.min.js'));
+
+// A numbered work in a series (a Cluster Chronicle, template 34) reads as one
+// row, "Series: Cluster Chronicles no. 4", not a series link and a bare
+// "Number in series: 4" further down. Only the unambiguous case is paired: one
+// linked series and one number. Anything else renders both rows as they are.
+$seriesNumber = '';
+$seriesValues = $values['dcterms:isPartOf']['values'] ?? [];
+$numberValues = $values['bibo:number']['values'] ?? [];
+if (count($seriesValues) === 1 && count($numberValues) === 1 && reset($seriesValues)->valueResource()) {
+    $seriesNumber = trim((string) reset($numberValues)->value());
+}
 $groups = [];
 $prefix = $this->SectionPrefix(isset($resource) ? $resource->id() : 0);
 foreach ($this->ResourceGroups($values) as $group) {
     $rendered = [];
     foreach ($group['values'] as $term => $propertyData) {
+        if ($term === 'bibo:number' && $seriesNumber !== '') continue;
         $propertyValues = $filterLocale ? array_filter($propertyData['values'], $filterLocaleCallback) : $propertyData['values'];
         if ($propertyValues) $rendered[$term] = [$propertyData, $propertyValues];
     }
@@ -98,6 +110,19 @@ $fullTextWhole = '1' === $this->params()->fromQuery('full-text');
                     }
                     $valueLang = $value->lang();
                     $valueAnnotation = $value->valueAnnotation();
+                    // Who wrote the value, when a machine did: an AI-written
+                    // abstract or transcript carries a `dre:generatedBy` annotation
+                    // naming the model's record. The annotation popover is closed
+                    // by default and hidden when annotations are switched off, so
+                    // the provenance is also said in the open, under the value.
+                    $generatedBy = [];
+                    foreach ($valueAnnotation ? $valueAnnotation->value('dre:generatedBy', ['all' => true]) : [] as $generator) {
+                        $model = $generator->valueResource();
+                        $generatedBy[] = $model
+                            ? $model->link($model->displayTitle(null, $filterLocale ? $lang : null))
+                            : $escape(trim((string) $generator->value()));
+                    }
+                    $generatedBy = array_filter($generatedBy, fn($name) => $name !== '');
                     $class = ['value'];
                     $isResource = ('resource' == $valueType || strpos($valueType, 'resource') !== false);
                     if ($isResource) {
@@ -151,6 +176,9 @@ $fullTextWhole = '1' === $this->params()->fromQuery('full-text');
                             // Everything else still goes through asHtml() unchanged.
                             if ($isResource && $value->valueResource()):
                                 echo $value->valueResource()->linkPretty('medium', null, null, null, $filterLocale ? $lang : []);
+                                if ($term === 'dcterms:isPartOf' && $seriesNumber !== ''): ?> <span class="value-series-number"><?php
+                                    echo $escape(sprintf($translate('no. %s'), $seriesNumber)); ?></span><?php
+                                endif;
                             else:
                                 // A reconciled identifier (ORCID, Wikidata, GND…) carries
                                 // its register's mark, as under the title and in the rail.
@@ -160,6 +188,10 @@ $fullTextWhole = '1' === $this->params()->fromQuery('full-text');
                                 echo $filterLocale ? $value->asHtml($lang) : $value->asHtml();
                             endif;
                         ?></span>
+                        <?php endif; ?>
+                        <?php if ($generatedBy): ?>
+                            <span class="value-provenance"><span class="value-provenance__flag"><?php echo $escape($translate('Machine-generated')); ?></span>
+                                <?php echo sprintf($escape($translate('by %s')), implode(', ', $generatedBy)); ?></span>
                         <?php endif; ?>
                         <?php
                         // What an access-rights term means ("Public": the description

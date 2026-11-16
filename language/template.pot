@@ -56,11 +56,11 @@ msgstr ""
 msgid "A project’s collection."
 msgstr ""
 
-#: view/common/resource-values.phtml:142
+#: view/common/resource-values.phtml:167
 msgid "about %s words"
 msgstr ""
 
-#: helper/ResourceGroups.php:63
+#: helper/ResourceGroups.php:64
 msgid "Abstract"
 msgstr ""
 
@@ -102,7 +102,7 @@ msgstr ""
 msgid "Africa Multiple Cluster of Excellence"
 msgstr ""
 
-#: config/amira-pages.php:58
+#: config/amira-pages.php:59
 msgid "Africa's foremost music archive"
 msgstr ""
 
@@ -152,7 +152,7 @@ msgstr ""
 msgid "Browse all items"
 msgstr ""
 
-#: config/amira-pages.php:49
+#: config/amira-pages.php:50
 msgid "Browse projects interactively"
 msgstr ""
 
@@ -166,6 +166,10 @@ msgstr ""
 
 #: view/common/shortlist.phtml:6
 msgid "Browser storage is unavailable. This list will last for this page only. Export it to keep a copy."
+msgstr ""
+
+#: view/common/resource-values.phtml:194
+msgid "by %s"
 msgstr ""
 
 #: view/omeka/site/index/search.phtml:18
@@ -194,6 +198,10 @@ msgstr ""
 msgid "Close menu"
 msgstr ""
 
+#: helper/CollectionStats.php:195
+msgid "Cluster Chronicles"
+msgstr ""
+
 #: helper/RecordAccess.php:72
 msgid "Collections@UBT, University of Bayreuth"
 msgstr ""
@@ -204,7 +212,7 @@ msgid_plural "connections on this page"
 msgstr[0] ""
 msgstr[1] ""
 
-#: view/common/linked-resources.phtml:195
+#: view/common/linked-resources.phtml:199
 msgid "Connection pages"
 msgstr ""
 
@@ -262,7 +270,7 @@ msgstr ""
 msgid "Days"
 msgstr ""
 
-#: helper/ResourceGroups.php:69
+#: helper/ResourceGroups.php:70
 msgid "Description"
 msgstr ""
 
@@ -311,7 +319,7 @@ msgstr ""
 msgid "DRE Search"
 msgstr ""
 
-#: config/amira-pages.php:53
+#: config/amira-pages.php:54
 msgid "Episode trends & transcripts"
 msgstr ""
 
@@ -360,15 +368,15 @@ msgstr ""
 msgid "Found a mistake in this record? Tell the DRE."
 msgstr ""
 
-#: helper/ResourceGroups.php:152
+#: helper/ResourceGroups.php:158
 msgid "Full text"
 msgstr ""
 
-#: view/common/resource-values.phtml:140
+#: view/common/resource-values.phtml:165
 msgid "Full text loaded"
 msgstr ""
 
-#: helper/ResourceGroups.php:162
+#: helper/ResourceGroups.php:168
 msgid "Further details"
 msgstr ""
 
@@ -400,7 +408,7 @@ msgstr ""
 msgid "How to reach the material, and how to reuse what AMIRA publishes."
 msgstr ""
 
-#: helper/ResourceGroups.php:136
+#: helper/ResourceGroups.php:142
 msgid "Identifiers & sources"
 msgstr ""
 
@@ -453,11 +461,11 @@ msgstr ""
 msgid "Items"
 msgstr ""
 
-#: config/amira-pages.php:55
+#: config/amira-pages.php:56
 msgid "Knowledge-graph links"
 msgstr ""
 
-#: helper/CollectionStats.php:189
+#: helper/CollectionStats.php:190
 msgid "Languages"
 msgstr ""
 
@@ -486,12 +494,16 @@ msgstr ""
 msgid "Loading connections…"
 msgstr ""
 
-#: view/common/resource-values.phtml:139
+#: view/common/resource-values.phtml:164
 msgid "Loading the full text…"
 msgstr ""
 
-#: helper/CollectionStats.php:188
+#: helper/CollectionStats.php:189
 msgid "Locations"
+msgstr ""
+
+#: view/common/resource-values.phtml:193
+msgid "Machine-generated"
 msgstr ""
 
 #: view/common/block-layout/item-with-metadata.phtml:77
@@ -542,13 +554,13 @@ msgstr ""
 msgid "Names may appear transliterated — try a variant spelling."
 msgstr ""
 
-#: view/common/linked-resources.phtml:198
+#: view/common/linked-resources.phtml:202
 #: view/common/pagination.phtml:46
 #: view/common/pagination.phtml:48
 msgid "Next"
 msgstr ""
 
-#: view/common/linked-resources.phtml:192
+#: view/common/linked-resources.phtml:196
 msgid "No connections match this filter."
 msgstr ""
 
@@ -566,6 +578,10 @@ msgstr ""
 
 #: view/common/shortlist.phtml:4
 msgid "No saved records yet."
+msgstr ""
+
+#: view/common/resource-values.phtml:180
+msgid "no. %s"
 msgstr ""
 
 #: view/common/record-access.phtml:111
@@ -618,15 +634,15 @@ msgstr ""
 msgid "or the research team of %s"
 msgstr ""
 
-#: helper/CollectionStats.php:187
+#: helper/CollectionStats.php:188
 msgid "Organisations"
 msgstr ""
 
-#: helper/ResourceGroups.php:100
+#: helper/ResourceGroups.php:104
 msgid "Origins & context"
 msgstr ""
 
-#: config/amira-pages.php:60
+#: config/amira-pages.php:61
 msgid "Orishas — Gregório de Mattos Foundation"
 msgstr ""
 
@@ -635,7 +651,7 @@ msgstr ""
 msgid "Page"
 msgstr ""
 
-#: view/common/linked-resources.phtml:197
+#: view/common/linked-resources.phtml:201
 msgid "Page %1$s of %2$s"
 msgstr ""
 
@@ -664,15 +680,15 @@ msgstr ""
 msgid "Part of %s"
 msgstr ""
 
-#: helper/CollectionStats.php:186
+#: helper/CollectionStats.php:187
 msgid "People"
 msgstr ""
 
-#: helper/ResourceGroups.php:85
+#: helper/ResourceGroups.php:86
 msgid "People & roles"
 msgstr ""
 
-#: config/amira-pages.php:59
+#: config/amira-pages.php:60
 msgid "Peripheral memories of Capoeira Angola in Salvador"
 msgstr ""
 
@@ -685,15 +701,15 @@ msgstr ""
 msgid "Places & georeferences"
 msgstr ""
 
-#: config/amira-pages.php:51
+#: config/amira-pages.php:52
 msgid "Places mapped & georeferenced"
 msgstr ""
 
-#: helper/CollectionStats.php:192
+#: helper/CollectionStats.php:193
 msgid "Podcasts"
 msgstr ""
 
-#: view/common/linked-resources.phtml:196
+#: view/common/linked-resources.phtml:200
 #: view/common/pagination.phtml:27
 #: view/common/pagination.phtml:30
 msgid "Previous"
@@ -709,11 +725,11 @@ msgid_plural "principal investigators"
 msgstr[0] ""
 msgstr[1] ""
 
-#: view/common/resource-values.phtml:175
+#: view/common/resource-values.phtml:207
 msgid "Private"
 msgstr ""
 
-#: helper/CollectionStats.php:185
+#: helper/CollectionStats.php:186
 msgid "Projects"
 msgstr ""
 
@@ -721,7 +737,7 @@ msgstr ""
 msgid "Projects across the AMRCs"
 msgstr ""
 
-#: config/amira-pages.php:50
+#: config/amira-pages.php:51
 msgid "Projects side by side"
 msgstr ""
 
@@ -733,11 +749,11 @@ msgstr ""
 msgid "Public-facing media from the Cluster."
 msgstr ""
 
-#: config/amira-pages.php:52
+#: config/amira-pages.php:53
 msgid "Publication trends & networks"
 msgstr ""
 
-#: helper/CollectionStats.php:191
+#: helper/CollectionStats.php:192
 msgid "Publications"
 msgstr ""
 
@@ -749,7 +765,7 @@ msgstr ""
 msgid "Query"
 msgstr ""
 
-#: config/amira-pages.php:64
+#: config/amira-pages.php:65
 msgid "RDF, dump & CC0 metadata"
 msgstr ""
 
@@ -757,7 +773,7 @@ msgstr ""
 msgid "RDSpace, University of Bayreuth"
 msgstr ""
 
-#: view/common/resource-values.phtml:141
+#: view/common/resource-values.phtml:166
 msgid "Read the full text"
 msgstr ""
 
@@ -777,7 +793,7 @@ msgstr ""
 msgid "Records"
 msgstr ""
 
-#: config/amira-pages.php:56
+#: config/amira-pages.php:57
 msgid "Records grouped by meaning"
 msgstr ""
 
@@ -798,11 +814,11 @@ msgstr ""
 msgid "Report an error in this record"
 msgstr ""
 
-#: config/amira-pages.php:63
+#: config/amira-pages.php:64
 msgid "Requesting material & who to ask"
 msgstr ""
 
-#: helper/CollectionStats.php:184
+#: helper/CollectionStats.php:185
 msgid "Research items"
 msgstr ""
 
@@ -811,7 +827,7 @@ msgstr ""
 msgid "Research shortlist"
 msgstr ""
 
-#: helper/ResourceGroups.php:125
+#: helper/ResourceGroups.php:131
 msgid "Rights & access"
 msgstr ""
 
@@ -935,11 +951,11 @@ msgstr ""
 msgid "Staff page of %s"
 msgstr ""
 
-#: helper/ResourceGroups.php:75
+#: helper/ResourceGroups.php:76
 msgid "Subjects"
 msgstr ""
 
-#: helper/CollectionStats.php:190
+#: helper/CollectionStats.php:191
 msgid "Subjects & tags"
 msgstr ""
 
@@ -973,7 +989,7 @@ msgstr[1] ""
 msgid "The Digital Research Environment (DRE): %s"
 msgstr ""
 
-#: view/common/resource-values.phtml:141
+#: view/common/resource-values.phtml:166
 msgid "The full text could not be loaded. Try again"
 msgstr ""
 
@@ -1087,7 +1103,7 @@ msgstr ""
 msgid "Value must be an integer"
 msgstr ""
 
-#: config/amira-pages.php:54
+#: config/amira-pages.php:55
 msgid "Video trends & playlists"
 msgstr ""
 
@@ -1117,12 +1133,16 @@ msgstr ""
 msgid "Who to ask"
 msgstr ""
 
-#: config/amira-pages.php:61
+#: config/amira-pages.php:62
 msgid "Workers in/from Bahia"
 msgstr ""
 
 #: view/common/record-access.phtml:151
 msgid "Write to the DRE: %s"
+msgstr ""
+
+#: config/amira-pages.php:48
+msgid "Writers in residence"
 msgstr ""
 
 #: view/common/numeric-timestamp.phtml:13
@@ -1133,6 +1153,6 @@ msgstr ""
 msgid "Years"
 msgstr ""
 
-#: helper/CollectionStats.php:193
+#: helper/CollectionStats.php:194
 msgid "YouTube videos"
 msgstr ""

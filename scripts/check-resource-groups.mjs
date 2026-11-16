@@ -11,9 +11,10 @@
  * is the exact failure the record redesign exists to fix, so it needs a check
  * rather than a careful reading.
  *
- * This asserts the map against tests/fixtures/research-items-template.json —
- * the real property list of the live "Research Items" template (98 properties)
- * and the terms on a real record. It is deliberately a NODE check, not a PHP
+ * This asserts the map against the template fixtures in tests/fixtures/ —
+ * the real property lists of the live "Research Items" template (98
+ * properties) and "Cluster Chronicles" template (22), and the terms on a real
+ * record of each. It is deliberately a NODE check, not a PHP
  * one: it has to run in the same `npm run lint` chain as everything else, even on a
  * machine with no PHP binary. `npm run lint:php` and CI cover the PHP side.
  *
@@ -27,7 +28,8 @@ import { join } from 'node:path';
 
 const ROOT = join(import.meta.dirname, '..');
 const HELPER = join(ROOT, 'helper', 'ResourceGroups.php');
-const FIXTURE = join(ROOT, 'tests', 'fixtures', 'research-items-template.json');
+const FIXTURES = ['research-items-template.json', 'cluster-chronicles-template.json']
+  .map((name) => join(ROOT, 'tests', 'fixtures', name));
 
 const findings = [];
 
@@ -80,23 +82,25 @@ function groupKeyFor(term) {
 }
 
 // --- Rule 1: full coverage of the real template -------------------------
-const fixture = JSON.parse(readFileSync(FIXTURE, 'utf8'));
+const fixtures = FIXTURES.map((file) => JSON.parse(readFileSync(file, 'utf8')));
 
-const uncovered = [];
-for (const { term, label } of fixture.template.properties) {
-  if (groupKeyFor(term) === null) uncovered.push(`${term}${label ? ` ("${label}")` : ''}`);
-}
-if (uncovered.length) {
-  findings.push(
-    `${uncovered.length} of ${fixture.template.propertyCount} properties on the "${fixture.template.label}" template fall through to "Further details":\n      ` +
-      uncovered.join('\n      ') +
-      `\n    Add them to helper/ResourceGroups.php, or accept the fallback deliberately by naming them there.`
-  );
-}
+for (const fixture of fixtures) {
+  const uncovered = [];
+  for (const { term, label } of fixture.template.properties) {
+    if (groupKeyFor(term) === null) uncovered.push(`${term}${label ? ` ("${label}")` : ''}`);
+  }
+  if (uncovered.length) {
+    findings.push(
+      `${uncovered.length} of ${fixture.template.propertyCount} properties on the "${fixture.template.label}" template fall through to "Further details":\n      ` +
+        uncovered.join('\n      ') +
+        `\n    Add them to helper/ResourceGroups.php, or accept the fallback deliberately by naming them there.`
+    );
+  }
 
-for (const term of fixture.sampleItem.terms) {
-  if (groupKeyFor(term) === null) {
-    findings.push(`item ${fixture.sampleItem.id} carries ${term}, which the map does not place`);
+  for (const term of fixture.sampleItem.terms) {
+    if (groupKeyFor(term) === null) {
+      findings.push(`item ${fixture.sampleItem.id} carries ${term}, which the map does not place`);
+    }
   }
 }
 
@@ -121,6 +125,11 @@ const MUST_LAND_IN = {
   'dcterms:spatial': 'origins',
   'dcterms:language': 'origins',
   'bibo:content': 'fulltext',     // the extracted full text — trails the metadata, never inside it
+  // The Cluster Chronicles (template 34): the makers, and who a picture shows,
+  // beside the author; the series number beside its series.
+  'marcrel:pht': 'people',
+  'foaf:depicts': 'people',
+  'bibo:number': 'origins',
 };
 for (const [term, expected] of Object.entries(MUST_LAND_IN)) {
   const actual = groupKeyFor(term);
@@ -145,6 +154,6 @@ function report() {
     for (const f of findings) console.error('  ' + f);
     process.exit(1);
   }
-  const covered = fixture.template.propertyCount;
-  console.log(`Metadata grouping: clean (${covered}/${covered} template properties placed, ${groups.length} groups).`);
+  const placed = fixtures.map((f) => `${f.template.propertyCount}/${f.template.propertyCount} "${f.template.label}"`).join(', ');
+  console.log(`Metadata grouping: clean (${placed} template properties placed, ${groups.length} groups).`);
 }
