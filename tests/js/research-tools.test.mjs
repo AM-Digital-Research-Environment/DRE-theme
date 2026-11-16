@@ -66,12 +66,16 @@ test('shortlist validates stored URLs, escapes titles and keeps working when sto
 });
 test('history restores legacy connection filters and a new search resets legacy pagination', async () => {
     const d = connectionFixture(), w = d.window, requests = [];
-    w.history.replaceState(null, '', '?view=list&resource_property=media%3A7-0%2C234&page=4');
     w.fetch = async url => {
         requests.push(new URL(url));
         return {ok: true, text: async () => w.document.querySelector('.resources-linked').outerHTML};
     };
+    // The page loads unfiltered; history then moves to an old legacy-parameter
+    // URL. Changing the URL before the scripts run would make it the state the
+    // block already shows, which popstate rightly does not refetch (jsdom 31
+    // runs onReady callbacks at once, as browsers do for late scripts).
     w.eval(source('utils.js'));w.eval(source('linked-resources.js'));
+    w.history.replaceState(null, '', '?view=list&resource_property=media%3A7-0%2C234&page=4');
     w.dispatchEvent(new w.PopStateEvent('popstate'));
     await tick();
     assert.equal(requests[0].searchParams.get('lr_property'), 'media:7-0,234');

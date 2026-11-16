@@ -14,6 +14,11 @@ to create.
 ### Security
 
 - Development tooling only: npm `overrides` lift `minimatch` to 11.0.7 (GHSA-g3hv-75wg-m249, ReDoS in 10.x) and, with it, `glob` to 14.0.4, the first release built on minimatch 11. eslint 10.14.0 and Lighthouse's Sentry bundler plugins still ask for minimatch 10 and glob 13; both only call `new Minimatch().match()`, `minimatch()` and `glob()`, which minimatch 11 and glob 14 keep. eslint lints the same files as before. Drop the overrides once eslint and Sentry depend on these versions themselves. Nothing in the release zip changes.
+- The overrides now pin `minimatch` 11.0.8 and `glob` 14.0.6. eslint 10.15.0 asks for minimatch 11 itself, so only Lighthouse's Sentry plugin still needs them.
+
+### Changed
+
+- Development tooling only: Playwright 1.65.1, eslint 10.15.0, jsdom 31.0.1, Sass 1.108.2, stylelint 18.0.0 with stylelint-scss 7.5.0 (the first release that accepts stylelint 18), postcss 8.5.33, chrome-launcher 1.2.3 and globals 17.14.0. The compiled stylesheet is byte-identical. jsdom 31 reports `readyState` as `interactive` once a document is parsed, so `DREUtils.onReady` callbacks now run at once in the unit tests, as they do in browsers; the legacy-filter history test now changes the URL after the scripts load, as a real back navigation would.
 
 ## [2.49.0] - 2026-11-11
 
