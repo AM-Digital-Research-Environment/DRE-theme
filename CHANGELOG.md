@@ -11,6 +11,8 @@ to create.
 
 ## [Unreleased]
 
+## [2.51.0] - 2026-11-19
+
 ### Fixed
 
 - **Keyboard navigation in the main menu.** Tabbing along the top row no longer opens every submenu and walks through its links: a panel opens from its caret button or the pointer, and closes on Escape or when focus leaves, also when it was opened by hovering. The parent link no longer carries `aria-expanded` (the caret is the disclosure), and the drawer's parent links now expose their expanded state.
@@ -773,7 +775,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.50.1...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.51.0...HEAD
+[2.51.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.50.1...v2.51.0
 [2.50.1]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.50.0...v2.50.1
 [2.50.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.49.0...v2.50.0
 [2.49.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.48.0...v2.49.0
