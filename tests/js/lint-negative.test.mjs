@@ -8,6 +8,7 @@ import {spawnSync} from 'node:child_process';
 import {mkdtemp, mkdir, rm, writeFile} from 'node:fs/promises';
 import {basename, dirname, join, resolve, sep} from 'node:path';
 import {tmpdir} from 'node:os';
+import {checkCatalogues, placeholderMismatches, placeholders} from '../../scripts/lib/po.mjs';
 
 const SCRIPTS = resolve(import.meta.dirname, '../../scripts');
 
@@ -95,26 +96,73 @@ test('check-theme-ini.mjs fails on a seeded contract violation', async t => {
             files: {'CITATION.cff': 'cff-version: 1.2.0\nversion: 1.2.2\n'},
             message: /CITATION\.cff says version 1\.2\.2/,
         },
+        // The release version is [info]'s: one in another section does not count.
+        'the version only in [config]': {
+            files: {'config/theme.ini': THEME_INI.replace('version = "1.2.3"\n', '') + 'version = "1.2.3"\n'},
+            message: /declares no \[info\] version/,
+        },
+        'a registered helper with no file': {
+            files: {'config/theme.ini': THEME_INI.replace('helpers[] = "Sample"\n', 'helpers[] = "Sample"\nhelpers[] = "Missing"\n')},
+            message: /helpers\[\] = "Missing" has no helper\/Missing\.php/,
+        },
+        'a helper file nobody registered': {
+            files: {'helper/Unregistered.php': HELPER.replace('class Sample', 'class Unregistered')},
+            message: /helper\/Unregistered\.php exists but is not registered/,
+        },
     });
 });
 
-const BROWSE = "<?php echo $this->pageTitle($this->translate('Browse'), 1); ?>\n";
+const BROWSE = "<?php echo $this->escapeHtml($this->translate('Browse')); ?>\n";
+
+/** A helper that calls Sample through its view, and a method of its own named alike. */
+const caller = (call) => `<?php
+namespace OmekaTheme\\Helper;
+
+use Laminas\\View\\Helper\\AbstractHelper;
+
+class Caller extends AbstractHelper
+{
+    public function __invoke()
+    {
+        $view = $this->getView();
+        return ${call} . $this->sample();
+    }
+
+    private function sample()
+    {
+        return '';
+    }
+}
+`;
 
 test('check-templates.mjs fails on a seeded structural violation', async t => {
     await assertCatches(t, 'check-templates.mjs', {
-        'config/theme.ini': '[info]\nhelpers[] = "Sample"\n',
+        'config/theme.ini': '[info]\nhelpers[] = "Sample"\nhelpers[] = "Caller"\n',
         'helper/Sample.php': HELPER,
+        // Inside a helper, $this->sample() is its own method, not the view's.
+        'helper/Caller.php': caller("$view->Sample() . $this->getView()->Sample() . $view->plugin('Sample')()"),
         'view/common/header.phtml': '<header><?php echo $this->Sample(); ?></header>\n',
         'view/omeka/site/item/browse.phtml': BROWSE,
-        'view/omeka/site/item-set/browse.phtml': BROWSE,
-        'view/omeka/site/page/browse.phtml': BROWSE,
-        'view/common/resource-page-block-layout/mirador.phtml':
-            '<div class="block resource-block block-mirador" role="application" '
-            + 'aria-label="<?php echo $this->escapeHtmlAttr($viewerLabel); ?>"></div>\n',
     }, {
         'unbalanced brace': {
             files: {'view/omeka/site/item/browse.phtml': BROWSE + '<?php if ($items) { ?>\n'},
             message: /unbalanced braces/,
+        },
+        'helper called through $view with the wrong casing': {
+            files: {'helper/Caller.php': caller('$view->sample()')},
+            message: /helper\/Caller\.php:\d+\s+\$view->sample\( must match the theme\.ini helper name exactly: Sample/,
+        },
+        'helper called through getView() with the wrong casing': {
+            files: {'helper/Caller.php': caller('$this->getView()->sample()')},
+            message: /->getView\(\)->sample\( must match the theme\.ini helper name exactly/,
+        },
+        'helper fetched with plugin() under the wrong casing': {
+            files: {'helper/Caller.php': caller("$view->plugin('sample')()")},
+            message: /plugin\('sample' must match the theme\.ini helper name exactly/,
+        },
+        'helper class named unlike its file': {
+            files: {'helper/Sample.php': HELPER.replace('class Sample', 'class Sampler')},
+            message: /class Sampler does not match file name Sample\.php/,
         },
         'partial() target that does not exist': {
             files: {'view/common/header.phtml': "<header><?php echo $this->partial('common/nowhere'); ?></header>\n"},
@@ -148,7 +196,57 @@ test('check-compiled-css.mjs fails on a seeded build defect', async t => {
     });
 });
 
+// i18n:check: a translation's printf placeholders must be its msgid's, or
+// PHP 8's sprintf() throws on the page in that language (scripts/lib/po.mjs).
+const PO = `msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\\n"
+
+msgid "%s items in %s"
+msgstr "%2$s : %1$s documents"
+
+#, fuzzy
+msgid "%d records"
+msgstr "%d notices de %s"
+
+msgid "Search %s"
+msgstr ""
+
+msgid "One record"
+msgid_plural "%d records"
+msgstr[0] "Une notice"
+msgstr[1] "%d notices"
+
+msgid "100% open"
+msgstr "100 % ouvert"
+`;
+
+test('placeholders are read by argument and type, in any order', () => {
+    assert.deepEqual(placeholders('%s items in %s'), ['1$s', '2$s']);
+    assert.deepEqual(placeholders('%2$s : %1$s'), ['1$s', '2$s']);
+    assert.deepEqual(placeholders('%05.1f%% of %\'*10d'), ['1$f', '2$d']);
+    assert.deepEqual(placeholders('50 % de réduction, 100%'), []);
+});
+
+test('i18n:check fails on a translation whose placeholders differ from its msgid', async t => {
+    assert.deepEqual(placeholderMismatches(PO, 'language/fr.po'), [], 'reordered, fuzzy, untranslated and plural forms are fine');
+    const extra = placeholderMismatches(PO.replace('"%2$s : %1$s documents"', '"%s documents dans %s (%d)"'), 'language/fr.po');
+    assert.equal(extra.length, 1);
+    assert.match(extra[0], /^language\/fr\.po:5\s+msgstr uses 1\$s, 2\$s, 3\$d but msgid "%s items in %s" has 1\$s, 2\$s$/);
+    const dropped = placeholderMismatches(PO.replace('"%2$s : %1$s documents"', '"%s documents"'));
+    assert.match(dropped[0], /msgstr uses 1\$s but msgid/);
+    const plural = placeholderMismatches(PO.replace('msgstr[1] "%d notices"', 'msgstr[1] "%d notices (%s)"'));
+    assert.match(plural[0], /msgstr\[1\] uses 2\$s, which msgid "One record" \/ msgid_plural do not have/);
+
+    const root = await fixtureRoot(t, {'language/fr.po': PO, 'language/de.po': PO.replace('%2$s : %1$s', '%1$s %2$d')});
+    const {files, problems} = checkCatalogues(join(root, 'language'));
+    assert.equal(files, 2);
+    assert.deepEqual(problems.map(p => p.split(':')[0]), ['language/de.po']);
+    assert.deepEqual(checkCatalogues(join(root, 'nowhere')), {files: 0, problems: []});
+});
+
 test('the custom lints pass on the repository tree', () => {
+    assert.deepEqual(checkCatalogues(resolve(SCRIPTS, '..', 'language')).problems, []);
     for (const script of ['check-theme-ini.mjs', 'check-templates.mjs', 'check-compiled-css.mjs']) {
         const result = lint(script);
         assert.equal(result.status, 0, `${script} on the repository:\n${result.output}`);

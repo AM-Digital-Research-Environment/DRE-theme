@@ -1,6 +1,6 @@
 /**
- * script.js — assorted layout chrome: sticky-header auto-hide, anchor
- * scroll-padding, the collapsible core header search, and the checkbox-label
+ * script.js — assorted layout chrome: sticky-header auto-hide, the measured
+ * header height, the collapsible core header search, and the checkbox-label
  * order in Omeka forms. Relies on window.DREUtils (utils.js).
  *
  * NOTE: this file used to also position a `.main-banner` image wrapper. That
@@ -14,8 +14,6 @@
 const dreScripts = () => {
 
     const mainHeader = document.querySelector('.main-header');
-    const mainHeaderMainBar = document.querySelector('.main-header__main-bar');
-    const menuDrawer = document.getElementById('menu-drawer');
     const menuToggle = document.querySelector( '.main-navigation__toggle' );
     let mainHeaderSearch = null;
 
@@ -28,6 +26,12 @@ const dreScripts = () => {
     // (The legacy logic slid only the top utility bar away and silently did
     // nothing once .main-header__top-bar stopped rendering by default — nothing
     // here may require that bar.)
+    //
+    // Per frame this only reads state that needs no layout and toggles one
+    // class: the stylesheet slides the header out with a transform
+    // (.is-scrolled-away in _header.scss), which the compositor animates. It
+    // used to write `top`, read offsetHeight straight after (a forced layout on
+    // every scrolled frame) and rewrite the drawer's top and height inline.
 
     const AUTO_HIDE_AFTER = 200;         // scroll depth before the header may hide
     const DIRECTION_JITTER = 4;          // px of trackpad wobble to ignore
@@ -46,7 +50,8 @@ const dreScripts = () => {
         }
 
         const drawerOpen = menuToggle && menuToggle.getAttribute('aria-expanded') === 'true';
-        const megaMenuInUse = mainHeader.querySelector('.menu-item-has-children.open, .menu-item-has-children:hover') !== null;
+        // navigation.js opens a panel by class for the pointer too.
+        const megaMenuInUse = mainHeader.querySelector('.menu-item-has-children.open') !== null;
         const mayHide = mainHeader.getAttribute('data-nav') === 'inline'
             && scrollDirection === 'down'
             && scrollPos > AUTO_HIDE_AFTER
@@ -54,17 +59,7 @@ const dreScripts = () => {
             && !megaMenuInUse
             && !headerHasFocus(); // never steal the search bar mid-typing or mid-keyboard-nav
 
-        if (mayHide) {
-            // A little past its own height so the border + shadow leave with it.
-            mainHeader.style.top = -(mainHeader.offsetHeight + 16) + 'px';
-        } else {
-            mainHeader.style.top = '0px';
-        }
-
-        if (menuDrawer) {
-            menuDrawer.style.top = mainHeader.offsetHeight + 'px';
-            menuDrawer.style.height = 'calc(100% - ' + mainHeader.offsetHeight + 'px)';
-        }
+        mainHeader.classList.toggle('is-scrolled-away', mayHide);
     }
 
     document.addEventListener('scroll', () => {
@@ -84,48 +79,39 @@ const dreScripts = () => {
         }
     });
 
-    // Scroll padding — anchor jumps vs. typing in the header search
-    //
-    // Anchor navigation needs scroll-padding-top so targets don't land beneath
-    // the sticky header. But Chromium also honours that padding when scrolling
-    // the caret into view on every keystroke, and the header search lives
-    // *inside* the sticky header — permanently above the padding line — so with
-    // the offset active each keystroke nudged the whole page upward. While focus
-    // is anywhere in the header the offset is zeroed (anchor jumps never
-    // coincide with typing up there) and it comes back on blur. NB: this inline
-    // style outranks the stylesheet, so it must stay in agreement with the
-    // html:has(.main-header input:focus) rule in _theme.scss.
-
-    function refreshScrollPadding() {
-        if (!mainHeaderMainBar) {
-            return;
-        }
-        document.documentElement.style.scrollPaddingTop = headerHasFocus()
-            ? '0px'
-            : (mainHeaderMainBar.offsetHeight + 20) + 'px';
-    }
-
     document.addEventListener('focusin', () => {
-        refreshScrollPadding();
         if (headerHasFocus()) {
-            mainHeader.style.top = '0px'; // tabbing into a hidden header reveals it
+            mainHeader.classList.remove('is-scrolled-away'); // tabbing into a hidden header reveals it
         }
     });
 
-    document.addEventListener('focusout', () => {
-        // No focusin fires when focus dissolves to <body> (a click on the page).
-        // By focusout time the old element has already blurred, so activeElement
-        // reads as the settled state; when focus moves to another control instead,
-        // its focusin re-runs this within the same task — no deferral needed.
-        refreshScrollPadding();
-    });
+    // The header's height, measured
+    //
+    // --header-height is the layout token the menu drawer parks below and the
+    // anchor offset (--scroll-offset, so scroll-padding-top in _theme.scss) is
+    // derived from. The stylesheet's 4.625rem is the fallback until this runs;
+    // the real header is taller wherever the nav row, the user bar or enlarged
+    // text add to it. A ResizeObserver reports after layout, so reading the
+    // size costs nothing, and it fires only when the height actually changes.
+    // The transform that slides the header away does not change its box.
+    // Nothing inside the header may size itself from this token, or measuring
+    // it would feed back into it (the main bar states its own minimum).
+
+    if (mainHeader && typeof ResizeObserver === 'function') {
+        let measured = 0;
+        new ResizeObserver(([entry]) => {
+            const height = Math.round(entry.borderBoxSize?.[0]?.blockSize ?? mainHeader.offsetHeight);
+            if (height === measured) return;
+            measured = height;
+            document.documentElement.style.setProperty('--header-height', height + 'px');
+        }).observe(mainHeader);
+    }
 
     // Resize Events
 
     const RESIZE_DELAY = 150;
 
     function onResize() {
-        refreshScrollPadding();
         onScroll(lastKnownScrollPosition);
     }
 
@@ -147,7 +133,10 @@ const dreScripts = () => {
     document.querySelectorAll('[data-core-search]').forEach(root => {
         const button = root.querySelector('.main-search-button');
         const panel = root.querySelector('.main-header-search');
-        if (!button || !panel) return;
+        const input = panel?.querySelector('input[type="search"]');
+        // Without its field the panel stays as rendered: opening it would set
+        // aria-expanded and then have nowhere to put focus.
+        if (!button || !panel || !input) return;
         panel.hidden = true;
         root.classList.add('search-ready');
         button.hidden = false;
@@ -160,7 +149,8 @@ const dreScripts = () => {
             panel.hidden = false;
             panel.classList.add('visible');
             button.setAttribute('aria-expanded', 'true');
-            panel.querySelector('input[type="search"]').focus();
+            input.focus();
+
         });
     });
     document.addEventListener('click', e => {

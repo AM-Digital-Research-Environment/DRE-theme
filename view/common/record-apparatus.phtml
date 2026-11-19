@@ -31,7 +31,21 @@ if (!isset($resource) || !$resource) {
 
 $apparatus = $this->RecordApparatus($resource);
 if (!$apparatus) return;
-extract($apparatus, EXTR_SKIP);
+// Named one by one rather than extract()ed: a template variable such as
+// $saveButton cannot be overwritten by a key, and a key the helper renames is
+// an undefined variable here, not a silent gap.
+$citation      = $apparatus['citation'];
+$citeStyles    = $apparatus['citeStyles'];
+$citeDefault   = $apparatus['citeDefault'];
+$citeDownloads = $apparatus['citeDownloads'];
+$citeId        = $apparatus['citeId'];
+$panelTitle    = $apparatus['panelTitle'];
+$copyLabel     = $apparatus['copyLabel'];
+$copyText      = $apparatus['copyText'];
+$copyLink      = $apparatus['copyLink'];
+$permalink     = $apparatus['permalink'];
+$rows          = $apparatus['rows'];
+$copyInRow     = $apparatus['copyInRow'];
 
 $this->inlineScript()->appendFile($this->assetUrl('js/dist/record.min.js'));
 ?>
@@ -80,7 +94,7 @@ $this->inlineScript()->appendFile($this->assetUrl('js/dist/record.min.js'));
             data-copied-label="<?php echo $escAttr($translate('Copied')); ?>">
             <?php echo $escHtml($copyLabel); ?>
         </button>
-        <?php if (($copyLink ?? '') !== ''): ?>
+        <?php if ($copyLink !== ''): ?>
             <button type="button" class="button btn--secondary record-apparatus__copy" data-record-copy data-copy-exact hidden
                 data-copy-text="<?php echo $escAttr($copyLink); ?>"
                 data-copied-label="<?php echo $escAttr($translate('Copied')); ?>">

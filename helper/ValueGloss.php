@@ -16,7 +16,7 @@ use Laminas\View\Helper\AbstractHelper;
  * value links to — preferring one in `$lang` when given — or '' when the value
  * is not a link or its record has no description.
  */
-class ValueGloss extends AbstractHelper
+final class ValueGloss extends AbstractHelper
 {
     /** @param \Omeka\Api\Representation\ValueRepresentation $value */
     public function __invoke($value, ?string $lang = null): string

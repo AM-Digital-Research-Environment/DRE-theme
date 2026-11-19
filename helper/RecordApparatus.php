@@ -5,7 +5,7 @@ use Laminas\View\Helper\AbstractHelper;
 require_once __DIR__ . '/ValueReader.php';
 
 /** Resolve citation and identifier data without emitting markup. */
-class RecordApparatus extends AbstractHelper
+final class RecordApparatus extends AbstractHelper
 {
     /**
      * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
@@ -18,35 +18,28 @@ class RecordApparatus extends AbstractHelper
         // Values a reader must be able to read. Licence and access rights are linked
         // records here — `dcterms:license` points at the CC-BY-NC-SA-4.0 item, not at a
         // string — and casting one of those to string yields the *item's URL*, which is
-        // what the rail used to print. Resolve the way common/resource-values.phtml
-        // does: a linked value shows its title and links to the record; a URI value
-        // falls back to the URI itself when it carries no label (otherwise the row
-        // vanished entirely); a literal shows its text.
+        // what the rail used to print. ValueReader::entries() resolves them the way
+        // common/resource-values.phtml does: a linked value shows its title and links
+        // to the record; a URI value falls back to the URI itself when it carries no
+        // label (otherwise the row vanished entirely); a literal shows its text.
         //
         // All values, not just the first: records legitimately carry two access-rights
         // statements, one linked and one spelled out.
         $displayValues = function (string $term, bool $withGloss = false) use ($resource, $view): array {
-            $out = [];
-            foreach (ValueReader::values($resource, $term) as $value) {
-                $entry = ValueReader::entry($value);
-                if ($entry === null) {
-                    continue;
-                }
-                $row = ['label' => $entry['label'], 'href' => $entry['href']];
-                // "Public" under Access rights reads as "downloadable
-                // here"; its authority record says what it means.
+            if (!$withGloss) {
+                return ValueReader::entries($resource, $term);
+            }
+            // "Public" under Access rights reads as "downloadable here"; its
+            // authority record says what it means.
+            return ValueReader::entries($resource, $term, false, function (array $entry, $value) use ($view): array {
                 try {
-                    $gloss = $withGloss ? $view->ValueGloss($value) : '';
+                    $gloss = (string) $view->ValueGloss($value);
                 } catch (\Throwable $e) {
                     // One malformed value must not cost the reader the whole rail.
                     $gloss = '';
                 }
-                if ($gloss !== '' && $gloss !== $entry['label']) {
-                    $row['gloss'] = $gloss;
-                }
-                $out[] = $row;
-            }
-            return $out;
+                return $gloss !== '' && $gloss !== $entry['label'] ? ['gloss' => $gloss] : [];
+            });
         };
 
         $citationValues = $displayValues('dcterms:bibliographicCitation');
@@ -90,7 +83,7 @@ class RecordApparatus extends AbstractHelper
         $doiValues = $displayValues('bibo:doi');
         $licence = $displayValues('dcterms:license');
         $accessRights = $displayValues('dcterms:accessRights', true);
-        $dreId = $displayValues('dre:id');
+        $dreId = $displayValues(ValueReader::DRE_ID);
 
         // A bare DOI string (`10.x/…`, `doi:10.x/…`) is still a resolvable link.
         foreach ($doiValues as $i => $doiValue) {

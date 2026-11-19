@@ -22,6 +22,41 @@
     position: relative;
 }
 
+// Breakpoints — the one ladder ($sm…$xxl, variables/_breakpoints.scss), written
+// in exactly the two forms docs/DESIGN-INTEGRATION.md prescribes: `bp-up` is
+// min-width at the step, `bp-down` its complement one pixel below it (768px /
+// 767px), so an up rule and a down rule never both apply at the step itself.
+// Not range syntax (`width < 768px`): the browserslist floor is Safari 16.2 and
+// range media queries arrived in 16.4.
+@mixin bp-up($step) {
+    @media (min-width: $step) { @content; }
+}
+
+@mixin bp-down($step) {
+    @media (max-width: $step - 1px) { @content; }
+}
+
+// Dark mode, both ways it is chosen: the manual toggle (body[data-theme="dark"])
+// and the system preference when no manual light choice overrides it. Included
+// inside a rule it scopes the dark declarations to that rule's selector; at the
+// root it styles <body> itself. The colour tokens are the exception: they sit on
+// :root (variables/_colors.scss, _tokens.scss) so the root background flips too.
+@mixin dark-mode {
+    @if & {
+        body[data-theme="dark"] & { @content; }
+
+        @media (prefers-color-scheme: dark) {
+            body:not([data-theme="light"]) & { @content; }
+        }
+    } @else {
+        body[data-theme="dark"] { @content; }
+
+        @media (prefers-color-scheme: dark) {
+            body:not([data-theme="light"]) { @content; }
+        }
+    }
+}
+
 @mixin clearfix {
     &::after {
         content: "";

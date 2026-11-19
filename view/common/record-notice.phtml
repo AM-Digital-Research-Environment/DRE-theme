@@ -24,23 +24,11 @@ $escHtml = $this->plugin('escapeHtml');
 $escAttr = $this->plugin('escapeHtmlAttr');
 $translate = $this->plugin('translate');
 
-// A person with a staff page gets it after the name: "Vierke, Ulf (staff page)".
-// The link text repeats per person, so its accessible name says whose page it is.
-$linkList = function (array $links) use ($escHtml, $escAttr, $translate): string {
-    $parts = [];
-    foreach ($links as $link) {
-        $part = $link['href'] !== ''
-            ? '<a href="' . $escAttr($link['href']) . '">' . $escHtml($link['label']) . '</a>'
-            : $escHtml($link['label']);
-        if (!empty($link['staffPage'])) {
-            $part .= ' (<a href="' . $escAttr($link['staffPage']) . '" aria-label="'
-                . $escAttr(sprintf($translate('Staff page of %s'), $link['label'])) . '">'
-                . $escHtml($translate('staff page')) . '</a>)';
-        }
-        $parts[] = $part;
-    }
-    return implode('; ', $parts);
-};
+// People and projects as linked names, staff pages after the people (RecordAccess).
+$linkList = [$this->plugin('RecordAccess'), 'linkList'];
+// Translated sentences around those links: escaped, and safe from a translation
+// that asks for more arguments than the sentence has.
+$formatHtml = $this->plugin('TranslateFormat')->html();
 $leadId = 'record-notice-' . (int) $access['id'];
 ?>
 <?php // A note on the record, not complementary content: as an aside it was a second
@@ -52,9 +40,9 @@ $leadId = 'record-notice-' . (int) $access['id'];
         <?php if ($access['hasMedia']): ?>
             <?php // Some records carry the whole document (Museu Afro-Digital's postcards), others a
                   // label or a frame grab (ILAM, ELTV): never claim the page has nothing, nor everything. ?>
-            <?php echo sprintf($escHtml($translate('It comes from %s. The original material is kept elsewhere: the images or files shown here are copies for reference and may show only part of it.')), $linkList($access['projects'])); ?>
+            <?php echo $formatHtml->translate('It comes from %s. The original material is kept elsewhere: the images or files shown here are copies for reference and may show only part of it.', $linkList($access['projects'])); ?>
         <?php else: ?>
-            <?php echo sprintf($escHtml($translate('It comes from %s and describes material kept elsewhere: AMIRA holds only this description and cannot supply the material itself.')), $linkList($access['projects'])); ?>
+            <?php echo $formatHtml->translate('It comes from %s and describes material kept elsewhere: AMIRA holds only this description and cannot supply the material itself.', $linkList($access['projects'])); ?>
         <?php endif; ?>
     </p>
 </div>

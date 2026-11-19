@@ -198,7 +198,7 @@ if ($userBar) {
 		// General enhancement marker; navigation has its own successful-init gate.
 		document.documentElement.classList.add('js');
 		// Apply the saved theme synchronously, before first paint, to prevent a
-		// flash of the wrong theme. Mirrors getPreferredTheme() in theme-toggle.js.
+		// flash of the wrong theme. The same stored-choice-else-OS rule that theme-toggle.js reads back through DRETokens.isDark().
 		(function () {
 			try {
 				var stored = localStorage.getItem('dre-theme-preference');
@@ -213,14 +213,21 @@ if ($userBar) {
 			} catch (e) {}
 		})();
 		</script>
-		<a id="skipnav" href="#content"><?php echo $this->escapeHtml($this->translate('Skip to main content')); ?></a>
+		<a id="skipnav" href="#site-main"><?php echo $this->escapeHtml($this->translate('Skip to main content')); ?></a>
 
 		<?php echo $this->partial('common/header', ['userBar' => $userBar, 'site' => $site, 'isHome' => $isHome, 'pwaEnabled' => $pwaEnabled]); ?>
 
-		<?php echo $this->partial('common/banner', ['site' => $site, 'isHome' => $isHome]); ?>
+		<?php // The masthead opens <main>: on the home page it carries the <h1> and
+		      // the search field, which outside every landmark the skip link
+		      // jumped past. #content stays the page's own column (its padding,
+		      // `#content > h1`, back-to-top's focus target); the banner is full
+		      // width, so it sits beside that column, not in it. ?>
+		<main id="site-main" tabindex="-1">
+			<?php echo $this->partial('common/banner', ['site' => $site, 'isHome' => $isHome]); ?>
 
-		<main id="content" class="container" tabindex="-1">
-			<?php echo $this->content; ?>
+			<div id="content" class="container" tabindex="-1">
+				<?php echo $this->content; ?>
+			</div>
 		</main>
 
 		<?php echo $this->partial('common/footer', ['site' => $site]); ?>

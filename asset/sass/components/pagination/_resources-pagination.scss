@@ -19,7 +19,7 @@
         flex-shrink: 0;
         gap: var(--space-4);
 
-        @media (min-width: $sm) {
+        @include bp-up($sm) {
             gap: var(--space-6);
         }
     }
@@ -34,7 +34,7 @@
         width: auto;
         border-radius: var(--radius-md);
 
-        @media (min-width: $sm) {
+        @include bp-up($sm) {
             padding: var(--space-3) var(--space-4);
         }
     }
@@ -42,7 +42,7 @@
     input[type=submit] {
         padding: var(--space-3) var(--space-4);
 
-        @media (min-width: $sm) {
+        @include bp-up($sm) {
             padding: var(--space-3) var(--space-6);
         }
     }

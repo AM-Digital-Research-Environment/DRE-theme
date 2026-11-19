@@ -13,49 +13,43 @@
     // ─── Style switcher ─────────────────────────────────────────────────────
     // A roving-tabindex tablist: one tab in the tab order, arrows move between
     // them. Bound per panel so ids stay unambiguous when a page grows a second.
-    document.querySelectorAll('[data-record-citation]').forEach(function (root) {
-        var tabs = Array.prototype.slice.call(root.querySelectorAll('[data-citation-style]'));
-        var panels = Array.prototype.slice.call(root.querySelectorAll('[data-citation-panel]'));
+    document.querySelectorAll('[data-record-citation]').forEach((root) => {
+        const tabs = Array.from(root.querySelectorAll('[data-citation-style]'));
+        const panels = Array.from(root.querySelectorAll('[data-citation-panel]'));
         if (tabs.length < 2) {
             return;
         }
 
         function activate(style, focusTab) {
-            tabs.forEach(function (tab) {
-                var on = tab.getAttribute('data-citation-style') === style;
+            tabs.forEach((tab) => {
+                const on = tab.getAttribute('data-citation-style') === style;
                 tab.setAttribute('aria-selected', on ? 'true' : 'false');
                 tab.tabIndex = on ? 0 : -1;
                 if (on && focusTab) {
                     tab.focus();
                 }
             });
-            panels.forEach(function (panel) {
-                if (panel.getAttribute('data-citation-panel') === style) {
-                    panel.removeAttribute('hidden');
-                } else {
-                    panel.setAttribute('hidden', '');
-                }
+            panels.forEach((panel) => {
+                panel.hidden = panel.getAttribute('data-citation-panel') !== style;
             });
             // Pointer and arrow-key changes alike: the shortlist re-reads the
             // citation the reader is now looking at.
-            root.dispatchEvent(new CustomEvent('dre:citation-style', {bubbles: true, detail: {style: style}}));
+            root.dispatchEvent(new CustomEvent('dre:citation-style', { bubbles: true, detail: { style } }));
         }
 
-        tabs.forEach(function (tab, index) {
-            tab.addEventListener('click', function () {
+        const moves = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1, Home: 'first', End: 'last' };
+
+        tabs.forEach((tab, index) => {
+            tab.addEventListener('click', () => {
                 activate(tab.getAttribute('data-citation-style'), false);
             });
-            tab.addEventListener('keydown', function (event) {
-                var move = event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1
-                    : event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1
-                    : event.key === 'Home' ? 'first'
-                    : event.key === 'End' ? 'last'
-                    : 0;
+            tab.addEventListener('keydown', (event) => {
+                const move = moves[event.key];
                 if (!move) {
                     return;
                 }
                 event.preventDefault();
-                var next = move === 'first' ? 0
+                const next = move === 'first' ? 0
                     : move === 'last' ? tabs.length - 1
                     : (index + move + tabs.length) % tabs.length;
                 activate(tabs[next].getAttribute('data-citation-style'), true);
@@ -68,13 +62,12 @@
     // API actually exists, so a browser that cannot copy never shows a control
     // that does nothing. (The clipboard API is also secure-context only, which
     // is why feature detection — not a user-agent guess — is the gate.)
-    var canCopy = !!(navigator.clipboard && navigator.clipboard.writeText
-        && window.isSecureContext);
+    const canCopy = Boolean(navigator.clipboard?.writeText && window.isSecureContext);
     if (!canCopy) {
         return;
     }
 
-    document.querySelectorAll('[data-record-copy]').forEach(function (wrap) {
+    document.querySelectorAll('[data-record-copy]').forEach((wrap) => {
         wrap.hidden = false;
     });
 
@@ -86,39 +79,29 @@
         if (button.hasAttribute('data-copy-exact')) {
             return button.getAttribute('data-copy-text') || '';
         }
-        var root = button.closest('.record-apparatus');
-        var panel = root && root.querySelector('[data-citation-panel]:not([hidden])');
-        if (panel) {
-            var shown = (panel.textContent || '').replace(/\s+/g, ' ').trim();
-            if (shown) {
-                return shown;
-            }
-        }
-        return button.getAttribute('data-copy-text') || '';
+        const panel = button.closest('.record-apparatus')?.querySelector('[data-citation-panel]:not([hidden])');
+        const shown = panel ? window.DREUtils.normaliseSpace(panel.textContent) : '';
+        return shown || button.getAttribute('data-copy-text') || '';
     }
 
-    document.addEventListener('click', function (event) {
-        // event.target can be a non-Element node (or the document) — guard
+    document.addEventListener('click', (event) => {
+        // event.target can be a non-Element node (or the document): guard
         // rather than let a stray click throw on `.closest`.
-        var target = event.target;
-        if (!target || typeof target.closest !== 'function') {
-            return;
-        }
-        var button = target.closest('.record-apparatus__copy, [data-copy-exact]');
+        const button = event.target?.closest?.('.record-apparatus__copy, [data-copy-exact]');
         if (!button) {
             return;
         }
 
-        var text = textFor(button);
+        const text = textFor(button);
         if (!text) {
             return;
         }
 
-        navigator.clipboard.writeText(text).then(function () {
+        navigator.clipboard.writeText(text).then(() => {
             // Swap the label briefly, and announce it: a silent state change is
             // no confirmation at all for a screen-reader user.
             window.DREUtils.flashLabel(button, button.getAttribute('data-copied-label') || 'Copied', 2000);
-        }).catch(function () {
+        }).catch(() => {
             // A denied clipboard permission is not worth a console error.
         });
     });

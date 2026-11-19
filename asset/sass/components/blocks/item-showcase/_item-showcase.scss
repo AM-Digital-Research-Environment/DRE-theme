@@ -1,14 +1,17 @@
 @use "../../../abstracts" as *;
 
+// No !important here: nothing in the theme or in Omeka 4.2's page-blocks.css
+// styles .item-showcase, so the old shields (borders, centring, image caps)
+// fought rules that no longer exist.
 .item-showcase {
-    border-top: none !important;
-    border-bottom: none !important;
-    gap: 25px;
-    text-align: left !important;
-    margin-bottom: 3rem !important;
+    border-top: none;
+    border-bottom: none;
+    gap: var(--space-6);
+    text-align: left;
+    margin-bottom: var(--space-12);
 
     &__content {
-        padding: 15px;
+        padding: var(--space-4);
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -20,11 +23,11 @@
     }
 
     .resource.item {
-        width: 100% !important;
+        width: 100%;
         max-width: 325px;
         border: 1px dashed $color__gray-80;
         border-radius: var(--radius-lg);
-        padding: 0 !important;
+        padding: 0;
         display: flex;
         flex-direction: column;
 
@@ -32,20 +35,20 @@
             color: $color__headings;
             font-family: $font__body;
             font-weight: 600;
-            margin: 0 0 1rem !important;
-            padding: 0 10px;
+            margin: 0 0 var(--space-4);
+            padding: 0 var(--space-3);
         }
 
         .caption {
-            padding: 0 10px 15px;
+            padding: 0 var(--space-3) var(--space-4);
         }
 
         img {
-            max-height: none !important;
+            max-height: none;
             height: 150px;
-            width: 100% !important;
+            width: 100%;
             object-fit: cover;
-            margin: 10px 0 0 10px;
+            margin: var(--space-3) 0 0 var(--space-3);
         }
     }
 }

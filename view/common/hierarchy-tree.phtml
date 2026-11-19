@@ -9,7 +9,7 @@
         <?php endif; ?>
         <?php if ($node['active']): ?></strong><?php endif; ?>
         <?php if ($node['count']): ?>
-            <span><?php echo $this->escapeHtml(sprintf($this->translatePlural('(%s item)', '(%s items)', $node['count']), $node['count'])); ?></span>
+            <span><?php echo $this->escapeHtml($this->TranslateFormat()->translatePlural('(%s item)', '(%s items)', (int) $node['count'], $this->FormatNumber($node['count']))); ?></span>
         <?php endif; ?>
         <?php if ($node['children']): ?>
             <?php echo $this->partial('common/hierarchy-tree', ['nodes' => $node['children']]); ?>

@@ -24,5 +24,13 @@
             details.querySelector('summary').focus();
         }
     });
-    window.addEventListener('resize', () => document.querySelectorAll('details.annotation-btn[open]').forEach(position));
+    // One reposition per frame, however many resize events the frame brings.
+    let frame = 0;
+    window.addEventListener('resize', () => {
+        if (frame) return;
+        frame = requestAnimationFrame(() => {
+            frame = 0;
+            document.querySelectorAll('details.annotation-btn[open]').forEach(position);
+        });
+    });
 })();

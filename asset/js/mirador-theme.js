@@ -7,7 +7,7 @@
  * viewer, including its Redux `store`, in `window.miradors`. Mirador keeps its
  * active Material-UI theme in that store (`config.selectedTheme`, choosing from
  * `config.themes.{light,dark}`), so we flip it to follow the site's light/dark
- * toggle — the same `body[data-theme]` signal the chart modules watch
+ * toggle, through the same window.DRETokens bridge the chart modules use
  * (DESIGN.md §4, §9).
  *
  * How the flip is dispatched (verified against the live viewer): the module
@@ -23,6 +23,10 @@
  * DESIGN.md §8 "Mirador". This file only switches *which* theme is active, so it
  * stays brand-agnostic and needs no rebuild when the palette is tuned.
  *
+ * Loaded deferred in <head> (resource-page-block-layout/mirador.phtml), after
+ * dre-token-bridge.js and before the body's utils.js, so it uses DRETokens and
+ * not DREUtils.
+ *
  * Fully defensive: every access is guarded, so if the module/global shape ever
  * changes the script simply no-ops and Mirador keeps its configured theme — it
  * never throws into the page.
@@ -31,17 +35,18 @@
     'use strict';
 
     // Mirador's updateConfig action type (stable across Mirador 3 and 4).
-    var UPDATE_CONFIG = 'mirador/UPDATE_CONFIG';
-    var appliedThemes = new WeakMap();
+    const UPDATE_CONFIG = 'mirador/UPDATE_CONFIG';
+    const appliedThemes = new WeakMap();
 
-    function currentTheme() {
-        return document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
-    }
+    const themeOf = (dark) => (dark ? 'dark' : 'light');
+    const currentTheme = () => themeOf(window.DRETokens
+        ? window.DRETokens.isDark()
+        : document.body.getAttribute('data-theme') === 'dark');
 
     // Push the active theme into one viewer instance via its Redux store.
     function applyToViewer(viewer, theme) {
-        var store = viewer && viewer.store;
-        if (!store || typeof store.dispatch !== 'function') {
+        const store = viewer?.store;
+        if (typeof store?.dispatch !== 'function') {
             return;
         }
         if (appliedThemes.get(store) === theme) return;
@@ -54,31 +59,20 @@
     }
 
     function applyToAll(theme) {
-        var map = window.miradors;
-        if (!map) {
-            return;
-        }
-        Object.keys(map).forEach(function (id) {
-            applyToViewer(map[id], theme);
-        });
+        Object.values(window.miradors || {}).forEach((viewer) => applyToViewer(viewer, theme));
     }
 
     // A viewer is ready once the module has reassigned its config object to the
     // Mirador.viewer() return value, which exposes `.store`.
     function viewersReady() {
-        var map = window.miradors;
-        if (!map) {
-            return false;
-        }
-        return Object.keys(map).length > 0 && Object.keys(map).every(function (id) {
-            return map[id] && map[id].store;
-        });
+        const viewers = Object.values(window.miradors || {});
+        return viewers.length > 0 && viewers.every((viewer) => viewer?.store);
     }
 
     // The loader instantiates viewers on window 'load' and Mirador mounts
     // asynchronously, so poll briefly for the store rather than racing it.
-    var tries = 0;
-    var MAX_TRIES = 100; // ~15s at 150ms
+    let tries = 0;
+    const MAX_TRIES = 100; // ~15s at 150ms
     function syncWhenReady() {
         applyToAll(currentTheme());
         if (!viewersReady() && tries++ < MAX_TRIES) {
@@ -86,12 +80,8 @@
         }
     }
 
-    // Follow later light/dark toggles — the same signal the chart modules watch.
-    if (typeof MutationObserver === 'function') {
-        new MutationObserver(function () {
-            applyToAll(currentTheme());
-        }).observe(document.body, { attributes: true, attributeFilter: ['data-theme'] });
-    }
+    // Follow later light/dark toggles.
+    window.DRETokens?.onThemeChange((dark) => applyToAll(themeOf(dark)));
 
     if (document.readyState === 'complete') {
         syncWhenReady();

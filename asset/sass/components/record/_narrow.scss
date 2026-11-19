@@ -1,0 +1,33 @@
+@use "../../abstracts" as *;
+
+// ==========================================================================
+// Narrow contexts — the rail's own blocks, the legacy sidebar regions, and any
+// grouped record rendered inside them. A label rail would crush the values at
+// these widths, so rows stack and prose drops back to the UI measure.
+// ==========================================================================
+.item-record__rail,
+.sidebar-region {
+    .record__group {
+        margin-bottom: var(--space-8);
+    }
+
+    .record__group--rows .record__list > .property,
+    .metadata dl.item-sets > .property,
+    .metadata dl.media-list > .property {
+        display: block;
+
+        dt {
+            margin-bottom: var(--space-1);
+        }
+    }
+
+    .record__group--prose {
+        max-width: none;
+
+        dd {
+            font-family: var(--font-body);
+            font-size: var(--text-sm);
+            line-height: var(--leading-normal);
+        }
+    }
+}

@@ -3,19 +3,16 @@
 .toc-block {
 
     > ul {
-        border-left: none !important;
 
         > li {
-            margin-bottom: 2rem !important;
 
             &:before {
                 @include svg-icon($icon-chevron-right, 0.75rem, $color__primary);
                 margin-right: 15px;
                 vertical-align: 0.02em;
             }
-        
+
             > a {
-                font-weight: 600 !important;
                 font-size: 1.125rem;
                 margin-bottom: 0.5rem;
                 display: inline-block;
@@ -32,10 +29,26 @@
                     margin-right: 15px;
                     vertical-align: 0.25em;
                 }
-    
+
             }
         }
-        
+
     }
-    
+
+}
+
+// Omeka's page-blocks.css loads after the theme and styles the same list at the
+// same specificity (a 5px grey left rule, 0.5rem rows, bold links). The block's
+// own wrapper class (Omeka renders it as `.block.block-tableOfContents`) lifts
+// these three overrides above it without !important.
+.block-tableOfContents .toc-block > ul {
+    border-left: none;
+
+    > li {
+        margin-bottom: 2rem;
+
+        > a {
+            font-weight: 600;
+        }
+    }
 }

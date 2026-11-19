@@ -45,7 +45,7 @@
         gap: 40px;
         padding: 20px;
 
-        @media (min-width: $md) {
+        @include bp-up($md) {
             align-items: flex-start;
             flex-direction: row;
             flex-wrap: nowrap;
@@ -62,15 +62,15 @@
             outline-offset: -10px;
         }
 
-        @media (min-width: $md) {
+        @include bp-up($md) {
             max-width: 150px;
         }
 
-        @media (min-width: $lg) {
+        @include bp-up($lg) {
             max-width: 250px;
         }
 
-        @media (min-width: $xl) {
+        @include bp-up($xl) {
             max-width: 370px;
 
             img {

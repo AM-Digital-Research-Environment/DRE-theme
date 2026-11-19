@@ -8,11 +8,10 @@
  * The theme has no PHP dependencies and should not grow one just to be testable
  * — `php tests/*.php` is the whole toolchain.
  *
- * This is the PHP counterpart to scripts/check-resource-groups.mjs. The Node
- * check reads the map as DATA (it must run where there is no PHP); this one
- * executes the real class, so it also covers the matching LOGIC — exact-beats-
- * prefix, ordering, the fallback bucket — which a regex over the source cannot
- * see.
+ * It executes the real class against the live template fixtures, so it covers
+ * the map (every property and every term on a sample record is placed, each
+ * group's layout is one the template renders) and the matching LOGIC (exact-
+ * beats-prefix, ordering, the fallback bucket) together.
  *
  * The shared test bootstrap supplies the minimal AbstractHelper stand-in used
  * by dependency-free suites and turns PHP warnings/deprecations into failures.
@@ -72,6 +71,26 @@ check(
     ($chronicles['template']['propertyCount'] ?? 0) > 0 && $uncovered === [],
     implode(', ', $uncovered)
 );
+// A real record of each template: every term it carries is placed.
+foreach (['Research Items' => $fixture, 'Cluster Chronicles' => $chronicles] as $label => $data) {
+    $sample = $data['sampleItem'] ?? [];
+    $unplaced = array_values(array_filter($sample['terms'] ?? [], fn ($term) => null === ResourceGroups::groupKeyFor($term)));
+    check(
+        "every term on the sample {$label} record is placed in a named group",
+        !empty($sample['terms']) && $unplaced === [],
+        'item ' . ($sample['id'] ?? '?') . ' carries ' . implode(', ', $unplaced)
+    );
+}
+
+// Each group declares a layout common/resource-values.phtml can render.
+$badLayouts = [];
+foreach (ResourceGroups::groups() as $group) {
+    if (!in_array($group['layout'], [ResourceGroups::LAYOUT_PROSE, ResourceGroups::LAYOUT_CHIPS, ResourceGroups::LAYOUT_ROWS], true)) {
+        $badLayouts[] = $group['key'] . ' (' . $group['layout'] . ')';
+    }
+}
+check("every group's layout is prose, chips or rows", $badLayouts === [], implode(', ', $badLayouts));
+
 check('the series number groups with its series', ResourceGroups::groupKeyFor('bibo:number') === 'origins');
 check('who a picture depicts groups with the people', ResourceGroups::groupKeyFor('foaf:depicts') === 'people');
 

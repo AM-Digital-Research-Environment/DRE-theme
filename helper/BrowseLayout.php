@@ -23,7 +23,7 @@ use Laminas\View\Helper\AbstractHelper;
  * The toggle marks the active view with aria-pressed (common/browse-layout-toggle
  * and browse.js); both buttons stay enabled so keyboard focus survives a switch.
  */
-class BrowseLayout extends AbstractHelper
+final class BrowseLayout extends AbstractHelper
 {
     /** @return array{setting: string, isGrid: bool, hasToggle: bool, bodyTerm: string|null, truncate: string} */
     public function __invoke(): array

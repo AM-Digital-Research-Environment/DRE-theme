@@ -4,7 +4,7 @@ namespace OmekaTheme\Helper;
 use Laminas\View\Helper\AbstractHelper;
 
 /** Validated state shared by the record page and Omeka's terminal endpoint. */
-class ConnectionQuery extends AbstractHelper
+final class ConnectionQuery extends AbstractHelper
 {
     /**
      * Omeka 4.2.1: type:property[-templatePropertyIds]; zero means no template.

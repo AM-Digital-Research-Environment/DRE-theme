@@ -127,10 +127,15 @@ try {
     dre_check($failures, $checks, 'an unsaved masthead setting serves the bold brand (tracks theme.ini)',
         ($view->elements['body']->attributes['data-brand'] ?? null) === 'bold');
     dre_check($failures, $checks, 'the default brand seed is Uni-Grün', str_contains($html, '--primary-base: #009260;'));
+    $skipTarget = ltrim((string) $xpath->query('//a[@id="skipnav"]/@href')->item(0)?->nodeValue, '#');
     dre_check($failures, $checks, 'the skip link precedes the header and targets main',
-        strpos($html, 'id="skipnav"') < strpos($html, 'class="main-header"') && $xpath->query('//main[@id="content"]')->length === 1);
-    dre_check($failures, $checks, 'the page content renders inside main',
-        str_contains($xpath->query('//main[@id="content"]')->item(0)?->textContent ?? '', 'Page content'));
+        strpos($html, 'id="skipnav"') < strpos($html, 'class="main-header"')
+        && $skipTarget !== '' && $xpath->query('//main[@id="' . $skipTarget . '"]')->length === 1);
+    dre_check($failures, $checks, 'the page content renders in #content, inside main',
+        str_contains($xpath->query('//main//*[@id="content"]')->item(0)?->textContent ?? '', 'Page content'));
+    dre_check($failures, $checks, 'the masthead is inside main, before the content, so the skip link reaches it',
+        $xpath->query('//main/*[contains(@class, "site-banner")]/following-sibling::*[@id="content"]')->length === 1
+        && $xpath->query('//*[contains(@class, "site-banner")][not(ancestor::main)]')->length === 0);
     $scripts = $view->inline->files;
     dre_check($failures, $checks, 'utils.js runs before every other theme script',
         str_contains($scripts[0] ?? '', 'js/dist/utils.min.js'), implode(', ', $scripts));

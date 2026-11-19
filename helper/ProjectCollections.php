@@ -26,7 +26,7 @@ require_once __DIR__ . '/ValueReader.php';
  * pins no Omeka ids. isProject() and projectsOf() are the theme's one rule for
  * that (RecordAccess asks them too). Everything degrades to "no project" / [] / 0.
  */
-class ProjectCollections extends AbstractHelper
+final class ProjectCollections extends AbstractHelper
 {
     private const PROJECT_CLASS = 'foaf:Project';
     /**
@@ -65,7 +65,7 @@ class ProjectCollections extends AbstractHelper
     public static function projectsOf($resource): array
     {
         $projects = [];
-        foreach (ValueReader::values($resource, 'dcterms:isPartOf', ['type' => self::LINK_TYPES]) as $value) {
+        foreach (ValueReader::values($resource, ValueReader::IS_PART_OF, ['type' => self::LINK_TYPES]) as $value) {
             try {
                 $linked = $value->valueResource();
                 if (self::isProject($linked)) {
@@ -91,12 +91,12 @@ class ProjectCollections extends AbstractHelper
             if ($projects) {
                 return $projects[0];
             }
-            $code = ValueReader::firstLiteral($itemSet, 'dre:id');
+            $code = ValueReader::firstLiteral($itemSet, ValueReader::DRE_ID);
             if ($code === '') {
                 return null;
             }
             $items = $this->getView()->api()->search('items', [
-                'property' => [self::eq('dre:id', $code)],
+                'property' => [self::eq(ValueReader::DRE_ID, $code)],
                 'limit' => 5,
             ])->getContent();
             foreach ($items ?: [] as $item) {
@@ -122,12 +122,12 @@ class ProjectCollections extends AbstractHelper
         $sets = [];
         try {
             $api = $this->getView()->api();
-            foreach ($api->search('item_sets', ['property' => [self::res('dcterms:isPartOf', (int) $project->id())]])->getContent() ?: [] as $set) {
+            foreach ($api->search('item_sets', ['property' => [self::res(ValueReader::IS_PART_OF, (int) $project->id())]])->getContent() ?: [] as $set) {
                 $sets[(int) $set->id()] = $set;
             }
-            $code = ValueReader::firstLiteral($project, 'dre:id');
+            $code = ValueReader::firstLiteral($project, ValueReader::DRE_ID);
             if ($code !== '') {
-                foreach ($api->search('item_sets', ['property' => [self::eq('dre:id', $code)]])->getContent() ?: [] as $set) {
+                foreach ($api->search('item_sets', ['property' => [self::eq(ValueReader::DRE_ID, $code)]])->getContent() ?: [] as $set) {
                     $sets[(int) $set->id()] ??= $set;
                 }
             }
@@ -146,7 +146,7 @@ class ProjectCollections extends AbstractHelper
     {
         try {
             return (int) $this->getView()->api()->search('items', [
-                'property' => [self::res('dcterms:isPartOf', (int) $project->id())],
+                'property' => [self::res(ValueReader::IS_PART_OF, (int) $project->id())],
                 'limit' => 1,
             ])->getTotalResults();
         } catch (\Throwable $e) {
@@ -173,7 +173,7 @@ class ProjectCollections extends AbstractHelper
                 return $url;
             }
             return (string) $view->url('site/resource', ['controller' => 'item', 'action' => 'browse'], [
-                'query' => ['property' => [self::res('dcterms:isPartOf', (int) $project->id())]],
+                'query' => ['property' => [self::res(ValueReader::IS_PART_OF, (int) $project->id())]],
             ], true);
         } catch (\Throwable $e) {
             return '';

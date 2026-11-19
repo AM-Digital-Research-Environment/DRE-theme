@@ -34,7 +34,7 @@ $institutions = [
             <a href="<?php echo $escAttr($org['url']); ?>"
                 target="_blank" rel="noopener noreferrer"
                 aria-label="<?php echo $escAttr($translate($org['name'])); ?>">
-                <img src="<?php echo $this->assetUrl('img/' . $org['file']); ?>"
+                <img src="<?php echo $escAttr($this->assetUrl('img/' . $org['file'])); ?>"
                     alt="<?php echo $escAttr($translate($org['name'])); ?>"
                     width="<?php echo $org['width']; ?>" height="<?php echo $org['height']; ?>"
                     loading="lazy" decoding="async" />

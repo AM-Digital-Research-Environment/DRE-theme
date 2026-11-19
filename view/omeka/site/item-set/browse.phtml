@@ -19,13 +19,24 @@ $bodyTruncate = $layout['truncate'];
 
 <div class="browse-controls">
     <?php echo $this->partial('common/browse-layout-toggle', ['layout' => $layout]); ?>
-    <?php echo $this->browse()->renderSortSelector('item_sets'); ?>
+    <?php // The visitor's sorts, curated as on the items list (BrowseSort). ?>
+    <?php echo $this->plugin('BrowseSort')->selector('item_sets'); ?>
     <div class="collection-search-container">
         <?php echo $this->hyperlink($translate('Search the collection'), $this->DreSearchUrl(), ['class' => 'collection-search']); ?>
     </div>
 </div>
 
 <?php $this->trigger('view.browse.before'); ?>
+
+<?php if (!count($itemSets)): ?>
+    <?php $fulltext = $this->params()->fromQuery('fulltext_search'); ?>
+    <?php echo $this->partial('common/search-empty', [
+        'searched' => is_string($fulltext) && trim($fulltext) !== '',
+        'lead' => $translate('No item sets match the current filters.'),
+        'browseController' => 'item-set',
+        'browseLabel' => $translate('Browse all item sets'),
+    ]); ?>
+<?php else: ?>
 
 <div class="resources <?php echo ($isGrid) ? 'resource-grid' : 'resource-list'; ?>">
     <div class="grid-sizer"></div>
@@ -39,6 +50,8 @@ $bodyTruncate = $layout['truncate'];
     endforeach; ?>
 
 </div>
+
+<?php endif; ?>
 
 <?php $this->trigger('view.browse.after'); ?>
 

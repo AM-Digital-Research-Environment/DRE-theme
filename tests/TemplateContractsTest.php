@@ -31,10 +31,10 @@ dre_check($failures, $checks, 'resource language and class attributes use attrib
     str_contains($values, '$escapeAttr(implode') && str_contains($values, '$escapeAttr($valueLang)'));
 
 $mirador = $read('view/common/resource-page-block-layout/mirador.phtml');
-dre_check($failures, $checks, 'Mirador has an application boundary inside the record document',
-    str_contains($mirador, 'role="application"')
+dre_check($failures, $checks, 'Mirador is a named region inside the record document, not an application',
+    str_contains($mirador, 'role="region"') && !str_contains($mirador, 'role="application"')
         && str_contains($mirador, "translate('Image viewer')"));
-dre_check($failures, $checks, 'the Mirador application boundary has an escaped accessible name',
+dre_check($failures, $checks, 'the Mirador region has an escaped accessible name',
     str_contains($mirador, 'escapeHtmlAttr($viewerLabel)'));
 
 // How the apparatus reads a linked, repeated or URI value (the rail once

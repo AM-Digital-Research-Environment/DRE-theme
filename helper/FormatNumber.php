@@ -15,7 +15,7 @@ use Laminas\View\Helper\AbstractHelper;
  * statement each had their own copy of this; one of them used number_format()
  * alone.
  */
-class FormatNumber extends AbstractHelper
+final class FormatNumber extends AbstractHelper
 {
     /** @param int|float|string|null $value */
     public function __invoke($value): string

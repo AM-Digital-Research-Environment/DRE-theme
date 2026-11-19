@@ -34,7 +34,7 @@ use Laminas\View\Helper\AbstractHelper;
  *
  * Returns a list of ['k' => key, 'l' => label, 'n' => value, 's' => subtitle].
  */
-class CollectionStats extends AbstractHelper
+final class CollectionStats extends AbstractHelper
 {
     /** Cache lifetime in seconds. */
     private const TTL = 3600;
@@ -48,13 +48,86 @@ class CollectionStats extends AbstractHelper
      * v9: snapshots must match the requested site scope exactly.
      * v10: API-fallback Publications counts the Publications item set, not template labels.
      * v11: added Cluster Chronicles (item set 50105, the writers-in-residence works).
+     *
+     * The key is `dre_stats_v{N}_{site}`, as it always was, so a live v11
+     * cache stays valid; pruneLegacyKeys() derives the versions to delete.
      */
-    private const CACHE_VERSION = 'v11';
+    private const CACHE_VERSION = 11;
+    /** The oldest stats key still worth deleting. */
+    private const FIRST_PRUNED_VERSION = 3;
+    /** The API fallback's item-set map, `dre_stats_set_ids_v{N}`: bump with its title list. */
+    private const SET_IDS_VERSION = 3;
+
+    /**
+     * The metrics, in DRESearch's CorpusCounts::METRICS order, so the masthead
+     * does not silently reshuffle when an install gains or loses DRESearch:
+     * the label shown for each key, and where the API fallback counts it, by
+     * resource template label or by public item-set title.
+     *
+     * Resource Types was dropped after 2.24: every other row answers "how much
+     * of X does the collection hold" and links to an authority page, but Type
+     * of Resource describes the other records rather than being a corpus of its
+     * own, and it is the one key the masthead has no route for.
+     *
+     * Publications is the Publications item set, as in DRESearch, never a sum
+     * of template labels. The publication templates grow with every new
+     * upstream type, and the set is also curated: records detached from it
+     * keep their publication template, so a label sum both missed new types
+     * and counted removed records.
+     */
+    private const METRICS = [
+        'researchItems' => [
+            'template' => 'Research Items',
+            'label' => 'Research items', // @translate
+        ],
+        'projects' => [
+            'template' => 'Projects',
+            'label' => 'Projects', // @translate
+        ],
+        'people' => [
+            'template' => 'Persons',
+            'label' => 'People', // @translate
+        ],
+        'organisations' => [
+            'template' => 'Organisation',
+            'label' => 'Organisations', // @translate
+        ],
+        'locations' => [
+            'template' => 'Location',
+            'label' => 'Locations', // @translate
+        ],
+        'languages' => [
+            'set' => 'Languages',
+            'label' => 'Languages', // @translate
+        ],
+        'subjectsTags' => [
+            'set' => 'Subjects',
+            'label' => 'Subjects & tags', // @translate
+        ],
+        'publications' => [
+            'set' => 'Publications',
+            'label' => 'Publications', // @translate
+        ],
+        'podcasts' => [
+            'set' => 'Podcasts',
+            'label' => 'Podcasts', // @translate
+        ],
+        'youtube' => [
+            'set' => 'YouTube videos',
+            'label' => 'YouTube videos', // @translate
+        ],
+        // The Cluster's writers in residence (2021–): essays, poems,
+        // photographs and events, one record per work, in item set 50105.
+        'clusterChronicles' => [
+            'set' => 'Cluster Chronicles',
+            'label' => 'Cluster Chronicles', // @translate
+        ],
+    ];
 
     /** @return array<array<string, mixed>> */
     public function __invoke(?int $siteId = null): array
     {
-        $cacheKey = sprintf('dre_stats_%s_%s', self::CACHE_VERSION, $siteId ?: 'x');
+        $cacheKey = self::statsKey(self::CACHE_VERSION, $siteId);
 
         $cached = $this->readCache($cacheKey);
         if (null !== $cached) {
@@ -130,10 +203,17 @@ class CollectionStats extends AbstractHelper
         } catch (\Throwable $ignored) { /* Diagnostics must not prevent rendering. */ }
     }
 
+    /** `dre_stats_v11_3`, or `dre_stats_v11_x` with no site. */
+    private static function statsKey(int $version, ?int $siteId): string
+    {
+        return sprintf('dre_stats_v%d_%s', $version, $siteId ?: 'x');
+    }
+
     /**
      * Delete what earlier theme versions cached for this site: the stats keys
-     * of CACHE_VERSION v3–v10 and their retry markers, the earlier item-set
-     * maps and the per-stage warning markers (now IntegrationWarning's one row).
+     * of every CACHE_VERSION before the current one and their retry markers,
+     * the earlier item-set maps and the per-stage warning markers (now
+     * IntegrationWarning's one row).
      */
     private function pruneLegacyKeys(?int $siteId): void
     {
@@ -141,9 +221,12 @@ class CollectionStats extends AbstractHelper
         if (!$settings) {
             return;
         }
-        $keys = ['dre_stats_set_ids_v1', 'dre_stats_set_ids_v2', 'dre_stats_warning_search-counts', 'dre_stats_warning_api-counts'];
-        for ($version = 3; $version <= 10; $version++) {
-            $key = sprintf('dre_stats_v%d_%s', $version, $siteId ?: 'x');
+        $keys = ['dre_stats_warning_search-counts', 'dre_stats_warning_api-counts'];
+        for ($version = 1; $version < self::SET_IDS_VERSION; $version++) {
+            $keys[] = 'dre_stats_set_ids_v' . $version;
+        }
+        for ($version = self::FIRST_PRUNED_VERSION; $version < self::CACHE_VERSION; $version++) {
+            $key = self::statsKey($version, $siteId);
             $keys[] = $key;
             $keys[] = $key . '_retry';
         }
@@ -181,21 +264,8 @@ class CollectionStats extends AbstractHelper
     private function localize(array $stats): array
     {
         $translate = $this->getView()->plugin('translate');
-        $labels = [
-            'researchItems' => $translate('Research items'),
-            'projects' => $translate('Projects'),
-            'people' => $translate('People'),
-            'organisations' => $translate('Organisations'),
-            'locations' => $translate('Locations'),
-            'languages' => $translate('Languages'),
-            'subjectsTags' => $translate('Subjects & tags'),
-            'publications' => $translate('Publications'),
-            'podcasts' => $translate('Podcasts'),
-            'youtube' => $translate('YouTube videos'),
-            'clusterChronicles' => $translate('Cluster Chronicles'),
-        ];
         foreach ($stats as &$stat) {
-            $stat['l'] = $labels[$stat['k'] ?? ''] ?? $translate((string) ($stat['l'] ?? ''));
+            $stat['l'] = $translate((string) (self::METRICS[$stat['k'] ?? '']['label'] ?? $stat['l'] ?? ''));
         }
         unset($stat);
         return $stats;
@@ -267,13 +337,14 @@ class CollectionStats extends AbstractHelper
 
 
             // Exact template-label predicates avoid hydrating the template catalogue.
-            // Resolve only the six public item-set titles needed by this fallback.
+            // Resolve only the public item-set titles METRICS counts by set.
             // The key is versioned with that title list: a mapping cached before a
             // title was added would count it as 0 until the entry expired.
-            $setId = $this->readCache('dre_stats_set_ids_v3', 86400);
+            $setIdsKey = 'dre_stats_set_ids_v' . self::SET_IDS_VERSION;
+            $setId = $this->readCache($setIdsKey, 86400);
             if (null === $setId) {
                 $setId = [];
-                foreach (['Languages', 'Subjects', 'Publications', 'Podcasts', 'YouTube videos', 'Cluster Chronicles'] as $title) {
+                foreach (array_column(self::METRICS, 'set') as $title) {
                     $setId[$title] = [];
                     $page = 1;
                     do {
@@ -290,7 +361,7 @@ class CollectionStats extends AbstractHelper
                         ++$page;
                     } while ($sets && ($page - 1) * 100 < $response->getTotalResults());
                 }
-                $this->writeCache('dre_stats_set_ids_v3', $setId);
+                $this->writeCache($setIdsKey, $setId);
             }
 
             $total = function (array $query) use ($api, $siteId) {
@@ -321,36 +392,11 @@ class CollectionStats extends AbstractHelper
                 return $n;
             };
 
-            // Same metrics, same ORDER as DRESearch's CorpusCounts::METRICS, so
-            // the masthead does not silently reshuffle when an install gains or
-            // loses DRESearch.
-            //
-            // Resource Types was dropped after 2.24: every other row answers
-            // "how much of X does the collection hold" and links to an authority
-            // page, but Type of Resource describes the other records rather than
-            // being a corpus of its own — and it is the one key the masthead has
-            // no route for, so it was the single dead row in the catalogue.
-            //
-            // Publications is the Publications item set, as in DRESearch, never
-            // a sum of template labels. The publication templates grow with
-            // every new upstream type, and the set is also curated: records
-            // detached from it keep their publication template, so a label sum
-            // both missed new types and counted removed records.
-            $stats = [
-                ['k' => 'researchItems', 'l' => 'Research items',  'n' => $byTemplate('Research Items'), 's' => ''],
-                ['k' => 'projects',      'l' => 'Projects',        'n' => $byTemplate('Projects'),       's' => ''],
-                ['k' => 'people',        'l' => 'People',          'n' => $byTemplate('Persons'),        's' => ''],
-                ['k' => 'organisations', 'l' => 'Organisations',   'n' => $byTemplate('Organisation'),   's' => ''],
-                ['k' => 'locations',     'l' => 'Locations',       'n' => $byTemplate('Location'),       's' => ''],
-                ['k' => 'languages',     'l' => 'Languages',       'n' => $bySet('Languages'),           's' => ''],
-                ['k' => 'subjectsTags',  'l' => 'Subjects & tags', 'n' => $bySet('Subjects'),            's' => ''],
-                ['k' => 'publications',  'l' => 'Publications',    'n' => $bySet('Publications'),        's' => ''],
-                ['k' => 'podcasts',      'l' => 'Podcasts',        'n' => $bySet('Podcasts'),            's' => ''],
-                ['k' => 'youtube',       'l' => 'YouTube videos',  'n' => $bySet('YouTube videos'),      's' => ''],
-                // The Cluster's writers in residence (2021–): essays, poems,
-                // photographs and events, one record per work, in item set 50105.
-                ['k' => 'clusterChronicles', 'l' => 'Cluster Chronicles', 'n' => $bySet('Cluster Chronicles'), 's' => ''],
-            ];
+            $stats = [];
+            foreach (self::METRICS as $key => $metric) {
+                $n = isset($metric['set']) ? $bySet($metric['set']) : $byTemplate($metric['template']);
+                $stats[] = ['k' => $key, 'l' => $metric['label'], 'n' => $n, 's' => ''];
+            }
             if ($nothing) {
                 $this->reportFailure('api-counts empty', new \UnderflowException('No records'),
                     'the fallback found no public records for ' . implode(', ', $nothing) . '; was a template or item set renamed?');

@@ -44,6 +44,42 @@ test('failed connections preserve results, provide a real continuation and retry
     w.history.replaceState(null,'','?lr_q=Beta');w.dispatchEvent(new w.PopStateEvent('popstate'));await tick();
     assert.equal(calls,3);w.close();
 });
+test('a connection block without its status line or recovery link still loads, and a loaded block never reads as failed', async () => {
+    const d = dom(`<div data-connection-endpoint="/index/linked-resources/1" data-loading="Loading" data-failed="Failed">
+        <details class="resources-linked"><summary>Connections</summary><a data-connection-page href="?lr_page=2#linked-resources">Next</a></details></div>`);
+    const w = d.window;
+    // A response without the summary line the status normally repeats.
+    w.fetch = async () => ({ok: true, text: async () => '<details class="resources-linked"><p>Page two</p></details>'});
+    w.eval(source('utils.js')); w.eval(source('linked-resources.js'));
+    const errors = [];
+    w.addEventListener('error', event => errors.push(event.error));
+    w.document.querySelector('[data-connection-page]').click(); await tick();
+    assert.deepEqual(errors, []);
+    assert.match(w.document.body.textContent, /Page two/);
+    assert.equal(new URL(w.location.href).searchParams.get('lr_page'), '2');
+    assert.equal(w.document.querySelector('[aria-busy]'), null);
+
+    // And with the status line present, the missing summary leaves it empty, not "Failed".
+    const e = connectionFixture(), x = e.window;
+    x.fetch = async () => ({ok: true, text: async () => '<details class="resources-linked"><p>Page two</p></details>'});
+    x.eval(source('utils.js')); x.eval(source('linked-resources.js'));
+    x.document.querySelector('[data-connection-page]').click(); await tick();
+    assert.equal(x.document.querySelector('[data-connection-status]').textContent, '');
+    assert.equal(x.document.querySelector('[data-connection-recovery]').hidden, true);
+    w.close(); x.close();
+});
+test('modified clicks on connection pages stay the browser’s', () => {
+    const d = connectionFixture(), w = d.window;
+    let calls = 0;
+    w.fetch = async () => { calls++; return {ok: true, text: async () => result('Two')}; };
+    w.eval(source('utils.js')); w.eval(source('linked-resources.js'));
+    const page = w.document.querySelector('[data-connection-page]');
+    for (const init of [{ctrlKey: true}, {metaKey: true}, {shiftKey: true}, {button: 1}]) {
+        assert.equal(page.dispatchEvent(new w.MouseEvent('click', {bubbles: true, cancelable: true, ...init})), true, JSON.stringify(init));
+    }
+    assert.equal(calls, 0);
+    w.close();
+});
 function shortlistFixture() {
     const d=dom(`<button data-shortlist-open hidden>Shortlist <span data-shortlist-count></span></button><button data-shortlist-save data-url="/item/2" data-title="Record &lt;two&gt;" hidden>Save</button>
     <dialog data-shortlist-dialog data-save="Save" data-saved="Saved" data-remove="Remove" data-empty="Empty" data-storage-error="Storage unavailable" data-limit="Full"><button>Close</button><p data-shortlist-status></p><ul data-shortlist-list></ul><select data-shortlist-format><option value="json">JSON</option></select><button data-shortlist-export>Export</button><button data-shortlist-clear>Clear</button><button data-shortlist-undo>Undo</button></dialog>`);

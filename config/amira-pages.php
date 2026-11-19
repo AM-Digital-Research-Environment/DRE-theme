@@ -2,9 +2,10 @@
 /**
  * The AMIRA site's page slugs, and the copy the theme attaches to them.
  *
- * Read by view/common/nav-menu.phtml (the main menu's section intros and
- * child descriptions) and view/common/banner.phtml (which page each
- * collection count links to), and by the tests: the PHP suites include this
+ * Read once per request by helper/SiteChrome.php, for view/common/nav-menu.phtml
+ * (the main menu's section intros and child descriptions) and
+ * view/common/banner.phtml (which page each collection count links to), and by
+ * the tests: the PHP suites include this
  * file, and the production smoke inventory (tests/browser/surfaces.mjs) builds
  * its page paths through scripts/lib/amira-pages.mjs, which reads it as text.
  * So keep the format: one `'slug' => "Copy",` or `'key' => 'slug',` pair per

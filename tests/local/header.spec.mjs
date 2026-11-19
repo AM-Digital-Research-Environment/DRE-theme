@@ -52,6 +52,8 @@ test('navigation remains usable with all JavaScript disabled', async ({browser})
     await context.close();
 });
 test('mobile drawer survives scrolling and resize, supports deep links, and releases focus at desktop', async ({page}) => {
+    // A fake clock steps the resize debounce instead of sleeping through it.
+    await page.clock.install();
     await fixture(page, 390);
     await page.addScriptTag({path: themeScript('shortlist')});
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
@@ -61,14 +63,22 @@ test('mobile drawer survives scrolling and resize, supports deep links, and rele
     await page.getByRole('navigation', {name:'Mobile navigation'}).getByRole('link',{name:'Projects',exact:true}).click();
     await expect(page.getByRole('navigation', {name:'Mobile navigation'}).getByRole('link',{name:'Project archive',exact:true})).toBeVisible();
     await page.setViewportSize({width:390,height:750});
-    await page.waitForTimeout(180);
+    await page.clock.runFor(200);
     await expect(page.locator('.main-navigation__toggle')).toHaveAttribute('aria-expanded','true');
     await page.keyboard.press('Escape');
     await expect(toggle).toBeFocused();
     await page.evaluate(() => scrollTo(0,400));
-    await expect(page.locator('.main-header')).toHaveCSS('top','0px');
+    await page.clock.runFor(50);
+    await expect(page.locator('.main-header')).not.toHaveClass(/is-scrolled-away/);
     await toggle.click();
+    // The drawer parks below the measured header, which script.js writes as --header-height.
+    await expect.poll(() => page.evaluate(() => {
+        const header = document.querySelector('.main-header').getBoundingClientRect();
+        const drawer = document.getElementById('menu-drawer').getBoundingClientRect();
+        return Math.abs(drawer.top - header.bottom) <= 1;
+    })).toBe(true);
     await page.setViewportSize({width:1280,height:850});
+    await page.clock.runFor(200);
     await expect(page.locator('.main-header')).toHaveAttribute('data-nav','inline');
     await expect(page.locator('.main-navigation a').first()).toBeFocused();
     await expect(page.locator('#menu-drawer')).toHaveAttribute('inert','');
@@ -138,11 +148,53 @@ test('desktop overflow switches to a usable drawer', async ({page}) => {
 });
 
 test('a wide menu remains in drawer mode when crossing the desktop breakpoint', async ({page}) => {
+    await page.clock.install();
     await fixture(page,390,false);
     await page.locator('.main-navigation .navigation > li > a').evaluateAll(links => links.forEach(link => { link.textContent = 'Long section name '.repeat(12); }));
     await page.addScriptTag({path: themeScript('navigation')});
     await page.setViewportSize({width:1280,height:850});
-    await page.waitForTimeout(180);
+    // Past the resize debounce, so the assertion sees the re-classified mode.
+    await page.clock.runFor(200);
     await expect(page.locator('.main-header')).toHaveAttribute('data-nav','drawer');
     await expect(page.getByRole('button',{name:'Open menu',exact:true})).toBeVisible();
+});
+
+test('desktop panels open from the caret or the pointer, and Escape dismisses a hovered one', async ({page}) => {
+    await fixture(page, 1280);
+    const item = page.locator('.main-navigation .navigation > li.menu-item-has-children').first();
+    const panel = item.locator('.nav-panel');
+    const link = item.getByRole('link', {name: 'Research', exact: true});
+    await expect(link).not.toHaveAttribute('aria-expanded', /.*/);
+
+    // Tab onto the parent link: its panel stays shut.
+    await link.focus();
+    await expect(panel).toBeHidden();
+    // The caret is the keyboard's way in.
+    const caret = item.locator('.submenu-btn');
+    await caret.focus();
+    await page.keyboard.press('Enter');
+    await expect(caret).toHaveAttribute('aria-expanded', 'true');
+    await expect(panel).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(panel).toBeHidden();
+
+    // Hover opens it; Escape hides it with the pointer still over it (WCAG 1.4.13).
+    await expect(caret).toBeFocused();
+    await link.hover();
+    await expect(panel).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(panel).toBeHidden();
+    await expect(item).not.toHaveClass(/\bopen\b/);
+});
+
+test('the measured header height feeds the anchor offset', async ({page}) => {
+    await fixture(page, 1280);
+    await expect.poll(() => page.evaluate(() => {
+        const height = Math.round(document.querySelector('.main-header').getBoundingClientRect().height);
+        return document.documentElement.style.getPropertyValue('--header-height') === height + 'px';
+    })).toBe(true);
+    expect(await page.evaluate(() => document.documentElement.style.scrollPaddingTop)).toBe('');
+    const offset = await page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop));
+    const header = await page.evaluate(() => document.querySelector('.main-header').getBoundingClientRect().height);
+    expect(offset).toBeGreaterThan(header);
 });

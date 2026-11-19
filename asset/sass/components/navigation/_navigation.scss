@@ -1,6 +1,6 @@
 @use "../../abstracts" as *;
 
-// data-nav (set before first paint by the inline script in common/header.phtml)
+// data-nav (set before first paint by asset/js/nav-mode.js, inlined in the header)
 // selects inline or drawer mode at every viewport width. The expanded no-JS
 // list is the fallback only without a working script (components/header).
 .main-navigation {
@@ -54,7 +54,7 @@
         // toggle doesn't carry — so it got no hand on hover. Set it explicitly.
         cursor: pointer;
 
-        @media (min-width: $xl) {
+        @include bp-up($xl) {
             .main-header:not([data-nav="drawer"]) & {
                 display: none;
             }
@@ -405,9 +405,13 @@
                 color: var(--ink-subtle);
             }
 
-            // Open the panel via the JS .open class, with a CSS :hover fallback.
+            // Open the panel via the JS .open class. The CSS :hover fallback
+            // holds only while navigation.js is not in charge (no JS, a failed
+            // init, or before it runs): with the script ready, hover sets .open
+            // too, and a :hover rule it cannot unset would keep a hovered
+            // panel open through Escape (WCAG 1.4.13).
             &.menu-item-has-children.open > .nav-panel,
-            &.menu-item-has-children:hover > .nav-panel {
+            .main-header:not(.nav-ready) &.menu-item-has-children:hover > .nav-panel {
                 opacity: 1;
                 visibility: visible;
                 transform: none;
@@ -432,7 +436,8 @@
     .main-navigation__toggle span,
     .main-navigation .navigation > li > .nav-panel,
     .main-navigation .navigation > li.menu-item-has-children.open > .nav-panel,
-    .main-navigation .navigation > li.menu-item-has-children:hover > .nav-panel,
+    .main-header:not(.nav-ready) .main-navigation .navigation > li.menu-item-has-children:hover > .nav-panel,
+
     .main-navigation .navigation a::after,
     .main-navigation .nav-panel__viewall-arrow { transition: none; }
 }

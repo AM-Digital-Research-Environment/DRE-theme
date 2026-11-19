@@ -15,23 +15,29 @@ npm run test:browser   # or `npm test` for test:unit + test:browser
 
 `npm run verify` runs, in order:
 
-1. `npm run build` — the design-token, theme.ini, template, metadata-group,
+1. `npm run lint:source` — the design-token, theme.ini, template,
    module-contract (`lint:contract`, the theme's half: see below),
-   JavaScript (ESLint), Sass correctness (Stylelint) and PHP checks (`lint:source`), then the Sass build, the
-   script minification (`build:js`), then the compiled-CSS integrity check
-   (`lint:css`);
-2. `npm run i18n:check` — `language/template.pot` matches the templates;
-3. `npm run test:unit` — the `node:test` suites in `tests/js/`, run twice: on
-   the script sources, then (`tests/dist.env`) on the minified files in
-   `asset/js/dist/` that the templates load. They include the
-   build tests (metadata header, prefixing, failed-compilation output
-   preservation, watch-mode recovery) and negative tests proving each custom
-   lint fails on a seeded violation;
-4. `npm run audit:deps` — `npm audit` at high and critical, minus the
+   JavaScript (ESLint), Sass correctness (Stylelint) and PHP checks;
+2. `npm run build` — the Sass build, the script minification (`build:js`),
+   then the compiled-CSS integrity check (`lint:css`). It only compiles, so a
+   failing lint never leaves the committed output half rebuilt;
+   `npm run watch` (`npm start`) rebuilds both outputs on every save;
+3. `npm run i18n:check` — `language/template.pot` matches the templates, and
+   every translation in `language/*.po` uses exactly its msgid's printf
+   placeholders (in any order): one with an extra placeholder makes PHP 8's
+   `sprintf()` throw on the page that prints it;
+4. `npm run test:unit` — the `node:test` suites in `tests/js/`, then
+   (`scripts/test-dist.mjs`, with `tests/dist.env`) again on the minified
+   files in `asset/js/dist/` that the templates load, for the suites that
+   import `tests/support/theme-script.mjs`, the only ones minification can
+   affect. They include the build tests (metadata header, prefixing,
+   failed-compilation output preservation, watch-mode recovery) and negative
+   tests proving each custom lint fails on a seeded violation;
+5. `npm run audit:deps` — `npm audit` at high and critical, minus the
    exceptions in `scripts/lib/audit-exceptions.mjs`, each of which must say
    why the advisory cannot be fixed or reached. An exception npm can now fix
    in range, or that no longer appears, fails too, so the list retires itself;
-5. `scripts/check-stale-css.mjs` — the committed `asset/css/style.css` and
+6. `scripts/check-stale-css.mjs` — the committed `asset/css/style.css` and
    `asset/js/dist/` are what the build produces. In CI's clean checkout any
    difference fails. Locally, a difference that comes with uncommitted changes
    to that output's inputs (Sass, `theme.ini`, `package.json`; script sources,
@@ -60,12 +66,14 @@ check fails on a seeded drift.
 
 ### PHP
 
-`npm run lint:php` (part of `build`) runs `php -l` over every template, helper
+`npm run lint:php` (part of `lint:source`) runs `php -l` over every template, helper
 and test, then the dependency-free PHP behavior suites. It uses a `php` on
 `PATH` if there is one, otherwise a pulled Docker image (`php:8.3-cli`, or
 `DRE_PHP_IMAGE`), and skips with a loud warning and instructions when it finds
-neither: `npm run verify` is then green with no PHP checked. Under `CI=true`,
-and with `npm run lint:php:require`, a missing PHP is a failure instead.
+neither: `npm run verify` is then green with no PHP checked. The suites need
+the `mbstring` and `intl` extensions; a PHP without them is named up front,
+and only the syntax pass runs. Under `CI=true`, and with
+`npm run lint:php:require`, a missing PHP or extension is a failure instead.
 
 `npm run lint:phpstan` runs CI's PHPStan gate on `helper/` locally. It is
 opt-in: set `OMEKA_PATH` to an unpacked Omeka S release and `PHPSTAN` to a
@@ -282,8 +290,10 @@ Git-ignored `artifacts/roadmap-acceptance/`:
   1280px: keyboard tabs, mobile chooser, filters, empty state, drawer, 200%
   text zoom and long translated labels.
 - `npm run audit:surfaces` — the main routes at 390px with axe-core (WCAG 2.1
-  AA), map-control sizes, overflow and timing samples. `AUDIT_ROUTES=a,b`
-  narrows the route list.
+  AA), map-control sizes, overflow and timing samples. The routes are the
+  home, research and search surfaces and every visualization page in
+  `tests/browser/surfaces.mjs`; `AUDIT_ROUTES=home,networks` (surface ids)
+  narrows them.
 
 Append `-- --local-assets` to either to serve sibling checkouts' builds
 (`../DRESearch`, `../DREVisualizations`, this theme's CSS) in place of the

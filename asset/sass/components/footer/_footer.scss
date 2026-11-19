@@ -55,18 +55,25 @@
             position: relative;
             background-color: var(--surface);
 
-            @media (min-width: $lg) {
+            @include bp-up($lg) {
                 flex-direction: row;
                 justify-content: space-around;
             }
 
-            h6,
+            font-style: normal; // <address> is italic by default
+
             a {
                 color: var(--ink-strong);
                 text-decoration: none;
             }
 
+            // Paragraphs now, not <h6>s: the type the h6 rule gave them.
             .contact_info {
+                margin: 0 0 var(--space-3);
+                font-family: $font__body;
+                font-size: var(--text-base);
+                font-weight: 600;
+                line-height: var(--leading-snug);
                 display: flex;
                 align-items: center;
                 gap: var(--space-2);
@@ -86,7 +93,7 @@
         gap: var(--space-12);
         align-items: start;
 
-        @media (min-width: $lg) {
+        @include bp-up($lg) {
             grid-template-columns: minmax(0, 1.5fr) auto;
             gap: var(--space-16);
         }
@@ -182,7 +189,7 @@
 
     // --- Institutional marks (host university + cluster) -----------------
     &__institutions {
-        @media (min-width: $lg) {
+        @include bp-up($lg) {
             justify-self: end;
         }
     }
@@ -196,7 +203,7 @@
         margin: 0;
         padding: 0;
 
-        @media (min-width: $lg) { justify-content: flex-end; }
+        @include bp-up($lg) { justify-content: flex-end; }
     }
 
     &__institution {
@@ -238,7 +245,7 @@
             max-width: 220px;
             object-fit: contain;
 
-            @media (min-width: $md) { height: 40px; }
+            @include bp-up($md) { height: 40px; }
         }
     }
 
@@ -254,7 +261,7 @@
         color: var(--footer-text-muted);
         font-size: var(--text-xs);
 
-        @media (min-width: $md) {
+        @include bp-up($md) {
             flex-direction: row;
             align-items: center;
             justify-content: space-between;
@@ -276,7 +283,7 @@
         flex-direction: column;
         gap: var(--space-2);
 
-        @media (min-width: $md) {
+        @include bp-up($md) {
             align-items: flex-end;
         }
     }

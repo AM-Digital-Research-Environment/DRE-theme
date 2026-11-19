@@ -67,7 +67,7 @@ dre_check($failures, $checks, 'DRE Search URL is derived from the current site',
     $search() === 'https://example.test/s/archive/dre-search');
 
 dre_check($failures, $checks, 'a query is carried in the module parameter',
-    $search('orixá & co') === 'https://example.test/s/archive/dre-search?q=orix%C3%A1+%26+co' && $search->queryParam() === 'q');
+    $search('orixá & co') === 'https://example.test/s/archive/dre-search?q=orix%C3%A1%20%26%20co' && $search->queryParam() === 'q');
 $searchView->module = false;
 dre_check($failures, $checks, 'module absence falls back to nonredirecting core search', $search() === 'https://example.test/s/archive/index/search');
 dre_check($failures, $checks, 'core fallback uses the core full-text parameter',

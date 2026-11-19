@@ -1,0 +1,35 @@
+<?php
+/**
+ * A resource page's admin-configured regions (Resource page blocks): left
+ * sidebar, main, right sidebar, as core's default theme lays them out. Nothing
+ * when no region has blocks.
+ *
+ * Rendered by omeka/site/item/browse (an item set's page) and
+ * omeka/site/media/show. The item page lays its regions out itself, around the
+ * apparatus rail (omeka/site/item/show).
+ *
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+ */
+$regions = [
+    'left' => ['class' => 'sidebar-region sidebar-region--left', 'blocks' => $this->resourcePageBlocks($resource, 'left')],
+    'main' => ['class' => 'main-region', 'blocks' => $this->resourcePageBlocks($resource)],
+    'right' => ['class' => 'sidebar-region sidebar-region--right', 'blocks' => $this->resourcePageBlocks($resource, 'right')],
+];
+$filled = array_filter($regions, fn (array $region) => $region['blocks']->hasBlocks());
+if (!$filled) {
+    return;
+}
+$additionalContainerClasses = count($filled) === 3 ? 'regions-container--all' : '';
+?>
+<div class="regions-container <?php echo $additionalContainerClasses; ?>">
+    <?php foreach ($filled as $region): ?>
+        <?php if ($blockContent = $region['blocks']->getBlocks()): ?>
+            <div class="<?php echo $region['class']; ?>">
+                <div class="metadata">
+                    <?php echo $blockContent; ?>
+                </div>
+            </div>
+        <?php endif; ?>
+    <?php endforeach; ?>
+</div>

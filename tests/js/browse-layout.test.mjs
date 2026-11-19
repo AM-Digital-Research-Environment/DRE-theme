@@ -3,16 +3,25 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {JSDOM} from 'jsdom';
 import {themeScript} from '../support/theme-script.mjs';
-const source = readFileSync(new URL('../../' + themeScript('browse'), import.meta.url), 'utf8');
+const script = name => readFileSync(new URL('../../' + themeScript(name), import.meta.url), 'utf8');
+const source = script('browse');
 
-test('browse toggles own one Masonry instance and restore state through history', async () => {
+/** The real utils.js, with onReady run at once: jsdom has parsed the fixture. */
+function utils(w) {
+    w.eval(script('utils'));
+    w.DREUtils.onReady = callback => callback();
+}
+
+test('browse toggles own one Masonry instance and restore state through history', (t) => {
+    // jsdom runs animation frames on a Node interval: step it instead of waiting.
+    t.mock.timers.enable({apis: ['setInterval']});
     const dom = new JSDOM(`<div><div class="layout-toggle"><button class="grid">Grid</button><button class="list">List</button></div>
         <div class="resources resource-grid"><div class="resource"><div class="resource__meta"></div></div></div></div>`,
         {url: 'https://theme.test/?filter=retained', runScripts: 'outside-only', pretendToBeVisual: true});
     const w = dom.window;
     let created = 0, destroyed = 0, layouts = 0;
     w.Masonry = class { constructor() { created++; } destroy() { destroyed++; } layout() { layouts++; } };
-    w.DREUtils = {onReady: callback => callback()};
+    utils(w);
     // An engine without grid-lanes: the Masonry path. (jsdom's CSS.supports
     // accepts any value for a known property.)
     w.CSS.supports = () => false;
@@ -28,8 +37,9 @@ test('browse toggles own one Masonry instance and restore state through history'
     w.document.querySelector('.resource').append(image);
     image.dispatchEvent(new w.Event('load'));
     image.dispatchEvent(new w.Event('error'));
-    await new Promise(resolve => setTimeout(resolve, 40));
-    assert.equal(layouts, before + 1);
+    assert.equal(layouts, before, 'the relayout waits for the next frame');
+    t.mock.timers.tick(20);
+    assert.equal(layouts, before + 1, 'one frame lays out once for both events');
     w.history.replaceState(null, '', '?view=list&filter=retained');
     w.dispatchEvent(new w.PopStateEvent('popstate'));
     assert.equal(destroyed, 2);
@@ -45,7 +55,7 @@ test('engines with display: grid-lanes never start or fetch Masonry', () => {
     const w = dom.window;
     let created = 0;
     w.Masonry = class { constructor() { created++; } destroy() {} layout() {} };
-    w.DREUtils = {onReady: callback => callback()};
+    utils(w);
     w.CSS.supports = (property, value) => property === 'display' && value === 'grid-lanes';
     w.eval(source);
     assert.equal(created, 0);
@@ -58,7 +68,7 @@ test('the toggle marks the active view as pressed and keeps keyboard focus', () 
         <div class="resources resource-grid"><div class="resource"></div></div></div>`,
         {url: 'https://theme.test/', runScripts: 'outside-only', pretendToBeVisual: true});
     const w = dom.window;
-    w.DREUtils = {onReady: callback => callback()};
+    utils(w);
     w.eval(source);
     const list = w.document.querySelector('button.list');
     list.focus();

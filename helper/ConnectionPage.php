@@ -10,7 +10,7 @@ use Laminas\View\Helper\AbstractHelper;
  *
  * @phpstan-type PropertyGroup array{label: string, property_id: int, label_is_translatable: bool, compound_id: string}
  */
-class ConnectionPage extends AbstractHelper
+final class ConnectionPage extends AbstractHelper
 {
     /**
      * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource

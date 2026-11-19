@@ -5,13 +5,10 @@
 $escape     = $this->plugin('escapeHtml');
 $escapeAttr = $this->plugin('escapeHtmlAttr');
 $translate  = $this->plugin('translate');
+$formatNumber = $this->plugin('FormatNumber');
+$connectionsHelper = $this->plugin('LinkedConnections');
 
-// Locale (mirror the rest of the theme).
-$valueLang = null;
-if ($this->status()->isSiteRequest()) {
-    $lang = $this->lang();
-    $valueLang = (bool) $this->siteSetting('filter_locale_values') ? [$lang, ''] : null;
-}
+$valueLang = $this->ValueReader()->valueLang();
 $headingTerm = $this->siteSetting('browse_heading_property_term');
 
 // Pagination (only used when the linked set spans more than one page).
@@ -22,7 +19,7 @@ $isPaginated = $totalCount > $perPage;
 //     A record linked through several properties (e.g. author *and* editor)
 //     appears once, carrying every relationship. Facet counts are per
 //     relationship, so they may sum to more than the unique record count. ---
-['connections' => $connections, 'facets' => $facets, 'ranked' => $ranked] = $this->LinkedConnections($subjectValues, $headingTerm, $valueLang);
+['connections' => $connections, 'facets' => $facets, 'ranked' => $ranked] = $connectionsHelper($subjectValues, $headingTerm, $valueLang);
 
 $uniqueCount = count($connections);
 // The summary noun follows the visible count; the facet filter swaps between
@@ -64,15 +61,20 @@ $filterActive = $resourceProperty !== $resourceType . ':' || $connectionSearch !
 $showFilter = $isPaginated || $uniqueCount > 1 || $filterActive;
 // Group the relationships by resource type only when both types link here; a
 // lone "Items" heading over every option is noise.
-$groupByType = count($typesWithValues) > 1;
+$filterOptions = $connectionsHelper->filterOptions($resourceType, $resourceProperty, $resourcePropertiesAll, $typesWithValues, $typeLabels);
 ?>
+<?php // The section heading sits outside the disclosure: inside <summary> it was a
+      // heading within a button, whose children assistive technology flattens to
+      // text. The summary repeats the words, as the toggle's own name.
+      // linked-resources.js swaps only the <details>, so the heading stays. ?>
+<h2 class="sr-only" id="linked-resources-heading"><?php echo $escape($translate('Linked resources')); ?></h2>
 <details class="resources-linked" id="<?php echo $fragment; ?>" open>
 
     <summary class="resources-linked__head">
         <span class="resources-linked__headwrap">
-            <h2 class="resources-linked__heading" id="linked-resources-heading"><?php echo $this->escapeHtml($translate('Linked resources')); ?></h2>
+            <span class="resources-linked__heading"><?php echo $escape($translate('Linked resources')); ?></span>
             <span class="resources-linked__summary" aria-live="polite">
-                <b data-lr-count><?php echo $uniqueCount; ?></b>
+                <b data-lr-count><?php echo $escape($formatNumber($uniqueCount)); ?></b>
                 <span data-lr-label
                     data-one="<?php echo $escapeAttr($summaryLabel(1)); ?>"
                     data-many="<?php echo $escapeAttr($summaryLabel(2)); ?>"><?php
@@ -89,23 +91,15 @@ $groupByType = count($typesWithValues) > 1;
             <div class="resources-linked__field">
             <label for="resource-property-select"><?php echo $this->escapeHtml($translate('Filter all connections by relationship')); ?></label>
             <select name="lr_property" id="resource-property-select">
-                <?php
-                $knownOptions = [$resourceType . ':'];
-                foreach ($resourcePropertiesAll as $options) {
-                    foreach ($options as $option) $knownOptions[] = $option['compound_id'];
-                }
-                if (!in_array($resourceProperty, $knownOptions, true)):
-                ?>
-                <option value="<?php echo $escapeAttr($resourceProperty); ?>" selected><?php echo $escape($translate('Selected relationship')); ?></option>
+                <?php if ($filterOptions['unknown'] !== null): ?>
+                <option value="<?php echo $escapeAttr($filterOptions['unknown']); ?>" selected><?php echo $escape($translate('Selected relationship')); ?></option>
                 <?php endif; ?>
-                <?php foreach ($typesWithValues as $type): ?>
-                    <?php if ($groupByType): ?><optgroup label="<?php echo $escapeAttr($typeLabels[$type]); ?>"><?php endif; ?>
-                        <?php $optionValue = $type . ':'; ?>
-                        <option value="<?php echo $escapeAttr($optionValue); ?>"<?php echo $resourceProperty === $optionValue ? ' selected' : ''; ?>><?php echo $groupByType ? $translate('All') : $translate('All relationships'); ?></option>
-                        <?php foreach ($resourcePropertiesAll[$type] as $option): ?>
-                        <option value="<?php echo $escapeAttr($option['compound_id']); ?>"<?php echo $resourceProperty === $option['compound_id'] ? ' selected' : ''; ?>><?php echo $escape($option['label_is_translatable'] ? $translate($option['label']) : $option['label']); ?></option>
+                <?php foreach ($filterOptions['groups'] as $group): ?>
+                    <?php if ($group['label'] !== null): ?><optgroup label="<?php echo $escapeAttr($group['label']); ?>"><?php endif; ?>
+                        <?php foreach ($group['options'] as $option): ?>
+                        <option value="<?php echo $escapeAttr($option['value']); ?>"<?php echo $option['selected'] ? ' selected' : ''; ?>><?php echo $escape($option['label']); ?></option>
                         <?php endforeach; ?>
-                    <?php if ($groupByType): ?></optgroup><?php endif; ?>
+                    <?php if ($group['label'] !== null): ?></optgroup><?php endif; ?>
                 <?php endforeach; ?>
             </select>
             </div>
@@ -123,12 +117,12 @@ $groupByType = count($typesWithValues) > 1;
             <div class="resources-linked__facets" role="group" aria-label="<?php echo $escapeAttr($translate('Filter this page by relationship')); ?>">
                 <button type="button" class="lr-facet is-active" data-lr-facet="all" aria-pressed="true">
                     <span class="lr-facet__label"><?php echo $this->escapeHtml($translate('All')); ?></span>
-                    <span class="lr-facet__count"><?php echo $uniqueCount; ?></span>
+                    <span class="lr-facet__count"><?php echo $escape($formatNumber($uniqueCount)); ?></span>
                 </button>
                 <?php foreach ($ranked as $facet): ?>
                 <button type="button" class="lr-facet" data-lr-facet="<?php echo $escapeAttr($facet['id']); ?>" aria-pressed="false">
                     <span class="lr-facet__label"><?php echo $escape($facet['label']); ?></span>
-                    <span class="lr-facet__count"><?php echo (int) $facet['count']; ?></span>
+                    <span class="lr-facet__count"><?php echo $escape($formatNumber($facet['count'])); ?></span>
                 </button>
                 <?php endforeach; ?>
             </div>
@@ -154,12 +148,7 @@ $groupByType = count($typesWithValues) > 1;
                 $propAttr = implode(' ', $c['relIds']);
                 // Item type = the record's resource class label (e.g. Person,
                 // Still Image, Bibliographic Resource); empty when unclassed.
-                // FaBiO's labels are lower case ("poem", "still image"), which
-                // beside "Event" on a series' works read as a typo: the first
-                // letter is raised, as a label starts a line.
-                $resourceClass = $resource->resourceClass();
-                $typeLabel = $resourceClass ? $translate($resourceClass->label()) : '';
-                $typeLabel = mb_strtoupper(mb_substr($typeLabel, 0, 1)) . mb_substr($typeLabel, 1);
+                $typeLabel = $connectionsHelper->typeLabel($resource);
                 // Relationship(s), already rank-ordered, joined with a middot.
                 $relText = implode(' · ', array_map(function ($rel) {
                     return $rel['label'];
@@ -198,7 +187,7 @@ $groupByType = count($typesWithValues) > 1;
         <?php if ($isPaginated): ?>
         <nav class="linked-footer pagination" aria-label="<?php echo $escapeAttr($translate('Connection pages')); ?>">
             <?php if ($page > 1): ?><a data-connection-page rel="nofollow" href="<?php echo $escapeAttr($pageUrl($page - 1)); ?>"><?php echo $this->escapeHtml($translate('Previous')); ?></a><?php endif; ?>
-            <span><?php echo $escape(sprintf($translate('Page %1$s of %2$s'), $page, (int) ceil($totalCount / $perPage))); ?></span>
+            <span><?php echo $escape($this->TranslateFormat()->translate('Page %1$s of %2$s', $formatNumber($page), $formatNumber((int) ceil($totalCount / $perPage)))); ?></span>
             <?php if ($page * $perPage < $totalCount): ?><a data-connection-page rel="nofollow" href="<?php echo $escapeAttr($pageUrl($page + 1)); ?>"><?php echo $this->escapeHtml($translate('Next')); ?></a><?php endif; ?>
         </nav>
         <?php endif; ?>

@@ -2,12 +2,16 @@
 namespace OmekaTheme\Helper;
 use Laminas\View\Helper\AbstractHelper;
 
+require_once __DIR__ . '/ValueReader.php';
+
 /**
- * Normalize one bounded page of subject values into distinct connection cards.
+ * Normalize one bounded page of subject values into distinct connection cards,
+ * and the labels common/linked-resources.phtml shows around them.
  *
  * @phpstan-type Facet array{id: string, propertyId: int, label: string, count: int, groupOrder: int}
+ * @phpstan-type FilterOption array{value: string, label: string, selected: bool}
  */
-class LinkedConnections extends AbstractHelper
+final class LinkedConnections extends AbstractHelper
 {
     /**
      * @param array<array<array<string, mixed>>> $subjectValues
@@ -49,12 +53,9 @@ class LinkedConnections extends AbstractHelper
                 $fi = $facetIndex[$key];
                 $rid = $resource->id();
                 if (!isset($connections[$rid])) {
-                    $heading = $headingTerm
-                        ? $resource->value($headingTerm, ['default' => $resource->displayTitle(null, $valueLang), 'lang' => $valueLang])
-                        : $resource->displayTitle(null, $valueLang);
                     $connections[$rid] = [
                         'resource' => $resource,
-                        'heading'  => (string) $heading,
+                        'heading'  => $this->heading($resource, $headingTerm, $valueLang),
                         'rels'     => [],
                         'relIds'   => [],
                     ];
@@ -98,5 +99,86 @@ class LinkedConnections extends AbstractHelper
         });
 
         return ['connections' => $connections, 'facets' => $facets, 'ranked' => $ranked];
+    }
+
+    /**
+     * A card's heading: the site's "browse heading" property when it has a
+     * value, else the title. A linked value is read through ValueReader: cast
+     * to string it is the linked record's URL, which the card printed as its
+     * heading.
+     *
+     * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+     * @param list<string>|string|null $valueLang
+     */
+    private function heading($resource, ?string $headingTerm, $valueLang): string
+    {
+        $title = (string) $resource->displayTitle(null, $valueLang);
+        if (!$headingTerm) {
+            return $title;
+        }
+        try {
+            $value = $resource->value($headingTerm, ['lang' => $valueLang]);
+        } catch (\Throwable $e) {
+            return $title;
+        }
+        $entry = is_object($value) ? ValueReader::entry($value) : null;
+        return $entry['label'] ?? $title;
+    }
+
+    /**
+     * What kind of record a card is: its resource class label (Person, Still
+     * Image, Bibliographic Resource), '' when unclassed. FaBiO's labels are
+     * lower case ("poem", "still image"), which beside "Event" on a series'
+     * works read as a typo: the first letter is raised, as a label starts a
+     * line.
+     *
+     * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+     */
+    public function typeLabel($resource): string
+    {
+        $class = $resource->resourceClass();
+        if (!$class) {
+            return '';
+        }
+        $label = (string) $this->getView()->translate($class->label());
+        return mb_strtoupper(mb_substr($label, 0, 1)) . mb_substr($label, 1);
+    }
+
+    /**
+     * The options of the "Filter all connections by relationship" select:
+     * per resource type that links here, "All" then each relationship, grouped
+     * under the type only when more than one type links here. A relationship
+     * the URL names but no longer offers stays selectable as `unknown`, so the
+     * form does not silently switch filter.
+     *
+     * @param array<string, list<array{compound_id: string, label: string, label_is_translatable?: bool}>> $propertiesByType
+     * @param list<string> $types the resource types with values, in order
+     * @param array<string, string> $typeLabels translated, keyed by type
+     * @return array{unknown: string|null, groups: list<array{label: string|null, options: list<FilterOption>}>}
+     */
+    public function filterOptions(string $resourceType, string $selected, array $propertiesByType, array $types, array $typeLabels): array
+    {
+        $translate = $this->getView()->plugin('translate');
+        $known = [$resourceType . ':'];
+        foreach ($propertiesByType as $options) {
+            foreach ($options as $option) {
+                $known[] = $option['compound_id'];
+            }
+        }
+        $grouped = count($types) > 1;
+        $groups = [];
+        foreach ($types as $type) {
+            $all = $type . ':';
+            $options = [['value' => $all, 'label' => $grouped ? $translate('All') : $translate('All relationships'), 'selected' => $selected === $all]];
+            foreach ($propertiesByType[$type] ?? [] as $option) {
+                $options[] = [
+                    'value' => $option['compound_id'],
+                    'label' => !empty($option['label_is_translatable']) ? $translate($option['label']) : $option['label'],
+                    'selected' => $selected === $option['compound_id'],
+                ];
+            }
+            $groups[] = ['label' => $grouped ? ($typeLabels[$type] ?? $type) : null, 'options' => $options];
+        }
+        return ['unknown' => in_array($selected, $known, true) ? null : $selected, 'groups' => $groups];
     }
 }

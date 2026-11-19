@@ -194,26 +194,14 @@ dre_check($failures, $checks, 'registers are named, with the identifier they hol
     && OmekaTheme\Helper\RecordLinkedData::register('https://doi.org/10.5281/zenodo.1') === ['label' => 'DOI', 'id' => '10.5281/zenodo.1']
     && OmekaTheme\Helper\RecordLinkedData::register('https://ror.org/0234wmv40') === ['label' => 'ROR', 'id' => '0234wmv40']);
 
-// --- Reconciled identifiers under the title ----------------------------------
-// MongoDB2OmekaS writes GND/ORCID/Wikidata/LoC as dcterms:identifier URI values
-// and a DOI as bibo:doi; literal identifiers and unknown hosts are not badges.
+// --- Register marks -----------------------------------------------------------
+// A reconciled identifier carries its register's mark; an unknown host none.
+$marks = $view->plugin('RecordIdentifiers');
+dre_check($failures, $checks, 'known registers have a mark, unknown hosts none',
+    str_contains($marks->markFor('https://orcid.org/0000-0002-1825-0097'), 'identifier-icon')
+    && str_contains($marks->markFor('https://viaf.org/viaf/12345/'), 'identifier-icon--generic')
+    && $marks->markFor('https://unknown.example.org/x/1') === '' && $marks->icon('') === '');
 $person = new ThemeTestResource('Vierke, Ulf', 7);
-$person->values = [
-    'dcterms:identifier' => [
-        new ThemeTestValue('https://d-nb.info/gnd/118540238', 'uri'),
-        new ThemeTestValue('http://www.wikidata.org/entity/Q42', 'uri'),
-        new ThemeTestValue('https://orcid.org/0000-0002-1825-0097', 'uri'),
-        new ThemeTestValue('https://www.wikidata.org/entity/Q42', 'uri'),
-        new ThemeTestValue('eprints-12345'),
-        new ThemeTestValue('https://unknown.example.org/x/1', 'uri'),
-        new ThemeTestValue('https://viaf.org/viaf/12345/', 'uri'),
-    ],
-    'bibo:doi' => [new ThemeTestValue('10.1234/example')],
-];
-$ids = $view->RecordIdentifiers($person);
-dre_check($failures, $checks, 'identifiers are read from dcterms:identifier and bibo:doi, deduped, DOI first then ORCID, Wikidata, GND',
-    array_column($ids, 'label') === ['DOI', 'ORCID', 'Wikidata', 'GND', 'VIAF']
-    && $ids[0]['href'] === 'https://doi.org/10.1234/example' && $ids[2]['id'] === 'Q42', json_encode(array_column($ids, 'label')));
 $person->values['bibo:doi'] = [new ThemeTestValue('https://doi.org/10.1234/example', 'uri')];
 $html = $view->render('common/record-apparatus', ['resource' => $person]);
 dre_check($failures, $checks, 'the rail DOI carries the DOI mark',

@@ -46,6 +46,8 @@ copy edited in place.
 ## Releasing
 
 Add entries under `[Unreleased]` in `CHANGELOG.md` as you work. `npm version
-<major|minor|patch>` then promotes them to the new heading and writes the
-version into `theme.ini`, `CITATION.cff` and the compiled CSS
-(`scripts/sync-version.mjs`); `npm run lint:ini` asserts the result.
+<major|minor|patch>` first runs `npm run verify` and refuses to bump when
+`[Unreleased]` is empty, because that section becomes the release notes. It
+then promotes the entries to the new heading and writes the version into
+`theme.ini`, `CITATION.cff` and the compiled CSS (`scripts/sync-version.mjs`);
+`npm run lint:ini` asserts the result.

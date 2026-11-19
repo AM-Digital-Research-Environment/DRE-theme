@@ -1,0 +1,50 @@
+@use "../../abstracts" as *;
+
+// --------------------------------------------------------------------------
+// Reconciled identifiers — ORCID, Wikidata, GND, LoC, DOI
+// --------------------------------------------------------------------------
+// A register's own mark (helper/RecordIdentifiers.php), sized to the text it
+// leads. The marks keep their brand colours in both modes: each sits on its own
+// disc, hexagon or tile, except the Wikidata barcode, whose dark red bars
+// vanish on a dark surface — in dark mode it gets a light tile of its own.
+.identifier-icon {
+    display: inline-block;
+    flex: none;
+    width: 1.125em;
+    height: 1.125em;
+    vertical-align: -0.2em;
+}
+
+// The two marks that are not square: the barcode is 810 × 500, the hexagon
+// 120 × 139.
+.identifier-icon--wikidata {
+    width: 1.82em;
+
+    // The theme's own dark switch, as the banner art uses: light-dark() would
+    // follow `color-scheme`, which the root only carries for a manual choice.
+    @include dark-mode {
+        background-color: var(--ink-strong);
+    }
+}
+
+.identifier-icon--gnd {
+    width: 0.975em;
+}
+
+// In the rail and the grouped record the mark leads the link's text. In the
+// rail it travels with that text: a long DOI wrapping under a right-aligned
+// row left the mark alone on the line above.
+.record-apparatus__marked {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+
+    > span {
+        min-width: 0;
+    }
+}
+
+.record-apparatus__marked > .identifier-icon,
+.record__group .value-content > .identifier-icon {
+    margin-right: var(--space-2);
+}

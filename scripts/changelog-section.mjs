@@ -3,9 +3,12 @@
  * CHANGELOG.md (Keep a Changelog) helpers.
  *
  *   node scripts/changelog-section.mjs <version>   print that version's notes
+ *   node scripts/changelog-section.mjs Unreleased  print what the next release will say
  *
  * release.yml uses the CLI to write the notes of a release it has to create;
- * scripts/sync-version.mjs uses promoteUnreleased() when `npm version` bumps.
+ * the `preversion` hook asks for Unreleased, so `npm version` refuses to bump
+ * with nothing to release; scripts/sync-version.mjs uses promoteUnreleased()
+ * when `npm version` bumps.
  * Exit code 1 when the version has no section, or an empty one.
  */
 import { readFileSync } from 'node:fs';
@@ -65,13 +68,15 @@ export function promoteUnreleased(text, version, date) {
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
     const version = process.argv[2]?.replace(/^v/, '');
     if (!version) {
-        console.error('Usage: node scripts/changelog-section.mjs <version>');
+        console.error('Usage: node scripts/changelog-section.mjs <version|Unreleased>');
         process.exit(2);
     }
     const text = readFileSync(join(import.meta.dirname, '..', 'CHANGELOG.md'), 'utf8');
     const notes = changelogSection(text, version);
     if (!notes) {
-        console.error(`CHANGELOG.md has no notes for ${version}.`);
+        console.error(version === 'Unreleased'
+            ? 'CHANGELOG.md has nothing under ## [Unreleased]: write the release notes there before `npm version`.'
+            : `CHANGELOG.md has no notes for ${version}.`);
         process.exit(1);
     }
     process.stdout.write(notes + '\n');

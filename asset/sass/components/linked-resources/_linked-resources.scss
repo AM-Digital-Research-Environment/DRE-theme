@@ -47,10 +47,18 @@
 
     &__heading {
         margin: 0;
-        // Inherit the theme's global h2 scale (1.875rem, fluid to 2.75rem from ≥md,
-        // 800) so this disclosure sits at the same size as the Resource
-        // Visualizations module's block section headings (which also inherit the
-        // global h2) and reads as a sibling page section under the item <h1>.
+        // The global h2 scale, though it is a span in the <summary> now (the
+        // section's real <h2> is visually hidden before the <details>): it sits
+        // at the size of the Resource Visualizations module's block section
+        // headings and reads as a sibling page section under the item <h1>.
+        display: block;
+        color: var(--ink-strong);
+        font-family: $font__headings;
+        font-size: var(--text-3xl);
+        font-weight: 700;
+        line-height: var(--leading-tight);
+        letter-spacing: var(--tracking-tight);
+        text-wrap: balance;
         transition: color var(--transition-fast);
     }
 
@@ -410,7 +418,7 @@
 // --------------------------------------------------------------------------
 // Responsive — let the sort control take the full width on very narrow screens.
 // --------------------------------------------------------------------------
-@media (max-width: #{$sm - 1px}) {
+@include bp-down($sm) {
     .resources-linked__sort {
         width: 100%;
         margin-left: 0;

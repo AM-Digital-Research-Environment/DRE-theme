@@ -31,7 +31,7 @@ use Laminas\View\Helper\AbstractHelper;
  * they do not recognise is left as Omeka built it. A layout helper must never
  * 500 the page.
  */
-class DeferScripts extends AbstractHelper
+final class DeferScripts extends AbstractHelper
 {
     private const CLASSIC_TYPES = ['', 'text/javascript', 'application/javascript'];
 

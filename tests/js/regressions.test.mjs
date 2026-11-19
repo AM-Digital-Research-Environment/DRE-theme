@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, mkdtempSync, mkdirSync, copyFileSync, writeFileSync, rmSync } from 'node:fs';
+import { readFileSync, mkdtempSync, mkdirSync, copyFileSync, cpSync, writeFileSync, rmSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { JSDOM } from 'jsdom';
@@ -18,6 +18,7 @@ test('invalid Sass rejects compilation even when valid old CSS exists', () => {
     try {
         for (const path of ['config', 'asset/sass', 'asset/css', 'scripts']) mkdirSync(join(folder, path), { recursive: true });
         copyFileSync(join(root, 'scripts/build-css.mjs'), join(folder, 'scripts/build-css.mjs'));
+        cpSync(join(root, 'scripts/lib'), join(folder, 'scripts/lib'), { recursive: true });
         copyFileSync(join(root, 'package.json'), join(folder, 'package.json'));
         copyFileSync(join(root, 'config/theme.ini'), join(folder, 'config/theme.ini'));
         writeFileSync(join(folder, 'asset/css/style.css'), 'body{color:red}');
@@ -66,19 +67,21 @@ test('multiple browse previews follow the page view without double toggling', ()
     d.window.close();
 });
 
-test('desktop Escape restores focus without reopening its submenu', () => {
+test('desktop Escape restores focus to the caret without reopening its submenu', () => {
     const d = dom(`<header class="main-header"><div class="main-header__main-bar"><button class="main-navigation__toggle"><span class="sr-only"></span></button>
         <nav id="menu-drawer"><button id="menu-backer"></button><div id="menu-clones"></div></nav></div>
         <nav class="main-navigation"><ul class="navigation"><li><a href="/parent">Parent</a><ul><li><a href="/child">Child</a></li></ul></li></ul></nav></header>`);
     d.window.HTMLElement.prototype.scrollTo = () => {};
     start(d, 'navigation.js');
     const item = d.window.document.querySelector('.main-navigation li');
+    const caret = item.querySelector('button');
     for (const link of item.querySelectorAll('a')) {
+        caret.click();
         link.focus();
         link.dispatchEvent(new d.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
         assert.equal(item.classList.contains('open'), false);
-        assert.equal(item.querySelector('button').getAttribute('aria-expanded'), 'false');
-        assert.equal(d.window.document.activeElement, item.querySelector('button'));
+        assert.equal(caret.getAttribute('aria-expanded'), 'false');
+        assert.equal(d.window.document.activeElement, caret, 'focus on the caret does not reopen it');
     }
     d.window.close();
 });
@@ -135,6 +138,8 @@ test('Mirador themes early and late viewers once, then follows theme changes', a
     const calls = [[], []]; const queue = [];
     d.window.setTimeout = callback => queue.push(callback);
     d.window.miradors = {a: {store: {dispatch: action => calls[0].push(action.config.selectedTheme)}}, b: {}};
+    // In <head> the token bridge runs first; Mirador follows its onThemeChange.
+    d.window.eval(source('dre-token-bridge.js'));
     d.window.eval(source('mirador-theme.js'));
     d.window.dispatchEvent(new d.window.Event('load'));
     assert.deepEqual(calls[0], ['dark']);

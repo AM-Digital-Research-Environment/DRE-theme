@@ -1,6 +1,10 @@
 /**
  * Shared utilities for the DRE theme scripts.
- * Exposes window.DREUtils.
+ * Exposes window.DREUtils. layout.phtml loads it first in the body, so every
+ * theme script after it calls `window.DREUtils.<name>()` directly; only the
+ * scripts in <head> (dre-token-bridge.js, mirador-theme.js) run before it and
+ * do not use it. The members stay `name: name` pairs: the integration
+ * contract (scripts/lib/integration-contract.mjs) reads them by that shape.
  */
 (function () {
     'use strict';
@@ -68,10 +72,38 @@
         }, duration));
     }
 
+    /**
+     * Whether the visitor asks for reduced motion, read at the moment of use:
+     * the setting can change while a page is open, so a value cached at load
+     * would keep animating (or keep not animating) after the visitor switched.
+     */
+    function prefersReducedMotion() {
+        return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
+    }
+
+    /**
+     * A plain primary-button click with no modifier keys: the only click a
+     * script may take over. Middle clicks and Ctrl/Cmd/Shift/Alt clicks open a
+     * new tab or window, save the link, and so on, and must stay the browser's.
+     * Keyboard activation (Enter on a link) reports button 0 too.
+     */
+    function isPlainClick(event) {
+        return event.button === 0
+            && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
+    }
+
+    /** Collapse runs of whitespace to one space and trim, as text is read aloud. */
+    function normaliseSpace(text) {
+        return String(text ?? '').replace(/\s+/g, ' ').trim();
+    }
+
     window.DREUtils = {
         onReady: onReady,
         debounce: debounce,
         announce: announce,
-        flashLabel: flashLabel
+        flashLabel: flashLabel,
+        prefersReducedMotion: prefersReducedMotion,
+        isPlainClick: isPlainClick,
+        normaliseSpace: normaliseSpace
     };
 })();

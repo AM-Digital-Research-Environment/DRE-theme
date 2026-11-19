@@ -22,7 +22,7 @@
     transition: transform var(--transition-slow), visibility var(--transition-slow);
     visibility: hidden;
 
-    @media (max-width: ($sm - 1)) {
+    @include bp-down($sm) {
         width: 100%;
         border-left: none;
         box-shadow: none;

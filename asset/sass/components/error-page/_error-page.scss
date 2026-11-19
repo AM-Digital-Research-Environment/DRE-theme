@@ -8,7 +8,7 @@
     margin-inline: auto;
     padding-block: var(--space-16) var(--space-20);
 
-    @media (max-width: $md) {
+    @include bp-down($md) {
         padding-block: var(--space-10) var(--space-12);
     }
 }
@@ -42,7 +42,7 @@
     gap: var(--space-3);
     margin-block-end: var(--space-8);
 
-    @media (max-width: $sm) {
+    @include bp-down($sm) {
         flex-direction: column;
     }
 }

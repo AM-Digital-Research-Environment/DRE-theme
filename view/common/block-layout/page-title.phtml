@@ -12,12 +12,10 @@
  */
 $escape = $this->plugin('escapeHtml');
 
-if ($this->IsHomePage()) {
-    $site = $this->currentSite();
-    $mastheadHeading = $this->themeSetting('banner_heading') ?: ($site ? $site->title() : '');
-    if ($mastheadHeading !== '' && $mastheadHeading !== null) {
-        return;
-    }
+// The masthead's own rule (helper/SiteChrome.php): '' unless this is the home
+// page and the masthead renders its <h1> there.
+if ($this->plugin('SiteChrome')->homeHeading() !== '') {
+    return;
 }
 ?>
 <h1 class="title"><?php echo $escape($pageTitle); ?></h1>

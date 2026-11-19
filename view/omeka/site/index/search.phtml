@@ -2,33 +2,15 @@
 $translate = $this->plugin('translate');
 $hyperlink = $this->plugin('hyperlink');
 $url = $this->plugin('url');
+$format = $this->plugin('TranslateFormat');
 $this->htmlElement('body')->appendAttribute('class', 'index search');
 
 ?>
 
-<?php echo $this->pageTitle(sprintf($translate('Search results for “%s”'), $query), 1); ?>
+<?php echo $this->pageTitle($format->translate('Search results for “%s”', $query), 1); ?>
 
 <?php if (empty($results)): ?>
-    <?php // Empty state: a quiet pause with a path onward — nothing is wrong,
-          // the archive just has no match. The query itself is already restated
-          // by the page title above, so don't repeat it here. ?>
-    <div class="search-empty">
-        <p class="search-empty__lead"><?php echo $this->escapeHtml($translate('Nothing in the collections matched this search.')); ?></p>
-        <ul class="search-empty__hints">
-            <li><?php echo $this->escapeHtml($translate('Check the spelling, or try another form of the word.')); ?></li>
-            <li><?php echo $this->escapeHtml($translate('Fewer, broader terms cast a wider net.')); ?></li>
-            <li><?php echo $this->escapeHtml($translate('Names may appear transliterated — try a variant spelling.')); ?></li>
-        </ul>
-        <div class="search-empty__actions">
-            <a class="button" href="<?php echo $this->escapeHtmlAttr($this->DreSearchUrl()); ?>"><?php echo $this->escapeHtml($translate('Search with filters')); ?></a>
-            <a class="button btn--secondary" href="<?php echo $this->escapeHtmlAttr($url(
-                'site/resource',
-                ['controller' => 'item', 'action' => 'browse'],
-                [],
-                true
-            )); ?>"><?php echo $this->escapeHtml($translate('Browse all items')); ?></a>
-        </div>
-    </div>
+    <?php echo $this->partial('common/search-empty', ['searched' => true]); ?>
 <?php else: ?>
     <?php
     $resourceLabels = [
@@ -74,7 +56,7 @@ $this->htmlElement('body')->appendAttribute('class', 'index search');
                       // (The same slip is in core 4.2.1's template; its controller
                       // redirect uses site/page-browse.) ?>
                 <?php echo $hyperlink(
-                    sprintf($translate('View all results (%s total)'), $result['total']),
+                    $format->translate('View all results (%s total)', $this->FormatNumber($result['total'])),
                     'site_pages' === $resourceName
                         ? $url('site/page-browse', [], ['query' => ['fulltext_search' => $query]], true)
                         : $url(

@@ -1,0 +1,103 @@
+@use "../../abstracts" as *;
+
+// --------------------------------------------------------------------------
+// Record title — the Headline tier (DESIGN.md › Hierarchy: 700, --text-3xl,
+// --leading-tight), not the Display tier a bare h1 gets. Record titles are long
+// ("Volume 8: Yoruba Architecture and Wall Painting. Digitaler Scan im
+// Beier-Nachlass"): at 800 / 44–68px one ran to four lines and 275px at 1280px
+// and seven at 390px, pushing the record itself below the fold. Item and media
+// show pages and the item-set page (item/browse with an item set) all emit
+// Omeka's pageTitle() h1 as the first heading of #content; the home masthead
+// title lives outside #content and keeps the display tier.
+// --------------------------------------------------------------------------
+:is(.resource.show, .item-set) #content > h1 {
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    line-height: var(--leading-tight);
+    text-wrap: balance;
+}
+
+// --------------------------------------------------------------------------
+// Page layout
+// --------------------------------------------------------------------------
+.item-record {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-12);
+    margin-bottom: var(--space-12);
+
+    // DOM order is record → rail → context, so on one column the citation
+    // follows the record and precedes linked resources and visualisations.
+    // The rail belongs to the record and ends with it: the context row runs
+    // under both columns at the full width, where a project's records and its
+    // charts have room, and "Cite this record" no longer rides beside material
+    // that is not this record. The row gap is .metadata's usual block spacing
+    // (--space-8; the record's last block, now a :last-child, has none).
+    &--railed {
+        @include bp-up($lg) {
+            grid-template-columns: minmax(0, 1fr) var(--rail-width);
+            gap: var(--space-8) var(--space-16);
+            align-items: start;
+
+            .item-record__main { grid-column: 1; }
+
+            .item-record__rail {
+                grid-column: 2;
+                grid-row: 1;
+            }
+
+            .item-record__context { grid-column: 1 / -1; }
+        }
+    }
+}
+
+.item-record__main,
+.item-record__context {
+    min-width: 0;
+}
+
+// The grid gap already separates the context from the record; a block's own
+// top margin would double it (grid items don't collapse margins).
+.item-record__context > :first-child {
+    margin-top: 0;
+}
+
+// The "left sidebar" region. It is rare, and at the record's new proportions a
+// third column would crush the reading measure, so its blocks lead the main
+// column — separated by a hairline so they read as their own band rather than
+// merging into the record below.
+.item-record__aside-blocks {
+    margin-bottom: var(--space-10);
+    padding-bottom: var(--space-8);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.item-record__rail {
+    min-width: 0;
+
+    @include bp-up($lg) {
+        // The rail runs the full height of the record so its LAST panel can
+        // stay in view while the record is read (below). The rail itself is never sticky: "Access to
+        // this material" and "Cite this record" together outgrow a laptop
+        // screen, and a sticky box taller than the viewport either hides its
+        // foot or needs a scrollbar of its own beside the page's.
+        align-self: stretch;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-6);
+
+        // Access is read once and scrolls away with the page; the citation —
+        // the panel a reader comes back to — follows them down. Only the last
+        // panel sticks, so an admin's right-sidebar blocks after it never
+        // slide underneath a pinned one; and only on screens tall enough to
+        // hold it.
+        > .record-apparatus:last-child {
+            @media (min-height: 40rem) {
+                position: sticky;
+                // Clear the sticky header, then breathe. Derived, so a header
+                // height change moves the panel with it.
+                top: var(--scroll-offset);
+            }
+        }
+    }
+}

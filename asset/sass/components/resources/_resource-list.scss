@@ -1,6 +1,9 @@
+// No !important against Masonry's inline geometry: browse.js stops each item's
+// transition before destroy(), so switching to the list view mid-layout leaves
+// no inline left / top behind.
 .resource-list {
-    height: auto !important;
-	list-style: none;
+    height: auto;
+    list-style: none;
     padding-left: 0;
 
     .resource {
@@ -9,10 +12,10 @@
         border: 1px solid var(--border);
         border-radius: var(--radius-lg);
         box-shadow: var(--shadow-sm);
-        position: relative !important;
-        left: auto !important;
-        top: auto !important;
-        width: 100% !important;
+        position: relative;
+        left: auto;
+        top: auto;
+        width: 100%;
         margin-bottom: 16px;
         transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
 

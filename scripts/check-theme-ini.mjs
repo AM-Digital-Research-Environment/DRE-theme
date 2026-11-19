@@ -49,7 +49,8 @@
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
-import { themeRoot, walkFiles } from './files.mjs';
+import { themeRoot, walkFiles } from './lib/files.mjs';
+import { parseInfo } from './lib/theme-ini.mjs';
 
 const ROOT = themeRoot();
 const INI = join(ROOT, 'config', 'theme.ini');
@@ -126,7 +127,7 @@ text.split(/\r?\n/).forEach((raw, i) => {
 // without grep — Windows/cmd.exe, i.e. `npm run build` — and an empty result
 // means "no element is read anywhere", so the check reported EVERY field as
 // dead. A lint that fails open on one OS and closed on another is worse than no
-// lint; this walks the tree itself (scripts/files.mjs).
+// lint; this walks the tree itself (scripts/lib/files.mjs).
 //
 // Allow whitespace inside the parens: themeSetting( 'x' ) is used too.
 //
@@ -232,7 +233,9 @@ const versionSources = [
     },
 ];
 
-const iniVersion = text.match(/^version\s*=\s*"([^"]+)"/m)?.[1];
+// Read from [info] only: a `version` key in another section is not the release.
+const info = parseInfo(text).values;
+const iniVersion = info.version;
 if (!iniVersion) {
     add(null, 'config/theme.ini declares no [info] version');
 } else {
@@ -260,7 +263,7 @@ if (!iniVersion) {
 // Compared as literal strings, not as semver ranges: "^4.2.1" and ">=4.2.1
 // <5" admit the same releases but would still be two spellings to keep in
 // step by hand.
-const iniConstraint = text.match(/^omeka_version_constraint\s*=\s*"([^"]+)"/m)?.[1];
+const iniConstraint = info.omeka_version_constraint;
 const composerPath = join(ROOT, 'composer.json');
 if (!iniConstraint) {
     add(null, 'config/theme.ini declares no [info] omeka_version_constraint');

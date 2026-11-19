@@ -1,0 +1,61 @@
+@use "../../abstracts" as *;
+
+// --- Chips: subjects -------------------------------------------------------
+//
+// Twelve subject links in a row of running text read as a wall. As chips they
+// read as a set — and each is a real target at 32px minimum.
+.record__group--chips {
+    .record__list > .property {
+        margin-bottom: var(--space-4);
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    dt:not(.sr-only) {
+        display: block;
+        margin-bottom: var(--space-3);
+        font-family: var(--font-body);
+        font-size: var(--text-sm);
+        font-weight: 600;
+        color: var(--ink-light);
+    }
+
+    // The dd set becomes an inline run of chips.
+    dd {
+        display: inline-flex;
+        margin: 0 var(--space-2) var(--space-2) 0;
+    }
+
+    .value-content {
+        display: inline-flex;
+    }
+
+    // Style the anchor itself, so the chip IS the target (a chip-shaped <dd>
+    // with a small link inside would be a 15px hit area in a 32px box).
+    .value-content a,
+    dd > a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 2rem;
+        padding: var(--space-1) var(--space-3);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-full);
+        background-color: var(--surface);
+        color: var(--ink);
+        font-size: var(--text-sm);
+        line-height: var(--leading-snug);
+        text-decoration: none;
+        transition:
+            border-color var(--transition-fast),
+            background-color var(--transition-fast),
+            color var(--transition-fast);
+
+        &:hover {
+            border-color: var(--primary);
+            background-color: var(--primary-muted);
+            color: var(--primary-text);
+        }
+    }
+}

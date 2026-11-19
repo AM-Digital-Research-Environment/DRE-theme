@@ -46,7 +46,7 @@ use Laminas\View\Helper\AbstractHelper;
  *
  * @phpstan-type PropertyValues array{property: \Omeka\Api\Representation\PropertyRepresentation, alternate_label: string|null, alternate_comment: string|null, values: list<\Omeka\Api\Representation\ValueRepresentation>}
  */
-class ResourceGroups extends AbstractHelper
+final class ResourceGroups extends AbstractHelper
 {
     /** Layout hints understood by common/resource-values.phtml. */
     public const LAYOUT_PROSE = 'prose';
@@ -177,24 +177,11 @@ class ResourceGroups extends AbstractHelper
     {
         $translate = $this->getView()->plugin('translate');
 
-        // term → group index, built once per call. Exact terms are indexed
-        // first, so a named placement always beats a prefix sweep.
-        $groupOf = [];
-        foreach (self::GROUPS as $i => $group) {
-            foreach ($group['terms'] as $term) {
-                // First definition wins, so a term listed twice by mistake does
-                // not move between releases depending on array order.
-                if (!isset($groupOf[$term])) {
-                    $groupOf[$term] = $i;
-                }
-            }
-        }
-
         $buckets = [];
         $fallback = [];
 
         foreach ($values as $term => $propertyData) {
-            $index = $groupOf[$term] ?? $this->groupByPrefix($term);
+            $index = self::groupIndex((string) $term);
             if (null !== $index) {
                 $buckets[$index][$term] = $propertyData;
             } else {
@@ -248,9 +235,29 @@ class ResourceGroups extends AbstractHelper
         return array_merge($out, $trailing);
     }
 
-    /** Index of the first group claiming this term's vocabulary prefix, or null. */
-    private function groupByPrefix(string $term): ?int
+    /** @var array<string, int>|null term → group index, built on first use */
+    private static ?array $termIndex = null;
+
+    /**
+     * The index in GROUPS of the group a term lands in, null for the fallback:
+     * the one classification rule, for __invoke() and groupKeyFor() alike.
+     * A named term always beats a prefix sweep; a term named twice by mistake
+     * stays in its first group, so it does not move between releases with the
+     * array order.
+     */
+    private static function groupIndex(string $term): ?int
     {
+        if (self::$termIndex === null) {
+            self::$termIndex = [];
+            foreach (self::GROUPS as $i => $group) {
+                foreach ($group['terms'] as $named) {
+                    self::$termIndex[$named] ??= $i;
+                }
+            }
+        }
+        if (isset(self::$termIndex[$term])) {
+            return self::$termIndex[$term];
+        }
         foreach (self::GROUPS as $i => $group) {
             foreach ($group['prefixes'] ?? [] as $prefix) {
                 if (0 === strncmp($term, $prefix, strlen($prefix))) {
@@ -282,18 +289,7 @@ class ResourceGroups extends AbstractHelper
      */
     public static function groupKeyFor(string $term): ?string
     {
-        foreach (self::GROUPS as $group) {
-            if (in_array($term, $group['terms'], true)) {
-                return $group['key'];
-            }
-        }
-        foreach (self::GROUPS as $group) {
-            foreach ($group['prefixes'] ?? [] as $prefix) {
-                if (0 === strncmp($term, $prefix, strlen($prefix))) {
-                    return $group['key'];
-                }
-            }
-        }
-        return null;
+        $index = self::groupIndex($term);
+        return $index === null ? null : self::GROUPS[$index]['key'];
     }
 }

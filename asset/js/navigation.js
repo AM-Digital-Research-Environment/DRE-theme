@@ -3,7 +3,8 @@
  *
  * Two behaviours share this file:
  *   • Desktop  — the mega-dropdown panels emitted by common/nav-menu.phtml
- *     (hover-intent open, focus/Escape handling, a caret <button> per parent).
+ *     (hover-intent open, a caret <button> per parent as the disclosure,
+ *     focus-out and Escape close).
  *   • Mobile   — the sliding menu drawer: the menu is cloned into
  *     #menu-clones, and each level slides in with a focus trap.
  *
@@ -13,8 +14,8 @@
  * collide with them.
  *
  * Cross-file contract (all optional — each is feature-detected):
- *   • `window.__dreClassifyNav`  — set by the inline script in common/header.phtml,
- *     which classifies inline-vs-drawer synchronously before first paint.
+ *   • `window.__dreClassifyNav`  — set by nav-mode.js, which common/header.phtml
+ *     inlines so that it classifies inline-vs-drawer before first paint.
  *   • `data-label-close` / `data-label-previous` on `#menu-backer` — the
  *     translated labels for the drawer's back control (common/menu-drawer.phtml).
  *   • `data-label-open` / `data-label-close` on `.main-navigation__toggle` and
@@ -92,6 +93,13 @@
     }
 
     // ---------------------------------------------------------------- drawer
+
+    // A drawer parent's link does not navigate: it slides its sub-level in, so
+    // it states whether that level is showing. The menus are cloned into the
+    // drawer before the desktop ARIA below exists, so the drawer sets its own.
+    function setDrawerExpanded(item, expanded) {
+        item.querySelector(':scope > a')?.setAttribute('aria-expanded', String(expanded));
+    }
 
     function setFocusableToElementsInViewPort() {
         if (!navigationInDrawer || !drawer) {
@@ -180,7 +188,10 @@
     function closeMenuDrawer(restoreFocus = true) {
         expandedTargets = [];
 
-        drawer.querySelectorAll('.expanded').forEach((item) => item.classList.remove('expanded'));
+        drawer.querySelectorAll('.expanded').forEach((item) => {
+            item.classList.remove('expanded');
+            setDrawerExpanded(item, false);
+        });
         drawer.querySelectorAll('.in-viewport').forEach((item) => item.classList.remove('in-viewport'));
         drawer.querySelectorAll('a').forEach((item) => {
             item.tabIndex = -1;
@@ -219,34 +230,48 @@
 
     // ------------------------------------------------------------ desktop
 
-    function wireDesktopSubmenu(item, itemLink, itemButton) {
+    // Every desktop panel, so that one Escape can dismiss a panel the pointer
+    // opened while keyboard focus is elsewhere (WCAG 1.4.13).
+    const desktopPanels = [];
+
+    function wireDesktopSubmenu(item, itemButton) {
         let closeTimer = null;
 
+        // The caret button is the disclosure, so it alone carries
+        // aria-expanded: the parent link still navigates, and a link announced
+        // as expandable that goes to a page instead misleads.
         const openSubmenu = () => {
             clearTimeout(closeTimer);
             item.classList.add('open');
-            itemLink.setAttribute('aria-expanded', 'true');
             itemButton.setAttribute('aria-expanded', 'true');
         };
 
         const closeSubmenu = () => {
             clearTimeout(closeTimer);
             item.classList.remove('open');
-            itemLink.setAttribute('aria-expanded', 'false');
             itemButton.setAttribute('aria-expanded', 'false');
         };
+        desktopPanels.push({ item, itemButton, closeSubmenu });
 
         // Hover-intent: open immediately on enter, but defer closing so the
         // pointer can travel from the label into the panel without it snapping
         // shut. mouseenter/mouseleave (unlike mouseover/mouseout) don't fire on
-        // inner-element transitions, so there's no flicker.
+        // inner-element transitions, so there's no flicker. The pointer works
+        // through this .open class only: the stylesheet's :hover fallback is
+        // off once the script is ready, or Escape could not hide a hovered panel.
         item.addEventListener('mouseenter', openSubmenu);
         item.addEventListener('mouseleave', () => {
             clearTimeout(closeTimer);
-            closeTimer = setTimeout(closeSubmenu, SUBMENU_CLOSE_DELAY);
+            closeTimer = setTimeout(() => {
+                // A keyboard user working in the panel keeps it when the
+                // pointer merely passes over and away.
+                if (!item.querySelector(':focus-visible')) closeSubmenu();
+            }, SUBMENU_CLOSE_DELAY);
         });
 
-        item.addEventListener('focusin', openSubmenu);
+        // Focus alone never opens a panel, or Tab would walk a keyboard user
+        // through every one of them: the caret (or the pointer) opens it, and
+        // focus leaving an open panel closes it.
         item.addEventListener('focusout', () => {
             // Wait a tick to let focus settle before deciding to close.
             requestAnimationFrame(() => {
@@ -254,14 +279,6 @@
                     closeSubmenu();
                 }
             });
-        });
-
-        item.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' || e.key === 'Esc') {
-                itemButton.focus();
-                closeSubmenu();
-                e.stopPropagation();
-            }
         });
 
         itemButton.addEventListener('click', (event) => {
@@ -365,13 +382,30 @@
 
                 itemSubmenu.id = itemSubmenu.id || 'primary-submenu-' + index;
                 itemButton.setAttribute('aria-controls', itemSubmenu.id);
-                itemLink.setAttribute('aria-expanded', 'false');
                 itemButton.setAttribute('aria-expanded', 'false');
 
                 if (item.closest('.main-navigation')) { // desktop only
-                    wireDesktopSubmenu(item, itemLink, itemButton);
+                    wireDesktopSubmenu(item, itemButton);
                 }
             });
+
+        // Escape closes whichever panel is open, wherever focus is: a panel the
+        // pointer opened must be dismissible without moving the pointer. Focus
+        // inside the closing panel returns to its caret.
+        document.addEventListener('keydown', (e) => {
+            if (e.key !== 'Escape') {
+                return;
+            }
+            desktopPanels.forEach(({ item, itemButton, closeSubmenu }) => {
+                if (!item.classList.contains('open')) {
+                    return;
+                }
+                if (item.contains(document.activeElement)) {
+                    itemButton.focus();
+                }
+                closeSubmenu();
+            });
+        });
 
         clones.querySelectorAll('*').forEach((item) => {
             if (item.id) {
@@ -379,7 +413,7 @@
             }
         });
 
-        drawer.querySelectorAll('.menu-item-has-children').forEach((item) => {
+        drawer.querySelectorAll('.menu-item-has-children').forEach((item, index) => {
             const ul = item.querySelector('ul');
             if (ul) {
                 const submenuHeader = document.createElement('li');
@@ -389,12 +423,21 @@
                 ul.prepend(submenuHeader);
             }
 
+            // After the header copy above, which is a plain link to the page.
+            const opener = item.querySelector(':scope > a');
+            if (opener && ul) {
+                ul.id = ul.id || 'drawer-submenu-' + index;
+                opener.setAttribute('aria-controls', ul.id);
+                opener.setAttribute('aria-expanded', 'false');
+            }
+
             item.querySelectorAll('li:not(.menu-item-has-children)').forEach(child => {
                 child.addEventListener('click', e => e.stopPropagation());
             });
             item.addEventListener('click', function (event) {
 
                 item.classList.add('expanded');
+                setDrawerExpanded(item, true);
 
                 drawer.querySelectorAll('.in-viewport').forEach((el) => el.classList.remove('in-viewport'));
                 const panel = item.querySelector('ul');
@@ -429,6 +472,7 @@
 
                 const collapse = expandedTargets.pop();
                 collapse.classList.remove('expanded');
+                setDrawerExpanded(collapse, false);
                 slideMenus(this);
                 scrollMenuToTop();
             } else {

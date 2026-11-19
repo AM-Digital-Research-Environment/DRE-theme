@@ -4,7 +4,7 @@
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--space-6);
-    @media (min-width: $md) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    @include bp-up($md) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .grid-sizer, .gutter-sizer { display: none; }
     &:not(.is-masonry) .resource { width: auto; position: relative; margin-bottom: 0; }
     &.is-masonry {
@@ -22,7 +22,7 @@
     .resource {
         width: 100%;
 
-        @media (min-width: $md) {
+        @include bp-up($md) {
             width: 49%;
         }
     }
@@ -122,7 +122,7 @@
         flex-direction: column;
         gap: var(--space-6);
 
-        @media (min-width: $md) {
+        @include bp-up($md) {
             display: grid-lanes;
             grid-template-columns: repeat(2, 1fr);
             gap: var(--space-6) 2%;      // row rhythm · 2% gutter → 49% lanes

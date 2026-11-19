@@ -17,7 +17,21 @@
     border-top: var(--accent-line-md) solid var(--flag);
     border-bottom: 1px solid var(--border);
     box-shadow: var(--shadow-sm);
-    transition: top 0.3s var(--ease-out-quart), background-color var(--transition-base), border-color var(--transition-base);
+    transition: transform 0.3s var(--ease-out-quart), background-color var(--transition-base), border-color var(--transition-base);
+
+    // Slid away while reading down the page (script.js). A transform, not
+    // `top`: the compositor animates it without a layout per frame. It applies
+    // only while hidden, because any transform makes the header the containing
+    // block of the fixed menu drawer inside it, and the drawer is closed then
+    // (the header never hides with the drawer open). A little past its own
+    // height, so the border and shadow leave with it.
+    &.is-scrolled-away {
+        transform: translateY(calc(-100% - var(--space-4)));
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        transition: background-color var(--transition-base), border-color var(--transition-base);
+    }
     // Overflow guarantee, part 3 (belt and braces): whatever lives in the bar —
     // menu pills, the module's search field, a long site title — may shrink or
     // wrap (see _navigation.scss) but must never hand the page a horizontal
@@ -35,7 +49,7 @@
         border-bottom: 1px solid var(--border-light);
         display: none;
 
-        @media (min-width: $xl) {
+        @include bp-up($xl) {
             display: block;
         }
 
@@ -86,14 +100,16 @@
         // the brand can keep the remaining width without forcing overflow.
         gap: var(--space-1);
         position: relative;
-        // The layout token is the CONTRACT, not a guess about this bar: the
-        // menu drawer parks below it and --scroll-offset is derived from it, so
-        // the bar states its own height instead of leaving both to infer 74px.
-        min-height: var(--header-height);
+        // The bar's own minimum, the 74px that --header-height's stylesheet
+        // value assumes. Not that token: script.js writes the whole header's
+        // measured height into it, which this bar is part of, so reading it
+        // here would grow the header on every measurement.
+        min-height: 4.625rem;
+
         padding-top: var(--space-3);
         padding-bottom: var(--space-3);
 
-        @media (min-width: $sm) {
+        @include bp-up($sm) {
             gap: var(--space-4);
         }
     }
@@ -107,7 +123,7 @@
         max-width: 60%;
         order: 0;
 
-        @media (min-width: $lg) {
+        @include bp-up($lg) {
             max-width: 40%;
             order: initial;
         }
@@ -131,7 +147,7 @@
     &__search {
         display: none;
 
-        @media (min-width: $xl) {
+        @include bp-up($xl) {
             display: flex;
             flex: 1 1 auto;
             min-width: 0;
@@ -150,7 +166,7 @@
         // a tidy group at the end of the bar.
         order: 2;
 
-        @media (min-width: $xl) {
+        @include bp-up($xl) {
             order: initial;
             gap: var(--space-2);
         }
@@ -206,7 +222,7 @@ html:not(.js) .main-header:not(.nav-ready),
     height: auto;
     max-height: 46px;
 
-    @media (min-width: $lg) {
+    @include bp-up($lg) {
         max-height: 54px;
     }
 }
@@ -216,16 +232,9 @@ html:not(.js) .main-header:not(.nav-ready),
 // JS-disabled + system-dark case.
 .site-logo--dark { display: none; }
 
-body[data-theme="dark"] {
+@include dark-mode {
     .site-logo--light { display: none; }
     .site-logo--dark { display: block; }
-}
-
-@media (prefers-color-scheme: dark) {
-    body:not([data-theme="light"]) {
-        .site-logo--light { display: none; }
-        .site-logo--dark { display: block; }
-    }
 }
 
 // --- Theme toggle (sun ⇄ moon) -------------------------------------------
@@ -277,13 +286,8 @@ body[data-theme="dark"] {
     &__icon--moon { display: none; }
 }
 
-body[data-theme="dark"] .theme-toggle {
-    .theme-toggle__icon--sun { display: none; }
-    .theme-toggle__icon--moon { display: inline-flex; }
-}
-
-@media (prefers-color-scheme: dark) {
-    body:not([data-theme="light"]) .theme-toggle {
+.theme-toggle {
+    @include dark-mode {
         .theme-toggle__icon--sun { display: none; }
         .theme-toggle__icon--moon { display: inline-flex; }
     }

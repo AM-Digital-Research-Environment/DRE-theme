@@ -22,31 +22,17 @@ use Laminas\View\Helper\AbstractHelper;
  * Properties are looked up by term, once per request, so the theme pins no
  * property ids.
  */
-class BrowseSort extends AbstractHelper
+final class BrowseSort extends AbstractHelper
 {
     public const DATE_TERMS = ['dcterms:date', 'dcterms:issued', 'dcterms:created'];
 
     /** @var array<int,string>|null property id => label */
     private ?array $dateProperties = null;
 
-    /**
-     * The curated sort configuration for a resource type ('' when unavailable).
-     *
-     * @return array<string,string>
-     */
-    public function __invoke(string $resourceType = 'items'): array
+    /** The helper itself: templates call `$this->plugin('BrowseSort')->selector()`. */
+    public function __invoke(): self
     {
-        try {
-            $config = $this->getView()->browse()->getBrowseService()->getSortConfig('public', $resourceType);
-        } catch (\Throwable $e) {
-            return [];
-        }
-        $sorts = self::curate(is_array($config) ? $config : [], $this->dateProperties ??= $this->findDateProperties());
-        if (isset($sorts['created'])) {
-            // Core's sort selector prints labels as given.
-            $sorts['created'] = $this->getView()->translate($sorts['created']);
-        }
-        return $sorts;
+        return $this;
     }
 
     /**

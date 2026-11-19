@@ -12,8 +12,12 @@ use Laminas\View\Helper\AbstractHelper;
  * masthead, browse templates, PWA shortcuts and legacy redirects from drifting
  * apart. Templates needing the parameter name call
  * `$this->plugin('DreSearchUrl')->queryParam()`.
+ *
+ * Query strings are encoded one way, RFC 3986 (a space is %20, as
+ * rawurlencode() writes it), whether built by http_build_query() or pair by
+ * pair in filtered().
  */
-class DreSearchUrl extends AbstractHelper
+final class DreSearchUrl extends AbstractHelper
 {
     public function __invoke(?string $query = null): string
     {
@@ -22,7 +26,7 @@ class DreSearchUrl extends AbstractHelper
             if ($site) {
                 $url = rtrim((string) $site->url(), '/') . ($this->hasModule() ? '/dre-search' : '/index/search');
                 $query = trim((string) $query);
-                return $query === '' ? $url : $url . '?' . http_build_query([$this->queryParam() => $query]);
+                return $query === '' ? $url : $url . '?' . http_build_query([$this->queryParam() => $query], '', '&', PHP_QUERY_RFC3986);
             }
         } catch (\Throwable $e) {
             // A missing site context should not take a page down.

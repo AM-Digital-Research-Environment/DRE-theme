@@ -1,7 +1,6 @@
 <?php
 $escHtml = $this->plugin('escapeHtml');
 $escAttr = $this->plugin('escapeHtmlAttr');
-$decoration = $this->themeSetting('image_decoration');
 ?>
 
 <div class="assets">
@@ -24,14 +23,14 @@ $decoration = $this->themeSetting('image_decoration');
             <?php $page = (array_key_exists('page', $attachment)) ? $attachment['page'] : null; ?>
             <?php if ($page): ?>
                 <a href="<?php echo $escAttr($page->siteUrl()); ?>">
-                    <div class="<?php echo is_array($decoration) && in_array('asset', $decoration) ? 'decoration' : ''; ?>">
+                    <div class="<?php echo $this->ImageDecoration('asset') ? 'decoration' : ''; ?>">
                         <?php echo $assetImage; ?>
                     </div>
                     <?php $altLinkTitle = ($attachment['alt_link_title'] !== '') ? $escHtml($attachment['alt_link_title']) : false; ?>
                     <span class="link-title"><?php echo ($altLinkTitle) ? $altLinkTitle : $escHtml($page->title()); ?></span>
                 </a>
             <?php else: ?>
-                <div class="<?php echo is_array($decoration) && in_array('asset', $decoration) ? 'decoration' : ''; ?>">
+                <div class="<?php echo $this->ImageDecoration('asset') ? 'decoration' : ''; ?>">
                     <?php echo $assetImage; ?>
                 </div>
             <?php endif; ?>

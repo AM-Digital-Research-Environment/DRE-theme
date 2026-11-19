@@ -3,10 +3,21 @@
 // replacing the base theme's left-edge colour bar. The display serif and the
 // generous space above carry the hierarchy; the rule is a quiet brand cue.
 // ==========================================================================
+
+// The space below a title. Omeka's page-blocks.css, loaded after the theme,
+// sets `margin: 1rem 0` on every block of a normal-layout page
+// (`.page-layout-normal .block`, 0,2,0), so the page-title block's wrapper is
+// also matched one class deeper; that replaces the !important this used to
+// carry, which bound every `.title` on the site.
+.title,
+.block-pageTitle,
+.blocks-inner .block.block-pageTitle {
+    margin-bottom: 1.875rem;
+}
+
 .title,
 .block-pageTitle {
     display: inline-block;
-    margin-bottom: 1.875rem !important;
     padding-bottom: 0.5rem;
     position: relative;
 
@@ -22,7 +33,7 @@
 
     // Nested titles (e.g. a .title inside a page-title block) stay plain.
     .title {
-        margin-bottom: 0 !important;
+        margin-bottom: 0;
         padding-bottom: 0;
 
         &::after {

@@ -14,5 +14,5 @@ $label = $this->translate('Save record');
 <button type="button" class="shortlist-save<?php echo $placement ? ' shortlist-save--' . $placement : ''; ?>" hidden data-shortlist-save<?php echo $detail ? ' data-shortlist-detail' : ''; ?>
     data-url="<?php echo $this->escapeHtmlAttr($resource->url(null, true)); ?>"
     data-title="<?php echo $this->escapeHtmlAttr($resource->displayTitle()); ?>"
-    aria-label="<?php echo $this->escapeHtmlAttr(sprintf($this->translate('Save record: %s'), $resource->displayTitle())); ?>"
+    aria-label="<?php echo $this->escapeHtmlAttr($this->TranslateFormat()->translate('Save record: %s', $resource->displayTitle())); ?>"
     <?php echo $detail ? '' : 'title="' . $this->escapeHtmlAttr($label) . '" '; ?>aria-pressed="false"><svg class="shortlist-save__icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M6 3.75h12a.75.75 0 0 1 .75.75v16.2l-6.75-4.5-6.75 4.5V4.5A.75.75 0 0 1 6 3.75Z"/></svg><?php echo $detail ? '<span class="shortlist-save__label">' . $this->escapeHtml($label) . '</span>' : ''; ?></button>

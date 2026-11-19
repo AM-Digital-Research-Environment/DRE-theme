@@ -18,7 +18,7 @@
     padding-bottom: var(--space-12);
     border-bottom: 1px solid var(--border);
 
-    @media (min-width: $md) {
+    @include bp-up($md) {
         flex-direction: row;
     }
 
@@ -26,7 +26,7 @@
         order: -1;
         width: 100%;
 
-        @media (min-width: $md) {
+        @include bp-up($md) {
             order: initial;
         }
     }
@@ -36,7 +36,7 @@
         position: relative;
         width: 100%;
 
-        @media (min-width: $md) {
+        @include bp-up($md) {
             width: 30%;
         }
     }
@@ -48,14 +48,14 @@
     &--all {
         flex-direction: column;
 
-        @media (min-width: $xl) {
+        @include bp-up($xl) {
             flex-direction: row;
         }
 
         .main-region {
             order: -1;
 
-            @media (min-width: $xl) {
+            @include bp-up($xl) {
                 order: initial;
             }
         }
@@ -63,7 +63,7 @@
         .sidebar-region {
             width: 100%;
 
-            @media (min-width: $xl) {
+            @include bp-up($xl) {
                 width: 20%;
             }
         }

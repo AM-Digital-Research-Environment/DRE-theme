@@ -45,7 +45,8 @@ test('the canonical item route mounts Mirador and its digitized canvas', async (
     expect(versions.Mirador.versions, 'the Mirador asset version must be observable').not.toEqual([]);
     if (versions['DRE-theme'].versions.some((version) => versionAtLeast(version, '2.30.1'))) {
         await expect(
-            page.locator('.block-mirador[role="application"]'),
+            // role="application" until the release that made it a labelled region.
+            page.locator('.block-mirador:is([role="region"], [role="application"])'),
             'DRE-theme 2.30.1+ is loaded, but the server rendered a stale Mirador wrapper; replace view/common/resource-page-block-layout/mirador.phtml and restart the PHP container because OPcache timestamp validation is disabled',
         )
             .toHaveAttribute('aria-label', 'Image viewer');

@@ -15,16 +15,44 @@ use Laminas\View\Helper\AbstractHelper;
  * which is how the rail once printed `https://…/item/10297` where the licence
  * should read "CC-BY-NC-SA-4.0"; entry() is the one place that knows.
  *
- * Every method is static and degrades to '' / [] / null rather than throwing:
- * one malformed value must not cost the reader the page. The other helpers
- * require this file directly, so it is loaded whether or not anything has
- * asked for the plugin; as a plugin (`$this->ValueReader()`) it returns itself.
+ * Every reading method is static and degrades to '' / [] / null rather than
+ * throwing: one malformed value must not cost the reader the page. The other
+ * helpers require this file directly, so it is loaded whether or not anything
+ * has asked for the plugin; as a plugin (`$this->ValueReader()`) it returns
+ * itself, for valueLang(), the one method that needs the view.
  */
-class ValueReader extends AbstractHelper
+final class ValueReader extends AbstractHelper
 {
+    /**
+     * Properties several record helpers read, named once. MongoDB2OmekaS writes
+     * the project link, the collection code and a person's staff page here.
+     */
+    public const IS_PART_OF = 'dcterms:isPartOf';
+    public const DRE_ID = 'dre:id';
+    public const HAS_URL = 'fabio:hasURL';
+
     public function __invoke(): self
     {
         return $this;
+    }
+
+    /**
+     * The `lang` a template passes to displayTitle() and value(): the page
+     * language and untagged values when the site setting "Filter values based
+     * on site locale" is on, null (every language) otherwise. Outside a site
+     * request there is no site setting to read, so nothing is filtered.
+     *
+     * @return list<string>|null
+     */
+    public function valueLang(): ?array
+    {
+        $view = $this->getView();
+        try {
+            $filter = $view->status()->isSiteRequest() && (bool) $view->siteSetting('filter_locale_values');
+            return $filter ? [(string) $view->lang(), ''] : null;
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 
     /**
@@ -76,19 +104,29 @@ class ValueReader extends AbstractHelper
     }
 
     /**
-     * entry() for every value of a property, without the linked resource.
+     * entry() for every value of a property, as `{label, href}` rows without
+     * the linked resource. The one place a property becomes a list of labelled
+     * links: a caller that needs more per row (a staff page, a gloss) passes
+     * $extra, which receives the entry (with its resource) and the value and
+     * returns the keys to add.
      *
      * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
-     * @return list<array{label: string, href: string}>
+     * @param (callable(array{label: string, href: string, resource: \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null}, \Omeka\Api\Representation\ValueRepresentation): array<string, string>)|null $extra
+     * @return list<array<string, string>>
      */
-    public static function entries($resource, string $term, bool $linksOnly = false): array
+    public static function entries($resource, string $term, bool $linksOnly = false, ?callable $extra = null): array
     {
         $out = [];
         foreach (self::values($resource, $term) as $value) {
             $entry = self::entry($value, $linksOnly);
-            if ($entry !== null) {
-                $out[] = ['label' => $entry['label'], 'href' => $entry['href']];
+            if ($entry === null) {
+                continue;
             }
+            $row = ['label' => $entry['label'], 'href' => $entry['href']];
+            if ($extra !== null) {
+                $row += $extra($entry, $value);
+            }
+            $out[] = $row;
         }
         return $out;
     }

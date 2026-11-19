@@ -24,6 +24,9 @@ if ($this->getHelperPluginManager()->has('dreBreadcrumb')) {
     try {
         $trail = $this->dreBreadcrumb($resource);
     } catch (\Throwable $e) {
+        // The fallback trail below still renders; the failure is logged, once
+        // an hour, like every other optional module's.
+        $this->IntegrationWarning($resource, 'breadcrumb', $e);
         $trail = null;
     }
 }

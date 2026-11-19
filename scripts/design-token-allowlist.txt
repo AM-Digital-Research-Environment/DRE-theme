@@ -19,22 +19,20 @@ fontSize  asset/sass/components/navigation/_navigation.scss                     
 fontSize  asset/sass/components/pagination/_resources-pagination.scss             1
 fontSize  asset/sass/utilities/_accessibility.scss                                1
 
-# pxGeometry — 34 file(s), 216 finding(s)
+# pxGeometry — 34 file(s), 193 finding(s)
 pxGeometry  asset/sass/abstracts/variables/_breakpoints.scss                          5
 pxGeometry  asset/sass/abstracts/variables/_tokens.scss                               44
 pxGeometry  asset/sass/base/elements/_fields.scss                                     5
 pxGeometry  asset/sass/base/elements/_language-tag.scss                               9
 pxGeometry  asset/sass/base/elements/_lists.scss                                      1
 pxGeometry  asset/sass/base/elements/_media.scss                                      4
-pxGeometry  asset/sass/base/elements/_resource-tag.scss                               8
-pxGeometry  asset/sass/base/elements/_titles.scss                                     1
 pxGeometry  asset/sass/components/annotation/_annotation.scss                         2
 pxGeometry  asset/sass/components/back-to-top/_back-to-top.scss                       2
 pxGeometry  asset/sass/components/banner/_banner.scss                                 2
 pxGeometry  asset/sass/components/blocks/assets/_assets.scss                          1
 pxGeometry  asset/sass/components/blocks/carousel/_carousel.scss                      8
 pxGeometry  asset/sass/components/blocks/collecting/_collecting.scss                  3
-pxGeometry  asset/sass/components/blocks/item-showcase/_item-showcase.scss            9
+pxGeometry  asset/sass/components/blocks/item-showcase/_item-showcase.scss            2
 pxGeometry  asset/sass/components/blocks/item-with-metadata/_item-with-metadata.scss  14
 pxGeometry  asset/sass/components/blocks/media-embed/_media-embed.scss                4
 pxGeometry  asset/sass/components/blocks/table-of-contents/_table-of-contents.scss    2
@@ -47,17 +45,18 @@ pxGeometry  asset/sass/components/local-contexts/_local-contexts.scss           
 pxGeometry  asset/sass/components/mapping/_mapping-map.scss                           4
 pxGeometry  asset/sass/components/navigation/_menu-drawer.scss                        4
 pxGeometry  asset/sass/components/navigation/_navigation.scss                         11
+pxGeometry  asset/sass/components/page-title/_page-title.scss                         1
 pxGeometry  asset/sass/components/pwa/_pwa-install.scss                               4
-pxGeometry  asset/sass/components/resources/_browse-controls.scss                     12
+pxGeometry  asset/sass/components/resource-tag/_resource-tag.scss                     2
+pxGeometry  asset/sass/components/resources/_browse-controls.scss                     2
 pxGeometry  asset/sass/components/resources/_resource-list.scss                       9
 pxGeometry  asset/sass/components/user-bar/_user-bar.scss                             6
 pxGeometry  asset/sass/generic/_normalize.scss                                        1
 pxGeometry  asset/sass/utilities/_accessibility.scss                                  6
 pxGeometry  asset/sass/utilities/_alignments.scss                                     1
 
-# radius — 7 file(s), 11 finding(s)
+# radius — 6 file(s), 10 finding(s)
 radius  asset/sass/base/elements/_language-tag.scss                               1
-radius  asset/sass/base/elements/_resource-tag.scss                               1
 radius  asset/sass/base/typography/_copy.scss                                     1
 radius  asset/sass/components/blocks/item-with-metadata/_item-with-metadata.scss  2
 radius  asset/sass/components/header/_search.scss                                 4
@@ -66,11 +65,11 @@ radius  asset/sass/utilities/_accessibility.scss                                
 
 # spacing — 9 file(s), 23 finding(s)
 spacing  asset/sass/base/elements/_fields.scss                                   2
-spacing  asset/sass/base/elements/_resource-description.scss                     1
-spacing  asset/sass/base/elements/_titles.scss                                   2
 spacing  asset/sass/components/blocks/table-of-contents/_table-of-contents.scss  1
 spacing  asset/sass/components/linked-resources/_linked-resources.scss           9
 spacing  asset/sass/components/mapping/_mapping-map.scss                         1
 spacing  asset/sass/components/navigation/_menu-drawer.scss                      3
 spacing  asset/sass/components/navigation/_navigation.scss                       3
+spacing  asset/sass/components/page-title/_page-title.scss                       2
+spacing  asset/sass/components/resource-description/_resource-description.scss   1
 spacing  asset/sass/components/uri-dereferencer/_uri-dereferencer.scss           1

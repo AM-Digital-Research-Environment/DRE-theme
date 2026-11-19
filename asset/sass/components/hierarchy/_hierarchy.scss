@@ -6,7 +6,7 @@
     }
 
     .hierarchy-main-content {
-        @media (max-width: #{$md - 1px}) {
+        @include bp-down($md) {
             border-left: none;
             padding-left: 0;
         }
@@ -31,4 +31,13 @@
             width: 100px;
         }
     }
+}
+
+// The item list's heading is an <h2> now (an <h3> straight after the page <h1>
+// skipped a level), at the h3 size it always had.
+.hierarchy-items__title {
+    font-size: var(--text-2xl);
+    font-weight: 600;
+    line-height: var(--leading-snug);
+    margin-bottom: var(--space-5);
 }

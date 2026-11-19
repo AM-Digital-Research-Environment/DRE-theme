@@ -97,7 +97,7 @@ jobs:
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 24
+          node-version-file: .nvmrc
 
       - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
@@ -118,7 +118,8 @@ jobs:
       # here without an `npm ci`.
       - name: The tag names the version the theme declares
         run: |
-          INI="$(sed -n 's/^version *= *"\(.*\)"/\1/p' config/theme.ini | head -1)"
+          # The [info] version, read as the build and the lints read it.
+          INI="$(node scripts/lib/theme-ini.mjs version config/theme.ini)"
           if [ "$INI" != "$VERSION" ]; then
             echo "::error::tag $TAG expects version $VERSION but config/theme.ini declares $INI"
             exit 1
@@ -195,7 +196,7 @@ jobs:
       - name: The packaged theme.ini declares the tagged version
         run: |
           unzip -p DRE-theme.zip DRE-theme/config/theme.ini > packaged-theme.ini
-          INI="$(sed -n 's/^version *= *"\(.*\)"/\1/p' packaged-theme.ini | head -1)"
+          INI="$(node scripts/lib/theme-ini.mjs version packaged-theme.ini)"
           test "$INI" = "$VERSION" || { echo "::error::packaged theme.ini says $INI, tag says $VERSION"; exit 1; }
 
       # The artefact people install, through Omeka's own theme manager. Same

@@ -89,6 +89,15 @@ test('a focus colour below 3:1 against the page fails', (t) => {
     assert.match(output, /dark: --focus-color on --background is \d\.\d\d:1 — below WCAG 1\.4\.11/);
 });
 
+// The contrast pairs are read by brace matching, so a comment that names a
+// block's opener must not stand in for the block (scripts/lib/scss-blocks.mjs).
+test('a comment naming a mode mixin does not divert the contrast check', (t) => {
+    const root = fixture(t);
+    edit(root, COLORS, (src) => `// @mixin am-dark-theme { --ink: oklch(99% 0 0); }\n${src}`);
+    const {status, output} = lint(root);
+    assert.equal(status, 0, output);
+});
+
 test('removing the field-border token is reported, not silently skipped', (t) => {
     const root = fixture(t);
     edit(root, COLORS, (src) => src.replace(/^\s*--field-border:[^\n]*\n/m, ''));

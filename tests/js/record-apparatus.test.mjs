@@ -1,11 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { JSDOM } from 'jsdom';
+import { themeScript } from '../support/theme-script.mjs';
 
-const ROOT = join(import.meta.dirname, '..', '..');
-const source = (file) => readFileSync(join(ROOT, 'asset', 'js', file), 'utf8');
+// The sources, or with DRE_SCRIPTS=dist the minified builds the templates load.
+const source = (name) => readFileSync(new URL('../../' + themeScript(name), import.meta.url), 'utf8');
+
+/** utils.js, then record.js, in the order layout.phtml loads them. */
+const load = (dom) => {
+    dom.window.eval(source('utils'));
+    dom.window.eval(source('record'));
+};
 
 /** The apparatus as record-apparatus.phtml renders it with three styles. */
 function panelMarkup({ styles = ['curated', 'chicago', 'apa'], active = 'curated' } = {}) {
@@ -54,7 +60,7 @@ const tab = (dom, style) => dom.window.document.querySelector(`[data-citation-st
 test('the style switcher shows one citation at a time', () => {
     const dom = new JSDOM(panelMarkup(), { url: 'https://example.test/', runScripts: 'outside-only' });
     withClipboard(dom);
-    dom.window.eval(source('utils.js'));dom.window.eval(source('record.js'));
+    load(dom);
 
     assert.equal(shown(dom).dataset.citationPanel, 'curated', 'the default style is shown first');
 
@@ -69,7 +75,7 @@ test('the style switcher shows one citation at a time', () => {
 test('the switcher is a roving tablist', () => {
     const dom = new JSDOM(panelMarkup(), { url: 'https://example.test/', runScripts: 'outside-only' });
     withClipboard(dom);
-    dom.window.eval(source('utils.js'));dom.window.eval(source('record.js'));
+    load(dom);
 
     const press = (style, key) => tab(dom, style).dispatchEvent(
         new dom.window.KeyboardEvent('keydown', { key, bubbles: true, cancelable: true })
@@ -97,10 +103,12 @@ test('the switcher is a roving tablist', () => {
     dom.window.close();
 });
 
-test('copying takes the citation the reader is looking at', async () => {
+test('copying takes the citation the reader is looking at', async (t) => {
+    // The window's timers are Node's, so the feedback timing is stepped, not waited.
+    t.mock.timers.enable({ apis: ['setTimeout'] });
     const dom = new JSDOM(panelMarkup(), { url: 'https://example.test/', runScripts: 'outside-only' });
     const writes = withClipboard(dom);
-    dom.window.eval(source('utils.js'));dom.window.eval(source('record.js'));
+    load(dom);
 
     const button = dom.window.document.querySelector('.record-apparatus__copy');
     assert.equal(dom.window.document.querySelector('[data-record-copy]').hidden, false,
@@ -115,10 +123,14 @@ test('copying takes the citation the reader is looking at', async () => {
     button.click();
     assert.deepEqual(writes[1], 'Citation in apa style.', 'the visible style is what gets copied');
 
-    await new Promise((resolve) => setTimeout(resolve, 80));
+    await Promise.resolve(); // the clipboard write settles
     assert.equal(button.textContent, 'Copied');
     const status = dom.window.document.querySelector('[role="status"]');
-    assert.equal(status?.textContent, 'Copied', 'the change is announced through a status region');
+    assert.equal(status?.textContent, '', 'the region is cleared first, so a repeat is a change');
+    t.mock.timers.tick(50);
+    assert.equal(status.textContent, 'Copied', 'the change is announced through a status region');
+    t.mock.timers.tick(2000);
+    assert.equal(button.textContent, 'Copy citation', 'the label comes back after the feedback window');
     dom.window.close();
 });
 
@@ -133,7 +145,7 @@ test('without a generated citation the copy button uses the server fallback', ()
         </section>
     </body></html>`, { url: 'https://example.test/', runScripts: 'outside-only' });
     const writes = withClipboard(dom);
-    dom.window.eval(source('utils.js'));dom.window.eval(source('record.js'));
+    load(dom);
 
     dom.window.document.querySelector('.record-apparatus__copy').click();
     assert.deepEqual(writes, ['A record. https://example.test/s/amira/item/1']);
@@ -144,7 +156,7 @@ test('the tabs work even where the clipboard API does not', () => {
     const dom = new JSDOM(panelMarkup(), { url: 'https://example.test/', runScripts: 'outside-only' });
     // No clipboard, insecure context — the copy half of the script bails early.
     Object.defineProperty(dom.window, 'isSecureContext', { value: false, configurable: true });
-    dom.window.eval(source('utils.js'));dom.window.eval(source('record.js'));
+    load(dom);
 
     tab(dom, 'chicago').click();
     assert.equal(shown(dom).dataset.citationPanel, 'chicago', 'the switcher is not gated on copying');
@@ -159,7 +171,7 @@ test('a single style renders no tablist behaviour', () => {
         runScripts: 'outside-only',
     });
     withClipboard(dom);
-    dom.window.eval(source('utils.js'));dom.window.eval(source('record.js'));
+    load(dom);
 
     assert.equal(shown(dom).dataset.citationPanel, 'chicago');
     dom.window.close();
@@ -177,7 +189,7 @@ test('the permanent link copy button copies exactly the identifier, not the cita
         <div class="record-apparatus__actions">`);
     const dom = new JSDOM(markup, { url: 'https://example.test/', runScripts: 'outside-only' });
     const writes = withClipboard(dom);
-    dom.window.eval(source('utils.js'));dom.window.eval(source('record.js'));
+    load(dom);
 
     const button = dom.window.document.querySelector('[data-copy-exact]');
     assert.equal(button.hidden, false, 'revealed where the clipboard API exists');

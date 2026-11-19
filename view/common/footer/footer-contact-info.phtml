@@ -1,13 +1,15 @@
+<?php // Contact details, not headings: as <h6>s they were three empty sections in
+      // the outline. <address> marks them as the site's contact information. ?>
 <div class="footer-contact-info container">
-    <div class="footer-contact-info__content">
+    <address class="footer-contact-info__content">
         <?php if ($contactInfo['location']) : ?>
-            <h6 class="contact_info contact_info_location"><?php echo $this->escapeHtml($contactInfo['location']); ?></h6>
+            <p class="contact_info contact_info_location"><?php echo $this->escapeHtml($contactInfo['location']); ?></p>
         <?php endif; ?>
         <?php if ($contactInfo['phone']) : ?>
-            <h6 class="contact_info contact_info_phone"><a href="tel:<?php echo $this->escapeHtmlAttr($contactInfo['phone']); ?>"><?php echo $this->escapeHtml($contactInfo['phone']); ?></a></h6>
+            <p class="contact_info contact_info_phone"><a href="tel:<?php echo $this->escapeHtmlAttr($contactInfo['phone']); ?>"><?php echo $this->escapeHtml($contactInfo['phone']); ?></a></p>
         <?php endif; ?>
         <?php if ($contactInfo['email']) : ?>
-            <h6 class="contact_info contact_info_email"><a href="mailto:<?php echo $this->escapeHtmlAttr($contactInfo['email']); ?>"><?php echo $this->escapeHtml($contactInfo['email']); ?></a></h6>
+            <p class="contact_info contact_info_email"><a href="mailto:<?php echo $this->escapeHtmlAttr($contactInfo['email']); ?>"><?php echo $this->escapeHtml($contactInfo['email']); ?></a></p>
         <?php endif; ?>
-    </div>
+    </address>
 </div>

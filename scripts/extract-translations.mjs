@@ -19,12 +19,14 @@
  *   'X', // @translate         "X" // @translate
  *
  * Pass --check to fail (exit 1) when template.pot is out of date instead of
- * rewriting it — useful in CI.
+ * rewriting it — useful in CI — or when a translation in language/*.po uses
+ * printf placeholders its msgid does not (scripts/lib/po.mjs).
  */
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 
-import { walkFiles } from './files.mjs';
+import { walkFiles } from './lib/files.mjs';
+import { checkCatalogues } from './lib/po.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
 const OUT_DIR = join(ROOT, 'language');
@@ -142,6 +144,16 @@ if (CHECK) {
         process.exit(1);
     }
     console.log(`Translations: template.pot up to date (${sorted.length} strings).`);
+
+    // A translation with a placeholder its msgid lacks makes sprintf() throw
+    // on the page that prints it, in that language only (scripts/lib/po.mjs).
+    const { files, problems } = checkCatalogues(OUT_DIR);
+    if (problems.length) {
+        console.error(`Translations: ${problems.length} placeholder mismatch(es)\n`);
+        for (const problem of problems) console.error('  ' + problem);
+        process.exit(1);
+    }
+    console.log(`Translations: placeholders match in ${files} catalogue(s).`);
 } else {
     if (!existsSync(OUT_DIR)) mkdirSync(OUT_DIR, { recursive: true });
     writeFileSync(OUT, pot, 'utf8');

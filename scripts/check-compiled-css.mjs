@@ -42,7 +42,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { themeRoot } from './files.mjs';
+import { themeRoot } from './lib/files.mjs';
 
 const ROOT = themeRoot();
 const CSS_DIR = join(ROOT, 'asset', 'css');

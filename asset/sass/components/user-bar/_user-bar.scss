@@ -6,7 +6,7 @@
     a {
         display: block;
 
-        @media(min-width: $lg) {
+        @include bp-up($lg) {
             display: initial;
         }
     }
@@ -21,24 +21,22 @@
             white-space: nowrap;
             width: calc(100%);
 
-            @media(min-width: $lg) {
+            @include bp-up($lg) {
                 overflow: initial;
                 white-space: initial;
                 width: auto;
             }
         }
 
-        .admin {
-            &::after {
-                content: none !important;
+        // Omeka's user-bar.css puts a "•" after every link but the last
+        // (`#user-bar .admin:not(:last-child):after`, 1,2,1). Matching the same
+        // links one class deeper (1,3,1) replaces it in either load order: no
+        // separator on small screens, ">" from $lg, none after the last link.
+        .admin:not(:last-child)::after {
+            content: none;
 
-                @media(min-width: $lg) {
-                    content: ">" !important;
-                }
-            }
-
-            &:last-child::after {
-                content: none !important;
+            @include bp-up($lg) {
+                content: ">";
             }
         }
     }
@@ -53,7 +51,7 @@
             padding: 6px 10px;
             text-decoration: none;
 
-            @media(min-width: $lg) {
+            @include bp-up($lg) {
                 margin-left: 12px;
                 margin-top: 0;
                 padding: 0 6px;

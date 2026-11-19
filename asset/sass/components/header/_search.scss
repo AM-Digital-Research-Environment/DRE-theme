@@ -14,7 +14,7 @@ button.main-search-button {
     margin-left: auto;   // mobile: the one auto margin — pushes the whole control
     margin-right: 0;     // cluster (search · toggle · hamburger) to the right
 
-    @media (min-width: $xl) {
+    @include bp-up($xl) {
         margin-left: 0;
         order: initial;
     }
@@ -42,12 +42,12 @@ button.main-search-button {
     margin: 0 15px;
     z-index: var(--z-dropdown);
 
-    @media (min-width: $md) {
+    @include bp-up($md) {
         width: calc(100% - 60px);
         margin: 0 30px;
     }
 
-    @media (min-width: $xl) {
+    @include bp-up($xl) {
         width: 450px;
     }
 

@@ -29,93 +29,36 @@ $translate = $this->plugin('translate');
 $isHome = isset($isHome) ? (bool) $isHome : false;
 $site   = isset($site) ? $site : $this->currentSite();
 
-// Interior pages can opt out of the masthead (default on for fresh installs).
-$showInterior = !in_array((string) $this->themeSetting('banner_show_interior', '1'), ['0', ''], true);
-if (!$isHome && !$showInterior) {
+// The settings, the heading rule (shared with the page-title block, so the home
+// page has exactly one <h1>), the corpus counts and the AMIRA page each count
+// links to are resolved in helper/SiteChrome.php; null means no masthead here.
+$banner = $this->plugin('SiteChrome')->banner($site, $isHome);
+if ($banner === null) {
     return;
 }
+$variant      = $banner['variant'];
+$heading      = $banner['heading'];
+$eyebrow      = $banner['eyebrow'];
+$tagline      = $banner['tagline'];
+$showWash     = $banner['showWash'];
+$searchAction = $banner['searchAction'];
+$searchParam  = $banner['searchParam'];
+$heroLinks    = $banner['heroLinks'];
+$asideTitle   = $banner['asideTitle'];
+$asideText    = $banner['asideText'];
+$stats        = $banner['stats'];
+$statsTitle   = $banner['statsTitle'];
+$hasColumn    = $banner['hasColumn'];
 
-$siteTitle = $site ? $site->title() : '';
-$heading   = $this->themeSetting('banner_heading') ?: $siteTitle;
-if ($heading === '' || $heading === null) {
-    return; // nothing to show, no point rendering an empty band
-}
-
-$eyebrow = $this->themeSetting('banner_eyebrow');
-if ($eyebrow === null) {
-    $eyebrow = $translate('Digital Research Environment');
-}
-$tagline = $this->themeSetting('banner_description');
-
-// The optional pre-2.22 wash. Off by default: the masthead is a plate now.
-$showWash = in_array((string) $this->themeSetting('banner_wash', '0'), ['1'], true);
-
-$variant = $isHome ? 'home' : 'page';
-
-// ===== Search =============================================================
-// The header owns the primary search field from $xl up, where it fills the
-// centre of tier 1. Below that breakpoint it collapses to a magnifier button
-// (see components/header/_header.scss `&__search { display: none }`), so the
-// masthead still renders a real field and CSS hides it at $xl+ — the first
-// screen always offers somewhere to type, and never two fields at once.
-// DreSearchUrl owns the module probe and the fallback (core site search).
-$searchUrl    = $this->plugin('DreSearchUrl');
-$searchAction = $isHome ? ($searchUrl() ?: null) : null;
-$searchParam  = $searchUrl->queryParam();
-
-// ===== Hero links =========================================================
-// Two optional text links under the lede — underlined, gold arrow, no filled
-// button. The masthead's job is to point at the two things a visitor most
-// often wants (the records, and the visualisations); a solid CTA competed with
-// the catalogue column for the same attention. Both are empty by default.
-// Link 1 keeps its pre-2.24 label fallback so existing installs are unchanged;
-// link 2 is new and only renders when an admin sets both fields.
-$heroLinks = [];
-$buttonLink = trim((string) $this->themeSetting('banner_button_link', ''));
-if ($buttonLink !== '') {
-    $heroLinks[] = [
-        'href'  => $buttonLink,
-        'label' => $this->themeSetting('banner_button_label') ?: $translate('Explore the collection'),
-    ];
-}
-$buttonLink2  = trim((string) $this->themeSetting('banner_button2_link', ''));
-$buttonLabel2 = trim((string) $this->themeSetting('banner_button2_label', ''));
-if ($buttonLink2 !== '' && $buttonLabel2 !== '') {
-    $heroLinks[] = ['href' => $buttonLink2, 'label' => $buttonLabel2];
-}
-
-// Optional standing note ("Open access", licensing, how to cite). It used to
-// own the right-hand column; the catalogue does now, so the note stacks beneath
-// it. Nothing is dropped — an install that set it still shows it.
-$asideTitle = trim((string) $this->themeSetting('banner_aside_title', ''));
-$asideText  = trim((string) $this->themeSetting('banner_aside_text', ''));
-
-// Home-only corpus counts. All the sourcing (cache → module precompute →
-// Omeka API fallback) and its error handling live in helper/CollectionStats.php
-// — it returns [] on any hiccup, so the masthead still renders.
-$stats = [];
-$showStats = $isHome
-    && !in_array((string) $this->themeSetting('banner_show_stats', '1'), ['0', ''], true);
-if ($showStats) {
-    $stats = $this->CollectionStats($site ? $site->id() : null);
-}
-$statsTitle = trim((string) $this->themeSetting('banner_stats_title', ''));
-if ($statsTitle === '') {
-    $statsTitle = $translate('In the collection');
-}
+// Each catalogue row links to its authority page (config/amira-pages.php
+// statPages). The plain-row fallback stays: a stale hourly cache or an older
+// module can still hand us a key we have no page for, and a dead link is worse
+// than an unlinked row.
+$statLinks = $banner['statLinks'];
+$siteBase  = $banner['siteBase'];
 
 // Locale-aware thousands separators (1,234 in English, 1.234 in German).
 $formatNumber = $this->plugin('FormatNumber');
-
-// Each catalogue row links to its authority page. Every metric both sources
-// emit is mapped here since 2.24.1 (Resource Types, the one that never had a
-// route, was dropped from both), but the plain-row fallback stays: a stale
-// hourly cache or an older visualizations module can still hand us a key we
-// have no page for, and a dead link is worse than an unlinked row.
-$statLinks = (require dirname(__DIR__, 2) . '/config/amira-pages.php')['statPages'];
-$siteBase = $site ? rtrim((string) $site->url(), '/') : '';
-
-$hasColumn = $isHome && ($stats || $asideTitle || $asideText);
 ?>
 <div class="site-banner site-banner--<?php echo $variant; ?>">
     <?php if ($showWash): ?>

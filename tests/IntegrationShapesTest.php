@@ -71,10 +71,10 @@ $html = $v->render('common/resource-page-block-layout/mirador', ['resource' => n
 dre_check($failures, $checks, 'remote manifest without local media retains its viewer', str_contains($html, 'data-remote-viewer'));
 $v->callbacks['mirador'] = fn() => '';
 $html = $v->render('common/resource-page-block-layout/mirador', ['resource' => new class {}]);
-dre_check($failures, $checks, 'an empty helper response creates no empty viewer region', !str_contains($html, 'role="application"'));
+dre_check($failures, $checks, 'an empty helper response creates no empty viewer region', !str_contains($html, 'block-mirador'));
 $v->callbacks['mirador'] = function () { throw new RuntimeException(); };
 $html = $v->render('common/resource-page-block-layout/mirador', ['resource' => new class {}]);
-dre_check($failures, $checks, 'viewer errors have a usable recovery message without a broken region', str_contains($html, 'Please try reloading') && !str_contains($html, 'role="application"'));
+dre_check($failures, $checks, 'viewer errors have a usable recovery message without a broken region', str_contains($html, 'Please try reloading') && !str_contains($html, 'role="region"'));
 
 $v->settings = [];
 $v->callbacks['thumbnail'] = fn() => '';

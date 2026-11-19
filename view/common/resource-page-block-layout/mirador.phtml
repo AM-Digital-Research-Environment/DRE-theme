@@ -47,7 +47,10 @@ try {
 if ($viewer !== ''):
     $this->headScript()->appendFile($this->assetUrl('js/dist/mirador-theme.min.js'), 'text/javascript', ['defer' => 'defer']);
 ?>
-<div class="block resource-block block-mirador" role="application" aria-label="<?php echo $this->escapeHtmlAttr($viewerLabel); ?>">
+<?php // A named region, not an application role: that role switches screen readers
+      // out of browse mode for everything inside, and Mirador's own toolbar,
+      // panels and links are ordinary controls a reader should browse. ?>
+<div class="block resource-block block-mirador" role="region" aria-label="<?php echo $this->escapeHtmlAttr($viewerLabel); ?>">
     <?php echo $viewer; ?>
 </div>
 <?php endif; ?>

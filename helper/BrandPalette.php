@@ -4,7 +4,7 @@ namespace OmekaTheme\Helper;
 use Laminas\View\Helper\AbstractHelper;
 
 /** Accessible custom-brand fills. The authored default palette remains unchanged. */
-class BrandPalette extends AbstractHelper
+final class BrandPalette extends AbstractHelper
 {
     /** @return array<'light'|'dark', array{primary: string, 'primary-hover': string, 'primary-active': string, 'primary-text': string, 'primary-contrast': string}> */
     public function __invoke(string $seed): array

@@ -14,7 +14,7 @@ use Laminas\View\Helper\AbstractHelper;
  * ordinary page view. Two requests racing on it can at worst log one line
  * twice, which is not worth a lock on a public page.
  */
-class IntegrationWarning extends AbstractHelper
+final class IntegrationWarning extends AbstractHelper
 {
     public const SETTING = 'dre_theme_warnings';
     private const INTERVAL = 3600;

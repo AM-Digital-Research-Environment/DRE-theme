@@ -1,3 +1,12 @@
+/* Shared resource parts — the description, the type tags and the page/block
+   title, used across cards, blocks and records. Moved from base/elements (they
+   are components, not element defaults) and forwarded first, so they keep their
+   place in the cascade ahead of the components that build on them.
+--------------------------------------------- */
+@forward "resource-description/resource-description";
+@forward "resource-tag/resource-tag";
+@forward "page-title/page-title";
+
 /* Header
 --------------------------------------------- */
 @forward "header/header";
@@ -37,9 +46,9 @@
 --------------------------------------------- */
 @forward "mapping/mapping-map";
 
-/* Metadata
+/* Record (the .metadata / .item-record page)
 --------------------------------------------- */
-@forward "metadata/metadata";
+@forward "record/record";
 
 /* Blocks
 --------------------------------------------- */

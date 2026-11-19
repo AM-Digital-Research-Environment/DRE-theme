@@ -1,0 +1,26 @@
+// ==========================================================================
+// The record — the most-read surface in the archive.
+//
+// Three layers:
+//   .item-record   — the page: reading column + sticky apparatus rail
+//   .record        — the grouped property sets inside it
+//   .metadata      — the long-standing wrapper Omeka's resource-page blocks
+//                    render into (kept, so every block keeps its styling)
+//
+// Content before apparatus: title, abstract and subjects lead at a real reading
+// measure; identifiers, IDs and URIs are grouped last; citation, DOI and licence
+// live in the rail. Never in database order.
+// ==========================================================================
+//
+// One partial per section, forwarded in the order the single _metadata.scss
+// used to emit them: the cascade between sections is unchanged.
+@forward "layout";
+@forward "groups";
+@forward "full-text";
+@forward "chips";
+@forward "notice";
+@forward "identifiers";
+@forward "access";
+@forward "apparatus";
+@forward "wrapper";
+@forward "narrow";

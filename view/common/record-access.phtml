@@ -28,23 +28,12 @@ $escAttr = $this->plugin('escapeHtmlAttr');
 $translate = $this->plugin('translate');
 $translatePlural = $this->plugin('translatePlural');
 
-// A person with a staff page gets it after the name: "Vierke, Ulf (staff page)".
-// The link text repeats per person, so its accessible name says whose page it is.
-$linkList = function (array $links) use ($escHtml, $escAttr, $translate): string {
-    $parts = [];
-    foreach ($links as $link) {
-        $part = $link['href'] !== ''
-            ? '<a href="' . $escAttr($link['href']) . '">' . $escHtml($link['label']) . '</a>'
-            : $escHtml($link['label']);
-        if (!empty($link['staffPage'])) {
-            $part .= ' (<a href="' . $escAttr($link['staffPage']) . '" aria-label="'
-                . $escAttr(sprintf($translate('Staff page of %s'), $link['label'])) . '">'
-                . $escHtml($translate('staff page')) . '</a>)';
-        }
-        $parts[] = $part;
-    }
-    return implode('; ', $parts);
-};
+// People and projects as linked names, staff pages after the people (RecordAccess).
+$linkList = [$this->plugin('RecordAccess'), 'linkList'];
+// Translated sentences around those links: escaped, and safe from a translation
+// that asks for more arguments than the sentence has.
+$format = $this->plugin('TranslateFormat');
+$formatHtml = $format->html();
 // An access request to the DRE arrives with the record's id, title and link.
 $mailLink = '<a href="' . $escAttr($access['requestMailto']) . '">' . $escHtml($access['email']) . '</a>';
 $id = 'record-access-' . (int) $access['id'];
@@ -82,13 +71,13 @@ if ($this->getHelperPluginManager()->has('contactUs')) {
         <div class="record-access__row">
             <dt><?php echo $escHtml($translate('Records')); ?></dt>
             <dd>
-                <a class="record-access__item" href="<?php echo $escAttr($access['records']['href']); ?>"><?php echo $escHtml(sprintf(
-                    $translatePlural('Search its %s record', 'Search its %s records', $access['records']['count']),
+                <a class="record-access__item" href="<?php echo $escAttr($access['records']['href']); ?>"><?php echo $escHtml($format->translatePlural(
+                    'Search its %s record', 'Search its %s records', $access['records']['count'],
                     $this->FormatNumber($access['records']['count'])
                 )); ?></a>
                 <?php if (!empty($access['records']['collections'])): ?>
-                    <span class="record-access__note"><?php echo $escHtml(sprintf(
-                        $translatePlural('The collection %s', 'The collections %s', count($access['records']['collections'])),
+                    <span class="record-access__note"><?php echo $escHtml($format->translatePlural(
+                        'The collection %s', 'The collections %s', count($access['records']['collections']),
                         implode('; ', $access['records']['collections'])
                     )); ?></span>
                 <?php endif; ?>
@@ -126,21 +115,20 @@ if ($this->getHelperPluginManager()->has('contactUs')) {
                     <?php if ($isProject): ?>
                         <span class="record-access__item"><?php echo $escHtml($access['pis'] ? $translate('or the project’s researchers, listed on this page') : $translate('The project’s researchers, listed on this page')); ?></span>
                     <?php else: ?>
-                    <span class="record-access__item"><?php echo sprintf(
-                        $escHtml($access['pis'] ? $translate('or the research team of %s') : $translate('The research team of %s')),
-                        $linkList($access['projects'])
-                    ); ?></span>
+                    <span class="record-access__item"><?php echo $access['pis']
+                        ? $formatHtml->translate('or the research team of %s', $linkList($access['projects']))
+                        : $formatHtml->translate('The research team of %s', $linkList($access['projects'])); ?></span>
                     <?php endif; ?>
                     <?php if (!empty($access['holders'])): ?>
-                        <span class="record-access__note"><?php echo $escHtml(sprintf(
-                            $translate('Not %s: it keeps the material but does not handle access requests.'),
+                        <span class="record-access__note"><?php echo $escHtml($format->translate(
+                            'Not %s: it keeps the material but does not handle access requests.',
                             implode('; ', $access['holders'])
                         )); ?></span>
                     <?php endif; ?>
                 <?php elseif ($access['contactSource'] === 'mediator'): ?>
                     <span class="record-access__item"><?php echo $linkList($access['contacts']); ?></span>
                 <?php else: ?>
-                    <span class="record-access__item"><?php echo sprintf($escHtml($translate('The Digital Research Environment (DRE): %s')), $mailLink); ?></span>
+                    <span class="record-access__item"><?php echo $formatHtml->translate('The Digital Research Environment (DRE): %s', $mailLink); ?></span>
                 <?php endif; ?>
             </dd>
         </div>
@@ -148,7 +136,7 @@ if ($this->getHelperPluginManager()->has('contactUs')) {
         <?php if ($access['contactSource'] !== 'dre'): ?>
             <div class="record-access__row">
                 <dt><?php echo $escHtml($translate('No reply?')); ?></dt>
-                <dd><?php echo sprintf($escHtml($translate('Write to the DRE: %s')), $mailLink); ?></dd>
+                <dd><?php echo $formatHtml->translate('Write to the DRE: %s', $mailLink); ?></dd>
             </div>
         <?php endif; ?>
     </dl>

@@ -3,7 +3,7 @@ namespace OmekaTheme\Helper;
 use Laminas\View\Helper\AbstractHelper;
 
 /** Build the per-site manifest; encoding/routing failure disables installation. */
-class PwaManifest extends AbstractHelper
+final class PwaManifest extends AbstractHelper
 {
     /**
      * @param \Omeka\Api\Representation\SiteRepresentation $site

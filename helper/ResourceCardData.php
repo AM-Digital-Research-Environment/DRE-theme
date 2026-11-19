@@ -3,7 +3,7 @@ namespace OmekaTheme\Helper;
 use Laminas\View\Helper\AbstractHelper;
 
 /** Common locale, description and primary-thumbnail preparation for browse cards. */
-class ResourceCardData extends AbstractHelper
+final class ResourceCardData extends AbstractHelper
 {
     /**
      * @param \Omeka\Api\Representation\ItemRepresentation|\Omeka\Api\Representation\ItemSetRepresentation|\Omeka\Api\Representation\MediaRepresentation $resource
@@ -13,7 +13,7 @@ class ResourceCardData extends AbstractHelper
     public function __invoke($resource, array $options = []): array
     {
         $view = $this->getView();
-        $lang = $view->siteSetting('filter_locale_values') ? [$view->lang(), ''] : null;
+        $lang = $view->plugin('ValueReader')->valueLang();
         $headingTerm = $view->siteSetting('browse_heading_property_term');
         $bodyTerm = $view->siteSetting('browse_body_property_term');
         $title = $resource->displayTitle(null, $lang);

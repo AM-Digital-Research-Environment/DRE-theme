@@ -1,5 +1,8 @@
 <?php
 $translate = $this->plugin('translate');
+$format = $this->plugin('TranslateFormat');
+// Counts as the site's locale writes them, like the masthead's (1,234 / 1.234).
+$formatNumber = $this->plugin('FormatNumber');
 // A browse page shows the pager above and below its results: two navigation
 // landmarks need two names. The top/bottom wrappers (pagination-top.phtml,
 // pagination-bottom.phtml) set $position; a lone pager keeps the plain name.
@@ -17,7 +20,7 @@ $landmark = match ($position) {
         $from = $offset + 1;
         $to = ($currentPage < $pageCount) ? $offset + $perPage : $totalCount;
         ?>
-        <span class="row-count"><?php echo sprintf($translate('%1$s–%2$s of %3$s'), $from, $to, $totalCount); ?></span>
+        <span class="row-count"><?php echo $this->escapeHtml($format->translate('%1$s–%2$s of %3$s', $formatNumber($from), $formatNumber($to), $formatNumber($totalCount))); ?></span>
 
         <?php if ($pageCount > 1): ?>
 
@@ -37,7 +40,7 @@ $landmark = match ($position) {
                         <?php echo $this->escapeHtml($translate('Page')); ?>
                         <input type="text" name="page" class="page-input-top" value="<?php echo (int) $currentPage; ?>" size="4" <?php echo ($pageCount == 1) ? 'readonly' : ''; ?> aria-label="<?php echo $this->escapeHtmlAttr($translate('Page')); ?>">
                     </label>
-                    <span class="page-count"><?php echo sprintf($translate('of %s'), $pageCount); ?></span>
+                    <span class="page-count"><?php echo $this->escapeHtml($format->translate('of %s', $formatNumber($pageCount))); ?></span>
                     <input type="submit" class="gotopage-btn" value="<?php echo $this->escapeHtmlAttr($translate('Go')); ?>">
                 </form>
 

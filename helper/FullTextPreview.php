@@ -22,7 +22,7 @@ require_once __DIR__ . '/FormatNumber.php';
  *   words      the word count of the WHOLE text, locale-formatted, for the
  *              control's label ("about 140,320 words")
  */
-class FullTextPreview extends AbstractHelper
+final class FullTextPreview extends AbstractHelper
 {
     public const PREVIEW_CHARS = 2000;
     public const MIN_HIDDEN_CHARS = 1000;

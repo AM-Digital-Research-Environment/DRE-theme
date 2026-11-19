@@ -11,9 +11,7 @@
     const STORAGE_KEY = 'dre-theme-preference';
     const THEME_ATTRIBUTE = 'data-theme';
 
-    /**
-     * Preferred theme: localStorage > system preference > light.
-     */
+    /** The visitor's explicit choice, if storage holds one. */
     function storedTheme() {
         try {
             const stored = window.localStorage.getItem(STORAGE_KEY);
@@ -32,15 +30,18 @@
         }
     }
 
-    function getPreferredTheme() {
-        const stored = storedTheme();
-        if (stored) {
-            return stored;
-        }
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            return 'dark';
-        }
-        return 'light';
+    /**
+     * The mode in force. The head script in layout.phtml has already resolved
+     * it (stored choice, else system preference) onto data-theme, and
+     * window.DRETokens (dre-token-bridge.js, in <head>) reads it the way every
+     * module does, falling back to the system preference where the head script
+     * could not run. The attribute alone answers should the bridge be missing.
+     */
+    function currentTheme() {
+        const dark = window.DRETokens
+            ? window.DRETokens.isDark()
+            : document.body.getAttribute(THEME_ATTRIBUTE) === 'dark';
+        return dark ? 'dark' : 'light';
     }
 
     function applyTheme(theme) {
@@ -59,7 +60,7 @@
      * the other matches nothing.
      */
     function updateThemeColor(theme) {
-        document.querySelectorAll('meta[name="theme-color"][data-theme-color]').forEach(function (meta) {
+        document.querySelectorAll('meta[name="theme-color"][data-theme-color]').forEach((meta) => {
             meta.setAttribute('media', meta.getAttribute('data-theme-color') === theme ? 'all' : 'not all');
         });
     }
@@ -77,18 +78,17 @@
     }
 
     function toggleTheme() {
-        const currentTheme = document.body.getAttribute(THEME_ATTRIBUTE) || getPreferredTheme();
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        const newTheme = currentTheme() === 'dark' ? 'light' : 'dark';
         rememberTheme(newTheme);
         applyTheme(newTheme);
     }
 
     function init() {
         // The head-script already set data-theme; sync the button state.
-        applyTheme(document.body.getAttribute(THEME_ATTRIBUTE) || getPreferredTheme());
+        applyTheme(currentTheme());
 
-        document.addEventListener('click', function (event) {
-            const toggle = event.target.closest('[data-theme-toggle]');
+        document.addEventListener('click', (event) => {
+            const toggle = event.target.closest?.('[data-theme-toggle]');
             if (toggle) {
                 event.preventDefault();
                 toggleTheme();
@@ -97,7 +97,8 @@
 
         // Follow system changes only while the visitor hasn't chosen manually.
         if (window.matchMedia) {
-            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (event) {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (event) => {
+
                 if (!storedTheme()) {
                     applyTheme(event.matches ? 'dark' : 'light');
                 }

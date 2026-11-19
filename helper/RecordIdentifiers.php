@@ -2,34 +2,24 @@
 namespace OmekaTheme\Helper;
 use Laminas\View\Helper\AbstractHelper;
 
-require_once __DIR__ . '/ValueReader.php';
+require_once __DIR__ . '/RecordLinkedData.php';
 
 /**
- * The records a resource is reconciled with in other registers — its ORCID,
- * Wikidata, GND and Library of Congress identifiers, and a publication's DOI —
- * without emitting markup, plus the register's logo for whoever renders them.
- *
- * MongoDB2OmekaS writes each reconciliation as a `dcterms:identifier` URI value
- * (https://orcid.org/…, http://www.wikidata.org/entity/Q…, https://d-nb.info/gnd/…,
- * http://id.loc.gov/authorities/subjects/…) and a DOI as `bibo:doi`. Literal
- * identifiers (an EPrints id, a shelf mark) are not links to another register
- * and are left to the grouped record; so is a URI on a host no reader would
- * recognise by name.
- *
- * Shape: [['label' => 'ORCID', 'id' => '0000-0002-1825-0097', 'href' => …], …],
- * DOI first (a publication's primary identifier), then ORCID, Wikidata, GND,
- * Library of Congress, then any other register RecordLinkedData names.
+ * The registers a value is reconciled with — ORCID, Wikidata, GND, the Library
+ * of Congress, a DOI — drawn as each register's own mark, for whoever renders
+ * an identifier: the rail's DOI and *Same as* rows
+ * (common/record-apparatus-rows.phtml) and the identifiers in *Identifiers &
+ * sources* (common/resource-values.phtml). Templates reach it as
+ * `$this->plugin('RecordIdentifiers')`.
  */
-class RecordIdentifiers extends AbstractHelper
+final class RecordIdentifiers extends AbstractHelper
 {
-    private const ORDER = ['DOI', 'ORCID', 'Wikidata', 'GND', 'Library of Congress'];
-
     /**
      * Each register's official mark, from its own published artwork (Wikimedia
      * Commons): the ORCID iD, the Wikidata barcode, the GND hexagon ("Wabe"),
      * the DOI disc and the Library of Congress favicon. Brand colours are part
      * of the mark, so they stay literal here; a modifier class widens the two
-     * that are not square (_metadata.scss). The mark is decoration —
+     * that are not square (components/record/_identifiers.scss). The mark is decoration —
      * the register's name always travels as text beside it.
      */
     private const ICONS = [
@@ -43,42 +33,9 @@ class RecordIdentifiers extends AbstractHelper
     /** A register RecordLinkedData names but has no mark here: a plain link glyph. */
     private const GENERIC_ICON = '<svg class="identifier-icon identifier-icon--generic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
 
-    /**
-     * Without a resource the helper itself, so a template can reach icon():
-     * `$this->plugin('RecordIdentifiers')->icon('ORCID')`.
-     *
-     * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null $resource
-     * @return array<int, array{label: string, id: string, href: string}>|self
-     */
-    public function __invoke($resource = null)
+    public function __invoke(): self
     {
-        if ($resource === null) {
-            return $this;
-        }
-
-        $found = [];
-        foreach (['bibo:doi', 'dcterms:identifier'] as $term) {
-            foreach (ValueReader::values($resource, $term) as $value) {
-                // A URI value's URI, a literal that is itself a URL, or (for
-                // bibo:doi only) a bare `10.x/…` DOI.
-                $href = ValueReader::url($value, $term === 'bibo:doi');
-                if ($href === '') {
-                    continue;
-                }
-                $register = $this->register($href);
-                // An unknown host comes back named by itself, with no id.
-                if ($register['id'] === '') {
-                    continue;
-                }
-                $found[ValueReader::comparableUrl($href)] ??= $register + ['href' => $href];
-            }
-        }
-
-        $rank = array_flip(self::ORDER);
-        $found = array_values($found);
-        usort($found, fn (array $a, array $b) => ($rank[$a['label']] ?? count($rank)) <=> ($rank[$b['label']] ?? count($rank)));
-
-        return $found;
+        return $this;
     }
 
     /** The register's mark as inline SVG, decorative; '' for no register. */
@@ -93,27 +50,7 @@ class RecordIdentifiers extends AbstractHelper
     /** The mark for an identifier's URI; '' when no known register issues it. */
     public function markFor(string $href): string
     {
-        $register = $this->register($href);
+        $register = RecordLinkedData::register($href);
         return $register['id'] !== '' ? $this->icon($register['label']) : '';
-    }
-
-    /**
-     * RecordLinkedData::register(), loaded first. Omeka builds a theme helper
-     * through a factory that require_once's its file on first use; theme helper
-     * classes are not autoloaded, so the class exists only once something has
-     * asked for the plugin.
-     *
-     * @return array{label: string, id: string}
-     */
-    private function register(string $href): array
-    {
-        $this->getView()->plugin('RecordLinkedData');
-        return RecordLinkedData::register($href);
-    }
-
-    /** True when the register has its own mark rather than the generic glyph. */
-    public static function hasMark(string $label): bool
-    {
-        return isset(self::ICONS[$label]);
     }
 }

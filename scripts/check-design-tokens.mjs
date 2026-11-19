@@ -27,25 +27,20 @@
  * Exit code 1 on any finding; prints file:line for each.
  */
 import { readFileSync, writeFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
+import { themeRoot } from './lib/files.mjs';
+import { blockBody, stripComments } from './lib/scss-blocks.mjs';
 import { parseOklch, contrastRatio, contrastRatioResolved } from './lib/contrast.mjs';
 import { runRules, report } from './lib/token-rules.mjs';
 
 /** `--root <dir>` / `--root=<dir>` / DRE_TOKENS_ROOT, else this repository. */
-function rootArg(argv) {
-  const at = argv.findIndex((a) => a === '--root' || a.startsWith('--root='));
-  if (at !== -1) {
-    const value = argv[at].includes('=') ? argv[at].slice('--root='.length) : argv[at + 1];
-    if (!value) {
-      console.error('check-design-tokens: --root needs a directory');
-      process.exit(2);
-    }
-    return resolve(value);
-  }
-  return process.env.DRE_TOKENS_ROOT ? resolve(process.env.DRE_TOKENS_ROOT) : null;
+let ROOT;
+try {
+  ROOT = themeRoot(process.argv.slice(2), { env: 'DRE_TOKENS_ROOT' });
+} catch (error) {
+  console.error(`check-design-tokens: ${error.message}`);
+  process.exit(2);
 }
-
-const ROOT = rootArg(process.argv.slice(2)) ?? join(import.meta.dirname, '..');
 const SASS = join(ROOT, 'asset', 'sass');
 const ALLOWLIST = join(ROOT, 'scripts', 'design-token-allowlist.txt');
 const table = JSON.parse(readFileSync(join(ROOT, 'asset', 'css', 'dre-tokens-fallback.json'), 'utf8'));
@@ -201,22 +196,9 @@ for (const [key, allowed] of ratchet) {
 // Contrast assertion — the one check only the theme can make.
 // ==========================================================================
 
-const colorsSrc = readFileSync(join(SASS, 'abstracts', 'variables', '_colors.scss'), 'utf8');
-
-/** Extract the body of `@mixin <name> { … }` / `<selector> { … }` by brace matching. */
-function blockBody(src, opener) {
-  const start = src.indexOf(opener);
-  if (start === -1) return null;
-  let i = src.indexOf('{', start);
-  if (i === -1) return null;
-  let depth = 0;
-  const from = i + 1;
-  for (; i < src.length; i++) {
-    if (src[i] === '{') depth++;
-    else if (src[i] === '}' && --depth === 0) return src.slice(from, i);
-  }
-  return null;
-}
+// Comments stripped first, as gen-token-fallbacks.mjs does: the file names its
+// own selectors in prose, and brace matching from a comment finds the wrong block.
+const colorsSrc = stripComments(readFileSync(join(SASS, 'abstracts', 'variables', '_colors.scss'), 'utf8'));
 
 /** name → `oklch(…)` literal, for the hand-authored declarations in a block. */
 function oklchTokens(body) {
@@ -301,8 +283,7 @@ function allTokens(body) {
   const out = new Map();
   if (!body) return out;
   let depth = 0;
-  for (const line of body.split(/\r?\n/)) {
-    const bare = line.replace(/(^|[^:])\/\/.*$/, '$1');
+  for (const bare of body.split(/\r?\n/)) {
     if (depth === 0) {
       const m = /^\s*(--[\w-]+)\s*:\s*(.+?);\s*$/.exec(bare);
       if (m) out.set(m[1], m[2].trim());

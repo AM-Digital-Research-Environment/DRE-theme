@@ -11,12 +11,12 @@ $media = $marker->media();
     <?php endif; ?>
     <?php if ($item) : ?>
         <div>
-            <?php echo sprintf($this->translate('Item: %s'), $item->link($item->displayTitle(), null, ['target' => '_blank'])); ?>
+            <?php echo $this->TranslateFormat()->html()->translate('Item: %s', $item->link($item->displayTitle(), null, ['target' => '_blank'])); ?>
         </div>
     <?php endif; ?>
     <?php if ($media) : ?>
         <div>
-            <?php echo sprintf($this->translate('Media: %s'), $media->link($media->displayTitle(), null, ['target' => '_blank'])); ?>
+            <?php echo $this->TranslateFormat()->html()->translate('Media: %s', $media->link($media->displayTitle(), null, ['target' => '_blank'])); ?>
         </div>
     <?php endif; ?>
 </div>

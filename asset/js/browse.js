@@ -24,7 +24,6 @@
 
     function init() {
         const nativeLanes = typeof CSS !== 'undefined' && CSS.supports?.('display', 'grid-lanes');
-        const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
         const states = Array.from(document.querySelectorAll('.resources'), root => ({
             root, masonry: null, initial: root.classList.contains('resource-list') ? 'list' : 'grid', view: null, frame: null,
         }));
@@ -34,7 +33,8 @@
                 state.root.classList.add('is-masonry');
                 state.masonry = new Masonry(state.root, {
                     itemSelector: '.resource', columnWidth: '.grid-sizer', gutter: '.gutter-sizer',
-                    percentPosition: true, transitionDuration: reduceMotion ? 0 : '0.4s',
+                    // Read per instance, so a reduced-motion switch applies to the next grid.
+                    percentPosition: true, transitionDuration: window.DREUtils.prefersReducedMotion() ? 0 : '0.4s',
                 });
             } catch (_) {
                 state.root.classList.remove('is-masonry');
@@ -46,6 +46,10 @@
                 const grid = view === 'grid';
                 state.view = view;
                 if (!grid && state.masonry) {
+                    // Item.destroy() clears the inline position but leaves a
+                    // running transition's transitionend listener, which then
+                    // writes left/top back onto the list cards. Stop it first.
+                    state.masonry.items?.forEach(item => item.disableTransition?.());
                     state.masonry.destroy();
                     state.masonry = null;
                     state.root.classList.remove('is-masonry');

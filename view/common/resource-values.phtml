@@ -6,14 +6,14 @@
 // under their own heading (item-with-metadata) pass false for h4 titles.
 
 $translate = $this->plugin('translate');
+$format = $this->plugin('TranslateFormat');
 $escape = $this->plugin('escapeHtml');
 $escapeAttr = $this->plugin('escapeHtmlAttr');
-$decoration = $this->themeSetting('image_decoration');
 
 if ($this->status()->isSiteRequest()) {
     $labelInfo = $this->siteSetting('property_label_information');
     $showLocale = (bool) $this->siteSetting('show_locale_label', true);
-    $filterLocale = $this->siteSetting('filter_locale_values');
+    $filterLocale = $this->ValueReader()->valueLang() !== null;
     $lang = $this->lang();
     // Core's select: '' hides, 'collapsed' / 'expanded' show. Unset means
     // shown, as in core's own resource-values template. Both modes start
@@ -34,8 +34,6 @@ $filterLocaleCallback = function ($value) use ($lang) {
     $valueLang = $value->lang();
     return $valueLang == '' || strcasecmp($valueLang, $lang) === 0;
 };
-
-$this->inlineScript()->appendFile($this->assetUrl('js/dist/annotations.min.js'));
 
 // A numbered work in a series (a Cluster Chronicle, template 34) reads as one
 // row, "Series: Cluster Chronicles no. 4", not a series link and a bare
@@ -164,7 +162,7 @@ $fullTextWhole = '1' === $this->params()->fromQuery('full-text');
                                 data-loading="<?php echo $escapeAttr($translate('Loading the full text…')); ?>"
                                 data-loaded="<?php echo $escapeAttr($translate('Full text loaded')); ?>"
                                 data-error="<?php echo $escapeAttr($translate('The full text could not be loaded. Try again')); ?>"><?php echo $escape($translate('Read the full text')); ?></a>
-                            <span class="record-fulltext__size"><?php echo $escape(sprintf($translate('about %s words'), $fullText['words'])); ?></span>
+                            <span class="record-fulltext__size"><?php echo $escape($format->translate('about %s words', $fullText['words'])); ?></span>
                         </span>
                         <?php else: ?>
                         <span class="value-content"><?php
@@ -172,12 +170,12 @@ $fullTextWhole = '1' === $this->params()->fromQuery('full-text');
                             // preserving ('medium') thumbnail. The core resource data type
                             // hard-codes linkPretty('square'), which centre-crops wide
                             // logos/wordmarks to a square; 'medium' keeps the full image.
-                            // (_metadata.scss caps the height and frees the width.)
+                            // (components/record/_wrapper.scss caps the height and frees the width.)
                             // Everything else still goes through asHtml() unchanged.
                             if ($isResource && $value->valueResource()):
                                 echo $value->valueResource()->linkPretty('medium', null, null, null, $filterLocale ? $lang : []);
                                 if ($term === 'dcterms:isPartOf' && $seriesNumber !== ''): ?> <span class="value-series-number"><?php
-                                    echo $escape(sprintf($translate('no. %s'), $seriesNumber)); ?></span><?php
+                                    echo $escape($format->translate('no. %s', $seriesNumber)); ?></span><?php
                                 endif;
                             else:
                                 // A reconciled identifier (ORCID, Wikidata, GND…) carries
@@ -191,7 +189,7 @@ $fullTextWhole = '1' === $this->params()->fromQuery('full-text');
                         <?php endif; ?>
                         <?php if ($generatedBy): ?>
                             <span class="value-provenance"><span class="value-provenance__flag"><?php echo $escape($translate('Machine-generated')); ?></span>
-                                <?php echo sprintf($escape($translate('by %s')), implode(', ', $generatedBy)); ?></span>
+                                <?php echo $format->html()->translate('by %s', implode(', ', $generatedBy)); ?></span>
                         <?php endif; ?>
                         <?php
                         // What an access-rights term means ("Public": the description

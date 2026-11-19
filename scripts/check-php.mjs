@@ -41,13 +41,16 @@
  *
  * WHAT IT DOES NOT CATCH. Syntax is not correctness. A file can parse perfectly
  * and still put the Author under "Further details" — see
- * scripts/check-resource-groups.mjs and tests/ResourceGroupsTest.php for the
- * behavioural half.
+ * tests/ResourceGroupsTest.php for the behavioural half.
+ *
+ * MISSING EXTENSIONS (mbstring, intl) are reported before anything runs, and
+ * handled like a missing PHP: a failure under CI=true or --require; locally a
+ * warning, and the syntax pass alone.
  */
 import { join, relative, sep } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
-import { walkFiles } from './files.mjs';
+import { walkFiles } from './lib/files.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
 const IN_CI = Boolean(process.env.CI) && process.env.CI !== 'false';
@@ -82,6 +85,7 @@ function localPhp() {
   const version = (probe.stdout ?? '').split('\n')[0].trim();
   return {
     label: `local php (${version})`,
+    modules: () => spawnSync('php', ['-m'], { encoding: 'utf8' }).stdout ?? '',
     *lint(list) {
       for (const file of list) {
         const result = spawnSync('php', ['-l', file], { encoding: 'utf8' });
@@ -133,6 +137,7 @@ function dockerPhp() {
 
   return {
     label: `docker ${DOCKER_IMAGE}`,
+    modules: () => spawnSync('docker', ['run', '--rm', DOCKER_IMAGE, 'php', '-m'], { encoding: 'utf8' }).stdout ?? '',
     lint: (list) => batch('-l', list),
     // stdout and stderr share the container's stream; report it as stdout.
     run: (list) => batch('', list).map(({ file, status, output }) => ({ file, status, stdout: output, stderr: '' })),
@@ -175,6 +180,34 @@ ${rule}
 
 console.log(`PHP verification: using ${php.label} on ${files.length} file(s).`);
 
+// --- 0. Extensions --------------------------------------------------------
+//
+// The helpers call mb_* functions and NumberFormatter, so a PHP without
+// mbstring or intl (a Windows build with no php.ini loads neither) parses
+// every file and then dies mid-suite on "Call to undefined function", which
+// reads as a theme bug. Asked up front instead, and treated like a missing
+// PHP: a failure under CI=true or --require, a loud warning and no behaviour
+// suites locally. `php -l` needs no extension, so the syntax pass still runs.
+const REQUIRED_EXTENSIONS = ['mbstring', 'intl'];
+const loaded = new Set(php.modules().split(/\r?\n/).map((line) => line.trim().toLowerCase()));
+const missingExtensions = REQUIRED_EXTENSIONS.filter((name) => !loaded.has(name));
+if (missingExtensions.length) {
+  const message = [
+    `PHP verification: ${php.label} lacks the ${missingExtensions.join(' and ')} extension${missingExtensions.length > 1 ? 's' : ''} the PHP tests need.`,
+    '',
+    '  `php --ini` names the php.ini in use (or "(none)"). Enable them there:',
+    ...missingExtensions.map((name) => `    extension=${name}`),
+    '  with extension_dir pointing at the ext/ folder of that PHP; or set PHPRC',
+    '  to a directory holding such a php.ini.',
+  ].join('\n');
+  if (REQUIRE_PHP) {
+    console.error(message);
+    process.exit(1);
+  }
+  const rule = '!'.repeat(78);
+  console.warn(`\n${rule}\n${message}\n\n  Checking syntax only: NO PHP behaviour suite runs in this pass.\n${rule}\n`);
+}
+
 // --- 1. Syntax ------------------------------------------------------------
 const syntaxErrors = [];
 for (const { file, status, output } of php.lint(files)) {
@@ -193,6 +226,10 @@ if (syntaxErrors.length) {
   process.exit(1);
 }
 console.log(`PHP syntax: clean (${files.length} files parsed).`);
+if (missingExtensions.length) {
+  console.warn(`PHP tests: SKIPPED (no ${missingExtensions.join(', ')}).`);
+  process.exit(0);
+}
 
 // --- 2. Behaviour ---------------------------------------------------------
 // OmekaCompatibilityTest needs an unpacked official Omeka release and is run

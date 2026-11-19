@@ -24,7 +24,7 @@ the `--dre-search-bar-*` properties, page events, `window.DRETokens`) are in
 ## Commands
 
 ```bash
-npm run verify          # the CI contract: lints, Sass build, i18n check, unit tests, audit, stale-CSS check
+npm run verify          # the CI contract: lints, then the build, i18n check, unit tests, audit, stale-output check
 npm run test:browser    # Playwright on PHP-rendered partials, Chromium/Firefox/WebKit + axe
 npm run i18n:extract    # after adding, changing or removing a translate() string
 npm run check:contract  # the theme–module contract, against ../DRESearch, ../DRE-SEO, … (CI: module-integration)
@@ -38,13 +38,14 @@ Before committing a change to `helper/*.php`:
 ```bash
 # once, outside the repository (a scratch directory)
 curl -fsSL https://github.com/omeka/omeka-s/releases/download/v4.2.1/omeka-s-4.2.1.zip -o omeka.zip && unzip -q omeka.zip
-curl -fsSL https://github.com/phpstan/phpstan/releases/download/2.3.3/phpstan.phar -o phpstan.phar
+curl -fsSL https://github.com/phpstan/phpstan/releases/download/2.3.6/phpstan.phar -o phpstan.phar
 # from the theme root
 OMEKA_PATH=/abs/path/omeka-s PHPSTAN=/abs/path/phpstan.phar npm run lint:phpstan
 ```
 
-`npm run lint:php` needs a PHP with mbstring (and intl for the number
-tests); without a PHP it warns loudly and passes locally, and fails under
+`npm run lint:php` needs a PHP with mbstring and intl. Without a PHP, or with
+one that lacks either extension, it warns loudly and passes locally (with the
+extensions missing it still runs `php -l`, but no PHP test), and fails under
 `CI=true`.
 
 ## Gotchas
@@ -53,7 +54,8 @@ tests); without a PHP it warns loudly and passes locally, and fails under
   is the service name, the class name and the file name at once; call it as
   `$this->BrowseLayout()`. Laminas does not canonicalise, so `$this->browseLayout()`
   is a 500 on every page that renders it. `npm run lint:templates` checks
-  call sites.
+  call sites in templates and in helpers (`$view->X(`, `->getView()->X(`,
+  `plugin('X')`).
 - **The layout runs on every page.** An undefined method in
   `view/layout/layout.phtml` or anything it includes is a site-wide 500.
   `$this->status()` has no `getRouteMatch()`; `helper/IsHomePage.php` detects
@@ -63,15 +65,14 @@ tests); without a PHP it warns loudly and passes locally, and fails under
   Edit the source, rebuild, commit both; a new script needs its template
   reference to point at `js/dist/`. The unit tests run on both builds and the
   local browser suite on the minified one (`tests/support/theme-script.mjs`).
-- **Compiled CSS is committed.** A Sass edit without `npm run build` ships the
-  old styles; CI fails a stale `asset/css/style.css`. The stylesheet header is
+- **Compiled CSS is committed.** A Sass edit without `npm run build` (or a
+  running `npm run watch`, which rebuilds CSS and scripts) ships the old styles; CI fails a stale `asset/css/style.css`. The stylesheet header is
   prepended by `scripts/build-css.mjs`, not written in `style.scss`, and Sass's
   compressed output may emit a BOM, which the build strips: a BOM mid-file once
   killed 63 token declarations (`npm run lint:css` guards it).
 - **Deleting a template takes three edits:** the template, any hard-coded
-  reference to it in `scripts/check-templates.mjs` and
-  `tests/TemplateContractsTest.php` (both read listed templates
-  unconditionally, so a stale path is a crash, not a finding), then
+  reference to it in `tests/TemplateContractsTest.php` (which reads listed
+  templates unconditionally, so a stale path is a crash, not a finding), then
   `npm run i18n:extract`. Grep the repository for the path, `.php` files
   included.
 - **`.gitattributes` is the package manifest.** The release zip is
@@ -112,10 +113,12 @@ Fill `## [Unreleased]` in [CHANGELOG.md](CHANGELOG.md) as you work. Then, on a
 clean, green `master`:
 
 ```bash
-npm run verify
-npm version minor -m "Release v%s"   # syncs theme.ini, CITATION.cff, CSS header, CHANGELOG
+npm version minor -m "Release v%s"   # verify first; syncs theme.ini, CITATION.cff, CSS header, CHANGELOG
 git push origin master vX.Y.Z
 ```
+
+`npm version` runs `npm run verify` before it bumps (`preversion`) and refuses
+to release an empty `[Unreleased]`: the release notes are that section.
 
 The tag runs `.github/workflows/release.yml`: CI again on the tagged commit,
 the zip, its checks, Omeka's theme manager on the unpacked zip, then the

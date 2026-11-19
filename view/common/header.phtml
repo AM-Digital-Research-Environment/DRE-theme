@@ -26,11 +26,12 @@ $pwaEnabled = isset($pwaEnabled) ? (bool) $pwaEnabled : false;
 			<?php else: ?>
 				<?php // Bundled Africa Multiple lockup. Two variants swap on [data-theme]
 				      // so the grey "multiple" wordmark stays legible on the forest-dark
-				      // surface. A visually-hidden site title preserves the heading text. ?>
+				      // surface. The home link is named by the visually hidden site
+				      // title alone; the lockup is decorative beside it, since an alt
+				      // here made the name "AMIRA Africa Multiple Cluster of Excellence". ?>
 				<span class="sr-only"><?php echo $this->escapeHtml($site->title()); ?></span>
 				<img class="site-logo site-logo--light" src="<?php echo $this->escapeHtmlAttr($this->assetUrl('img/africamultiple.webp')); ?>"
-					alt="<?php echo $this->escapeHtmlAttr($translate('Africa Multiple Cluster of Excellence')); ?>"
-					width="569" height="140" fetchpriority="high" decoding="async" />
+					alt="" width="569" height="140" fetchpriority="high" decoding="async" />
 				<img class="site-logo site-logo--dark" src="<?php echo $this->escapeHtmlAttr($this->assetUrl('img/africamultiple-dark.webp')); ?>"
 					alt="" aria-hidden="true" width="569" height="140" decoding="async" />
 			<?php endif; ?>
@@ -133,46 +134,19 @@ $pwaEnabled = isset($pwaEnabled) ? (bool) $pwaEnabled : false;
 		</nav>
 	</div>
 
-	<?php // Resolve mode before paint; navigation.js reuses this on resize and font readiness. ?>
-	<script>
-	(function () {
-		var XL = 1200;
-		var header = document.querySelector('.main-header');
-		var container = header && header.querySelector('.main-navigation__container');
-		var menu = container && container.querySelector('ul');
-		if (!header || !container || !menu) return;
+	<?php // Resolve the menu mode before first paint, and mark a failed
+	      // navigation.js at load. Inline, because every external script is
+	      // deferred; the source is asset/js/nav-mode.js, built and tested like
+	      // the other scripts, and its minified build is what is inlined here
+	      // (without its source-map comment, which would resolve against the
+	      // page URL). navigation.js reuses it on resize and font readiness. ?>
+	<?php
+	$navModeFile = dirname(__DIR__, 2) . '/asset/js/dist/nav-mode.min.js';
+	$navMode = is_readable($navModeFile) ? trim((string) preg_replace('~^//# sourceMappingURL=.*$~m', '', (string) file_get_contents($navModeFile))) : '';
+	?>
+	<?php if ($navMode !== ''): ?>
+	<script><?php echo $navMode; ?></script>
+	<?php endif; ?>
 
-		function naturalWidth() {
-			var pc = container.style.cssText, pm = menu.style.cssText;
-			container.style.cssText = 'display:block;position:absolute;visibility:hidden;left:-9999px;top:0;width:max-content';
-			menu.style.cssText = 'display:flex;flex-wrap:nowrap;width:max-content';
-			var w = menu.getBoundingClientRect().width;
-			container.style.cssText = pc; menu.style.cssText = pm;
-			return w;
-		}
-
-		function classify() {
-			if (window.innerWidth < XL) { header.setAttribute('data-nav', 'drawer'); return; }
-			// Measure the real inline rules even when arriving from drawer mode.
-			// The successful-init gate is restored within this same task.
-			var ready = header.classList.contains('nav-ready');
-			header.classList.add('nav-ready');
-			header.setAttribute('data-nav', 'inline');
-			var avail = container.clientWidth || header.clientWidth;
-			var need = naturalWidth() + 8;
-			if (!ready) header.classList.remove('nav-ready');
-			header.setAttribute('data-nav', need > avail ? 'drawer' : 'inline');
-		}
-
-		window.__dreClassifyNav = classify;
-		classify();
-
-		// navigation.js adds .nav-ready at DOMContentLoaded. Still missing at
-		// load means it failed: fall back to the expanded list (_header.scss).
-		window.addEventListener('load', function () {
-			if (!header.classList.contains('nav-ready')) header.classList.add('nav-failed');
-		});
-	})();
-	</script>
 
 </header>

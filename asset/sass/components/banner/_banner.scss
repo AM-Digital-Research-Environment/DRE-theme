@@ -190,7 +190,7 @@ a.site-banner__link:active {
         max-width: 22ch;
     }
 
-    @media (min-width: $lg) {
+    @include bp-up($lg) {
         .site-banner__inner--split {
             grid-template-columns: minmax(0, 1fr) 24.5rem;
             gap: var(--space-16);
@@ -231,7 +231,7 @@ a.site-banner__link:active {
         background-color: var(--masthead-rule);
     }
 
-    @media (min-width: $lg) {
+    @include bp-up($lg) {
         border-inline: 1px solid var(--masthead-hair);
     }
 }
@@ -309,7 +309,7 @@ a.site-banner__entry {
     color: var(--masthead-ink-soft);
     white-space: nowrap;
 
-    @media (max-width: #{$sm - 1px}) {
+    @include bp-down($sm) {
         display: none;
     }
 }
@@ -358,7 +358,7 @@ a.site-banner__entry {
     margin-top: var(--space-10);
     max-width: 42rem;
 
-    @media (min-width: $xl) {
+    @include bp-up($xl) {
         display: none;
     }
 }
@@ -446,12 +446,8 @@ a.site-banner__entry {
     );
 }
 
-body[data-theme="dark"] .site-banner__art {
-    @include am-banner-dark-wash;
-}
-
-@media (prefers-color-scheme: dark) {
-    body:not([data-theme="light"]) .site-banner__art {
+.site-banner__art {
+    @include dark-mode {
         @include am-banner-dark-wash;
     }
 }
@@ -490,7 +486,7 @@ body[data-theme="dark"] .site-banner__art {
 // --------------------------------------------------------------------------
 // Small screens — gentler proportions; the optional wash stays full-bleed.
 // --------------------------------------------------------------------------
-@media (max-width: ($md - 1)) {
+@include bp-down($md) {
     .site-banner--home {
         .site-banner__lead {
             padding-top: var(--space-12);

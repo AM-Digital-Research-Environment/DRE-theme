@@ -5,17 +5,7 @@ $item = $media->item();
 $this->headLink()->appendStylesheet($this->assetUrl('css/resource-page-blocks.css', 'Omeka'));
 $this->htmlElement('body')->appendAttribute('class', 'media resource show');
 
-$filterLocale = (bool) $this->siteSetting('filter_locale_values');
-$lang = $this->lang();
-$valueLang = $filterLocale ? [$lang, ''] : null;
-
-// Regions
-$mainBlockContent = $this->resourcePageBlocks($media);
-$mainHasBlocks = $mainBlockContent->hasBlocks();
-$leftSidebarBlockContent = $this->resourcePageBlocks($media, 'left');
-$leftSidebarHasBlocks = $leftSidebarBlockContent->hasBlocks();
-$rightSidebarBlockContent = $this->resourcePageBlocks($media, 'right');
-$rightSidebarHasBlocks = $rightSidebarBlockContent->hasBlocks();
+$valueLang = $this->ValueReader()->valueLang();
 ?>
 
 <?php echo $this->partial('common/breadcrumb', ['resource' => $media]); ?>
@@ -26,45 +16,10 @@ $rightSidebarHasBlocks = $rightSidebarBlockContent->hasBlocks();
 
 <?php $this->trigger('view.show.before'); ?>
 
-<?php if ($mainHasBlocks || $leftSidebarHasBlocks || $rightSidebarHasBlocks): ?>
-
-    <?php
-    $additionalContainerClasses = '';
-    if ($mainHasBlocks && $leftSidebarHasBlocks && $rightSidebarHasBlocks) {
-        $additionalContainerClasses = 'regions-container--all';
-    }
-    ?>
-
-    <div class="regions-container <?php echo $additionalContainerClasses; ?>">
-    <?php if ($leftSidebarHasBlocks && $blockContent = $leftSidebarBlockContent->getBlocks()): ?>
-            <div class="sidebar-region sidebar-region--left">
-                <div class="metadata">
-                    <?php echo $blockContent; ?>
-                </div>
-            </div>
-        <?php endif; ?>
-
-        <?php if ($mainHasBlocks && $blockContent = $mainBlockContent->getBlocks()): ?>
-            <div class="main-region">
-                <div class="metadata">
-                    <?php echo $blockContent; ?>
-                </div>
-            </div>
-        <?php endif; ?>
-
-        <?php if ($rightSidebarHasBlocks && $blockContent = $rightSidebarBlockContent->getBlocks()): ?>
-            <div class="sidebar-region sidebar-region--right">
-                <div class="metadata">
-                    <?php echo $blockContent; ?>
-                </div>
-            </div>
-        <?php endif; ?>
-    </div>
-
-<?php endif; ?>
+<?php echo $this->partial('common/resource-regions', ['resource' => $media]); ?>
 
 <p class="media-parent-item textcenter">
-    <?php echo sprintf($translate('Part of %s'), $item->link($item->displayTitle(null, $valueLang))); ?>
+    <?php echo $this->TranslateFormat()->html()->translate('Part of %s', $item->link($item->displayTitle(null, $valueLang))); ?>
 </p>
 
 <?php // The media's permanent URI and RDF documents, when DRE Linked Data is installed. ?>

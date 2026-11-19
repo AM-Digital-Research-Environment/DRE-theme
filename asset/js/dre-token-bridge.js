@@ -29,14 +29,14 @@
  * No dependencies, no build step, safe to load in <head> — the probe is created
  * lazily on first use.
  */
-(function (window, document) {
+(function () {
     'use strict';
 
-    var ns = {};
-    var probe = null;
-    var ctx = null;
-    var listeners = [];
-    var observer = null;
+    const ns = {};
+    let probe = null;
+    let ctx = null;
+    const listeners = [];
+    let observer = null;
 
     /**
      * The hidden probe. Parented to <body> so it sits inside the
@@ -49,7 +49,7 @@
             probe.style.cssText =
                 'position:absolute;left:-9999px;top:-9999px;width:0;height:0;pointer-events:none';
         }
-        var host = document.body || document.documentElement;
+        const host = document.body || document.documentElement;
         if (host && probe.parentNode !== host) host.appendChild(probe);
         return probe;
     }
@@ -58,9 +58,9 @@
      * Rasterise any browser-parseable CSS colour — including oklch(), oklab()
      * and color-mix() — to a plain rgb()/rgba() string.
      */
-    ns.toRGB = function (color) {
+    ns.toRGB = (color) => {
         if (!ctx) {
-            var canvas = document.createElement('canvas');
+            const canvas = document.createElement('canvas');
             canvas.width = canvas.height = 1;
             ctx = canvas.getContext('2d', { willReadFrequently: true });
         }
@@ -68,10 +68,10 @@
         ctx.fillStyle = '#000';
         ctx.fillStyle = color; // the browser parses oklch / color-mix here
         ctx.fillRect(0, 0, 1, 1);
-        var d = ctx.getImageData(0, 0, 1, 1).data;
-        if (d[3] === 0) return 'rgba(0,0,0,0)';
-        if (d[3] === 255) return 'rgb(' + d[0] + ',' + d[1] + ',' + d[2] + ')';
-        return 'rgba(' + d[0] + ',' + d[1] + ',' + d[2] + ',' + (d[3] / 255).toFixed(3) + ')';
+        const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
+        if (a === 0) return 'rgba(0,0,0,0)';
+        if (a === 255) return `rgb(${r},${g},${b})`;
+        return `rgba(${r},${g},${b},${(a / 255).toFixed(3)})`;
     };
 
     /**
@@ -79,12 +79,12 @@
      * @param {string} name      e.g. '--primary'
      * @param {string} [fallback] only for non-DRE hosts; omit under the theme
      */
-    ns.cssColor = function (name, fallback) {
+    ns.cssColor = (name, fallback) => {
         fallback = fallback || '#000';
         try {
-            var el = getProbe();
+            const el = getProbe();
             el.style.color = '';
-            el.style.color = 'var(' + name + ', ' + fallback + ')';
+            el.style.color = `var(${name}, ${fallback})`;
             return ns.toRGB(window.getComputedStyle(el).color || fallback) || fallback;
         } catch {
             return fallback;
@@ -95,12 +95,12 @@
      * Resolve a custom property holding a font stack. Unlike colours this needs
      * no rasterising — canvas font shorthand accepts a stack directly.
      */
-    ns.cssFont = function (name, fallback) {
+    ns.cssFont = (name, fallback) => {
         fallback = fallback || 'system-ui, sans-serif';
         try {
-            var el = getProbe();
+            const el = getProbe();
             el.style.fontFamily = '';
-            el.style.fontFamily = 'var(' + name + ', ' + fallback + ')';
+            el.style.fontFamily = `var(${name}, ${fallback})`;
             return window.getComputedStyle(el).fontFamily || fallback;
         } catch {
             return fallback;
@@ -108,10 +108,9 @@
     };
 
     /** Resolve a custom property to its raw computed string (lengths, numbers). */
-    ns.cssValue = function (name, fallback) {
+    ns.cssValue = (name, fallback) => {
         try {
-            var el = getProbe();
-            var value = window.getComputedStyle(el).getPropertyValue(name);
+            const value = window.getComputedStyle(getProbe()).getPropertyValue(name);
             return (value && value.trim()) || fallback || '';
         } catch {
             return fallback || '';
@@ -128,15 +127,13 @@
      * setting. The matchMedia branch is reached only on a non-DRE host, where
      * no attribute is written at all.
      */
-    ns.isDark = function () {
-        var el = document.body || document.documentElement;
-        var attr = el && el.getAttribute('data-theme');
-        if (attr === 'dark') return true;
-        if (attr === 'light') return false;
-        var root = document.documentElement.getAttribute('data-theme');
-        if (root === 'dark') return true;
-        if (root === 'light') return false;
-        return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    ns.isDark = () => {
+        for (const el of [document.body, document.documentElement]) {
+            const attr = el?.getAttribute('data-theme');
+            if (attr === 'dark') return true;
+            if (attr === 'light') return false;
+        }
+        return window.matchMedia?.('(prefers-color-scheme: dark)').matches === true;
     };
 
     /**
@@ -144,28 +141,31 @@
      * its colours instead of freezing the mode it was first painted in.
      * Returns an unsubscribe function.
      */
-    ns.onThemeChange = function (handler) {
-        if (typeof handler !== 'function') return function () {};
+    ns.onThemeChange = (handler) => {
+        if (typeof handler !== 'function') return () => {};
         listeners.push(handler);
         if (!observer && window.MutationObserver) {
-            observer = new window.MutationObserver(function () {
-                for (var i = 0; i < listeners.length; i++) {
+            observer = new window.MutationObserver(() => {
+                const dark = ns.isDark();
+                // A copy: a listener that unsubscribes must not skip the next.
+                for (const listener of listeners.slice()) {
                     try {
-                        listeners[i](ns.isDark());
+                        listener(dark);
                     } catch {
                         /* one bad listener must not stop the others */
                     }
                 }
             });
-            var options = { attributes: true, attributeFilter: ['data-theme'] };
+            const options = { attributes: true, attributeFilter: ['data-theme'] };
             observer.observe(document.documentElement, options);
             if (document.body) observer.observe(document.body, options);
         }
-        return function () {
-            var at = listeners.indexOf(handler);
+        return () => {
+            const at = listeners.indexOf(handler);
             if (at !== -1) listeners.splice(at, 1);
         };
     };
 
     window.DRETokens = ns;
-})(window, document);
+})();
+

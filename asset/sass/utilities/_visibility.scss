@@ -22,7 +22,7 @@ $displays: none, inline, inline-block, block, flex, inline-flex, grid;
 
 // Responsive utilities
 @each $breakpoint, $size in $breakpoints {
-    @media (min-width: $size) {
+    @include bp-up($size) {
         @each $display in $displays {
             .d-#{$breakpoint}-#{$display} {
                 display: #{$display} !important;

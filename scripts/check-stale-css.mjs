@@ -17,20 +17,15 @@
  * together.
  */
 import { spawnSync } from 'node:child_process';
-import { readdirSync } from 'node:fs';
-import { join } from 'node:path';
 
-const ROOT = join(import.meta.dirname, '..');
+import { REPOSITORY_ROOT as ROOT, compiledCssPath, sassEntryPoints } from './lib/files.mjs';
 
 const GROUPS = [
     {
         label: 'Compiled CSS freshness',
         noun: 'the rebuilt CSS',
         // Every Sass entry point (not a partial) compiles to asset/css/<name>.css.
-        outputs: readdirSync(join(ROOT, 'asset', 'sass'), { withFileTypes: true })
-            .filter((entry) => entry.isFile() && entry.name.endsWith('.scss') && !entry.name.startsWith('_'))
-            .map((entry) => `asset/css/${entry.name.replace(/\.scss$/, '.css')}`)
-            .sort(),
+        outputs: sassEntryPoints(ROOT).map(compiledCssPath),
         inputs: ['asset/sass', 'config/theme.ini', 'package.json'],
     },
     {

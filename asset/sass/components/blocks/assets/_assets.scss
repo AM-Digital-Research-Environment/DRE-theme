@@ -10,7 +10,7 @@
             flex-direction: column;
             gap: 40px;
 
-            @media(min-width: $md) {
+            @include bp-up($md) {
                 flex-direction: row;
             }
         }

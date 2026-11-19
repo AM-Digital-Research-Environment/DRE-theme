@@ -79,9 +79,9 @@ $view->callbacks['dreSearchBar'] = fn() => '';
 $view->query = ['fulltext_search' => 'Oyo kingdom'];
 $html = $view->render('common/dre-search-redirect', ['resourceType' => 'item']);
 dre_check($failures, $checks, 'legacy advanced search redirects through the MVC response',
-    $response->status === 302 && ($response->headers['Location'] ?? '') === '/s/amira/dre-search?q=Oyo+kingdom',
+    $response->status === 302 && ($response->headers['Location'] ?? '') === '/s/amira/dre-search?q=Oyo%20kingdom',
     json_encode($response->headers));
-dre_check($failures, $checks, 'the redirect body still offers a link to DRE Search', str_contains($html, 'dre-search?q=Oyo+kingdom'));
+dre_check($failures, $checks, 'the redirect body still offers a link to DRE Search', str_contains($html, 'dre-search?q=Oyo%20kingdom'));
 
 unset($view->callbacks['dreSearchBar']);
 $response->status = 200; $response->headers = [];

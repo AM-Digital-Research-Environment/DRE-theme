@@ -46,17 +46,19 @@ jobs:
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 24
+          node-version-file: .nvmrc
           cache: npm
 
       - run: npm ci
 
       # The same command a contributor runs before pushing. In order:
-      #   build       lint:tokens (incl. computed WCAG contrast), lint:touch,
-      #               lint:ini, lint:templates, lint:groups, lint:contract (the
-      #               theme half of the module contract), lint:js, then the
-      #               Sass build and the compiled-CSS integrity lint
-      #   i18n:check  language/template.pot is up to date
+      #   lint:source lint:tokens (incl. computed WCAG contrast), lint:touch,
+      #               lint:ini, lint:templates, lint:contract (the theme half
+      #               of the module contract), lint:js, lint:styles
+      #   build       the Sass build, the script minification and the
+      #               compiled-CSS integrity lint
+      #   i18n:check  language/template.pot is up to date, and every
+      #               translation keeps its msgid's placeholders
       #   test:unit   JavaScript, CSS build and lint-negative tests
       #   audit:deps  npm audit at high, minus the written exceptions
       #   scripts/check-stale-css.mjs — a stale asset/css/style.css is a real
@@ -80,7 +82,7 @@ jobs:
           ref: ${{ inputs.ref || github.sha }}
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 24
+          node-version-file: .nvmrc
           cache: npm
       - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
@@ -152,7 +154,7 @@ jobs:
           path: DRE-LinkedData
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 24
+          node-version-file: DRE-theme/.nvmrc
           cache: npm
           cache-dependency-path: |
             DRE-theme/package-lock.json
@@ -171,8 +173,27 @@ jobs:
       - name: Theme and module contract
         working-directory: DRE-theme
         run: npm run check:contract
-      - run: npx playwright install --with-deps chromium
+      # Cached like the local-browsers job's, for Chromium alone.
+      - name: Resolve the Playwright version
+        id: playwright
         working-directory: DRE-theme
+        run: |
+          echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+          . /etc/os-release && echo "os=$ID-$VERSION_ID" >> "$GITHUB_OUTPUT"
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ steps.playwright.outputs.os }}-${{ steps.playwright.outputs.version }}-chromium
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        working-directory: DRE-theme
+        run: npx playwright install --with-deps chromium
+      - name: Install Playwright system dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        working-directory: DRE-theme
+        run: npx playwright install-deps chromium
       - name: Theme + modules
         working-directory: DRE-theme
         run: npx playwright test --config=playwright.local.config.mjs tests/local/modules.spec.mjs --project=chromium
@@ -212,7 +233,7 @@ jobs:
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 24
+          node-version-file: .nvmrc
 
       # --require turns the local "skip if no PHP" into a hard gate. Runs
       # `php -l` over every .php/.phtml under view/, helper/ and tests/, then
@@ -235,7 +256,7 @@ jobs:
           php-version: '8.5'
           coverage: none
           extensions: mbstring, pdo_mysql, pdo_sqlite, xml
-          tools: phpstan:2.3.3
+          tools: phpstan:2.3.6
 
       - name: Validate Composer metadata
         run: composer validate --strict --no-check-publish

@@ -10,12 +10,12 @@ use Laminas\View\Helper\AbstractHelper;
  * Each chip carries a colour swatch whose HUE is derived from the resource's id
  * so a given class always looks the same. Only the hue is emitted, as a
  * `--tag-hue` custom property; lightness and chroma live in
- * base/elements/_resource-tag.scss so the swatch adapts to light and dark mode.
+ * components/resource-tag/_resource-tag.scss so the swatch adapts to light and dark mode.
  * (It previously emitted a complete `hsl(<crc32 of id>, 100%, 75.5%)` inline —
  * a fixed light-mode pastel that stayed pale-on-pale in dark mode, sat outside
  * the token system, and fed CSS an unbounded integer as a hue angle.)
  */
-class ResourceTags extends AbstractHelper
+final class ResourceTags extends AbstractHelper
 {
     /**
      * Stable pseudo-ids for the three resource types, so their hues never

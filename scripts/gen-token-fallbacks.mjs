@@ -35,6 +35,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { resolveColor, formatColor, UnresolvableColor } from './lib/color.mjs';
+import { blockBody, stripComments } from './lib/scss-blocks.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
 const VARS = join(ROOT, 'asset', 'sass', 'abstracts', 'variables');
@@ -47,16 +48,7 @@ const check = process.argv.includes('--check');
 // Parse the Sass sources
 // ==========================================================================
 
-/**
- * Sass `//` comments, removed before any structural parsing.
- *
- * These files document themselves heavily and mention their own selectors in
- * prose — `_colors.scss` says ":root" in a comment 200 lines above the real
- * `:root` block — so a matcher that scans raw source finds the wrong brace.
- * `://` is spared so a URL in a comment cannot truncate the line early.
- */
-const stripComments = (src) => src.replace(/(^|[^:])\/\/.*$/gm, '$1');
-
+// Comments go before any structural parsing: see scripts/lib/scss-blocks.mjs.
 const read = (name) => stripComments(readFileSync(join(VARS, name), 'utf8'));
 const colorsSrc = read('_colors.scss');
 const tokensSrc = read('_tokens.scss');
@@ -75,21 +67,6 @@ const breakpointsSrc = read('_breakpoints.scss');
 const breakpoints = Object.fromEntries(
   [...breakpointsSrc.matchAll(/^\s*\$([\w-]+)\s*:\s*(\d+)px\s*;/gm)].map((m) => [m[1], Number(m[2])])
 );
-
-/** Body of `<opener> { … }` by brace matching, from the first match onward. */
-function blockBody(src, opener, fromIndex = 0) {
-  const start = src.indexOf(opener, fromIndex);
-  if (start === -1) return null;
-  let i = src.indexOf('{', start);
-  if (i === -1) return null;
-  let depth = 0;
-  const from = i + 1;
-  for (; i < src.length; i++) {
-    if (src[i] === '{') depth++;
-    else if (src[i] === '}' && --depth === 0) return src.slice(from, i);
-  }
-  return null;
-}
 
 /**
  * Every TOP-LEVEL `<selector> { … }` body, merged in source order.

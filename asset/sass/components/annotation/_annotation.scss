@@ -66,7 +66,7 @@
             opacity var(--transition-base),
             visibility var(--transition-base);
 
-        @media (min-width: $lg) {
+        @include bp-up($lg) {
             bottom: 5px;
         }
 
@@ -99,6 +99,7 @@
         font-family: $font__body;
         font-size: var(--text-xs);
         font-weight: 600;
+        line-height: var(--leading-snug); // a <p> now; the h6 it replaced set this
         letter-spacing: var(--tracking-wide);
         text-transform: uppercase;
         color: var(--ink-light);

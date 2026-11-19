@@ -1,9 +1,7 @@
 <?php
 $translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
-$filterLocale = (bool) $this->siteSetting('filter_locale_values');
-$lang = $this->lang();
-$valueLang = $filterLocale ? [$lang, ''] : null;
+$valueLang = $this->ValueReader()->valueLang();
 
 $this->headLink()->appendStylesheet($this->assetUrl('css/hierarchy.css', 'Hierarchy'));
 $this->headLink()->appendStylesheet($this->assetUrl('css/resource-page-blocks.css', 'Omeka'));
@@ -77,7 +75,9 @@ if ($title) {
         <?php endif; ?>
 
         <div class="hierarchy-items">
-            <?php echo '<h3>' . $escape($translate('Items')) . '</h3>'; ?>
+            <?php // A section of the page, so an h2 under the page's h1 (it was an h3
+                  // with no h2 above it unless the hierarchy label was shown). ?>
+            <h2 class="hierarchy-items__title"><?php echo $escape($translate('Items')); ?></h2>
 
             <?php echo $this->searchFilters(); ?>
 
@@ -90,7 +90,7 @@ if ($title) {
             <?php $this->trigger('view.browse.before'); ?>
             <ul class="resource-list">
                 <?php
-                $bodyTruncate = $this->themeSetting('truncate_body_property');
+                $bodyTruncate = $this->BrowseLayout()['truncate'];
                 foreach ($items as $item):
                     echo $this->partial('common/resource-card', $this->ResourceCardData($item, ['thumbnailSize' => 'square']) + [
                         'bodyTruncate' => $bodyTruncate,

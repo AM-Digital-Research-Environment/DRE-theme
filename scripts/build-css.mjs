@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /** Compile theme Sass directly; no task runner or glob-expansion dependency. */
 import {watch} from 'node:fs';
-import {mkdir, readFile, readdir, rename, rm, writeFile} from 'node:fs/promises';
+import {mkdir, readFile, rename, rm, writeFile} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {compile} from 'sass';
 import postcss from 'postcss';
 import autoprefixer from 'autoprefixer';
-
-const ROOT = resolve(import.meta.dirname, '..');
+import {REPOSITORY_ROOT as ROOT, compiledCssPath, sassEntryPoints} from './lib/files.mjs';
+import {parseInfo} from './lib/theme-ini.mjs';
 
 // The PHP floor is not declared anywhere in the theme: it is inherited from the
 // Omeka S release theme.ini's omeka_version_constraint admits (4.2.1's
@@ -21,12 +21,11 @@ const REQUIRES_PHP = '8.1';
  * cannot drift (the hand-written description already had).
  */
 function cssHeader(ini) {
-    const info = ini.split(/^\[info\]\s*$/m)[1]?.split(/^\[/m)[0];
+    const {values} = parseInfo(ini);
     const value = key => {
-        const match = info?.match(new RegExp(`^\\s*${key}\\s*=\\s*"([^"]+)"`, 'm'));
-        if (!match) throw new Error(`CSS build: missing [info] ${key} in config/theme.ini`);
-        if (match[1].includes('*/')) throw new Error(`CSS build: [info] ${key} must not contain "*/"`);
-        return match[1];
+        if (!values[key]) throw new Error(`CSS build: missing [info] ${key} in config/theme.ini`);
+        if (values[key].includes('*/')) throw new Error(`CSS build: [info] ${key} must not contain "*/"`);
+        return values[key];
     };
     return `/*
 Theme Name: ${value('name')}
@@ -49,9 +48,7 @@ export async function buildCss(root = ROOT) {
     const outputDir = join(root, 'asset/css');
     const header = cssHeader(await readFile(join(root, 'config/theme.ini'), 'utf8'));
     const {browserslist} = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'));
-    const entries = (await readdir(sourceDir, {withFileTypes: true}))
-        .filter(entry => entry.isFile() && entry.name.endsWith('.scss') && !entry.name.startsWith('_'))
-        .map(entry => entry.name).sort();
+    const entries = sassEntryPoints(root);
     if (!entries.length) throw new Error('CSS build: no Sass entry points in asset/sass');
 
     // Compile every entry before writing any output, so Sass errors leave the
@@ -59,7 +56,7 @@ export async function buildCss(root = ROOT) {
     const outputs = [];
     for (const name of entries) {
         const from = join(sourceDir, name);
-        const to = join(outputDir, name.replace(/\.scss$/, '.css'));
+        const to = join(root, compiledCssPath(name));
         const compiled = compile(from, {style: 'compressed', charset: false});
         const result = await postcss([autoprefixer({overrideBrowserslist: browserslist})])
             .process(compiled.css, {from, to, map: false});

@@ -4,13 +4,13 @@
 //   npm run audit:roadmap [-- --local-assets]
 // Screenshots and report.json go to artifacts/roadmap-acceptance/ (Git-ignored).
 import { chromium, expect } from '@playwright/test';
-import { readFile, mkdir, writeFile } from 'node:fs/promises';
-import { resolve, extname } from 'node:path';
-import { productionRequestDecision } from '../tests/browser/production-request-policy.mjs';
-import { sibling } from './lib/siblings.mjs';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import { getSurface } from '../tests/browser/surfaces.mjs';
+import { LIVE_BASE_URL as base, routeAuditPage } from './lib/audit-browser.mjs';
 
-const base = process.env.LIVE_BASE_URL || 'https://data.africamultiple.uni-bayreuth.de';
 const local = process.argv.includes('--local-assets');
+const search = getSurface('federated-search');
 const output = resolve('artifacts/roadmap-acceptance');
 await mkdir(output, { recursive: true });
 const browser = await chromium.launch();
@@ -22,22 +22,10 @@ try {
             const page = await context.newPage();
             const errors = [];
             page.on('pageerror', error => errors.push(error.message));
-            await page.route('**/*', async route => {
-                const request = route.request();
-                if (!productionRequestDecision(request.method(), request.url(), request.headers(), base).allowed) {
-                    errors.push(`Blocked mutation: ${request.url()}`);
-                    return route.abort();
-                }
-                const pathname = new URL(request.url()).pathname;
-                let file;
-                if (local && pathname.startsWith('/modules/DRESearch/asset/dist/')) file = resolve(sibling('search').path, 'asset/dist', pathname.split('/asset/dist/')[1]);
-                if (local && pathname === '/themes/DRE-theme/asset/css/style.css') file = resolve('asset/css/style.css');
-                if (file) return route.fulfill({ body: await readFile(file), contentType: extname(file) === '.css' ? 'text/css' : 'application/javascript' });
-                return route.continue();
-            });
+            await routeAuditPage(page, { base, local, onBlocked: request => errors.push(`Blocked mutation: ${request.url()}`) });
             const session = await context.newCDPSession(page);
             await session.send('Performance.enable');
-            await page.goto(`${base}/s/amira/dre-search`, { waitUntil: 'domcontentloaded' });
+            await page.goto(`${base}${search.path}`, { waitUntil: 'domcontentloaded' });
             await expect(page.locator('.dre-search__results')).toHaveAttribute('aria-busy', 'false');
             const versions = await page.locator('script[src], link[href]').evaluateAll(nodes => nodes.map(node => node.src || node.href).filter(url => /DRESearch|DRE-theme|DreVisualizations/.test(url)));
             const chooser = page.locator('.dre-fed__chooser select');

@@ -15,23 +15,21 @@
 (function () {
     'use strict';
 
-    var reduced = window.matchMedia
-        && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
     function init() {
-        // Leave everything visible if we can't (or shouldn't) animate.
-        if (reduced || !('IntersectionObserver' in window)) return;
+        // Leave everything visible if we can't (or shouldn't) animate. Reduced
+        // motion is read now, not when the script loaded.
+        if (window.DREUtils.prefersReducedMotion() || !('IntersectionObserver' in window)) return;
 
-        var els = document.querySelectorAll('[data-rv-reveal]');
+        const els = document.querySelectorAll('[data-rv-reveal]');
         if (!els.length) return;
 
-        var obs = new IntersectionObserver(function (entries, o) {
-            entries.forEach(function (e) {
+        const obs = new IntersectionObserver((entries, o) => {
+            entries.forEach((e) => {
                 if (!e.isIntersecting) return;
-                var el = e.target;
-                var delay = +(el.getAttribute('data-rv-reveal') || 0);
+                const el = e.target;
+                const delay = Number(el.getAttribute('data-rv-reveal') || 0);
                 if (delay > 0) {
-                    setTimeout(function () { el.setAttribute('data-reveal', 'shown'); }, delay);
+                    setTimeout(() => el.setAttribute('data-reveal', 'shown'), delay);
                 } else {
                     el.setAttribute('data-reveal', 'shown');
                 }
@@ -42,11 +40,9 @@
         // Only what is still below the fold waits to arrive. Cards already on
         // screen have been painted by now; hiding them would flash them out and
         // back in and delay the largest paint. All reads before any write.
-        var fold = window.innerHeight * 0.92;
-        var pending = Array.prototype.filter.call(els, function (el) {
-            return el.getBoundingClientRect().top >= fold;
-        });
-        pending.forEach(function (el) {
+        const fold = window.innerHeight * 0.92;
+        const pending = Array.from(els).filter((el) => el.getBoundingClientRect().top >= fold);
+        pending.forEach((el) => {
             el.setAttribute('data-reveal', 'hidden');
             obs.observe(el);
         });

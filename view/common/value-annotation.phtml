@@ -2,12 +2,18 @@
 $translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
 $escapeAttr = $this->plugin('escapeHtmlAttr');
+// Positions the popover at the viewport edge and returns focus on Escape. Loaded
+// by the first annotation a page renders, not by every list of values;
+// InlineScript skips a file it already holds.
+$this->inlineScript()->appendFile($this->assetUrl('js/dist/annotations.min.js'));
 ?>
 <details class="annotation-btn">
                                 <summary class="has-annotation o-icon-annotation" aria-label="<?php echo $escapeAttr($translate('Value Annotations')); ?>"><span class="sr-only"><?php echo $escape($translate('Value Annotations')); ?></span></summary>
                                 <div class="annotation-tooltip">
                                     <div class="annotation-tooltip__wrapper">
-                                        <h6 class="annotation-tooltip__heading"><?php echo $this->escapeHtml($translate('Value Annotations')); ?></h6>
+                                        <?php // A label, not a heading: an <h6> here broke the outline
+                                              // under whatever heading the value follows. ?>
+                                        <p class="annotation-tooltip__heading"><?php echo $this->escapeHtml($translate('Value Annotations')); ?></p>
                                         <?php echo $valueAnnotation->displayValues(); ?>
                                     </div>
                                 </div>

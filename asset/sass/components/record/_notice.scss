@@ -1,0 +1,40 @@
+@use "../../abstracts" as *;
+
+// --------------------------------------------------------------------------
+// Record notice — "This page is a catalogue record" (issue #10)
+// --------------------------------------------------------------------------
+// Under the title, before anything else: visitors who missed that AMIRA holds
+// descriptions, not material, wrote to the archives that keep it. It spans the
+// record's full width, so it reads as a statement about the whole page rather
+// than a note on the reading column, and at that width it stays one or two
+// lines. A primary-tinted plate with a hairline in the same hue: it must be
+// read, but it is not an error and must not look like one.
+.record-notice {
+    margin: 0 0 var(--space-8);
+    padding: var(--space-4) var(--space-5);
+    background-color: var(--primary-muted);
+    border: 1px solid color-mix(in oklab, var(--primary) 30%, transparent);
+    border-radius: var(--panel-radius);
+    font-size: var(--text-sm);
+    line-height: var(--leading-normal);
+    color: var(--ink);
+
+    p {
+        margin: 0;
+        // The text fills the plate: a measure narrower than the plate left a
+        // band of empty tint on the right that read as a layout fault, and at
+        // --text-sm a full-width line on the widest container stays followable.
+
+        + p {
+            margin-top: var(--space-2);
+        }
+    }
+
+    a {
+        overflow-wrap: anywhere;
+    }
+}
+
+.record-notice__lead {
+    color: var(--ink-strong);
+}

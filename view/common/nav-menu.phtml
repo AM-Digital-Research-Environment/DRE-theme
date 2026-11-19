@@ -9,17 +9,12 @@ $escapeAttr = $this->plugin('escapeHtmlAttr');
 // short description per child (keyed by the child page slug). The copy lives
 // with the AMIRA page slugs in config/amira-pages.php, where it is marked for
 // language/template.pot; it is passed through $translate() at the point of use,
-// so a translated site gets translated panel copy.
-$amiraPages = require dirname(__DIR__, 2) . '/config/amira-pages.php';
+// so a translated site gets translated panel copy. SiteChrome reads the file
+// once, names a page's slug by one rule at every level, and writes each link.
+$chrome = $this->plugin('SiteChrome');
+$amiraPages = $chrome->pages();
 $introMap = $amiraPages['intros'];
 $descMap = $amiraPages['descriptions'];
-
-// The last path segment of a page link's href is its slug
-// (.../page/<slug>); used to look up the maps above.
-$slugOf = function ($page) {
-    $path = (string) parse_url((string) $page->getHref(), PHP_URL_PATH);
-    return rtrim(basename($path), '/');
-};
 
 $container = $site->publicNav()->getContainer();
 $topPages = $container->getPages();
@@ -42,7 +37,7 @@ $arrowSvg = '<svg class="nav-panel__viewall-arrow" width="15" height="15" viewBo
         $isActive  = $page->isActive(true);
         $label     = (string) $page->getLabel();
         $href      = (string) $page->getHref();
-        $introRaw  = $hasPages ? ($introMap[$slugOf($page)] ?? null) : null;
+        $introRaw  = $hasPages ? ($introMap[$chrome->slugOf($page)] ?? null) : null;
         $intro     = $introRaw ? $translate($introRaw) : null;
 
         // Visible children only; the panel is a 3-column grid on desktop, so the
@@ -63,7 +58,7 @@ $arrowSvg = '<svg class="nav-panel__viewall-arrow" width="15" height="15" viewBo
               // be set — navigation.js injects its caret <button> on the strength
               // of it, and the CSS opens a panel that would not exist. ?>
         <li class="nav-item<?php echo $children ? ' menu-item-has-children' : ''; ?><?php echo $isActive ? ' active' : ''; ?>">
-            <?php echo $this->partial('common/nav-link', ['page' => $page, 'class' => 'nav-item__link']); ?>
+            <?php echo $chrome->navLink($page, 'nav-item__link'); ?>
 
             <?php if ($children): ?>
             <ul class="nav-panel">

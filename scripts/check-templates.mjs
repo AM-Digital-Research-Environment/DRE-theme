@@ -15,8 +15,15 @@
  *   2. Unbalanced braces / parens / brackets in PHP regions.
  *   3. `$this->partial('name')` referring to a view script that does not exist.
  *   3b. `echo $translate(…)` without escaping.
- *   4. Helper files: class name matches file name, correct namespace, and every
- *      helper/*.php is registered in theme.ini (and vice versa).
+ *   3c. A theme helper called, in a template or another helper, with casing
+ *       other than its theme.ini registration.
+ *   4. Helper files: class name matches file name, correct namespace, and an
+ *      __invoke(). Registration in theme.ini, both ways, is lint:ini's
+ *      (scripts/check-theme-ini.mjs), with the line number.
+ *
+ * The page-architecture contracts (the header never owns the <h1>, browse
+ * titles are <h1>, Mirador's labelled region boundary) are asserted by
+ * tests/TemplateContractsTest.php and tests/TemplateRenderTest.php.
  *
  * Deliberately NOT checked: alternative-syntax balance (if/endif,
  * foreach/endforeach) and unknown-helper detection. Both were tried and both
@@ -30,7 +37,8 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 
-import { themeRoot, walkFiles } from './files.mjs';
+import { themeRoot, walkFiles } from './lib/files.mjs';
+import { readThemeInfo } from './lib/theme-ini.mjs';
 
 const ROOT = themeRoot();
 const VIEW = join(ROOT, 'view');
@@ -60,12 +68,11 @@ function phpRegions(src) {
     const regions = [];
     let i = 0;
     while (i < src.length) {
-        const open = src.indexOf('<?php', i) === i ? i : src.indexOf('<?php', i);
+        const open = src.indexOf('<?php', i);
         if (open === -1) break;
-        const isEcho = false;
         let j = open + 5;
         let out = '';
-        let startLine = src.slice(0, open).split('\n').length;
+        const startLine = src.slice(0, open).split('\n').length;
         while (j < src.length) {
             const two = src.slice(j, j + 2);
             if (two === '?>') { j += 2; break; }
@@ -101,17 +108,50 @@ function phpRegions(src) {
             out += ch;
             j++;
         }
-        regions.push({ code: out, startLine, isEcho });
+        regions.push({ code: out, startLine });
         i = j;
     }
     return regions;
 }
 
 // Theme helpers registered in config/theme.ini.
-const iniText = existsSync(join(ROOT, 'config', 'theme.ini'))
-    ? readFileSync(join(ROOT, 'config', 'theme.ini'), 'utf8')
-    : '';
-const registeredHelpers = [...iniText.matchAll(/^helpers\[\]\s*=\s*"([^"]+)"/gm)].map((m) => m[1]);
+const registeredHelpers = readThemeInfo(ROOT).helpers;
+
+/**
+ * 3c. Theme-helper call sites must match the theme.ini casing EXACTLY.
+ *
+ * Laminas ServiceManager v3 does not canonicalise service names, so a helper
+ * registered as `CollectionStats` is NOT reachable as
+ * `$this->collectionStats()`. Every working call site in this theme uses the
+ * registered casing; this keeps it that way, because the failure mode is a
+ * runtime "unable to resolve service" on a public page.
+ *
+ * A call reaches the helper manager through the view: `$this->X(` in a
+ * template, `$view->X(` / `->getView()->X(` / `$this->view->X(` in a helper or
+ * a template closure, and `plugin('X')` in either. Inside a helper class
+ * `$this` is the helper itself, so `$this->X(` there is one of its own
+ * methods, which PHP resolves case-insensitively: not checked.
+ *
+ * Only a name that matches a registered helper case-insensitively and differs
+ * from it is reported, so Omeka's, Laminas's and the modules' helpers (which
+ * no list here could enumerate) never are.
+ */
+const VIEW_CALL = /(?:\$this->view|\$view|->getView\(\))->([A-Za-z][A-Za-z0-9_]*)\s*\(/g;
+const PLUGIN_CALL = /\bplugin\(\s*['"]([A-Za-z][A-Za-z0-9_]*)['"]/g;
+const TEMPLATE_CALL = /\$this->([A-Za-z][A-Za-z0-9_]*)\s*\(/g;
+
+function checkHelperCasing(rel, src, { template }) {
+    const calls = [...src.matchAll(VIEW_CALL), ...src.matchAll(PLUGIN_CALL)];
+    if (template) calls.push(...src.matchAll(TEMPLATE_CALL));
+    for (const m of calls) {
+        const called = m[1];
+        const registered = registeredHelpers.find((h) => h.toLowerCase() === called.toLowerCase());
+        if (registered && registered !== called) {
+            const line = src.slice(0, m.index).split('\n').length;
+            add(rel, line, `${m[0].trim()} must match the theme.ini helper name exactly: ${registered}`);
+        }
+    }
+}
 
 for (const file of walk(VIEW)) {
     const rel = relative(ROOT, file).split(sep).join('/');
@@ -167,23 +207,7 @@ for (const file of walk(VIEW)) {
         }
     }
 
-    // 3b. Theme-helper call sites must match the theme.ini casing EXACTLY.
-    //
-    // Laminas ServiceManager v3 does not canonicalise service names, so a helper
-    // registered as `CollectionStats` is NOT reachable as
-    // `$this->collectionStats()`. Every working call site in this theme uses the
-    // registered casing; this keeps it that way, because the failure mode is a
-    // runtime "unable to resolve service" on a public page.
-    for (const m of src.matchAll(/\$this->([A-Za-z][A-Za-z0-9_]*)\s*\(/g)) {
-        const called = m[1];
-        const registered = registeredHelpers.find(
-            (h) => h.toLowerCase() === called.toLowerCase()
-        );
-        if (registered && registered !== called) {
-            const line = src.slice(0, m.index).split('\n').length;
-            add(rel, line, `$this->${called}() must match the theme.ini helper name exactly: $this->${registered}()`);
-        }
-    }
+    checkHelperCasing(rel, src, { template: true });
 
     // 3. partial() targets resolve.
     for (const m of src.matchAll(/partial\(\s*'([^']+)'/g)) {
@@ -206,16 +230,15 @@ for (const file of walk(VIEW)) {
     }
 }
 
-// 4. Helper sanity: class name matches file name, correct namespace, and the
-// registration in theme.ini lines up in both directions.
-const helperFiles = [];
+// 4. Helper sanity: class name matches file name, correct namespace, and an
+// __invoke(); and 3c on the calls a helper makes through its view.
 for (const file of walk(HELPER)) {
     const rel = relative(ROOT, file).split(sep).join('/');
     const base = rel.split('/').pop().replace(/\.php$/, '');
-    helperFiles.push(base);
     const src = readFileSync(file, 'utf8');
+    checkHelperCasing(rel, src, { template: false });
 
-    const cls = src.match(/^\s*class\s+([A-Za-z0-9_]+)/m);
+    const cls = src.match(/^\s*(?:final\s+)?class\s+([A-Za-z0-9_]+)/m);
     if (!cls) {
         add(rel, null, 'no class declaration found');
     } else if (cls[1] !== base) {
@@ -228,53 +251,12 @@ for (const file of walk(HELPER)) {
         add(rel, null, 'no __invoke() — a view helper is not callable without one');
     }
 }
-for (const name of registeredHelpers) {
-    if (!helperFiles.includes(name)) {
-        add('config/theme.ini', null, `helpers[] = "${name}" has no helper/${name}.php`);
-    }
-}
-for (const name of helperFiles) {
-    if (!registeredHelpers.includes(name)) {
-        add(`helper/${name}.php`, null, 'exists but is not registered in theme.ini [info] helpers[]');
-    }
-}
 
-// 5. Page-architecture and retired-integration contracts. These are cheap,
-// deterministic checks for regressions that otherwise surface only in a
-// browser or after reinstalling an obsolete module.
-const headerTemplate = readFileSync(join(VIEW, 'common', 'header.phtml'), 'utf8');
-if (/<h1\b/i.test(headerTemplate) || headerTemplate.includes('$titleTag')) {
-    add('view/common/header.phtml', null, 'the site lockup must never own the document <h1>');
-}
-// No media browse here: core's Controller\Site\MediaController implements
-// showAction() and nothing else, so /s/:site/media has no template to render.
-for (const rel of [
-    'omeka/site/item/browse.phtml',
-    'omeka/site/item-set/browse.phtml',
-    'omeka/site/page/browse.phtml',
-]) {
-    const src = readFileSync(join(VIEW, ...rel.split('/')), 'utf8');
-    if (!/pageTitle\([^;]+,\s*1\)/s.test(src)) {
-        add(`view/${rel}`, null, 'top-level browse title must render as <h1>');
-    }
-}
+// 5. A retired integration that must not come back.
 if (existsSync(join(VIEW, 'faceted-browse'))
     || existsSync(join(ROOT, 'asset', 'js', 'faceted-browse.js'))
 ) {
     add('view/faceted-browse', null, 'obsolete Faceted Browse integration must not return');
-}
-
-const miradorTemplate = readFileSync(
-    join(VIEW, 'common', 'resource-page-block-layout', 'mirador.phtml'),
-    'utf8',
-);
-if (!/class="block resource-block block-mirador"\s+role="application"/s.test(miradorTemplate)
-    || !miradorTemplate.includes('escapeHtmlAttr($viewerLabel)')) {
-    add(
-        'view/common/resource-page-block-layout/mirador.phtml',
-        null,
-        'the embedded Mirador workspace needs a labelled application boundary inside the record main',
-    );
 }
 
 if (findings.length) {

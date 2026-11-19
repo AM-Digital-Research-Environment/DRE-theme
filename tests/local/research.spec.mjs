@@ -149,13 +149,16 @@ test('in-page links never refetch connections; a new connection page still does'
     await page.keyboard.press('Enter');
     await expect(page).toHaveURL(/#record-42-description$/);
     await page.goBack();
-    await page.waitForTimeout(150);
-    expect(requests).toBe(0);
+    // Back on the bare URL means the popstate handler has run, instead of a
+    // fixed wait. A refetch it started late would still replace the list and
+    // its Next link, so the click and the counts below would fail on it.
+    await expect(page).not.toHaveURL(/#record-42-description$/);
     await expect(page.getByText('Editor record', {exact: true})).toBeHidden();
+    expect(requests).toBe(0);
 
     await page.getByRole('link', {name: 'Next connections'}).click();
     await expect(page.locator('.resources-linked__summary')).toHaveText('Second page');
-    expect(requests).toBe(1);
+    await expect.poll(() => requests).toBe(1);
     await page.goBack();
     await expect.poll(() => requests).toBe(2);
 });

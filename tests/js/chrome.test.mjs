@@ -18,6 +18,13 @@ function header() {
     const w = dom.window;
     let y = 0;
     Object.defineProperty(w, 'scrollY', { configurable: true, get: () => y });
+    // jsdom has no ResizeObserver: record what is observed, and report sizes by hand.
+    const observers = [];
+    w.ResizeObserver = class {
+        constructor(callback) { this.callback = callback; observers.push(this); }
+        observe(target) { this.target = target; }
+        report(blockSize) { this.callback([{ target: this.target, borderBoxSize: [{ blockSize }] }], this); }
+    };
     w.eval(source('utils.js'));
     w.eval(source('script.js'));
     w.document.dispatchEvent(new w.Event('DOMContentLoaded'));
@@ -26,40 +33,68 @@ function header() {
         w.document.dispatchEvent(new w.Event('scroll'));
         await frame(w);
     };
-    return { w, scrollTo, mainHeader: w.document.querySelector('.main-header') };
+    return { w, scrollTo, observers, mainHeader: w.document.querySelector('.main-header') };
 }
 
-test('anchor scroll padding is zeroed while focus is in the header and restored after', () => {
-    const { w } = header();
+test('the measured header height is the one owner of the anchor offset', () => {
+    const { w, observers, mainHeader } = header();
     const root = w.document.documentElement;
-    assert.equal(root.style.scrollPaddingTop, '20px', 'header height (0 in jsdom) + 20px');
+    assert.equal(observers.length, 1);
+    assert.equal(observers[0].target, mainHeader, 'the whole header is measured, nav row and user bar included');
+    observers[0].report(121.6);
+    assert.equal(root.style.getPropertyValue('--header-height'), '122px',
+        'written as the token the drawer and --scroll-offset already read');
+    // Focus in the header no longer writes an inline offset that would outrank
+    // the stylesheet (base/_theme.scss zeroes it only while a header field has focus).
     w.document.querySelector('input').focus();
-    assert.equal(root.style.scrollPaddingTop, '0px', 'typing in the header search never nudges the page');
     w.document.getElementById('page-link').focus();
-    assert.equal(root.style.scrollPaddingTop, '20px');
+    assert.equal(root.style.scrollPaddingTop, '');
     w.close();
 });
 
 test('the inline header hides on a deep scroll down, but never while the drawer is open or it has focus', async () => {
     const { w, scrollTo, mainHeader } = header();
+    const away = () => mainHeader.classList.contains('is-scrolled-away');
     await scrollTo(500);
-    assert.match(mainHeader.style.top, /^-/, 'scrolling down past the threshold hides it');
+    assert.equal(away(), true, 'scrolling down past the threshold hides it');
+    assert.equal(mainHeader.style.top, '', 'by a class the stylesheet turns into a transform, not by `top`');
     await scrollTo(300);
-    assert.equal(mainHeader.style.top, '0px', 'any scroll up brings it back');
+    assert.equal(away(), false, 'any scroll up brings it back');
 
     w.document.querySelector('.main-navigation__toggle').setAttribute('aria-expanded', 'true');
     await scrollTo(900);
-    assert.equal(mainHeader.style.top, '0px', 'an open drawer pins the header');
+    assert.equal(away(), false, 'an open drawer pins the header');
     w.document.querySelector('.main-navigation__toggle').setAttribute('aria-expanded', 'false');
 
     w.document.querySelector('input').focus();
     await scrollTo(1500);
-    assert.equal(mainHeader.style.top, '0px', 'focus in the header pins it');
+    assert.equal(away(), false, 'focus in the header pins it');
+
+    w.document.getElementById('page-link').focus();
+    await scrollTo(2000);
+    assert.equal(away(), true);
+    w.document.querySelector('input').focus();
+    assert.equal(away(), false, 'tabbing into a hidden header brings it back at once');
 
     mainHeader.setAttribute('data-nav', 'drawer');
     w.document.getElementById('page-link').focus();
     await scrollTo(2500);
-    assert.equal(mainHeader.style.top, '0px', 'drawer (mobile) mode keeps the hamburger reachable');
+    assert.equal(away(), false, 'drawer (mobile) mode keeps the hamburger reachable');
+    w.close();
+});
+
+test('the core search disclosure is left alone without its field', () => {
+    const dom = new JSDOM(`<!doctype html><html><body>
+        <div data-core-search><button class="main-search-button" hidden aria-expanded="false">Search</button>
+            <div class="main-header-search"><p>No field here</p></div></div>
+    </body></html>`, { url: 'https://example.test/', runScripts: 'outside-only', pretendToBeVisual: true });
+    const w = dom.window;
+    w.eval(source('utils.js'));
+    w.eval(source('script.js'));
+    w.document.dispatchEvent(new w.Event('DOMContentLoaded'));
+    const button = w.document.querySelector('.main-search-button');
+    assert.equal(button.hidden, true, 'not enhanced, so nothing claims to expand');
+    assert.equal(w.document.querySelector('.main-header-search').hidden, false, 'the panel stays as rendered');
     w.close();
 });
 
@@ -91,17 +126,21 @@ function revealFixture({ reduced = false, observer = true } = {}) {
     return { w, doc, observed, enter: el => callback([{ isIntersecting: true, target: el }], { unobserve: el2 => observed.splice(observed.indexOf(el2), 1) }) };
 }
 
-test('reveal leaves on-screen cards alone and animates only what is below the fold', async () => {
+test('reveal leaves on-screen cards alone and animates only what is below the fold', (t) => {
+    t.mock.timers.enable({ apis: ['setTimeout'] });
     const { w, doc, observed, enter } = revealFixture();
     assert.equal(doc.getElementById('above').hasAttribute('data-reveal'), false, 'painted cards are never hidden');
     assert.equal(doc.getElementById('below').getAttribute('data-reveal'), 'hidden');
     assert.deepEqual(observed.map(el => el.id), ['below']);
     enter(doc.getElementById('below'));
-    await new Promise(resolve => setTimeout(resolve, 100));
-    assert.equal(doc.getElementById('below').getAttribute('data-reveal'), 'shown', 'the stagger delay is honoured');
     assert.equal(observed.length, 0, 'one-shot: the element is unobserved');
+    t.mock.timers.tick(69);
+    assert.equal(doc.getElementById('below').getAttribute('data-reveal'), 'hidden', 'not before its stagger delay');
+    t.mock.timers.tick(1);
+    assert.equal(doc.getElementById('below').getAttribute('data-reveal'), 'shown', 'the stagger delay is honoured');
     w.close();
 });
+
 
 test('reduced motion or no IntersectionObserver hides nothing', () => {
     for (const options of [{ reduced: true }, { observer: false }]) {

@@ -19,44 +19,44 @@ msgid_plural "(%s items)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: helper/RecordAccess.php:127
+#: helper/RecordAccess.php:128
 msgid "[AMIRA] Access request: project %1$s: %2$s"
 msgstr ""
 
-#: helper/RecordAccess.php:165
+#: helper/RecordAccess.php:167
 msgid "[AMIRA] Access request: record %1$s: %2$s"
 msgstr ""
 
-#: helper/RecordAccess.php:122
+#: helper/RecordAccess.php:123
 msgid "[AMIRA] Correction to project %1$s: %2$s"
 msgstr ""
 
-#: helper/RecordAccess.php:160
+#: helper/RecordAccess.php:162
 msgid "[AMIRA] Correction to record %1$s: %2$s"
 msgstr ""
 
-#: helper/HierarchyTree.php:79
-#: view/hierarchy/site/index/hierarchy.phtml:30
+#: helper/HierarchyTree.php:76
+#: view/hierarchy/site/index/hierarchy.phtml:28
 msgid "[Untitled]"
 msgstr ""
 
-#: view/common/pagination.phtml:20
+#: view/common/pagination.phtml:23
 msgid "%1$s–%2$s of %3$s"
 msgstr ""
 
-#: helper/HierarchyTree.php:80
+#: helper/HierarchyTree.php:89
 msgid "%s (unavailable)"
 msgstr ""
 
-#: view/common/pagination.phtml:55
+#: view/common/pagination.phtml:58
 msgid "0 results"
 msgstr ""
 
-#: view/omeka/site/item/browse.phtml:54
+#: view/omeka/site/item/browse.phtml:44
 msgid "A project’s collection."
 msgstr ""
 
-#: view/common/resource-values.phtml:167
+#: view/common/resource-values.phtml:165
 msgid "about %s words"
 msgstr ""
 
@@ -64,7 +64,7 @@ msgstr ""
 msgid "Abstract"
 msgstr ""
 
-#: view/common/record-access.phtml:71
+#: view/common/record-access.phtml:60
 msgid "Access and contact"
 msgstr ""
 
@@ -73,15 +73,15 @@ msgstr ""
 msgid "Access denied"
 msgstr ""
 
-#: helper/RecordApparatus.php:151
+#: helper/RecordApparatus.php:144
 msgid "Access rights"
 msgstr ""
 
-#: view/common/record-access.phtml:109
+#: view/common/record-access.phtml:98
 msgid "Access there may be restricted."
 msgstr ""
 
-#: view/common/record-access.phtml:71
+#: view/common/record-access.phtml:60
 msgid "Access to this material"
 msgstr ""
 
@@ -98,20 +98,19 @@ msgid "Advanced media search"
 msgstr ""
 
 #: view/common/footer/footer-institutions.phtml:23
-#: view/common/header.phtml:32
 msgid "Africa Multiple Cluster of Excellence"
 msgstr ""
 
-#: config/amira-pages.php:59
+#: config/amira-pages.php:60
 msgid "Africa's foremost music archive"
 msgstr ""
 
-#: view/common/linked-resources.phtml:104
-#: view/common/linked-resources.phtml:125
+#: helper/LinkedConnections.php:172
+#: view/common/linked-resources.phtml:119
 msgid "All"
 msgstr ""
 
-#: view/common/linked-resources.phtml:104
+#: helper/LinkedConnections.php:172
 msgid "All relationships"
 msgstr ""
 
@@ -119,27 +118,27 @@ msgstr ""
 msgid "All sections"
 msgstr ""
 
-#: view/common/record-access.phtml:76
+#: view/common/record-access.phtml:65
 msgid "AMIRA holds the descriptions of this collection only, not the material."
 msgstr ""
 
-#: view/common/linked-resources.phtml:116
+#: view/common/linked-resources.phtml:110
 msgid "Apply"
 msgstr ""
 
-#: config/amira-pages.php:46
+#: config/amira-pages.php:47
 msgid "Audio series"
 msgstr ""
 
-#: config/amira-pages.php:39
+#: config/amira-pages.php:40
 msgid "Authors & named persons"
 msgstr ""
 
-#: view/layout/layout.phtml:230
+#: view/layout/layout.phtml:237
 msgid "Back to top"
 msgstr ""
 
-#: view/common/breadcrumb.phtml:46
+#: view/common/breadcrumb.phtml:49
 msgid "Breadcrumb"
 msgstr ""
 
@@ -147,12 +146,15 @@ msgstr ""
 msgid "Browse"
 msgstr ""
 
-#: view/omeka/site/index/search.phtml:29
-#: view/omeka/site/item/browse.phtml:155
+#: view/omeka/site/item-set/browse.phtml:37
+msgid "Browse all item sets"
+msgstr ""
+
+#: view/common/search-empty.phtml:23
 msgid "Browse all items"
 msgstr ""
 
-#: config/amira-pages.php:50
+#: config/amira-pages.php:51
 msgid "Browse projects interactively"
 msgstr ""
 
@@ -168,20 +170,19 @@ msgstr ""
 msgid "Browser storage is unavailable. This list will last for this page only. Export it to keep a copy."
 msgstr ""
 
-#: view/common/resource-values.phtml:194
+#: view/common/resource-values.phtml:192
 msgid "by %s"
 msgstr ""
 
-#: view/omeka/site/index/search.phtml:18
-#: view/omeka/site/item/browse.phtml:141
+#: view/common/search-empty.phtml:29
 msgid "Check the spelling, or try another form of the word."
 msgstr ""
 
-#: view/common/record-apparatus.phtml:44
+#: view/common/record-apparatus.phtml:58
 msgid "Citation style"
 msgstr ""
 
-#: helper/RecordApparatus.php:87
+#: helper/RecordApparatus.php:80
 msgid "Cite this record"
 msgstr ""
 
@@ -194,11 +195,11 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
-#: view/common/header.phtml:104
+#: view/common/header.phtml:105
 msgid "Close menu"
 msgstr ""
 
-#: helper/CollectionStats.php:195
+#: helper/CollectionStats.php:123
 msgid "Cluster Chronicles"
 msgstr ""
 
@@ -206,17 +207,17 @@ msgstr ""
 msgid "Collections@UBT, University of Bayreuth"
 msgstr ""
 
-#: view/common/linked-resources.phtml:33
+#: view/common/linked-resources.phtml:30
 msgid "connection on this page"
 msgid_plural "connections on this page"
 msgstr[0] ""
 msgstr[1] ""
 
-#: view/common/linked-resources.phtml:199
+#: view/common/linked-resources.phtml:188
 msgid "Connection pages"
 msgstr ""
 
-#: view/common/linked-resources.phtml:34
+#: view/common/linked-resources.phtml:31
 msgid "connection to this record"
 msgid_plural "connections to this record"
 msgstr[0] ""
@@ -230,7 +231,7 @@ msgstr ""
 msgid "Connections could not be loaded. Your previous results are still shown."
 msgstr ""
 
-#: view/hierarchy/site/index/hierarchy.phtml:48
+#: view/hierarchy/site/index/hierarchy.phtml:46
 msgid "Contains resources from:"
 msgstr ""
 
@@ -239,8 +240,8 @@ msgid "Continue to %s."
 msgstr ""
 
 #: view/common/record-apparatus-rows.phtml:57
-#: view/common/record-apparatus.phtml:80
-#: view/common/record-apparatus.phtml:86
+#: view/common/record-apparatus.phtml:100
+#: view/common/record-apparatus.phtml:94
 msgid "Copied"
 msgstr ""
 
@@ -248,16 +249,16 @@ msgstr ""
 msgid "Copy"
 msgstr ""
 
-#: helper/RecordApparatus.php:88
+#: helper/RecordApparatus.php:81
 msgid "Copy citation"
 msgstr ""
 
-#: helper/RecordApparatus.php:88
-#: view/common/record-apparatus.phtml:87
+#: helper/RecordApparatus.php:81
+#: view/common/record-apparatus.phtml:101
 msgid "Copy link"
 msgstr ""
 
-#: helper/RecordApparatus.php:137
+#: helper/RecordApparatus.php:130
 #: view/common/record-linked-data.phtml:26
 msgid "Copy permanent link"
 msgstr ""
@@ -286,7 +287,7 @@ msgstr ""
 msgid "Digital collections and research data of the Africa Multiple Cluster of Excellence, University of Bayreuth."
 msgstr ""
 
-#: view/common/banner.phtml:46
+#: helper/SiteChrome.php:106
 #: view/common/footer/footer-masthead.phtml:11
 msgid "Digital Research Environment"
 msgstr ""
@@ -295,23 +296,23 @@ msgstr ""
 msgid "Digital Research Environment (DRE)"
 msgstr ""
 
-#: view/common/header.phtml:76
+#: view/common/header.phtml:77
 msgid "Dismiss"
 msgstr ""
 
-#: config/amira-pages.php:41
+#: config/amira-pages.php:42
 msgid "Document & media types"
 msgstr ""
 
-#: helper/RecordApparatus.php:132
+#: helper/RecordApparatus.php:125
 msgid "DOI"
 msgstr ""
 
-#: view/common/record-apparatus.phtml:95
+#: view/common/record-apparatus.phtml:109
 msgid "Download"
 msgstr ""
 
-#: helper/RecordApparatus.php:154
+#: helper/RecordApparatus.php:147
 msgid "DRE ID"
 msgstr ""
 
@@ -319,7 +320,7 @@ msgstr ""
 msgid "DRE Search"
 msgstr ""
 
-#: config/amira-pages.php:54
+#: config/amira-pages.php:55
 msgid "Episode trends & transcripts"
 msgstr ""
 
@@ -331,11 +332,11 @@ msgstr ""
 msgid "Error %s"
 msgstr ""
 
-#: config/amira-pages.php:28
+#: config/amira-pages.php:29
 msgid "Explore the Cluster's featured collections through timelines, image galleries and maps."
 msgstr ""
 
-#: view/common/banner.phtml:78
+#: helper/SiteChrome.php:125
 msgid "Explore the collection"
 msgstr ""
 
@@ -347,16 +348,15 @@ msgstr ""
 msgid "Export list"
 msgstr ""
 
-#: view/omeka/site/index/search.phtml:19
-#: view/omeka/site/item/browse.phtml:142
+#: view/common/search-empty.phtml:30
 msgid "Fewer, broader terms cast a wider net."
 msgstr ""
 
-#: view/common/linked-resources.phtml:90
+#: view/common/linked-resources.phtml:92
 msgid "Filter all connections by relationship"
 msgstr ""
 
-#: view/common/linked-resources.phtml:123
+#: view/common/linked-resources.phtml:117
 msgid "Filter this page by relationship"
 msgstr ""
 
@@ -364,7 +364,7 @@ msgstr ""
 msgid "Formats"
 msgstr ""
 
-#: view/common/record-access.phtml:158
+#: view/common/record-access.phtml:146
 msgid "Found a mistake in this record? Tell the DRE."
 msgstr ""
 
@@ -372,7 +372,7 @@ msgstr ""
 msgid "Full text"
 msgstr ""
 
-#: view/common/resource-values.phtml:165
+#: view/common/resource-values.phtml:163
 msgid "Full text loaded"
 msgstr ""
 
@@ -380,7 +380,7 @@ msgstr ""
 msgid "Further details"
 msgstr ""
 
-#: view/common/pagination.phtml:41
+#: view/common/pagination.phtml:44
 msgid "Go"
 msgstr ""
 
@@ -392,7 +392,7 @@ msgstr ""
 msgid "Grid"
 msgstr ""
 
-#: view/common/breadcrumb.phtml:49
+#: view/common/breadcrumb.phtml:52
 msgid "Home"
 msgstr ""
 
@@ -404,7 +404,7 @@ msgstr ""
 msgid "Hours"
 msgstr ""
 
-#: config/amira-pages.php:29
+#: config/amira-pages.php:30
 msgid "How to reach the material, and how to reuse what AMIRA publishes."
 msgstr ""
 
@@ -416,15 +416,15 @@ msgstr ""
 msgid "Image viewer"
 msgstr ""
 
-#: view/common/banner.phtml:104
+#: helper/SiteChrome.php:146
 msgid "In the collection"
 msgstr ""
 
-#: view/common/header.phtml:73
+#: view/common/header.phtml:74
 msgid "Install app"
 msgstr ""
 
-#: config/amira-pages.php:40
+#: config/amira-pages.php:41
 msgid "Institutions & bodies"
 msgstr ""
 
@@ -434,17 +434,17 @@ msgstr ""
 msgid "Invalid value: %s"
 msgstr ""
 
-#: view/common/record-notice.phtml:57
+#: view/common/record-notice.phtml:45
 msgid "It comes from %s and describes material kept elsewhere: AMIRA holds only this description and cannot supply the material itself."
 msgstr ""
 
-#: view/common/record-notice.phtml:55
+#: view/common/record-notice.phtml:43
 msgid "It comes from %s. The original material is kept elsewhere: the images or files shown here are copies for reference and may show only part of it."
 msgstr ""
 
-#: view/common/block-layout/item-with-metadata.phtml:67
-#: view/common/linked-resources.phtml:43
-#: view/omeka/site/index/search.phtml:37
+#: view/common/block-layout/item-with-metadata.phtml:66
+#: view/common/linked-resources.phtml:40
+#: view/omeka/site/index/search.phtml:19
 #: view/omeka/site/item-set/browse.phtml:14
 msgid "Item sets"
 msgstr ""
@@ -453,27 +453,27 @@ msgstr ""
 msgid "Item: %s"
 msgstr ""
 
-#: view/common/linked-resources.phtml:42
+#: view/common/linked-resources.phtml:39
 #: view/hierarchy/site/index/hierarchy.phtml:80
-#: view/omeka/site/index/search.phtml:36
-#: view/omeka/site/item/browse.phtml:104
-#: view/omeka/site/item/browse.phtml:106
+#: view/omeka/site/index/search.phtml:18
+#: view/omeka/site/item/browse.phtml:59
+#: view/omeka/site/item/browse.phtml:61
 msgid "Items"
 msgstr ""
 
-#: config/amira-pages.php:56
+#: config/amira-pages.php:57
 msgid "Knowledge-graph links"
 msgstr ""
 
-#: helper/CollectionStats.php:190
+#: helper/CollectionStats.php:101
 msgid "Languages"
 msgstr ""
 
-#: config/amira-pages.php:42
+#: config/amira-pages.php:43
 msgid "Languages represented"
 msgstr ""
 
-#: helper/RecordApparatus.php:148
+#: helper/RecordApparatus.php:141
 msgid "Licence of the material"
 msgstr ""
 
@@ -482,7 +482,8 @@ msgstr ""
 msgid "Linked data"
 msgstr ""
 
-#: view/common/linked-resources.phtml:73
+#: view/common/linked-resources.phtml:70
+#: view/common/linked-resources.phtml:75
 msgid "Linked resources"
 msgstr ""
 
@@ -494,22 +495,21 @@ msgstr ""
 msgid "Loading connections…"
 msgstr ""
 
-#: view/common/resource-values.phtml:164
+#: view/common/resource-values.phtml:162
 msgid "Loading the full text…"
 msgstr ""
 
-#: helper/CollectionStats.php:189
+#: helper/CollectionStats.php:97
 msgid "Locations"
 msgstr ""
 
-#: view/common/resource-values.phtml:193
+#: view/common/resource-values.phtml:191
 msgid "Machine-generated"
 msgstr ""
 
-#: view/common/block-layout/item-with-metadata.phtml:77
-#: view/common/linked-resources.phtml:44
+#: view/common/linked-resources.phtml:41
 #: view/common/resource-page-block-layout/media-list.phtml:8
-#: view/omeka/site/index/search.phtml:38
+#: view/omeka/site/index/search.phtml:20
 msgid "Media"
 msgstr ""
 
@@ -517,7 +517,7 @@ msgstr ""
 msgid "Media is unavailable."
 msgstr ""
 
-#: view/common/resource-page-block-layout/mirador.phtml:55
+#: view/common/resource-page-block-layout/mirador.phtml:58
 msgid "Media records"
 msgstr ""
 
@@ -545,26 +545,29 @@ msgstr ""
 msgid "Months"
 msgstr ""
 
-#: view/common/record-access.phtml:164
+#: view/common/record-access.phtml:152
 msgid "More about access"
 msgstr ""
 
-#: view/omeka/site/index/search.phtml:20
-#: view/omeka/site/item/browse.phtml:143
+#: view/common/search-empty.phtml:31
 msgid "Names may appear transliterated — try a variant spelling."
 msgstr ""
 
-#: view/common/linked-resources.phtml:202
-#: view/common/pagination.phtml:46
-#: view/common/pagination.phtml:48
+#: view/common/linked-resources.phtml:191
+#: view/common/pagination.phtml:49
+#: view/common/pagination.phtml:51
 msgid "Next"
 msgstr ""
 
-#: view/common/linked-resources.phtml:196
+#: view/common/linked-resources.phtml:185
 msgid "No connections match this filter."
 msgstr ""
 
-#: view/omeka/site/item/browse.phtml:146
+#: view/omeka/site/item-set/browse.phtml:35
+msgid "No item sets match the current filters."
+msgstr ""
+
+#: view/common/search-empty.phtml:34
 msgid "No items match the current filters."
 msgstr ""
 
@@ -572,7 +575,7 @@ msgstr ""
 msgid "No pages found"
 msgstr ""
 
-#: view/common/record-access.phtml:150
+#: view/common/record-access.phtml:138
 msgid "No reply?"
 msgstr ""
 
@@ -580,24 +583,23 @@ msgstr ""
 msgid "No saved records yet."
 msgstr ""
 
-#: view/common/resource-values.phtml:180
+#: view/common/resource-values.phtml:178
 msgid "no. %s"
 msgstr ""
 
-#: view/common/record-access.phtml:111
+#: view/common/record-access.phtml:100
 msgid "None linked to this record."
 msgstr ""
 
-#: view/common/record-access.phtml:136
+#: view/common/record-access.phtml:123
 msgid "Not %s: it keeps the material but does not handle access requests."
 msgstr ""
 
-#: view/omeka/site/index/search.phtml:16
-#: view/omeka/site/item/browse.phtml:139
+#: view/common/search-empty.phtml:27
 msgid "Nothing in the collections matched this search."
 msgstr ""
 
-#: view/common/pagination.phtml:40
+#: view/common/pagination.phtml:43
 msgid "of %s"
 msgstr ""
 
@@ -605,11 +607,11 @@ msgstr ""
 msgid "Offset"
 msgstr ""
 
-#: view/common/record-access.phtml:103
+#: view/common/record-access.phtml:92
 msgid "On this page, possibly in part"
 msgstr ""
 
-#: view/common/record-access.phtml:100
+#: view/common/record-access.phtml:89
 msgid "Online copy"
 msgstr ""
 
@@ -617,8 +619,8 @@ msgstr ""
 msgid "Open media record"
 msgstr ""
 
-#: view/common/header.phtml:103
-#: view/common/header.phtml:106
+#: view/common/header.phtml:104
+#: view/common/header.phtml:107
 msgid "Open menu"
 msgstr ""
 
@@ -626,15 +628,15 @@ msgstr ""
 msgid "Open results as a page"
 msgstr ""
 
-#: view/common/record-access.phtml:127
+#: view/common/record-access.phtml:116
 msgid "or the project’s researchers, listed on this page"
 msgstr ""
 
-#: view/common/record-access.phtml:130
+#: view/common/record-access.phtml:119
 msgid "or the research team of %s"
 msgstr ""
 
-#: helper/CollectionStats.php:188
+#: helper/CollectionStats.php:93
 msgid "Organisations"
 msgstr ""
 
@@ -642,16 +644,16 @@ msgstr ""
 msgid "Origins & context"
 msgstr ""
 
-#: config/amira-pages.php:61
+#: config/amira-pages.php:62
 msgid "Orishas — Gregório de Mattos Foundation"
 msgstr ""
 
-#: view/common/pagination.phtml:37
-#: view/common/pagination.phtml:38
+#: view/common/pagination.phtml:40
+#: view/common/pagination.phtml:41
 msgid "Page"
 msgstr ""
 
-#: view/common/linked-resources.phtml:201
+#: view/common/linked-resources.phtml:190
 msgid "Page %1$s of %2$s"
 msgstr ""
 
@@ -664,23 +666,23 @@ msgstr ""
 msgid "Pages"
 msgstr ""
 
-#: view/common/pagination.phtml:10
+#: view/common/pagination.phtml:13
 msgid "Pagination"
 msgstr ""
 
-#: view/common/pagination.phtml:9
+#: view/common/pagination.phtml:12
 msgid "Pagination, bottom"
 msgstr ""
 
-#: view/common/pagination.phtml:8
+#: view/common/pagination.phtml:11
 msgid "Pagination, top"
 msgstr ""
 
-#: view/omeka/site/media/show.phtml:67
+#: view/omeka/site/media/show.phtml:22
 msgid "Part of %s"
 msgstr ""
 
-#: helper/CollectionStats.php:187
+#: helper/CollectionStats.php:89
 msgid "People"
 msgstr ""
 
@@ -688,72 +690,72 @@ msgstr ""
 msgid "People & roles"
 msgstr ""
 
-#: config/amira-pages.php:60
+#: config/amira-pages.php:61
 msgid "Peripheral memories of Capoeira Angola in Salvador"
 msgstr ""
 
-#: helper/RecordApparatus.php:137
+#: helper/RecordApparatus.php:130
 #: view/common/record-linked-data.phtml:26
 msgid "Permanent link"
 msgstr ""
 
-#: config/amira-pages.php:43
+#: config/amira-pages.php:44
 msgid "Places & georeferences"
 msgstr ""
 
-#: config/amira-pages.php:52
+#: config/amira-pages.php:53
 msgid "Places mapped & georeferenced"
 msgstr ""
 
-#: helper/CollectionStats.php:193
+#: helper/CollectionStats.php:113
 msgid "Podcasts"
 msgstr ""
 
-#: view/common/linked-resources.phtml:200
-#: view/common/pagination.phtml:27
+#: view/common/linked-resources.phtml:189
 #: view/common/pagination.phtml:30
+#: view/common/pagination.phtml:33
 msgid "Previous"
 msgstr ""
 
-#: view/common/header.phtml:124
+#: view/common/header.phtml:125
 msgid "Primary navigation"
 msgstr ""
 
-#: view/common/record-access.phtml:123
+#: view/common/record-access.phtml:112
 msgid "principal investigator"
 msgid_plural "principal investigators"
 msgstr[0] ""
 msgstr[1] ""
 
-#: view/common/resource-values.phtml:207
+#: view/common/resource-values.phtml:205
 msgid "Private"
 msgstr ""
 
-#: helper/CollectionStats.php:186
+#: helper/CollectionStats.php:85
 msgid "Projects"
 msgstr ""
 
-#: config/amira-pages.php:36
+#: config/amira-pages.php:37
 msgid "Projects across the AMRCs"
 msgstr ""
 
-#: config/amira-pages.php:51
+#: config/amira-pages.php:52
 msgid "Projects side by side"
 msgstr ""
 
-#: config/amira-pages.php:24
+#: config/amira-pages.php:25
 msgid "Projects, sections and the primary materials they produce."
 msgstr ""
 
-#: config/amira-pages.php:26
+#: config/amira-pages.php:27
 msgid "Public-facing media from the Cluster."
 msgstr ""
 
-#: config/amira-pages.php:53
+#: config/amira-pages.php:54
 msgid "Publication trends & networks"
 msgstr ""
 
-#: helper/CollectionStats.php:192
+#: helper/CollectionStats.php:109
 msgid "Publications"
 msgstr ""
 
@@ -765,7 +767,7 @@ msgstr ""
 msgid "Query"
 msgstr ""
 
-#: config/amira-pages.php:65
+#: config/amira-pages.php:66
 msgid "RDF, dump & CC0 metadata"
 msgstr ""
 
@@ -773,11 +775,11 @@ msgstr ""
 msgid "RDSpace, University of Bayreuth"
 msgstr ""
 
-#: view/common/resource-values.phtml:166
+#: view/common/resource-values.phtml:164
 msgid "Read the full text"
 msgstr ""
 
-#: config/amira-pages.php:27
+#: config/amira-pages.php:28
 msgid "Read the metadata at a glance."
 msgstr ""
 
@@ -785,19 +787,19 @@ msgstr ""
 msgid "Reason: %s"
 msgstr ""
 
-#: helper/RecordAccess.php:183
+#: helper/RecordAccess.php:184
 msgid "Record: %s"
 msgstr ""
 
-#: view/common/record-access.phtml:83
+#: view/common/record-access.phtml:72
 msgid "Records"
 msgstr ""
 
-#: config/amira-pages.php:57
+#: config/amira-pages.php:58
 msgid "Records grouped by meaning"
 msgstr ""
 
-#: view/common/linked-resources.phtml:141
+#: view/common/linked-resources.phtml:135
 msgid "Relationship"
 msgstr ""
 
@@ -809,20 +811,20 @@ msgstr ""
 msgid "Remove"
 msgstr ""
 
-#: view/common/record-access.phtml:161
-#: view/common/record-access.phtml:59
+#: view/common/record-access.phtml:149
+#: view/common/record-access.phtml:48
 msgid "Report an error in this record"
 msgstr ""
 
-#: config/amira-pages.php:64
+#: config/amira-pages.php:65
 msgid "Requesting material & who to ask"
 msgstr ""
 
-#: helper/CollectionStats.php:185
+#: helper/CollectionStats.php:81
 msgid "Research items"
 msgstr ""
 
-#: view/common/header.phtml:63
+#: view/common/header.phtml:64
 #: view/common/shortlist.phtml:9
 msgid "Research shortlist"
 msgstr ""
@@ -849,7 +851,7 @@ msgstr ""
 
 #: helper/PwaManifest.php:63
 #: helper/PwaManifest.php:64
-#: view/common/banner.phtml:167
+#: view/common/banner.phtml:110
 #: view/common/dre-search-redirect.phtml:35
 #: view/common/error-page.phtml:52
 #: view/common/main-header-search.phtml:13
@@ -857,7 +859,7 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-#: view/common/linked-resources.phtml:113
+#: view/common/linked-resources.phtml:107
 msgid "Search all connections by title"
 msgstr ""
 
@@ -865,38 +867,37 @@ msgstr ""
 msgid "Search is temporarily unavailable."
 msgstr ""
 
-#: view/common/record-access.phtml:86
+#: view/common/record-access.phtml:74
 msgid "Search its %s record"
 msgid_plural "Search its %s records"
 msgstr[0] ""
 msgstr[1] ""
 
-#: view/common/banner.phtml:166
+#: view/common/banner.phtml:109
 msgid "Search records, people, places, subjects…"
 msgstr ""
 
-#: view/omeka/site/index/search.phtml:9
+#: view/omeka/site/index/search.phtml:10
 msgid "Search results for “%s”"
 msgstr ""
 
-#: view/common/banner.phtml:163
+#: view/common/banner.phtml:106
 #: view/common/dre-search-redirect.phtml:55
 #: view/common/dre-search-redirect.phtml:57
 #: view/common/error-page.phtml:48
 #: view/common/error-page.phtml:49
 #: view/common/error-page.phtml:51
 #: view/hierarchy/site/index/hierarchy.phtml:86
-#: view/omeka/site/item-set/browse.phtml:24
-#: view/omeka/site/item/browse.phtml:122
+#: view/omeka/site/item-set/browse.phtml:25
+#: view/omeka/site/item/browse.phtml:77
 msgid "Search the collection"
 msgstr ""
 
-#: view/omeka/site/item/browse.phtml:120
+#: view/omeka/site/item/browse.phtml:75
 msgid "Search these records"
 msgstr ""
 
-#: view/omeka/site/index/search.phtml:23
-#: view/omeka/site/item/browse.phtml:149
+#: view/common/search-empty.phtml:37
 msgid "Search with filters"
 msgstr ""
 
@@ -908,15 +909,15 @@ msgstr ""
 msgid "Seconds"
 msgstr ""
 
-#: view/common/linked-resources.phtml:99
+#: view/common/linked-resources.phtml:95
 msgid "Selected relationship"
 msgstr ""
 
-#: view/common/header.phtml:125
+#: view/common/header.phtml:126
 msgid "Show submenu for “%s”"
 msgstr ""
 
-#: view/omeka/site/index/search.phtml:35
+#: view/omeka/site/index/search.phtml:17
 msgid "Site pages"
 msgstr ""
 
@@ -933,21 +934,19 @@ msgstr ""
 msgid "Something went wrong"
 msgstr ""
 
-#: view/common/linked-resources.phtml:139
+#: view/common/linked-resources.phtml:133
 msgid "Sort this page"
 msgstr ""
 
-#: config/amira-pages.php:37
+#: config/amira-pages.php:38
 msgid "Sources, media & datasets"
 msgstr ""
 
-#: view/common/record-access.phtml:42
-#: view/common/record-notice.phtml:38
+#: helper/RecordAccess.php:290
 msgid "staff page"
 msgstr ""
 
-#: view/common/record-access.phtml:41
-#: view/common/record-notice.phtml:37
+#: helper/RecordAccess.php:289
 msgid "Staff page of %s"
 msgstr ""
 
@@ -955,7 +954,7 @@ msgstr ""
 msgid "Subjects"
 msgstr ""
 
-#: helper/CollectionStats.php:191
+#: helper/CollectionStats.php:105
 msgid "Subjects & tags"
 msgstr ""
 
@@ -963,49 +962,49 @@ msgstr ""
 msgid "Submit"
 msgstr ""
 
-#: view/common/header.phtml:85
+#: view/common/header.phtml:86
 msgid "Switch to dark mode"
 msgstr ""
 
-#: view/common/header.phtml:84
+#: view/common/header.phtml:85
 msgid "Switch to light mode"
 msgstr ""
 
-#: config/amira-pages.php:47
+#: config/amira-pages.php:48
 msgid "Talks & recordings"
 msgstr ""
 
-#: config/amira-pages.php:35
+#: config/amira-pages.php:36
 msgid "The Cluster's thematic areas"
 msgstr ""
 
-#: view/common/record-access.phtml:91
+#: view/common/record-access.phtml:79
 msgid "The collection %s"
 msgid_plural "The collections %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: view/common/record-access.phtml:143
+#: view/common/record-access.phtml:131
 msgid "The Digital Research Environment (DRE): %s"
 msgstr ""
 
-#: view/common/resource-values.phtml:166
+#: view/common/resource-values.phtml:164
 msgid "The full text could not be loaded. Try again"
 msgstr ""
 
-#: config/amira-pages.php:25
+#: config/amira-pages.php:26
 msgid "The named entities that link every record together."
 msgstr ""
 
-#: view/common/record-access.phtml:74
+#: view/common/record-access.phtml:63
 msgid "The project team described its material following the curation guidelines of the Digital Research Environment (DRE) and answers for the descriptions. AMIRA holds the descriptions only, not the material."
 msgstr ""
 
-#: view/common/record-access.phtml:127
+#: view/common/record-access.phtml:116
 msgid "The project’s researchers, listed on this page"
 msgstr ""
 
-#: view/common/record-access.phtml:130
+#: view/common/record-access.phtml:120
 msgid "The research team of %s"
 msgstr ""
 
@@ -1025,7 +1024,7 @@ msgstr ""
 msgid "The viewer is unavailable. Please try reloading the page."
 msgstr ""
 
-#: view/omeka/site/item/browse.phtml:56
+#: view/omeka/site/item/browse.phtml:45
 msgid "These records come from %s. The project’s page presents them with its description, its team and their visualisations."
 msgstr ""
 
@@ -1033,7 +1032,7 @@ msgstr ""
 msgid "This page does not exist, or it has moved. The record you were looking for may still be in the collection: try searching for it."
 msgstr ""
 
-#: view/common/record-notice.phtml:50
+#: view/common/record-notice.phtml:38
 msgid "This page is a catalogue record."
 msgstr ""
 
@@ -1041,7 +1040,7 @@ msgstr ""
 msgid "This page or record is not public. If you have an account with access to it, log in and try again."
 msgstr ""
 
-#: helper/RecordApparatus.php:87
+#: helper/RecordApparatus.php:80
 msgid "This record"
 msgstr ""
 
@@ -1050,23 +1049,23 @@ msgstr ""
 msgid "Time"
 msgstr ""
 
-#: view/common/linked-resources.phtml:142
+#: view/common/linked-resources.phtml:136
 msgid "Title (A–Z)"
 msgstr ""
 
-#: view/common/linked-resources.phtml:143
+#: view/common/linked-resources.phtml:137
 msgid "Title (Z–A)"
 msgstr ""
 
-#: view/common/header.phtml:75
+#: view/common/header.phtml:76
 msgid "To install this app, tap the Share button, then “Add to Home Screen”."
 msgstr ""
 
-#: view/common/header.phtml:83
+#: view/common/header.phtml:84
 msgid "Toggle dark mode"
 msgstr ""
 
-#: config/amira-pages.php:44
+#: config/amira-pages.php:45
 msgid "Topics & keywords"
 msgstr ""
 
@@ -1086,8 +1085,8 @@ msgstr ""
 msgid "Value"
 msgstr ""
 
-#: view/common/value-annotation.phtml:10
-#: view/common/value-annotation.phtml:7
+#: view/common/value-annotation.phtml:11
+#: view/common/value-annotation.phtml:16
 msgid "Value Annotations"
 msgstr ""
 
@@ -1103,15 +1102,15 @@ msgstr ""
 msgid "Value must be an integer"
 msgstr ""
 
-#: config/amira-pages.php:55
+#: config/amira-pages.php:56
 msgid "Video trends & playlists"
 msgstr ""
 
-#: view/common/nav-menu.phtml:76
+#: view/common/nav-menu.phtml:71
 msgid "View all"
 msgstr ""
 
-#: view/omeka/site/index/search.phtml:77
+#: view/omeka/site/index/search.phtml:59
 msgid "View all results (%s total)"
 msgstr ""
 
@@ -1119,29 +1118,29 @@ msgstr ""
 msgid "View as"
 msgstr ""
 
-#: helper/RecordAccess.php:123
-#: helper/RecordAccess.php:161
+#: helper/RecordAccess.php:124
+#: helper/RecordAccess.php:163
 msgid "What should be corrected or improved?"
 msgstr ""
 
-#: helper/RecordAccess.php:128
-#: helper/RecordAccess.php:166
+#: helper/RecordAccess.php:129
+#: helper/RecordAccess.php:168
 msgid "What would you like to access, and for what purpose?"
 msgstr ""
 
-#: view/common/record-access.phtml:118
+#: view/common/record-access.phtml:107
 msgid "Who to ask"
 msgstr ""
 
-#: config/amira-pages.php:62
+#: config/amira-pages.php:63
 msgid "Workers in/from Bahia"
 msgstr ""
 
-#: view/common/record-access.phtml:151
+#: view/common/record-access.phtml:139
 msgid "Write to the DRE: %s"
 msgstr ""
 
-#: config/amira-pages.php:48
+#: config/amira-pages.php:49
 msgid "Writers in residence"
 msgstr ""
 
@@ -1153,6 +1152,6 @@ msgstr ""
 msgid "Years"
 msgstr ""
 
-#: helper/CollectionStats.php:194
+#: helper/CollectionStats.php:117
 msgid "YouTube videos"
 msgstr ""

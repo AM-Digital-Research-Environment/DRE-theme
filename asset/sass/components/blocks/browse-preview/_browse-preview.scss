@@ -1,8 +1,8 @@
 @use "../../../abstracts" as *;
 
 .preview-block {
-    margin: 1rem 0 4rem !important;
-    overflow: visible !important;
+    margin: 1rem 0 4rem;
+    overflow: visible;
 
     .browse-all {
         @include secondary-button;

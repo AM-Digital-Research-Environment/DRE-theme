@@ -19,14 +19,21 @@
  *
  * and, under `npm version`, stages them so they land in the version commit.
  * `npm run lint:ini` (scripts/check-theme-ini.mjs) asserts the result.
+ *
+ * Under `npm version` an empty [Unreleased] is a failure, not a no-op: the
+ * release workflow takes its notes from the version's CHANGELOG section and
+ * would otherwise publish generated notes in their place. (The `preversion`
+ * hook refuses the same thing before package.json is bumped; this is the
+ * backstop.) Run by hand, the script only syncs what it can.
  */
 import { spawnSync } from 'node:child_process';
-import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { buildCss } from './build-css.mjs';
-import { promoteUnreleased } from './changelog-section.mjs';
-import { themeRoot } from './files.mjs';
+import { changelogSection, promoteUnreleased } from './changelog-section.mjs';
+import { compiledCssPath, sassEntryPoints, themeRoot } from './lib/files.mjs';
+import { parseInfo } from './lib/theme-ini.mjs';
 
 const ROOT = themeRoot();
 const version = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).version;
@@ -36,6 +43,22 @@ if (!/^\d+\.\d+\.\d+$/.test(version ?? '')) {
 }
 const today = new Date().toISOString().slice(0, 10);
 const touched = [];
+const releasing = process.env.npm_lifecycle_event === 'version';
+
+// Before any file is written, so a refused release leaves only npm's own bump
+// of package.json and package-lock.json to undo.
+if (releasing) {
+    const changelog = join(ROOT, 'CHANGELOG.md');
+    const text = existsSync(changelog) ? readFileSync(changelog, 'utf8') : '';
+    if (!changelogSection(promoteUnreleased(text, version, today), version)) {
+        console.error(
+            `sync-version: CHANGELOG.md has no notes for ${version}: ## [Unreleased] is empty (or missing). ` +
+                'Write the release notes there, then undo the bump (git checkout -- package.json package-lock.json) ' +
+                'and run npm version again.',
+        );
+        process.exit(1);
+    }
+}
 
 function edit(file, transform, { required = true } = {}) {
     const path = join(ROOT, file);
@@ -58,7 +81,7 @@ try {
             /(^\[info\][^\n]*\n(?:(?!\[)[^\n]*\n)*?)version\s*=\s*"[^"]*"/m,
             `$1version = "${version}"`,
         );
-        if (replaced === text && !text.includes(`version = "${version}"`)) {
+        if (parseInfo(replaced).values.version !== version) {
             throw new Error('sync-version: no [info] version line in config/theme.ini');
         }
         return replaced;
@@ -77,9 +100,7 @@ try {
     // Stage only the compiled outputs of Sass entry points, never other files
     // that happen to be modified under asset/css.
     await buildCss(ROOT);
-    const outputs = readdirSync(join(ROOT, 'asset', 'sass'))
-        .filter((name) => name.endsWith('.scss') && !name.startsWith('_'))
-        .map((name) => `asset/css/${name.replace(/\.scss$/, '.css')}`);
+    const outputs = sassEntryPoints(ROOT).map(compiledCssPath);
     const css = spawnSync('git', ['status', '--porcelain', '--', ...outputs], { cwd: ROOT, encoding: 'utf8' });
     for (const line of (css.stdout ?? '').split('\n').filter(Boolean)) touched.push(line.slice(3));
 } catch (error) {
@@ -87,7 +108,7 @@ try {
     process.exit(1);
 }
 
-if (process.env.npm_lifecycle_event === 'version' && touched.length) {
+if (releasing && touched.length) {
     const add = spawnSync('git', ['add', '--', ...touched], { cwd: ROOT, stdio: 'inherit' });
     if (add.status !== 0) process.exit(add.status ?? 1);
 }

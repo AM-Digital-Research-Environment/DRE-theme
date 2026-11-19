@@ -1,7 +1,6 @@
 <?php
-$decoration = $this->themeSetting('image_decoration');
 $altText = $resource->altText() ?: $resource->displayTitle() ?: '';
 ?>
-<div class="<?php echo is_array($decoration) && in_array('media', $decoration) ? 'decoration' : ''; ?>">
+<div class="<?php echo $this->ImageDecoration('media') ? 'decoration' : ''; ?>">
     <?php echo $resource->render(['thumbnailAttribs' => ['alt' => $altText]]); ?>
 </div>

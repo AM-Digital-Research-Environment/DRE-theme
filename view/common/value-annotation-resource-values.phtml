@@ -11,10 +11,8 @@ $translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
 $escapeAttr = $this->plugin('escapeHtmlAttr');
 
-$lang = null;
-if ($this->status()->isSiteRequest() && $this->siteSetting('filter_locale_values')) {
-    $lang = $this->lang();
-}
+// The page language when the site filters values by locale, else null.
+$lang = $this->ValueReader()->valueLang()[0] ?? null;
 ?>
 <dl class="annotation-values">
 <?php foreach ($values as $term => $propertyData):
@@ -29,7 +27,9 @@ if ($this->status()->isSiteRequest() && $this->siteSetting('filter_locale_values
         <dt><?php echo $escape($label); ?></dt>
         <?php foreach ($propertyValues as $value):
             $valueResource = $value->valueResource(); ?>
-        <dd lang="<?php echo $escapeAttr($value->lang()); ?>"><span class="annotation-values__value"><?php
+        <?php // An untagged value inherits the page language: `lang=""` would
+              // declare it "unknown language" and override <html lang>. ?>
+        <dd<?php if ((string) $value->lang() !== ''): ?> lang="<?php echo $escapeAttr($value->lang()); ?>"<?php endif; ?>><span class="annotation-values__value"><?php
             // A linked record as its title alone: core's linkPretty() would add
             // a thumbnail the popover has no room for.
             echo $valueResource

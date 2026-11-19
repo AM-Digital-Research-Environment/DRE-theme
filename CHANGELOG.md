@@ -11,6 +11,34 @@ to create.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Keyboard navigation in the main menu.** Tabbing along the top row no longer opens every submenu and walks through its links: a panel opens from its caret button or the pointer, and closes on Escape or when focus leaves, also when it was opened by hovering. The parent link no longer carries `aria-expanded` (the caret is the disclosure), and the drawer's parent links now expose their expanded state.
+- **The home masthead is inside `<main>`.** The banner's `<h1>` and search used to sit between the header and `<main>`, outside every landmark, and "Skip to main content" jumped past them. `<main id="site-main">` now holds the banner and the content column (`#content`, unchanged), and the skip link targets it.
+- A translation with an extra printf placeholder can no longer turn a research-item or project page into an error: translated formats go through the new `TranslateFormat` helper, which falls back to the English text, and `npm run i18n:check` rejects such a translation.
+- Linked resources no longer report "failed" over results that loaded when part of the block is missing, and the header's search toggle no longer throws on a panel without a search field.
+- A linked-resource heading taken from a property that holds a linked record shows that record's title, not its URL.
+- Untagged value annotations no longer declare `lang=""` ("unknown language").
+- Switching a browse page from grid to list during Masonry's layout transition no longer leaves cards offset: `browse.js` stops each item's transition before destroying Masonry, so the list view needs no `!important` against inline positions.
+- Headings that were not section headings are not headings any more: the footer's contact details (`<address>`), the value-annotation label, and the hierarchy page's item list (an `<h2>`, not an `<h3>` straight after the `<h1>`). The Linked resources section heading sits before its disclosure rather than inside the `<summary>`. All keep their look.
+- The Mirador wrapper is a labelled `role="region"`, not `role="application"`, which switched off screen-reader browse mode for the whole viewer.
+- The logo link reads as the site title alone: the bundled logo's alt text is empty.
+- Escaping: the Linked resources filter labels, the media page and mapping popup links, a block's class attribute and the footer institution logos.
+- The breakpoint pairs on the error page no longer overlap at exactly 768px and 600px.
+
+### Changed
+
+- **The header slides with a transform.** Scrolling toggles one class instead of writing `top` and reading the header's height on every frame. A `ResizeObserver` writes the measured height to `--header-height` on `:root`, which the drawer and scroll padding (now owned by CSS alone) follow; the token's `4.625rem` remains the value before the first measurement.
+- The navigation-mode script that ran inline in the header is `asset/js/nav-mode.js`, built and unit-tested like the other scripts; the template inlines its minified build.
+- `DREUtils` gains `prefersReducedMotion()` (read live), `isPlainClick()` and `normaliseSpace()`, replacing per-script copies; Mirador and the theme toggle follow `DRETokens` instead of watching `data-theme` themselves. The remaining ES5 scripts use the ES2020 style of the rest.
+- Item-set browse uses the curated sort selector and shows an empty state, like item browse. Counts in pagination, linked resources and search totals are locale-formatted.
+- Search links encode spaces as `%20` rather than `+`.
+- Refactoring, no visible change:
+  - Templates: shared `common/search-empty` and `common/resource-regions` partials, the item-with-metadata block reuses the media-list partial, and new helpers `SiteChrome` (the AMIRA pages list, loaded once per request, and the single rule for which template owns the `<h1>`) and `ImageDecoration`. `annotations.min.js` loads only where value annotations show; navigation links no longer render one partial each.
+  - Helpers: one value-to-link implementation in `ValueReader::entries()` and one value-language rule (`ValueReader::valueLang()`); one classification rule in `ResourceGroups`; `CollectionStats` derives the legacy keys to prune from its integer cache version and reads its metric labels from one list (cache keys unchanged); `HierarchyTree` reads its settings once; helper classes are `final`. Unused code in `RecordIdentifiers` and `BrowseSort` is gone.
+  - Sass: one `dark-mode` mixin emits both the manual and the system dark selector; `bp-up`/`bp-down` mixins for width queries; `components/metadata/_metadata.scss` is split into `components/record/*`; the resource-tag, resource-description and page-title partials move from `base/` to `components/`; most `!important`s give way to specificity. A few off-grid paddings move to the nearest `--space-*` token (1–2px).
+- Tooling: `npm run build` only compiles, and `npm run verify` runs the lints first; `npm run watch` rebuilds scripts too; `npm version` runs `verify` first and refuses an empty `[Unreleased]`. `lint:templates` also checks helper calls made inside helpers. The minified-build test pass runs only the suites that load theme scripts. `lint:groups` is retired in favour of `tests/ResourceGroupsTest.php`, which gained its checks. Shared readers for `theme.ini`, Sass blocks and the audit browser live in `scripts/lib/`. CI caches Playwright browsers, reads Node's version from `.nvmrc` and runs PHPStan 2.3.6.
+
 ## [2.50.1] - 2026-11-16
 
 ### Changed

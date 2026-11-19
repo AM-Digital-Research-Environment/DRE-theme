@@ -43,6 +43,12 @@ this table is a cross-repository breaking change.
 | Fixed brand pigments | `--brand-green`, `--brand-braun`, `--brand-gelb`, `--brand-dunkelblau`, `--brand-hellblau`, `--brand-gold` |
 | Entity meaning | `--entity-person`, `--entity-project`, `--entity-organisation`, `--entity-subject`, `--entity-location`, `--entity-genre`, `--entity-language`, `--entity-contributor`, `--entity-item`, `--entity-item-related`, `--entity-item-shared`, `--entity-grouping`, `--type-entity-term` |
 
+`--header-height` is the rendered height of the sticky header: the theme's
+`asset/js/script.js` measures it with a `ResizeObserver` and writes it on
+`:root`, so a module that offsets fixed or sticky content by it follows a
+wrapped or zoomed header. The token's `4.625rem` is the value before the first
+measurement and without JavaScript.
+
 Local component stacking is not part of the global scale. Small integers remain
 appropriate for siblings inside a component that already establishes a stacking
 context. The named scale is for page-level layers. A fullscreen visualization
@@ -287,6 +293,9 @@ present and keep a local fallback for isolated rendering.
 | `DREUtils.flashLabel(button, message, ms = 2000)` | Temporary label swap plus announcement (copy feedback) |
 | `DREUtils.debounce(fn, ms)` | Trailing-edge debounce |
 | `DREUtils.onReady(fn)` | Run after DOM parse |
+| `DREUtils.prefersReducedMotion()` | Whether the reader asks for reduced motion, read live on each call |
+| `DREUtils.isPlainClick(event)` | A primary-button click with no modifier key (one that should not open a new tab or window) |
+| `DREUtils.normaliseSpace(text)` | Collapse runs of whitespace and trim |
 
 ### Maps
 

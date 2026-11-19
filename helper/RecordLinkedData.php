@@ -27,7 +27,7 @@ require_once __DIR__ . '/ValueReader.php';
  *
  * @phpstan-type LinkedData array{uri: string, page: string, downloads: list<array{label: string, type: string, url: string}>, sameAs: list<array{label: string, id: string, href: string}>}
  */
-class RecordLinkedData extends AbstractHelper
+final class RecordLinkedData extends AbstractHelper
 {
     /**
      * Registers a visitor recognises by name, keyed by host. A host match also

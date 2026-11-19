@@ -1,0 +1,88 @@
+@use "../../abstracts" as *;
+
+// --------------------------------------------------------------------------
+// .metadata — the wrapper Omeka's resource-page blocks render into.
+// --------------------------------------------------------------------------
+.metadata {
+    width: 100%;
+
+    @include bp-up($md) {
+        width: auto;
+    }
+
+    > div:not(:last-child),
+    .media-render:not(:last-child) {
+        margin-bottom: var(--space-8);
+    }
+
+    .media-render > * {
+        max-width: 100%;
+    }
+
+    .media-embed {
+        margin-bottom: var(--space-4);
+    }
+
+    dl {
+        margin-top: 0;
+        margin-bottom: var(--space-8);
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    .value.resource {
+        .resource-link {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        // Cap the height (as before) but let the width follow the image's own
+        // aspect ratio, so a wide logo/wordmark isn't centre-cropped to a square.
+        // Pairs with the 'medium' (aspect-preserving) thumbnail rendered in
+        // common/resource-values.phtml — 'square' here would still be pre-cropped.
+        img {
+            flex-shrink: 0;
+            height: 3.75rem;
+            width: auto;
+            max-width: 100%;
+            margin-right: var(--space-4);
+            object-fit: contain;   // only bites if a very wide image hits max-width
+        }
+    }
+
+    .media-list {
+        // Media rows breathe wider than the record row's var(--space-2) (the
+        // record-row mixin, _groups.scss). The same selector shape as that rule
+        // (0,3,2), later in the source, wins without !important.
+        &:is(dl) > .property dd {
+            margin-bottom: var(--space-4);
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+
+        .resource-link {
+            display: flex;
+            align-items: center;
+
+            img {
+                flex-shrink: 0;
+                height: 6.25rem;
+                object-fit: cover;
+                width: 6.25rem;
+            }
+
+            .resource-name {
+                padding: var(--space-4);
+            }
+        }
+    }
+}
+
+// A subject chip must not inherit the resource-value thumbnail treatment.
+.record__group--chips .value.resource .resource-link img {
+    display: none;
+}

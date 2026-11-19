@@ -49,7 +49,7 @@ require_once __DIR__ . '/ProjectCollections.php';
  * @phpstan-type ProjectAccess array{email: string, accessPageUrl: string, kind: 'project', id: int, title: string, permalink: string, sections: list<Person>, years: string, records: ProjectRecords, contactSource: 'mediator'|'team'|'dre', contacts: list<Person>, pis: list<Person>, researchers: list<Person>, reportMailto: string, requestMailto: string}
  * @phpstan-type RecordAccessData array{email: string, accessPageUrl: string, kind: 'record', id: int, title: string, permalink: string, projects: list<Link>, contactSource: 'mediator'|'team'|'dre', contacts: list<Person>, pis: list<Person>, researchers: list<Person>, holders: list<string>, links: list<Link>, hasMedia: bool, reportMailto: string, requestMailto: string}
  */
-class RecordAccess extends AbstractHelper
+final class RecordAccess extends AbstractHelper
 {
     public const DEFAULT_EMAIL = 'africamultiple-digital@uni-bayreuth.de';
     /**
@@ -66,7 +66,7 @@ class RecordAccess extends AbstractHelper
      * name of the system as a visitor would recognise it. A host match wins over the
      * property, so a DSpace permalink filed under `fabio:hasURL` is still named.
      */
-    private const LINK_TERMS = ['dre:collectionUrl', 'dre:rdspaceHandle', 'bibo:doi', 'fabio:hasURL'];
+    private const LINK_TERMS = ['dre:collectionUrl', 'dre:rdspaceHandle', 'bibo:doi', ValueReader::HAS_URL];
     private const HOST_LABELS = [
         // The site's own name ("Collections@UBT"), not "UB Digital Collections".
         'collections.uni-bayreuth.de' => 'Collections@UBT, University of Bayreuth', // @translate
@@ -108,7 +108,7 @@ class RecordAccess extends AbstractHelper
                 'id' => (int) $resource->id(),
                 'title' => (string) $resource->displayTitle(),
                 'permalink' => $this->permalink($resource),
-                'sections' => $this->linkedTitles($resource, 'dcterms:isPartOf'),
+                'sections' => $this->linkedTitles($resource, ValueReader::IS_PART_OF),
                 'years' => self::years(ValueReader::firstLiteral($resource, 'dcterms:temporal')),
                 'records' => $this->projectRecords($resource),
                 'contactSource' => $contact['source'],
@@ -117,14 +117,15 @@ class RecordAccess extends AbstractHelper
                 'researchers' => $contact['researchers'],
             ];
             $translate = $this->getView()->plugin('translate');
+            $format = $this->getView()->plugin('TranslateFormat');
             $project['reportMailto'] = $this->mailto(
                 $project,
-                $translate('[AMIRA] Correction to project %1$s: %2$s'),
+                $format->translate('[AMIRA] Correction to project %1$s: %2$s', $project['id'], $project['title']),
                 $translate('What should be corrected or improved?')
             );
             $project['requestMailto'] = $this->mailto(
                 $project,
-                $translate('[AMIRA] Access request: project %1$s: %2$s'),
+                $format->translate('[AMIRA] Access request: project %1$s: %2$s', $project['id'], $project['title']),
                 $translate('What would you like to access, and for what purpose?')
             );
             return $project;
@@ -155,14 +156,15 @@ class RecordAccess extends AbstractHelper
             'hasMedia' => $this->hasMedia($resource),
         ];
         $translate = $this->getView()->plugin('translate');
+        $format = $this->getView()->plugin('TranslateFormat');
         $record['reportMailto'] = $this->mailto(
             $record,
-            $translate('[AMIRA] Correction to record %1$s: %2$s'),
+            $format->translate('[AMIRA] Correction to record %1$s: %2$s', $record['id'], $record['title']),
             $translate('What should be corrected or improved?')
         );
         $record['requestMailto'] = $this->mailto(
             $record,
-            $translate('[AMIRA] Access request: record %1$s: %2$s'),
+            $format->translate('[AMIRA] Access request: record %1$s: %2$s', $record['id'], $record['title']),
             $translate('What would you like to access, and for what purpose?')
         );
 
@@ -176,11 +178,10 @@ class RecordAccess extends AbstractHelper
      *
      * @param array{id: int, title: string, email: string, permalink?: string} $access
      */
-    private function mailto(array $access, string $subjectFormat, string $prompt): string
+    private function mailto(array $access, string $subject, string $prompt): string
     {
-        $translate = $this->getView()->plugin('translate');
-        $subject = sprintf($subjectFormat, $access['id'], $access['title']);
-        $body = sprintf($translate('Record: %s'), $access['permalink'] ?? '') . "\n\n" . $prompt . "\n\n";
+        $format = $this->getView()->plugin('TranslateFormat');
+        $body = $format->translate('Record: %s', $access['permalink'] ?? '') . "\n\n" . $prompt . "\n\n";
 
         return 'mailto:' . $access['email']
             . '?subject=' . rawurlencode($subject)
@@ -242,29 +243,55 @@ class RecordAccess extends AbstractHelper
     }
 
     /**
-     * Labels (and record links) of a property's values. A linked value shows its
-     * title, a URI its label or itself, a literal its text — the rail's rule.
-     * With $staffPages, a linked item's staff page rides along as `staffPage`.
+     * Labels (and record links) of a property's values, as
+     * ValueReader::entries() reads them. With $staffPages, a linked item's
+     * staff page rides along as `staffPage`.
      *
      * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
      * @return list<Person>
      */
     private function linkedTitles($resource, string $term, bool $linksOnly = false, bool $staffPages = false): array
     {
-        $out = [];
-        foreach (ValueReader::values($resource, $term) as $value) {
-            $entry = ValueReader::entry($value, $linksOnly);
-            if ($entry === null) {
-                continue;
-            }
-            $person = ['label' => $entry['label'], 'href' => $entry['href']];
-            $staffPage = $staffPages && $entry['resource'] ? $this->staffPage($entry['resource']) : '';
-            if ($staffPage !== '') {
-                $person['staffPage'] = $staffPage;
-            }
-            $out[] = $person;
+        $extra = null;
+        if ($staffPages) {
+            $extra = function (array $entry): array {
+                $staffPage = $entry['resource'] ? $this->staffPage($entry['resource']) : '';
+                return $staffPage !== '' ? ['staffPage' => $staffPage] : [];
+            };
         }
-        return $out;
+        /** @var list<Person> $people */
+        $people = ValueReader::entries($resource, $term, $linksOnly, $extra);
+        return $people;
+    }
+
+    /**
+     * People or projects as a "; "-separated run of links, the way the access
+     * panel and the record notice print them. A person with a staff page gets
+     * it after the name, "Vierke, Ulf (staff page)"; that link text repeats per
+     * person, so its accessible name says whose page it is.
+     *
+     * @param list<array{label: string, href: string, staffPage?: string}> $links
+     */
+    public function linkList(array $links): string
+    {
+        $view = $this->getView();
+        $escHtml = $view->plugin('escapeHtml');
+        $escAttr = $view->plugin('escapeHtmlAttr');
+        $translate = $view->plugin('translate');
+        $format = $view->plugin('TranslateFormat');
+        $parts = [];
+        foreach ($links as $link) {
+            $part = $link['href'] !== ''
+                ? '<a href="' . $escAttr($link['href']) . '">' . $escHtml($link['label']) . '</a>'
+                : $escHtml($link['label']);
+            if (!empty($link['staffPage'])) {
+                $part .= ' (<a href="' . $escAttr($link['staffPage']) . '" aria-label="'
+                    . $escAttr($format->translate('Staff page of %s', $link['label'])) . '">'
+                    . $escHtml($translate('staff page')) . '</a>)';
+            }
+            $parts[] = $part;
+        }
+        return implode('; ', $parts);
     }
 
     /**
@@ -275,7 +302,7 @@ class RecordAccess extends AbstractHelper
      */
     private function staffPage($person): string
     {
-        foreach (ValueReader::values($person, 'fabio:hasURL') as $value) {
+        foreach (ValueReader::values($person, ValueReader::HAS_URL) as $value) {
             $href = ValueReader::url($value);
             if ($href !== '') {
                 return $href;

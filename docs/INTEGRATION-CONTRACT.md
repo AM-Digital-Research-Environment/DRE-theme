@@ -387,7 +387,8 @@ site-wide head output.
 ### `window.DREUtils`
 
 - **Provider:** the theme, `asset/js/utils.js`: `onReady`, `debounce`,
-  `announce`, `flashLabel` ([`DESIGN-INTEGRATION.md`](DESIGN-INTEGRATION.md),
+  `announce`, `flashLabel`, `prefersReducedMotion`, `isPlainClick`,
+  `normaliseSpace` ([`DESIGN-INTEGRATION.md`](DESIGN-INTEGRATION.md),
   "Theme JavaScript API").
 - **Consumers:** DRE Search, `src/svelte/lib/announce.ts` (`announce`); DRE
   Visualizations, `asset/js/core/async.js` (`announce`) and

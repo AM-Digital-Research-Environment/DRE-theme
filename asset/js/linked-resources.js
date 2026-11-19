@@ -33,10 +33,17 @@
         const state = { controller: new AbortController(), destination, push, key: stateKey(destination), timedOut: false };
         const timeout = setTimeout(() => { state.timedOut = true; state.controller.abort(); }, 30000);
         requests.set(container, state);
+        // The status line and the recovery link come from the block template
+        // (common/resource-page-block-layout/linked-resources.phtml). A theme
+        // override may drop either; the load must not die over a message it
+        // has nowhere to show.
         const status = container.querySelector('[data-connection-status]');
         const recovery = container.querySelector('[data-connection-recovery]');
-        status.textContent = container.dataset.loading;
-        recovery.hidden = true;
+        const say = (message) => {
+            if (status) status.textContent = message;
+        };
+        say(container.dataset.loading);
+        if (recovery) recovery.hidden = true;
         container.setAttribute('aria-busy', 'true');
         const endpoint = new URL(container.dataset.connectionEndpoint, location.href);
         const params = connectionState(destination);
@@ -50,19 +57,27 @@
             const replacement = doc.querySelector('.resources-linked');
             if (!replacement) throw new Error('Connection response missing');
             if (requests.get(container) !== state) return;
+            const current = container.querySelector('.resources-linked');
+            if (!current) throw new Error('Connection block missing');
             const hadFocus = container.contains(document.activeElement);
-            container.querySelector('.resources-linked').replaceWith(replacement);
+            current.replaceWith(replacement);
             shown.set(container, state.key);
             document.dispatchEvent(new CustomEvent('dre:connections-loaded'));
             // Re-applying the filters already shown is not a new place in history.
             if (push && stateKey(new URL(location.href)) !== state.key) history.pushState(null, '', destination);
-            status.textContent = replacement.querySelector('.resources-linked__summary').textContent.replace(/\s+/g, ' ').trim();
-            if (hadFocus) replacement.querySelector('summary').focus();
+            // The content is in place from here on: nothing below may fall
+            // through to the "failed" message over a block that loaded.
+            const summary = replacement.querySelector('.resources-linked__summary');
+            say(summary ? window.DREUtils.normaliseSpace(summary.textContent) : '');
+            if (hadFocus) replacement.querySelector('summary')?.focus();
         } catch (error) {
             if ((error.name === 'AbortError' && !state.timedOut) || requests.get(container) !== state) return;
-            status.textContent = container.dataset.failed;
-            recovery.hidden = false;
-            recovery.querySelector('[data-connection-continue]').href = destination.href;
+            say(container.dataset.failed);
+            if (recovery) {
+                recovery.hidden = false;
+                const resume = recovery.querySelector('[data-connection-continue]');
+                if (resume) resume.href = destination.href;
+            }
         } finally {
             clearTimeout(timeout);
             if (requests.get(container) === state) container.removeAttribute('aria-busy');
@@ -92,7 +107,7 @@
         const container = control?.closest('[data-connection-endpoint]');
         if (!container || typeof fetch !== 'function') return;
         if (control.hasAttribute('data-connection-page')) {
-            if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+            if (!window.DREUtils.isPlainClick(event)) return;
             event.preventDefault();
             const link = new URL(control.href);
             const destination = new URL(location.href);

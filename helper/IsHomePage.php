@@ -24,7 +24,7 @@ use Laminas\View\Helper\AbstractHelper;
  * The answer is memoised per request: the layout and every page-title block ask
  * the same question, and parse_url() on each is pointless work.
  */
-class IsHomePage extends AbstractHelper
+final class IsHomePage extends AbstractHelper
 {
     private ?bool $isHome = null;
 

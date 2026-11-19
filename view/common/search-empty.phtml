@@ -1,0 +1,45 @@
+<?php
+/**
+ * The empty state of a list or a search: a quiet pause with a path onward.
+ * Nothing is wrong, the collection just has no match. The query itself is
+ * already restated above (the page title or the active-filter chips), so it is
+ * not repeated here.
+ *
+ * Rendered by omeka/site/index/search, omeka/site/item/browse (where core's
+ * single-type search redirects, so a fruitless site-wide search lands there
+ * too) and omeka/site/item-set/browse.
+ *
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var bool        $searched  a full-text search found nothing: suggest how to widen it
+ * @var string|null $lead      the sentence when filters, not a search, emptied the list
+ * @var string|null $browseController  the list "Browse all" leads back to ('item' by default)
+ * @var string|null $browseLabel       its link text (translated)
+ */
+$escape = $this->plugin('escapeHtml');
+$escapeAttr = $this->plugin('escapeHtmlAttr');
+$translate = $this->plugin('translate');
+$searched = !empty($searched);
+$browseController = $browseController ?? 'item';
+$browseLabel = $browseLabel ?? $translate('Browse all items');
+?>
+<div class="search-empty">
+    <?php if ($searched): ?>
+        <p class="search-empty__lead"><?php echo $escape($translate('Nothing in the collections matched this search.')); ?></p>
+        <ul class="search-empty__hints">
+            <li><?php echo $escape($translate('Check the spelling, or try another form of the word.')); ?></li>
+            <li><?php echo $escape($translate('Fewer, broader terms cast a wider net.')); ?></li>
+            <li><?php echo $escape($translate('Names may appear transliterated — try a variant spelling.')); ?></li>
+        </ul>
+    <?php else: ?>
+        <p class="search-empty__lead"><?php echo $escape($lead ?? $translate('No items match the current filters.')); ?></p>
+    <?php endif; ?>
+    <div class="search-empty__actions">
+        <a class="button" href="<?php echo $escapeAttr($this->DreSearchUrl()); ?>"><?php echo $escape($translate('Search with filters')); ?></a>
+        <a class="button btn--secondary" href="<?php echo $escapeAttr($this->url(
+            'site/resource',
+            ['controller' => $browseController, 'action' => 'browse'],
+            [],
+            true
+        )); ?>"><?php echo $escape($browseLabel); ?></a>
+    </div>
+</div>

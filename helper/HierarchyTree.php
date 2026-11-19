@@ -8,7 +8,7 @@ use Laminas\View\Helper\AbstractHelper;
  * @phpstan-type Node array{id: int, label: string, url: string|null, active: bool, count: int|null, children: list<array<string, mixed>>, setIds: array<int, true>}
  * @phpstan-type Tree array{nodes: list<Node>, itemSets: list<\Omeka\Api\Representation\ItemSetRepresentation>}
  */
-class HierarchyTree extends AbstractHelper
+final class HierarchyTree extends AbstractHelper
 {
     /**
      * @param object $selected
@@ -66,7 +66,16 @@ class HierarchyTree extends AbstractHelper
                 foreach ($view->api()->search('item_sets', ['id' => $batch, 'per_page' => 100])->getContent() as $set) $sets[$set->id()] = $set;
             } catch (\Throwable $e) { /* Unavailable sets remain unlinked. */ }
         }
-        $build = function (int $id) use (&$build, &$visited, &$sets, &$counts, $byId, $children, $view, $activeId, $valueLang): ?array {
+        // Site settings and the site are read once per tree, not once per node.
+        $groupResources = (bool) $view->siteSetting('hierarchy_group_resources');
+        $showCount = (bool) $view->siteSetting('hierarchy_show_count');
+        $siteOnly = (bool) $view->siteSetting('exclude_resources_not_in_site');
+        $linkItemSet = (bool) $view->siteSetting('hierarchy_link_itemSet');
+        $site = $view->currentSite();
+        $format = $view->plugin('TranslateFormat');
+        $untitled = $view->translate('[Untitled]');
+        $build = function (int $id) use (&$build, &$visited, &$sets, &$counts, $byId, $children, $view, $activeId, $valueLang,
+            $groupResources, $showCount, $siteOnly, $linkItemSet, $site, $format, $untitled): ?array {
             if (isset($visited[$id])) return null;
             $visited[$id] = true;
             $grouping = $byId[$id];
@@ -76,34 +85,34 @@ class HierarchyTree extends AbstractHelper
                 $setId = (int) $reference->id();
                 $set = $sets[$setId];
             }
-            $label = $grouping->getLabel() ?: ($set ? $set->displayTitle(null, $valueLang) : $view->translate('[Untitled]'));
-            if ($reference && !$set) $label = sprintf($view->translate('%s (unavailable)'), $label);
+            $label = $grouping->getLabel() ?: ($set ? $set->displayTitle(null, $valueLang) : $untitled);
+            if ($reference && !$set) $label = $format->translate('%s (unavailable)', $label);
             $nodes = [];
             $ids = $set ? [$set->id() => true] : [];
             foreach ($children[$id] ?? [] as $childId) {
                 $child = $build($childId);
                 if ($child) {
                     $nodes[] = $child;
-                    if ($view->siteSetting('hierarchy_group_resources')) $ids += $child['setIds'];
+                    if ($groupResources) $ids += $child['setIds'];
                 }
             }
             $count = null;
-            if ($ids && $view->siteSetting('hierarchy_show_count')) {
+            if ($ids && $showCount) {
                 $queryIds = array_keys($ids);
                 sort($queryIds);
                 $key = implode(',', $queryIds);
                 if (!isset($counts[$key])) {
                     $query = ['item_set_id' => $queryIds, 'limit' => 0];
-                    if ($view->siteSetting('exclude_resources_not_in_site')) $query['site_id'] = $view->currentSite()->id();
+                    if ($siteOnly) $query['site_id'] = $site->id();
                     $counts[$key] = (int) $view->api()->search('items', $query)->getTotalResults();
                 }
                 $count = $counts[$key];
             }
             $url = null;
             if (!$reference || $set) {
-                $url = $set && $view->siteSetting('hierarchy_link_itemSet')
+                $url = $set && $linkItemSet
                     ? $set->url()
-                    : $view->url('site/hierarchy', ['site-slug' => $view->currentSite()->slug(), 'grouping-id' => $id]);
+                    : $view->url('site/hierarchy', ['site-slug' => $site->slug(), 'grouping-id' => $id]);
             }
             return ['id' => $id, 'label' => $label, 'url' => $url, 'active' => $id === $activeId,
                 'count' => $count, 'children' => $nodes, 'setIds' => $ids];
