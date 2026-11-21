@@ -13,6 +13,7 @@ to create.
 
 ### Changed
 
+- The hierarchy page offers the curated sorts of item browse instead of every sortable column, and a grouping with no matching items shows the shared empty state instead of an empty list (#49).
 - **A project's page no longer builds Linked resources only to discard them.** Omeka renders every resource-page block before the page chooses, so on a project whose records DRE Search lists, the Linked resources block ran its connection queries, rendered a page of cards and added its script, and then the page dropped it. With DRE Search installed, the block now leaves a marker on a project's page, and `item/show.phtml` renders it for real only where DRE Search's block is empty or absent (#43).
 
 ### Fixed

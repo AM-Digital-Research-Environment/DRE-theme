@@ -203,6 +203,12 @@ $x = dre_doc($html);
 dre_check($failures, $checks, 'a hierarchy page is titled by its grouping, escaped', $x->query('//h1')->item(0)?->textContent === 'Grouping <one>');
 dre_check($failures, $checks, 'a hierarchy page lists its items and asks for the top pager, then the bottom one',
     $x->query('//ul[@class="resource-list"]/li')->length === 1 && dre_pagers($html) === ['common/pagination-top', 'common/pagination-bottom']);
+dre_check($failures, $checks, 'a hierarchy page offers the curated sorts, as item browse does',
+    $x->query('//div[@class="browse-controls"]/form[@class="sorting"]')->length === 1);
+$x = dre_doc($view->render('hierarchy/site/index/hierarchy', ['hierarchyGrouping' => $grouping, 'itemSet' => null, 'items' => []]));
+dre_check($failures, $checks, 'an empty grouping shows the empty state, not an empty list',
+    $x->query('//ul[@class="resource-list"]')->length === 0
+    && str_contains($x->query('//p[@class="search-empty__lead"]')->item(0)?->textContent ?? '', 'No items in this grouping match'));
 
 // --- Media page --------------------------------------------------------------------
 class RenderTestMedia extends ThemeTestResource

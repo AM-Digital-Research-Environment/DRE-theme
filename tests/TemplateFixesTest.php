@@ -191,6 +191,11 @@ $view->callbacks['assetUrl'] = fn($file) => '/' . $file;
 $view->callbacks['pageTitle'] = fn($title) => '<h1>' . htmlspecialchars($title) . '</h1>';
 $view->callbacks['hyperlink'] = fn($text, $url) => '<a href="' . htmlspecialchars($url) . '">' . htmlspecialchars($text) . '</a>';
 $view->callbacks['DreSearchUrl'] = fn() => '/s/a/dre-search';
+$view->callbacks['url'] = fn() => '/s/a/item';
+$view->helpers['BrowseSort'] = new class {
+    public function __invoke(): self { return $this; }
+    public function selector(string $resource): string { return ''; }
+};
 $view->callbacks['HierarchyTree'] = fn() => ['nodes' => [], 'itemSets' => []];
 $privateSet = new class {
     public function id() { return 7; }

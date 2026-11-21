@@ -84,10 +84,18 @@ if ($title) {
             <div class="browse-controls">
                 <?php echo $this->pagination('common/pagination-top'); ?>
                 <?php echo $this->hyperlink($translate('Search the collection'), $this->DreSearchUrl(), ['class' => 'collection-search']); ?>
-                <?php echo $this->browse()->renderSortSelector('items'); ?>
+                <?php // The visitor's sorts, curated as on the items list (BrowseSort). ?>
+                <?php echo $this->plugin('BrowseSort')->selector('items'); ?>
             </div>
 
             <?php $this->trigger('view.browse.before'); ?>
+            <?php if (!count($items)): ?>
+                <?php $fulltext = $this->params()->fromQuery('fulltext_search'); ?>
+                <?php echo $this->partial('common/search-empty', [
+                    'searched' => is_string($fulltext) && trim($fulltext) !== '',
+                    'lead' => $translate('No items in this grouping match.'),
+                ]); ?>
+            <?php else: ?>
             <ul class="resource-list">
                 <?php
                 $bodyTruncate = $this->BrowseLayout()['truncate'];
@@ -99,6 +107,7 @@ if ($title) {
                     ]);
                 endforeach; ?>
             </ul>
+            <?php endif; ?>
             <div class="browse-controls">
                 <?php echo $this->pagination('common/pagination-bottom'); ?>
             </div>

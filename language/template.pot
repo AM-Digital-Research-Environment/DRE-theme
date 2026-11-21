@@ -567,6 +567,10 @@ msgstr ""
 msgid "No item sets match the current filters."
 msgstr ""
 
+#: view/hierarchy/site/index/hierarchy.phtml:96
+msgid "No items in this grouping match."
+msgstr ""
+
 #: view/common/search-empty.phtml:34
 msgid "No items match the current filters."
 msgstr ""
