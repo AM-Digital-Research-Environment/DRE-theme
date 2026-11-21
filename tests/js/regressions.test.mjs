@@ -55,6 +55,27 @@ test('browse transitions retire layout engines and synchronize every pager and h
     d.window.close();
 });
 
+test('the sort form carries the chosen view, and drops a stale one', () => {
+    // Core's sort-selector builds hidden inputs from the URL at load: here the
+    // page was loaded with ?view=list, so the form starts with view=list.
+    const d = dom(`<main><div class="layout-toggle"><button class="grid" aria-pressed="true">Grid</button><button class="list">List</button></div>
+        <div class="browse-controls"><form class="sorting"><input type="hidden" name="filter" value="x"><input type="hidden" name="view" value="list"><select name="sort_by"></select></form></div>
+        <div class="resources resource-grid"><div class="resource"><div class="resource__meta"></div></div></div></main>`);
+    d.window.matchMedia = () => ({ matches: false });
+    d.window.CSS.supports = () => true;
+    start(d, 'browse.js');
+    const form = d.window.document.querySelector('form.sorting');
+    const views = () => Array.from(form.querySelectorAll('[name=view]'), input => input.value);
+    assert.deepEqual(views(), ['grid'], 'the URL (?view=grid) wins over the stale input');
+    d.window.document.querySelector('.list').click();
+    assert.deepEqual(views(), ['list']);
+    assert.equal(form.querySelector('[name=filter]').value, 'x', 'other hidden inputs are left alone');
+    d.window.history.replaceState({}, '', '/');
+    d.window.dispatchEvent(new d.window.PopStateEvent('popstate'));
+    assert.deepEqual(views(), [], 'no view in the URL: none in the form');
+    d.window.close();
+});
+
 test('multiple browse previews follow the page view without double toggling', () => {
     const block = `<section><div class="layout-toggle"><button class="grid">Grid</button><button class="list">List</button></div><div class="resources resource-grid"><div class="resource"></div></div></section>`;
     const d = dom(block + block);

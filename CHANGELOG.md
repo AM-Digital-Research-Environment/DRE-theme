@@ -27,6 +27,7 @@ to create.
 - Block headings no longer skip a level under the page `<h1>`: the browse-preview heading is an `<h2>` again, as in core, and so is each item title in the item-with-metadata block. Both keep their size (#53).
 - A full-text search of the site's pages ("View all results" under Pages in the site search) shows its query as a filter chip, and an empty result offers the shared empty state with a link back to all pages instead of a bare "No pages found" (#54).
 - The footer's contact details link the location when the "Location Link" theme setting is filled in, as the top bar always did (#55).
+- **Changing the sort keeps the grid or list view.** The grid/list switch updated the pager but not the sort form, whose hidden fields Omeka builds when the page loads: a new sort brought the list back in the default view, or in the view the page was first loaded with (#56).
 - **Image alt text follows Omeka's "alt text property" setting.** Browse cards, the file and item-with-metadata blocks, media embeds, the media render and the video embeds each took a media's own alt text, else its title, so the installation's alt-text property was ignored everywhere. They now read core's resolved alt text through one rule (`ValueReader::altText()`), keeping the title as the fallback. In the media list, where the link already reads the title, a thumbnail without a description now has an empty alt instead of repeating it (#48).
 
 ### Removed

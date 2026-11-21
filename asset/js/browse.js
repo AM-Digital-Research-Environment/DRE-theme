@@ -79,7 +79,10 @@
                 else url.searchParams.delete('view');
                 link.href = url.href;
             });
-            document.querySelectorAll('.pager-wrapper form.pager').forEach(form => {
+            // The page-number form, and core's sort form (sort-selector), whose
+            // hidden inputs the server built from the URL at load: without this
+            // a new sort dropped the view, or restored the one loaded with.
+            document.querySelectorAll('.pager-wrapper form.pager, form.sorting').forEach(form => {
                 let input = form.querySelector('input[name="view"]');
                 if (!requested) { input?.remove(); return; }
                 if (!input) {
