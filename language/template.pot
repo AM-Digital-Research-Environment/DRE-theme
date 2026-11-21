@@ -73,7 +73,7 @@ msgstr ""
 msgid "Access denied"
 msgstr ""
 
-#: helper/RecordApparatus.php:144
+#: helper/RecordApparatus.php:147
 msgid "Access rights"
 msgstr ""
 
@@ -130,7 +130,7 @@ msgstr ""
 msgid "Authors & named persons"
 msgstr ""
 
-#: view/layout/layout.phtml:237
+#: view/layout/layout.phtml:234
 msgid "Back to top"
 msgstr ""
 
@@ -182,7 +182,7 @@ msgstr ""
 msgid "Citation style"
 msgstr ""
 
-#: helper/RecordApparatus.php:80
+#: helper/RecordApparatus.php:83
 msgid "Cite this record"
 msgstr ""
 
@@ -249,16 +249,16 @@ msgstr ""
 msgid "Copy"
 msgstr ""
 
-#: helper/RecordApparatus.php:81
+#: helper/RecordApparatus.php:84
 msgid "Copy citation"
 msgstr ""
 
-#: helper/RecordApparatus.php:81
+#: helper/RecordApparatus.php:84
 #: view/common/record-apparatus.phtml:101
 msgid "Copy link"
 msgstr ""
 
-#: helper/RecordApparatus.php:130
+#: helper/RecordApparatus.php:133
 #: view/common/record-linked-data.phtml:26
 msgid "Copy permanent link"
 msgstr ""
@@ -304,7 +304,7 @@ msgstr ""
 msgid "Document & media types"
 msgstr ""
 
-#: helper/RecordApparatus.php:125
+#: helper/RecordApparatus.php:128
 msgid "DOI"
 msgstr ""
 
@@ -312,7 +312,7 @@ msgstr ""
 msgid "Download"
 msgstr ""
 
-#: helper/RecordApparatus.php:147
+#: helper/RecordApparatus.php:150
 msgid "DRE ID"
 msgstr ""
 
@@ -473,7 +473,7 @@ msgstr ""
 msgid "Languages represented"
 msgstr ""
 
-#: helper/RecordApparatus.php:141
+#: helper/RecordApparatus.php:144
 msgid "Licence of the material"
 msgstr ""
 
@@ -702,7 +702,7 @@ msgstr ""
 msgid "Peripheral memories of Capoeira Angola in Salvador"
 msgstr ""
 
-#: helper/RecordApparatus.php:130
+#: helper/RecordApparatus.php:133
 #: view/common/record-linked-data.phtml:26
 msgid "Permanent link"
 msgstr ""
@@ -930,7 +930,7 @@ msgstr ""
 msgid "Site pages"
 msgstr ""
 
-#: view/layout/layout.phtml:216
+#: view/layout/layout.phtml:213
 msgid "Skip to main content"
 msgstr ""
 
@@ -1049,7 +1049,7 @@ msgstr ""
 msgid "This page or record is not public. If you have an account with access to it, log in and try again."
 msgstr ""
 
-#: helper/RecordApparatus.php:80
+#: helper/RecordApparatus.php:83
 msgid "This record"
 msgstr ""
 
