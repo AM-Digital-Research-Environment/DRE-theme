@@ -84,8 +84,8 @@ button.main-search-button {
 // The theme adjusts the bar through DRE Search's public custom properties
 // (its README, "Styling the header search bar"; docs/INTEGRATION-CONTRACT.md),
 // set on the theme's own wrappers, which are ancestors of the module's
-// `.dre-search-bar`: no class of the module's is named here except in the
-// compatibility block below. `npm run check:contract` asserts that DRE Search
+// `.dre-search-bar`: no class of the module's is named here. DRE Search reads
+// them from 1.36.0. `npm run check:contract` asserts that DRE Search
 // still reads every `--dre-search-bar-*` property this file sets.
 .main-header__search {
     // The field gets presence on its tier, and the suggestions dropdown spans
@@ -143,56 +143,6 @@ button.main-search-button {
     --dre-search-bar-suggest-width: auto;
     --dre-search-bar-suggest-offset: calc(var(--space-2) + var(--size-control-lg) + var(--space-2));
 }
-
-// ==========================================================================
-// COMPATIBILITY with DRE Search 1.35.0 and earlier — DELETE this block once
-// the DRE Search release that ships the `--dre-search-bar-*` properties (the
-// first after 1.35.0; DRE Search #59) is deployed on AMIRA.
-// ==========================================================================
-// Those releases read none of the properties above, so the same look is
-// forced here through the module's internal classes, which DRE Search does not
-// promise to keep. Every value equals the property set above, so with a newer
-// DRE Search both apply and agree. The selectors carry an extra class to
-// out-rank the module's `.svelte-*`-scoped rules regardless of load order.
-.main-header__search {
-    .dre-search-bar__input-wrap {
-        min-height: var(--size-control-lg);
-    }
-
-    .dre-search-bar .dre-search-bar__suggest {
-        inset-inline: 0;
-        width: auto;
-        max-width: none;
-    }
-}
-
-.main-header__search-bar.d-xl-none .dre-search-bar--collapsible {
-    position: static;
-}
-
-// Five classes out-specify the module's four-class rule, so no !important.
-.main-header__search-bar.d-xl-none
-    .dre-search-bar--collapsible.dre-search-bar--expanded
-    .dre-search-bar__input-wrap {
-    inset-inline: var(--space-3);
-    width: auto;
-    top: 100%;
-    transform: translateY(var(--space-2));
-}
-
-.main-header__search-bar.d-xl-none
-    .dre-search-bar--collapsible.dre-search-bar--expanded
-    .dre-search-bar__suggest {
-    inset-inline: var(--space-3);
-    width: auto;
-    top: 100%;
-    transform: translateY(
-        calc(var(--space-2) + var(--size-control-lg, 2.75rem) + var(--space-2))
-    );
-}
-// ==========================================================================
-// End of the DRE Search 1.35.0 compatibility block.
-// ==========================================================================
 
 .core-search {
     flex-shrink: 0;

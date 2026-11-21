@@ -43,7 +43,7 @@ requirePattern(
 );
 requirePattern(
     search,
-    /calc\(var\(--space-2\) \+ var\(--size-control-lg, 2\.75rem\) \+ var\(--space-2\)\)/,
+    /--dre-search-bar-suggest-offset:\s*calc\(var\(--space-2\) \+ var\(--size-control-lg(?:, 2\.75rem)?\) \+ var\(--space-2\)\)/,
     'the expanded mobile search panel must clear the 44px field',
 );
 requirePattern(

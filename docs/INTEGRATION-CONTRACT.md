@@ -312,14 +312,12 @@ row). The desktop field fills its tier with suggestions spanning it; the mobile
 field drops below the header row inside 12px gutters, with its suggestions
 below it.
 
-DRE Search 1.35.0, the release deployed when this was written, reads none of
-them. Until the release that does (the first after 1.35.0, DRE Search #59) is
-deployed, a clearly marked compatibility block in `_search.scss` sets the same
-values on the internal classes `.dre-search-bar__input-wrap`,
-`.dre-search-bar__suggest` and `.dre-search-bar--collapsible`; delete it then.
-`tests/local/modules.spec.mjs` checks the header bar's geometry with the sibling
-Search build, as shipped and, when that build reads the properties, with the
-compatibility block removed.
+DRE Search reads them from 1.36.0 (DRE Search #59). The theme names none of the
+module's internal classes; until 2.52.0 it also set the same values on
+`.dre-search-bar__input-wrap`, `.dre-search-bar__suggest` and
+`.dre-search-bar--collapsible` for DRE Search 1.35.0, which reads none of the
+properties. `tests/local/modules.spec.mjs` checks the header bar's geometry with
+the sibling Search build.
 
 ## Page events
 

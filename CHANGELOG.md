@@ -11,6 +11,10 @@ to create.
 
 ## [Unreleased]
 
+### Removed
+
+- The compatibility rules for DRE Search 1.35.0 in `components/header/_search.scss`, which set the header search bar's layout on DRE Search's internal classes. DRE Search reads the `--dre-search-bar-*` properties from 1.36.0, and AMIRA runs 1.37.1; the theme now names none of the module's classes (#40). **Needs DRE Search 1.36.0 or later.**
+
 ## [2.51.0] - 2026-11-19
 
 ### Fixed
