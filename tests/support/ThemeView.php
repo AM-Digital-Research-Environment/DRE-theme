@@ -84,7 +84,12 @@ class ThemeTestResource
     public function primaryMedia() { return $this->media; }
     public function url($site = null, bool $canonical = false): string { return ($canonical ? self::$canonicalOrigin : '') . '/s/a/item/' . $this->id(); }
     public function value(string $term, array $options = []) { $this->options[] = [$term, $options]; return $this->values[$term] ?? ($options['default'] ?? (($options['all'] ?? false) ? [] : null)); }
-    public function link($title): string { return '<a href="' . $this->url() . '">' . htmlspecialchars((string) $title) . '</a>'; }
+    public function link($title, $action = null, array $attributes = []): string
+    {
+        $attrs = '';
+        foreach ($attributes as $name => $value) $attrs .= ' ' . $name . '="' . htmlspecialchars((string) $value, ENT_QUOTES) . '"';
+        return '<a href="' . $this->url() . '"' . $attrs . '>' . htmlspecialchars((string) $title) . '</a>';
+    }
     public function linkRaw($html, ...$args): string { return '<a href="' . $this->url() . '">' . $html . '</a>'; }
 }
 

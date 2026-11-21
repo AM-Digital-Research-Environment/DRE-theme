@@ -25,7 +25,8 @@ $showBody = in_array('resource-body', $this->components);
 
     <?php if ($this->heading) : ?>
         <div class="preview-header">
-            <h3><?php echo $this->hyperlink($this->heading, $queryUrl); ?></h3>
+            <?php // h2, as core's block: it sits straight under the page h1. ?>
+            <h2><?php echo $this->hyperlink($this->heading, $queryUrl); ?></h2>
         </div>
     <?php endif; ?>
 

@@ -438,7 +438,7 @@ msgstr ""
 msgid "It comes from %s. The original material is kept elsewhere: the images or files shown here are copies for reference and may show only part of it."
 msgstr ""
 
-#: view/common/block-layout/item-with-metadata.phtml:66
+#: view/common/block-layout/item-with-metadata.phtml:62
 #: view/common/linked-resources.phtml:40
 #: view/omeka/site/index/search.phtml:19
 #: view/omeka/site/item-set/browse.phtml:14

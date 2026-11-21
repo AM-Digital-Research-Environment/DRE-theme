@@ -127,8 +127,20 @@ dre_check($failures, $checks, 'on the home page the masthead owns the h1 and the
 class RenderTestItem extends ThemeTestResource
 {
     public $titleValue = null;
+    /** @var array<string, object> language → title value, for a locale-filtered site */
+    public array $titlesByLang = [];
     public function resourceTemplate() { return null; }
-    public function value(string $term, array $options = []) { return $term === 'dcterms:title' ? $this->titleValue : null; }
+    public function value(string $term, array $options = [])
+    {
+        if ($term !== 'dcterms:title') return null;
+        foreach ((array) ($options['lang'] ?? []) as $lang) if (isset($this->titlesByLang[$lang])) return $this->titlesByLang[$lang];
+        return isset($options['lang']) ? null : $this->titleValue;
+    }
+    public function displayTitle($default = null, $lang = null): string
+    {
+        $value = $lang !== null ? $this->value('dcterms:title', ['lang' => $lang]) : null;
+        return $value ? (string) $value : $this->title;
+    }
     public function displayValues(array $options = []): string { return '<dl class="values" data-chrome="' . var_export($options['recordChrome'] ?? true, true) . '"></dl>'; }
     public function itemSets(): array { return []; }
     public function media(): array { return []; }
@@ -141,13 +153,46 @@ $attachment = new class($item) {
     public function item() { return $this->record; }
 };
 $x = dre_doc($view->render('common/block-layout/item-with-metadata', ['attachments' => [$attachment]]));
-$heading = $x->query('//h3[@class="item-with-metadata__heading"]')->item(0);
+$heading = $x->query('//h2[@class="item-with-metadata__heading"]')->item(0);
 dre_check($failures, $checks, 'an attached item without a title value renders its escaped title and no language',
     $heading && trim($heading->textContent) === '<Untitled & co>' && $x->query('//span[@class="language"]')->length === 0);
+dre_check($failures, $checks, 'the attached item title is an h2 (no level skipped under the page h1) linking to the item',
+    $x->query('//h3')->length === 0 && $x->query('//h2[@class="item-with-metadata__heading"]/a[@href="/s/a/item/3"]')->length === 1);
 dre_check($failures, $checks, 'the attached item\'s values render without the record page chrome', $x->query('//dl[@data-chrome="false"]')->length === 1);
 $item->titleValue = new class { public function lang() { return 'fr"><b>'; } };
 $x = dre_doc($view->render('common/block-layout/item-with-metadata', ['attachments' => [$attachment]]));
 dre_check($failures, $checks, 'the title language is shown, escaped', $x->query('//span[@class="language"]')->item(0)?->textContent === 'fr"><b>' && $x->query('//b')->length === 0);
+dre_check($failures, $checks, 'the title link carries the title language as lang=, escaped',
+    $x->query('//h2/a')->item(0)?->getAttribute('lang') === 'fr"><b>');
+$view->settings['show_locale_label'] = false;
+$x = dre_doc($view->render('common/block-layout/item-with-metadata', ['attachments' => [$attachment]]));
+dre_check($failures, $checks, 'without locale labels the language is not shown but still declared',
+    $x->query('//span[@class="language"]')->length === 0 && $x->query('//h2/a[@lang]')->length === 1);
+// A site that filters values by locale shows the title in the page language (fr).
+$view->settings = ['filter_locale_values' => true];
+$item->titleValue = new class { public function lang() { return 'en'; } public function __toString(): string { return 'English title'; } };
+$item->titlesByLang = ['fr' => new class { public function lang() { return 'fr'; } public function __toString(): string { return 'Titre français'; } }];
+$x = dre_doc($view->render('common/block-layout/item-with-metadata', ['attachments' => [$attachment]]));
+dre_check($failures, $checks, 'on a locale-filtered site the title and its lang= follow the page language',
+    trim((string) $x->query('//h2/a')->item(0)?->textContent) === 'Titre français' && $x->query('//h2/a')->item(0)?->getAttribute('lang') === 'fr');
+$view->settings = [];
+
+// --- Browse-preview block ----------------------------------------------------
+class RenderTestPreviewView extends ThemeTestView
+{
+    public $heading = 'Recent <items>';
+    public $resourceType = 'item';
+    public $components = ['resource-heading'];
+    public $resources = [];
+    public $linkText = '';
+}
+$view = new RenderTestPreviewView();
+$view->callbacks['BrowseLayout'] = fn() => ['isGrid' => true, 'truncate' => '', 'hasToggle' => false];
+$view->callbacks['url'] = fn() => '/s/a/item';
+$view->callbacks['hyperlink'] = fn($text, $url, $attrs = []) => '<a href="' . $url . '">' . htmlspecialchars($text) . '</a>';
+$x = dre_doc($view->render('common/block-layout/browse-preview'));
+dre_check($failures, $checks, 'the browse-preview heading is an h2, as in core, linking to its list',
+    $x->query('//h3')->length === 0 && trim((string) $x->query('//div[@class="preview-header"]/h2/a[@href="/s/a/item"]')->item(0)?->textContent) === 'Recent <items>');
 
 // --- Item-set browse ---------------------------------------------------------------
 class RenderTestSet extends ThemeTestResource

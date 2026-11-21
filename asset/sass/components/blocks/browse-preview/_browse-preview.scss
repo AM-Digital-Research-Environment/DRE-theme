@@ -4,6 +4,15 @@
     margin: 1rem 0 4rem;
     overflow: visible;
 
+    // An h2 since it follows core (no level skipped under the page h1), at the
+    // h3 size it always had: a block heading, not a page section.
+    .preview-header h2 {
+        font-size: var(--text-2xl);
+        font-weight: 600;
+        line-height: var(--leading-snug);
+        margin-bottom: var(--space-5);
+    }
+
     .browse-all {
         @include secondary-button;
         float: right;

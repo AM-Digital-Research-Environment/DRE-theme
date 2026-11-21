@@ -2,6 +2,7 @@
 $escape = $this->plugin('escapeHtml');
 $translate = $this->plugin('translate');
 $showLocale = (bool) $this->siteSetting('show_locale_label', true);
+$valueLang = $this->ValueReader()->valueLang();
 ?>
 <div class="item-with-metadata">
     <?php foreach($attachments as $attachment): ?>
@@ -11,39 +12,34 @@ $showLocale = (bool) $this->siteSetting('show_locale_label', true);
 
             $primaryMedia = $item->primaryMedia();
 
-            // The block's own h3 heads each item; the values render without the
-            // record page's contents nav, h2 sections and copy buttons.
+            // The block's own h2 heads each item (it sits under the page h1 and
+            // has no heading of its own); the values render without the record
+            // page's contents nav, sections and copy buttons.
             $options = ['recordChrome' => false];
             if ($this->siteSetting('exclude_resources_not_in_site')) {
                 $options['siteId'] = $this->currentSite()->id();
             }
 
-            // Get title and title lang.
-            $title = (string) $item->displayTitle();
-            $titleLang = '';
-
-            if ($showLocale) {
-                $template = $item->resourceTemplate();
-                if ($template && $template->titleProperty()) {
-                    $titleTerm = $template->titleProperty()->term();
-                } else {
-                    $titleTerm = 'dcterms:title';
-                }
-                $titleObj = $item->value($titleTerm);
-                $titleLang = $titleObj ? (string) $titleObj->lang() : '';
-            }
+            // The title in the page language where the site filters values by
+            // locale, and the language of the value it came from: shown as a
+            // tag when the site shows locale labels, and always set as lang=.
+            $title = (string) $item->displayTitle(null, $valueLang);
+            $template = $item->resourceTemplate();
+            $titleTerm = $template && $template->titleProperty() ? $template->titleProperty()->term() : 'dcterms:title';
+            $titleObj = ($valueLang !== null ? $item->value($titleTerm, ['lang' => $valueLang]) : null) ?? $item->value($titleTerm);
+            $titleLang = $titleObj ? (string) $titleObj->lang() : '';
         ?>
 
         <div class="item-with-metadata__container">
             <!-- Header -->
             <div class="item-with-metadata__header">
                 <?php echo $this->ResourceTags($item); ?>
-                <h3 class="item-with-metadata__heading">
-                    <?php echo $escape($title); ?>
-                    <?php if ($titleLang): ?>
+                <h2 class="item-with-metadata__heading">
+                    <?php echo $item->link($title, null, $titleLang !== '' ? ['lang' => $titleLang] : []); ?>
+                    <?php if ($showLocale && $titleLang !== ''): ?>
                         <span class="language"><?php echo $escape($titleLang); ?></span>
                     <?php endif; ?>
-                </h3>
+                </h2>
             </div>
 
             <!-- Content -->
