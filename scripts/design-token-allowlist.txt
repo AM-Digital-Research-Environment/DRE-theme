@@ -19,12 +19,11 @@ fontSize  asset/sass/components/navigation/_navigation.scss                     
 fontSize  asset/sass/components/pagination/_resources-pagination.scss             1
 fontSize  asset/sass/utilities/_accessibility.scss                                1
 
-# pxGeometry — 33 file(s), 191 finding(s)
+# pxGeometry — 32 file(s), 190 finding(s)
 pxGeometry  asset/sass/abstracts/variables/_breakpoints.scss                          5
 pxGeometry  asset/sass/abstracts/variables/_tokens.scss                               44
 pxGeometry  asset/sass/base/elements/_fields.scss                                     5
 pxGeometry  asset/sass/base/elements/_language-tag.scss                               9
-pxGeometry  asset/sass/base/elements/_lists.scss                                      1
 pxGeometry  asset/sass/base/elements/_media.scss                                      4
 pxGeometry  asset/sass/components/annotation/_annotation.scss                         2
 pxGeometry  asset/sass/components/back-to-top/_back-to-top.scss                       2

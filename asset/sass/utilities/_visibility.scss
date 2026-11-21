@@ -1,32 +1,15 @@
-// Breakpoint Sass vars ($sm…$xxl) for the responsive display utilities below.
+// Display utilities, for the header's mobile search bar (common/header.phtml):
+// shown below $xl, hidden from it. This file used to generate every display
+// value at every breakpoint (42 `!important` classes); only these two were
+// ever used, here or in the DRE modules.
 @use '../abstracts' as *;
 
-// Map them for easier looping
-$breakpoints: (
-    sm: $sm,
-    md: $md,
-    lg: $lg,
-    xl: $xl,
-    xxl: $xxl
-);
-
-// Display options
-$displays: none, inline, inline-block, block, flex, inline-flex, grid;
-
-// Base utilities
-@each $display in $displays {
-    .d-#{$display} {
-        display: #{$display} !important;
-    }
+.d-block {
+    display: block !important;
 }
 
-// Responsive utilities
-@each $breakpoint, $size in $breakpoints {
-    @include bp-up($size) {
-        @each $display in $displays {
-            .d-#{$breakpoint}-#{$display} {
-                display: #{$display} !important;
-            }
-        }
+@include bp-up($xl) {
+    .d-xl-none {
+        display: none !important;
     }
 }
