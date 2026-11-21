@@ -42,6 +42,21 @@ for (const width of [375, 1280]) for (const mode of ['light', 'dark']) {
         await page.screenshot({path:`test-results/local/${width}-${mode}.png`,fullPage:true});
     });
 }
+test('a plain button takes the theme focus ring from the keyboard, in every engine', async ({page}) => {
+    // The layout toggle has no focus rule of its own. normalize's
+    // button:-moz-focusring (a 1px dotted outline) once out-ranked the global
+    // :focus-visible ring in Firefox.
+    await fixture(page, 1280, 'light');
+    await page.getByRole('button', {name: 'Grid', exact: true}).focus();
+    await page.keyboard.press('Tab');
+    const list = page.getByRole('button', {name: 'List', exact: true});
+    await expect(list).toBeFocused();
+    const ring = await list.evaluate(el => {
+        const s = getComputedStyle(el);
+        return {style: s.outlineStyle, width: parseFloat(s.outlineWidth)};
+    });
+    expect(ring).toEqual({style: 'solid', width: 2});
+});
 test('failed Masonry leaves readable cards and view switching works', async ({page}) => {
     const errors = []; page.on('pageerror', e => errors.push(e.message));
     await fixture(page, 1280, 'light');

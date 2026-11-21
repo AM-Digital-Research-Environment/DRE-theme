@@ -211,16 +211,11 @@ button::-moz-focus-inner,
     padding: 0;
 }
 
-/**
- * Restore the focus styles unset by the previous rule.
- */
-
-button:-moz-focusring,
-[type="button"]:-moz-focusring,
-[type="reset"]:-moz-focusring,
-[type="submit"]:-moz-focusring {
-    outline: 1px dotted ButtonText;
-}
+// normalize.css 8 restores a focus style here with
+// `button:-moz-focusring { outline: 1px dotted ButtonText }`. The theme's
+// global `:focus-visible` ring (base/_theme.scss) replaces it, and that
+// selector's (0,1,1) beat the ring's (0,1,0), so in Firefox every button
+// without a focus rule of its own showed the thin dotted outline instead.
 
 /**
  * Correct the padding in Firefox.
