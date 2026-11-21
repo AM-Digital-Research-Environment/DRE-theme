@@ -1,4 +1,0 @@
-<?php
-// One menu link. The main menu calls SiteChrome::navLink() directly (dozens of
-// links per page); this partial stays for any other caller, with the same markup.
-echo $this->plugin('SiteChrome')->navLink($page, (string) ($class ?? ''), (string) ($description ?? ''));

@@ -178,9 +178,8 @@ final class SiteChrome extends AbstractHelper
     }
 
     /**
-     * One menu link, as common/nav-link.phtml writes it. The menu renders
-     * dozens of these per page: one method call each, not one partial (a
-     * template lookup and a renderer scope) each.
+     * One menu link. The menu renders dozens of these per page: one method
+     * call each, not one partial (a template lookup and a renderer scope) each.
      *
      * @param \Laminas\Navigation\Page\AbstractPage $page
      * @param string $labelClass wraps the label in a span of that class (a

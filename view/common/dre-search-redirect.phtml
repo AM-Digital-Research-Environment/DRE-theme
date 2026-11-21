@@ -1,7 +1,7 @@
 <?php
 /**
- * Legacy Omeka advanced-search routes (/item/search, /item-set/search,
- * /media/search).
+ * Legacy Omeka advanced-search routes (/item/search, /item-set/search). Core
+ * 4.2 has no public /media/search route.
  *
  * With DRE Search installed they redirect there, carrying any full-text query
  * across as `q`. The redirect goes through the MVC response rather than
@@ -11,7 +11,7 @@
  * working rather than landing on an empty "Search results for “”" page.
  *
  * @var \Laminas\View\Renderer\PhpRenderer $this
- * @var string $resourceType  'item', 'itemSet' or 'media' (core's advanced-search names)
+ * @var string $resourceType  'item' or 'itemSet' (core's advanced-search names)
  */
 $translate = $this->plugin('translate');
 $searchUrl = $this->plugin('DreSearchUrl');
@@ -21,7 +21,6 @@ if (!$searchUrl->hasModule()):
     $headings = [
         'item' => 'Advanced item search', // @translate
         'itemSet' => 'Advanced item set search', // @translate
-        'media' => 'Advanced media search', // @translate
     ];
     $this->htmlElement('body')->appendAttribute('class', 'search advanced-search-page');
 ?>

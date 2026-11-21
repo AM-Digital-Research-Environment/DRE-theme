@@ -11,7 +11,7 @@ $attachment = new class($resource) {
     public function media() { return null; }
     public function caption(): string { return '<p>Curated caption</p>'; }
 };
-foreach (['file', 'item-showcase'] as $block) {
+foreach (['file'] as $block) {
     foreach (['file_name', 'item_title', 'none'] as $option) {
         $view->showTitleOption = $option;
         $html = $view->render('common/block-layout/' . $block, ['attachments' => [$attachment], 'showTitleOption' => $option]);

@@ -97,7 +97,7 @@ dre_check($failures, $checks, 'favicons and theme-color do not depend on the PWA
     !str_contains($pwaBlock, 'theme-color') && !str_contains($pwaBlock, 'rel="icon"') && !str_contains($pwaBlock, 'apple-touch-icon')
         && str_contains($pwaBlock, 'dre-pwa-manifest'));
 
-foreach (['item', 'item-set', 'media'] as $resource) {
+foreach (['item', 'item-set'] as $resource) {
     $redirect = "view/omeka/site/{$resource}/search.phtml";
     dre_check($failures, $checks, "legacy {$resource} search redirects to DRE Search",
         is_file($root . '/' . $redirect) && str_contains($read($redirect), 'dre-search-redirect'));

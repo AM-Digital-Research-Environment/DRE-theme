@@ -93,10 +93,6 @@ msgstr ""
 msgid "Advanced item set search"
 msgstr ""
 
-#: view/common/dre-search-redirect.phtml:24
-msgid "Advanced media search"
-msgstr ""
-
 #: view/common/footer/footer-institutions.phtml:23
 msgid "Africa Multiple Cluster of Excellence"
 msgstr ""
@@ -235,7 +231,7 @@ msgstr ""
 msgid "Contains resources from:"
 msgstr ""
 
-#: view/common/dre-search-redirect.phtml:60
+#: view/common/dre-search-redirect.phtml:59
 msgid "Continue to %s."
 msgstr ""
 
@@ -316,7 +312,7 @@ msgstr ""
 msgid "DRE ID"
 msgstr ""
 
-#: view/common/dre-search-redirect.phtml:61
+#: view/common/dre-search-redirect.phtml:60
 msgid "DRE Search"
 msgstr ""
 
@@ -856,7 +852,7 @@ msgstr ""
 #: helper/PwaManifest.php:63
 #: helper/PwaManifest.php:64
 #: view/common/banner.phtml:110
-#: view/common/dre-search-redirect.phtml:35
+#: view/common/dre-search-redirect.phtml:34
 #: view/common/error-page.phtml:52
 #: view/common/main-header-search.phtml:13
 #: view/common/main-header-search.phtml:16
@@ -867,7 +863,7 @@ msgstr ""
 msgid "Search all connections by title"
 msgstr ""
 
-#: view/common/dre-search-redirect.phtml:65
+#: view/common/dre-search-redirect.phtml:64
 msgid "Search is temporarily unavailable."
 msgstr ""
 
@@ -886,8 +882,8 @@ msgid "Search results for “%s”"
 msgstr ""
 
 #: view/common/banner.phtml:106
-#: view/common/dre-search-redirect.phtml:55
-#: view/common/dre-search-redirect.phtml:57
+#: view/common/dre-search-redirect.phtml:54
+#: view/common/dre-search-redirect.phtml:56
 #: view/common/error-page.phtml:48
 #: view/common/error-page.phtml:49
 #: view/common/error-page.phtml:51
