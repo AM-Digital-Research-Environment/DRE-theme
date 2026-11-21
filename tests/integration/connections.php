@@ -29,7 +29,9 @@ $sqlite->$createCollation('utf8mb4_bin', 'strcmp');
 $services->setService('Omeka\Connection', Doctrine\DBAL\DriverManager::getConnection([
     'pdo' => $sqlite, 'platform' => new Doctrine\DBAL\Platforms\SqlitePlatform(),
 ]));
-$services->setService('Omeka\Acl', new class { public function userIsAllowed(...$args) { return false; } });
+// An anonymous visitor by default; `viewAll` stands in for a curator's view-all right.
+$acl = new class { public bool $viewAll = false; public function userIsAllowed(...$args) { return $this->viewAll; } };
+$services->setService('Omeka\Acl', $acl);
 $services->setService('Omeka\AuthenticationService', new class { public function getIdentity() { return null; } });
 $emConfig = Doctrine\ORM\Tools\Setup::createAnnotationMetadataConfiguration($config['entity_manager']['mapping_classes_paths'], true);
 $emConfig->setNamingStrategy(new Doctrine\ORM\Mapping\UnderscoreNamingStrategy(CASE_LOWER, true));
@@ -120,9 +122,17 @@ $empty = $helper($resource, ['lr_q' => 'Not present']);
 dre_check($failures, $checks, 'empty searches preserve the available relationship controls', $empty['totalCount'] === 0 && count($empty['resourcePropertiesAll']['items']) === 3 && !$empty['subjectValues']);
 $mediaPage = $helper($resource, ['lr_property' => 'media:' . $property->getId() . '-0,' . $templates[0][1]->getId()]);
 dre_check($failures, $checks, 'media compound filters retain their resource type and template constraints', $mediaPage['resourceType'] === 'media' && $mediaPage['totalCount'] === 1 && $mediaPage['subjectValues'][0][0]['resource_id'] === $media->getId());
-$rawSelector = $adapter->getSubjectValuesQueryBuilder($target, null, 'items', $site->getId())->andWhere('value.isPublic = true')->join('value.property', 'property')->select(['property.id property_id', 'resource_template_property.id template_id']);
+$rawSelector = $adapter->getSubjectValuesQueryBuilder($target, null, 'items', $site->getId())->join('value.property', 'property')->select(['property.id property_id', 'resource_template_property.id template_id']);
 $rawRows = count($rawSelector->getQuery()->getArrayResult());
 $distinctRows = count($rawSelector->distinct()->getQuery()->getArrayResult());
 dre_check($failures, $checks, 'selector projection collapses 1002 edge rows to 3 property/template rows', $rawRows === 1002 && $distinctRows === 3);
 echo "Selector fixture: $rawRows edge rows → $distinctRows distinct rows; record hydration capped at 1 per page.\n";
+
+// A curator (view-all) sees what core's own list shows them: the private edge
+// and the private record too, still site scoped. A filter parameter changes the
+// filters' hash, so Doctrine does not reuse the visitor's cached SQL.
+$acl->viewAll = true;
+foreach (['resource_visibility', 'value_visibility'] as $name) $em->getFilters()->getFilter($name)->setParameter('dre_test_identity', 'curator');
+$curator = $helper($resource);
+dre_check($failures, $checks, 'a curator also sees private links, as in core, still site scoped', $curator['totalCount'] === 5);
 dre_report('OmekaConnections', $failures, $checks);

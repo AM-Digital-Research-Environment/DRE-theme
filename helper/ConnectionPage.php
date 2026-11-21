@@ -8,6 +8,17 @@ use Laminas\View\Helper\AbstractHelper;
  * Selector queries project DISTINCT property/template pairs, never all edges.
  * IDs are paged before representations are hydrated through the authorized API.
  *
+ * Visibility is core's: the builder's own resource check plus the
+ * `value_visibility` Doctrine filter, which hides private values from visitors
+ * and shows them to whoever may see them (curators, a value's owner), exactly
+ * as core's linked-resources list does. Adding `value.isPublic = true` on top
+ * hid private links from the curators who need to check them.
+ *
+ * Core's `api.subject_values.query` event is not triggered: it is fired by
+ * getSubjectValues() on that method's own query (its `val` select, its order),
+ * and these are different queries (DISTINCT property selectors, a title search,
+ * id paging), on which a listener written for core's query could break.
+ *
  * @phpstan-type PropertyGroup array{label: string, property_id: int, label_is_translatable: bool, compound_id: string}
  */
 final class ConnectionPage extends AbstractHelper
@@ -28,7 +39,7 @@ final class ConnectionPage extends AbstractHelper
         $properties = [];
         foreach (['items', 'media'] as $type) {
             $qb = $adapter->getSubjectValuesQueryBuilder($entity, null, $type, $siteId);
-            $rows = $qb->andWhere('value.isPublic = true')->join('value.property', 'property')
+            $rows = $qb->join('value.property', 'property')
                 ->select(['property.id property_id', 'property.label property_label',
                     'resource_template_property.id resource_template_property_id',
                     'resource_template_property.alternateLabel property_alternate_label'])
@@ -42,7 +53,6 @@ final class ConnectionPage extends AbstractHelper
         }
         [$type, $spec] = explode(':', $property, 2);
         $base = $adapter->getSubjectValuesQueryBuilder($entity, $spec ?: null, $type, $siteId);
-        $base->andWhere('value.isPublic = true');
         if ($state['search'] !== '') {
             // A literal, case-insensitive title substring: %, _ and ! are not wildcards.
             $base->andWhere("LOWER(resource.title) LIKE :dre_connection_title ESCAPE '!'")
