@@ -24,6 +24,15 @@ foreach ([0 => true, 1 => false, 2 => false, 3 => true] as $depth => $hasGrandch
     dre_check($failures, $checks, 'configured nav depth ' . $depth, str_contains($html, 'Project archive') === $hasGrandchild && !str_contains($html, 'href="/hidden"'));
     if ($depth !== 1) dre_check($failures, $checks, 'external nav target survives depth ' . $depth, str_contains($html, 'target="_blank" rel="noopener"'));
 }
+// A panel cell sets its label in the title span its styles address (lost in
+// 2.32, when the cells moved to one shared link writer); top-level links don't.
+$html = $v->render('common/nav-menu', ['site' => $site, 'navDepth' => 0]);
+$doc = new DOMDocument(); @$doc->loadHTML('<?xml encoding="utf-8"?>' . $html); $xp = new DOMXPath($doc);
+$cellLinks = $xp->query('//li[contains(@class,"nav-panel__cell")]/a');
+$titled = $xp->query('//li[contains(@class,"nav-panel__cell")]/a/span[@class="nav-panel__cell-title"][normalize-space()]');
+dre_check($failures, $checks, 'every panel cell link carries its label in .nav-panel__cell-title',
+    $cellLinks->length > 0 && $titled->length === $cellLinks->length, $titled->length . ' of ' . $cellLinks->length);
+dre_check($failures, $checks, 'top-level menu links keep a bare label', $xp->query('//a[contains(@class,"nav-item__link")]/span[@class="nav-panel__cell-title"]')->length === 0);
 $v->query = ['fulltext_search' => ['invalid']];
 $html = $v->render('common/header', ['site' => $site, 'userBar' => '']);
 $doc = new DOMDocument(); @$doc->loadHTML($html); $xpath = new DOMXPath($doc);

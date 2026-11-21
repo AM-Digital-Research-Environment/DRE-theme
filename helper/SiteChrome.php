@@ -183,8 +183,11 @@ final class SiteChrome extends AbstractHelper
      * template lookup and a renderer scope) each.
      *
      * @param \Laminas\Navigation\Page\AbstractPage $page
+     * @param string $labelClass wraps the label in a span of that class (a
+     *        panel cell's `nav-panel__cell-title`, which sets it above its
+     *        description); a plain link writes the label bare
      */
-    public function navLink($page, string $class = '', string $description = ''): string
+    public function navLink($page, string $class = '', string $description = '', string $labelClass = ''): string
     {
         $view = $this->getView();
         $escape = $view->plugin('escapeHtml');
@@ -203,7 +206,8 @@ final class SiteChrome extends AbstractHelper
         if ($page->isActive(false)) {
             $html .= ' aria-current="page"';
         }
-        $html .= '>' . $escape($page->getLabel());
+        $label = $escape($page->getLabel());
+        $html .= '>' . ($labelClass === '' ? $label : '<span class="' . $escapeAttr($labelClass) . '">' . $label . '</span>');
         if ($description !== '') {
             $html .= '<span class="nav-panel__cell-desc">' . $escape($description) . '</span>';
         }

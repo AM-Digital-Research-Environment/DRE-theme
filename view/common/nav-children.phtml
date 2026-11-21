@@ -12,7 +12,7 @@ foreach ($pages as $page):
     $description = isset($descMap[$slug]) ? $this->translate($descMap[$slug]) : '';
 ?>
 <li class="nav-panel__cell<?php echo $children ? ' menu-item-has-children' : ''; ?><?php echo $page->isActive(true) ? ' active' : ''; ?>">
-    <?php echo $chrome->navLink($page, '', $description); ?>
+    <?php echo $chrome->navLink($page, '', $description, 'nav-panel__cell-title'); ?>
     <?php if ($children): ?>
     <ul class="nav-branch"><?php echo $this->partial('common/nav-children', ['pages' => $children, 'level' => $level + 1, 'navDepth' => $navDepth, 'descMap' => $descMap]); ?></ul>
     <?php endif; ?>
