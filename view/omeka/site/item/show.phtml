@@ -49,9 +49,18 @@ $mainBlocks = $this->resourcePageBlocks($item)->getBlocksArray();
 // A project's records are searched on its page (DRE Search's project records
 // block), so the generic list of links to the project — on a project, nothing
 // but those same records — goes when the search is there.
+// On a project's page the Linked resources block leaves a marker rather than
+// doing that work (see its template); it is rendered here only if needed.
+$deferredLinks = $this->ProjectCollections()::DEFERRED_LINKED_RESOURCES;
+$undefer = fn(string $html): string => str_contains($html, $deferredLinks)
+    ? str_replace($deferredLinks, $this->partial('common/resource-page-block-layout/linked-resources', ['resource' => $item, 'deferred' => false]), $html)
+    : $html;
 $hasProjectRecords = trim((string) ($mainBlocks['dreSearchProjectRecords'] ?? '')) !== '';
 if ($hasProjectRecords) {
     unset($mainBlocks['linkedResources']);
+} elseif (isset($mainBlocks['linkedResources'])) {
+    // A project whose records DRE Search could not list (none, or search down).
+    $mainBlocks['linkedResources'] = $undefer($mainBlocks['linkedResources']);
 }
 $splitAt = 0;
 foreach (array_keys($mainBlocks) as $index => $blockName) {
@@ -108,7 +117,7 @@ $hasRail = ($apparatus !== '') || ($recordAccess !== '') || $rightSidebarHasBloc
 
     <div class="item-record<?php echo $hasRail ? ' item-record--railed' : ''; ?>">
         <div class="item-record__main">
-            <?php if ($leftSidebarHasBlocks && $blockContent = $leftSidebarBlockContent->getBlocks()): ?>
+            <?php if ($leftSidebarHasBlocks && $blockContent = $undefer($leftSidebarBlockContent->getBlocks())): ?>
                 <div class="metadata item-record__aside-blocks">
                     <?php echo $blockContent; ?>
                 </div>
@@ -126,7 +135,7 @@ $hasRail = ($apparatus !== '') || ($recordAccess !== '') || $rightSidebarHasBloc
                 <?php echo $recordAccess; ?>
                 <?php echo $apparatus; ?>
 
-                <?php if ($rightSidebarHasBlocks && $blockContent = $rightSidebarBlockContent->getBlocks()): ?>
+                <?php if ($rightSidebarHasBlocks && $blockContent = $undefer($rightSidebarBlockContent->getBlocks())): ?>
                     <div class="metadata item-record__rail-blocks">
                         <?php echo $blockContent; ?>
                     </div>

@@ -143,4 +143,36 @@ $pageBlocks->regions['main'] = ['values' => '<div data-values></div>'];
 $html = $v->render('omeka/site/item/show', ['item' => $a]);
 dre_check($failures, $checks, 'item page without context blocks renders no empty context wrapper', str_contains($html, 'data-values') && !str_contains($html, 'item-record__context'));
 
+// On a project's page, with DRE Search installed, the Linked resources block
+// defers its work: the page drops it under the project's records, and renders
+// it after all when DRE Search's block is empty.
+$deferredMarker = $v->helper('ProjectCollections')::DEFERRED_LINKED_RESOURCES;
+$project = new class('Project', 9) extends ThemeTestResource {
+    public function resourceClass() { return new class { public function term() { return 'foaf:Project'; } }; }
+};
+$connectionCalls = 0;
+$v->callbacks['ConnectionPage'] = function () use (&$connectionCalls, $data) { $connectionCalls++; return $data; };
+$v->callbacks['dreSearchBar'] = fn() => '';
+$html = $v->render('common/resource-page-block-layout/linked-resources', ['resource' => $project]);
+dre_check($failures, $checks, "a project's Linked resources block runs no connection query while DRE Search may list its records",
+    trim($html) === $deferredMarker && $connectionCalls === 0);
+$html = $v->render('common/resource-page-block-layout/linked-resources', ['resource' => $a]);
+dre_check($failures, $checks, 'any other record renders its connections at once', str_contains($html, 'connection__title') && $connectionCalls === 1);
+$pageBlocks->regions['main'] = ['values' => '<div data-values></div>', 'dreSearchProjectRecords' => '', 'linkedResources' => $deferredMarker];
+$html = $v->render('omeka/site/item/show', ['item' => $a]);
+dre_check($failures, $checks, 'a deferred block is rendered for real when DRE Search lists no records',
+    str_contains($html, 'connection__title') && !str_contains($html, $deferredMarker));
+$pageBlocks->regions['main'] = ['values' => '<div data-values></div>',
+    'dreSearchProjectRecords' => '<details data-project-records></details>', 'linkedResources' => $deferredMarker];
+$connectionCalls = 0;
+$html = $v->render('omeka/site/item/show', ['item' => $a]);
+dre_check($failures, $checks, "a deferred block goes, unrendered, under the project's records",
+    str_contains($html, 'data-project-records') && !str_contains($html, $deferredMarker) && $connectionCalls === 0);
+$pageBlocks->regions = ['main' => ['values' => '<div data-values></div>'], 'right' => ['linkedResources' => $deferredMarker]];
+$html = $v->render('omeka/site/item/show', ['item' => $a]);
+dre_check($failures, $checks, 'a deferred block in a sidebar, where nothing replaces it, is rendered for real',
+    str_contains($html, 'connection__title') && !str_contains($html, $deferredMarker));
+$pageBlocks->regions = [];
+unset($v->callbacks['dreSearchBar']);
+
 dre_report('IntegrationShapes', $failures, $checks);

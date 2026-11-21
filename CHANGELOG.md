@@ -11,6 +11,10 @@ to create.
 
 ## [Unreleased]
 
+### Changed
+
+- **A project's page no longer builds Linked resources only to discard them.** Omeka renders every resource-page block before the page chooses, so on a project whose records DRE Search lists, the Linked resources block ran its connection queries, rendered a page of cards and added its script, and then the page dropped it. With DRE Search installed, the block now leaves a marker on a project's page, and `item/show.phtml` renders it for real only where DRE Search's block is empty or absent (#43).
+
 ### Fixed
 
 - **Firefox shows the theme's focus ring on buttons.** normalize's `button:-moz-focusring` (a 1px dotted outline) out-ranked the global `:focus-visible` ring, so in Firefox the grid/list toggle, the menu drawer's back button and other buttons without a focus rule of their own showed it instead of the 2px ring. The rule is gone, and a browser test focuses a plain button from the keyboard in all three engines (#41).

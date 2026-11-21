@@ -34,6 +34,12 @@ final class ProjectCollections extends AbstractHelper
      * item set or media carries the class).
      */
     private const LINK_TYPES = ['resource', 'resource:item'];
+    /**
+     * What the Linked resources block renders on a project's page while DRE
+     * Search may list the project's records instead: item/show.phtml either
+     * drops it (the records block rendered) or renders the block for real.
+     */
+    public const DEFERRED_LINKED_RESOURCES = '<!-- dre-theme: linked resources wait for the project records -->';
 
     public function __invoke(): self
     {

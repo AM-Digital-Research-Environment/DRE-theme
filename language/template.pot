@@ -223,11 +223,11 @@ msgid_plural "connections to this record"
 msgstr[0] ""
 msgstr[1] ""
 
-#: view/common/resource-page-block-layout/linked-resources.phtml:7
+#: view/common/resource-page-block-layout/linked-resources.phtml:20
 msgid "Connections could not be loaded."
 msgstr ""
 
-#: view/common/resource-page-block-layout/linked-resources.phtml:17
+#: view/common/resource-page-block-layout/linked-resources.phtml:30
 msgid "Connections could not be loaded. Your previous results are still shown."
 msgstr ""
 
@@ -491,7 +491,7 @@ msgstr ""
 msgid "List"
 msgstr ""
 
-#: view/common/resource-page-block-layout/linked-resources.phtml:16
+#: view/common/resource-page-block-layout/linked-resources.phtml:29
 msgid "Loading connections…"
 msgstr ""
 
@@ -624,7 +624,7 @@ msgstr ""
 msgid "Open menu"
 msgstr ""
 
-#: view/common/resource-page-block-layout/linked-resources.phtml:21
+#: view/common/resource-page-block-layout/linked-resources.phtml:34
 msgid "Open results as a page"
 msgstr ""
 
@@ -803,7 +803,7 @@ msgstr ""
 msgid "Relationship"
 msgstr ""
 
-#: view/common/resource-page-block-layout/linked-resources.phtml:8
+#: view/common/resource-page-block-layout/linked-resources.phtml:21
 msgid "Reload page"
 msgstr ""
 
@@ -1069,7 +1069,7 @@ msgstr ""
 msgid "Topics & keywords"
 msgstr ""
 
-#: view/common/resource-page-block-layout/linked-resources.phtml:20
+#: view/common/resource-page-block-layout/linked-resources.phtml:33
 msgid "Try again"
 msgstr ""
 

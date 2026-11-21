@@ -1,4 +1,17 @@
 <?php
+// On a project's page DRE Search's "Project records" block lists the same
+// records, and item/show.phtml shows it instead of this one. Omeka renders
+// every block before the page picks, so leave a marker rather than run the
+// connection queries and render cards that would be thrown away; show.phtml
+// renders this block for real ($deferred = false) when DRE Search's is empty.
+// (Theme helpers are not autoloaded: the class is reached through the helper.)
+$projects = $this->ProjectCollections();
+if (($deferred ?? true) && $this->getHelperPluginManager()->has('dreSearchBar')
+    && $projects->isProject($resource) && 'items' === $resource->resourceName()) {
+    echo $projects::DEFERRED_LINKED_RESOURCES;
+    return;
+}
+
 // Render the initial page on the server: filtering and pagination work without JS.
 try {
     $data = $this->ConnectionPage($resource, $this->params()->fromQuery());
