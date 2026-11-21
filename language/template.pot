@@ -19,19 +19,19 @@ msgid_plural "(%s items)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: helper/RecordAccess.php:128
+#: helper/RecordAccess.php:126
 msgid "[AMIRA] Access request: project %1$s: %2$s"
 msgstr ""
 
-#: helper/RecordAccess.php:167
+#: helper/RecordAccess.php:165
 msgid "[AMIRA] Access request: record %1$s: %2$s"
 msgstr ""
 
-#: helper/RecordAccess.php:123
+#: helper/RecordAccess.php:121
 msgid "[AMIRA] Correction to project %1$s: %2$s"
 msgstr ""
 
-#: helper/RecordAccess.php:162
+#: helper/RecordAccess.php:160
 msgid "[AMIRA] Correction to record %1$s: %2$s"
 msgstr ""
 
@@ -787,7 +787,7 @@ msgstr ""
 msgid "Reason: %s"
 msgstr ""
 
-#: helper/RecordAccess.php:184
+#: helper/RecordAccess.php:182
 msgid "Record: %s"
 msgstr ""
 
@@ -942,11 +942,11 @@ msgstr ""
 msgid "Sources, media & datasets"
 msgstr ""
 
-#: helper/RecordAccess.php:290
+#: helper/RecordAccess.php:288
 msgid "staff page"
 msgstr ""
 
-#: helper/RecordAccess.php:289
+#: helper/RecordAccess.php:287
 msgid "Staff page of %s"
 msgstr ""
 
@@ -1118,13 +1118,13 @@ msgstr ""
 msgid "View as"
 msgstr ""
 
-#: helper/RecordAccess.php:124
-#: helper/RecordAccess.php:163
+#: helper/RecordAccess.php:122
+#: helper/RecordAccess.php:161
 msgid "What should be corrected or improved?"
 msgstr ""
 
-#: helper/RecordAccess.php:129
-#: helper/RecordAccess.php:168
+#: helper/RecordAccess.php:127
+#: helper/RecordAccess.php:166
 msgid "What would you like to access, and for what purpose?"
 msgstr ""
 
