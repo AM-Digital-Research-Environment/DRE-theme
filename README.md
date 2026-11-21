@@ -32,7 +32,7 @@ For Sass and test development you’ll need [Node.js](https://nodejs.org/) ≥ 2
 
 ```bash
 npm ci
-npm run build     # lint, then compile asset/sass → asset/css/style.css (compressed, autoprefixed)
+npm run build     # compile asset/sass → asset/css/style.css (compressed, autoprefixed) and the minified scripts
 npm run watch     # recompile on change
 ```
 
@@ -52,7 +52,7 @@ with a source map, and the templates load those. Edit the sources, never
 
 | Script | Checks |
 | --- | --- |
-| `npm run lint:tokens` | Raw hex outside the palette, accent side-stripes, gradient text, px font sizes, surviving `$font__h*-size` references, off-grid px page geometry — **and computed WCAG contrast** for every ink/surface pair in both modes |
+| `npm run lint:tokens` | Raw hex outside the palette, accent side-stripes, gradient text, px or off-scale font sizes, off-grid px page geometry — **and computed WCAG contrast** for every ink/surface pair in both modes |
 | `npm run lint:ini` | `theme.ini` structure, `.info` vs `.options.info`, dead `Zend\…` types, settings declared but never read, helper registration, one version across `theme.ini`/`package.json`/`package-lock.json`/`CITATION.cff`, and the same Omeka range in `theme.ini` and `composer.json` |
 | `npm run lint:templates` | `<?php`/`?>` and bracket balance, unresolved `partial()` paths, helper call sites in templates and helpers whose casing doesn't match `theme.ini` |
 | `npm run lint:styles` | Stylelint (`stylelint.config.mjs`) over the Sass, correctness rules only: unknown properties, units, selectors and at-rules, invalid hex, duplicate or overridden declarations, `@import` |
@@ -87,7 +87,7 @@ winget install PHP.PHP.8.3
 ```
 
 `lint:templates` is the structural net that runs even without PHP (it catches a truncated file,
-heading-contract drift and retired integrations, not a mistyped `::`). It is a
+unresolved partials, helper-name casing and retired integrations, not a mistyped `::`). It is a
 fallback for `lint:php`, not a substitute.
 
 **Syntax is not correctness.** A template can parse perfectly and still render

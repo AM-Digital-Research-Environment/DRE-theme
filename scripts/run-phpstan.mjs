@@ -13,7 +13,7 @@
  * Which PHPStan, in order: PHPSTAN (a phpstan.phar or binary), then `phpstan`
  * on PATH. Pin the version CI uses (.github/workflows/ci.yml, `tools:`):
  *
- *   curl -fsSL https://github.com/phpstan/phpstan/releases/download/2.3.3/phpstan.phar -o phpstan.phar
+ *   curl -fsSL https://github.com/phpstan/phpstan/releases/download/2.3.6/phpstan.phar -o phpstan.phar
  *   PHPSTAN=/abs/path/phpstan.phar OMEKA_PATH=… npm run lint:phpstan
  *
  * Download both outside the repository. Extra arguments are passed on
