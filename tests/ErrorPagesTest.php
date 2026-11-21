@@ -37,6 +37,18 @@ $debug = ini_get('display_errors');
 dre_check($failures, $checks, '404 details follow display_errors and are escaped',
     $debug ? (str_contains($html, '&lt;b&gt;raw&lt;/b&gt;') && !str_contains($html, '<b>raw</b>')) : !str_contains($html, 'raw'));
 
+// A translation with an extra placeholder falls back to the msgid instead of
+// turning the error page itself into a second error.
+$view->translations = ['Error %s' => 'Erreur %1$s (%2$s)', 'Reason: %s' => 'Raison %1$s %2$s'];
+try {
+    $xp = $dom($view->render('error/404', ['reason' => 'gone']));
+    $statusFallsBack = trim($xp->query('//p[@class="error-page__status"]')->item(0)?->textContent ?? '') === 'Error 404';
+} catch (\Throwable $e) {
+    $statusFallsBack = false;
+}
+dre_check($failures, $checks, 'a faulty status or reason translation falls back to the English format', $statusFallsBack);
+$view->translations = [];
+
 unset($view->callbacks['dreSearchBar']);
 $xp = $dom($view->render('error/403'));
 dre_check($failures, $checks, '403 falls back to core search without the module', $xp->query('//form[@action="/s/amira/index/search"]//input[@name="fulltext_search"]')->length === 1);

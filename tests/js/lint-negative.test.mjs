@@ -176,6 +176,18 @@ test('check-templates.mjs fails on a seeded structural violation', async t => {
             files: {'view/common/header.phtml': "<header><?php echo $this->translate('Menu'); ?></header>\n"},
             message: /unescaped translate\(\)/,
         },
+        'translation short-echoed without escaping': {
+            files: {'view/common/header.phtml': "<header><?= $this->translate('Menu') ?></header>\n"},
+            message: /unescaped translate\(\)/,
+        },
+        'translated format passed to sprintf()': {
+            files: {'view/common/header.phtml': "<header><?php echo $this->escapeHtml(sprintf($translate('Page %s'), 2)); ?></header>\n"},
+            message: /sprintf\(\) over a translation/,
+        },
+        'escaped translated format passed to sprintf()': {
+            files: {'view/common/header.phtml': "<header><?php echo sprintf($this->escapeHtml($this->translate('By %s')), '<b>x</b>'); ?></header>\n"},
+            message: /sprintf\(\) over a translation/,
+        },
     });
 });
 

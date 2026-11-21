@@ -231,7 +231,7 @@ msgstr ""
 msgid "Contains resources from:"
 msgstr ""
 
-#: view/common/dre-search-redirect.phtml:59
+#: view/common/dre-search-redirect.phtml:58
 msgid "Continue to %s."
 msgstr ""
 
@@ -271,7 +271,7 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#: view/common/footer/footer-bottom.phtml:28
+#: view/common/footer/footer-bottom.phtml:29
 msgid "Designed & developed by %s"
 msgstr ""
 

@@ -6,7 +6,7 @@ $this->headMeta()->setName('robots', 'noindex');
 
 $details = trim(implode("\n\n", array_filter([
     isset($message) ? (string) $message : '',
-    isset($reason) ? sprintf($translate('Reason: %s'), (string) $reason) : '',
+    isset($reason) ? $this->TranslateFormat()->translate('Reason: %s', (string) $reason) : '',
     isset($exception) && $exception ? (string) $exception : '',
 ])));
 

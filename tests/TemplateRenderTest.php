@@ -82,6 +82,19 @@ dre_check($failures, $checks, 'contact details in the footer are escaped links',
 dre_check($failures, $checks, 'a privacy link without a title shows its URL',
     $x->query('//ul[@class="main-footer__links"]/li/a')->item(0)?->textContent === 'https://example.test/privacy');
 dre_check($failures, $checks, 'a configured network joins the defaults with its label', $x->query('//a[@aria-label="X (Twitter)"]')->length === 1);
+// The footer renders on every page: a translation asking for a second argument
+// must fall back to the msgid, not throw ArgumentCountError site-wide.
+$view->translations = ['Designed & developed by %s' => 'Conçu par %1$s et %2$s'];
+try {
+    $x = dre_doc($view->render('common/footer', ['site' => $site]));
+    $credit = $x->query('//p[@class="main-footer__credit"]')->item(0);
+    $faultyFormatSurvives = trim((string) $credit?->textContent) === 'Designed & developed by Frédérick Madore'
+        && $x->query('//p[@class="main-footer__credit"]/a[@href="https://www.frederickmadore.com/"]')->length === 1;
+} catch (\Throwable $e) {
+    $faultyFormatSurvives = false;
+}
+dre_check($failures, $checks, 'a faulty footer-credit translation falls back to the English credit', $faultyFormatSurvives);
+$view->translations = [];
 
 // --- Numeric data-type inputs ------------------------------------------------
 $view = new ThemeTestView();

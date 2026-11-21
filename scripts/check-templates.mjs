@@ -223,10 +223,20 @@ for (const file of walk(VIEW)) {
     // 3b. A translation is text: it is escaped where it is printed. A
     // translator's "<" or "&" (or a hostile catalogue) must not become markup.
     // The record partials always did this; a bare `echo $translate(…)` is the
-    // one form that slipped through, so it is the one form refused.
-    for (const m of src.matchAll(/\becho\s+(?:\$this->|\$)translate(?:Plural)?\s*\(/g)) {
+    // one form that slipped through, so it is the one form refused, with its
+    // short-echo spelling.
+    for (const m of src.matchAll(/(?:\becho\s+|<\?=\s*)(?:\$this->|\$)translate(?:Plural)?\s*\(/g)) {
         const line = src.slice(0, m.index).split('\n').length;
         add(rel, line, 'echo of an unescaped translate(): wrap it in escapeHtml() (or escapeHtmlAttr() in an attribute)');
+    }
+
+    // 3c. A translated format goes through TranslateFormat, never sprintf():
+    // on PHP 8 a translation with an extra placeholder throws, and a template
+    // in the layout would take every page down with it. Also caught through an
+    // escape call wrapped around the translation (`sprintf($escape($translate(`).
+    for (const m of src.matchAll(/\bv?sprintf\s*\(\s*(?:\$[\w>-]+\(\s*)*(?:\$this->|\$)translate(?:Plural)?\s*\(/g)) {
+        const line = src.slice(0, m.index).split('\n').length;
+        add(rel, line, 'sprintf() over a translation: use $this->TranslateFormat()->translate() (->html() for markup arguments)');
     }
 }
 

@@ -23,9 +23,11 @@ $hasLegalLinks = ($termsLink || $privacyLink);
         <p class="main-footer__credit">
             <?php
             // %s carries the linked name so translators can reorder the
-            // sentence; the name and URL are static, not user input.
-            echo sprintf(
-                $escHtml($this->translate('Designed & developed by %s')),
+            // sentence; the name and URL are static, not user input. Through
+            // TranslateFormat: this renders on every page, and a translation
+            // with an extra placeholder would otherwise throw on all of them.
+            echo $this->TranslateFormat()->html()->translate(
+                'Designed & developed by %s',
                 '<a href="https://www.frederickmadore.com/" target="_blank" rel="noopener noreferrer">Frédérick Madore</a>'
             );
             ?>

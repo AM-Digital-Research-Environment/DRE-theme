@@ -38,7 +38,7 @@ $browseUrl = $site ? $this->url('site/resource', ['site-slug' => $site->slug(), 
 ?>
 <div class="error-page" role="region" aria-labelledby="error-page-title">
     <p class="error-page__status">
-        <?php echo $escape($status !== '' ? sprintf($translate('Error %s'), $status) : $translate('Error')); ?>
+        <?php echo $escape($status !== '' ? $this->TranslateFormat()->translate('Error %s', $status) : $translate('Error')); ?>
     </p>
     <h1 class="error-page__title" id="error-page-title"><?php echo $escape($heading); ?></h1>
     <p class="error-page__message"><?php echo $escape($message); ?></p>

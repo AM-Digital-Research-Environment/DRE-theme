@@ -23,7 +23,9 @@ class ThemeTestView
         if (isset($this->callbacks['partial:' . $template])) return ($this->callbacks['partial:' . $template])($vars);
         return $this->render($template, $vars);
     }
-    public function translate(string $text): string { return $text; }
+    /** msgid → translation, for a test that needs a catalogue (a faulty one, say). */
+    public array $translations = [];
+    public function translate(string $text): string { return $this->translations[$text] ?? $text; }
     public function translatePlural(string $one, string $many, int $count): string { return $count === 1 ? $one : $many; }
     public function escapeHtml($text): string { return htmlspecialchars((string) $text, ENT_QUOTES, 'UTF-8'); }
     public function escapeHtmlAttr($text): string { return $this->escapeHtml($text); }
