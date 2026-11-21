@@ -7,13 +7,16 @@
  *
  * Rendered by omeka/site/index/search, omeka/site/item/browse (where core's
  * single-type search redirects, so a fruitless site-wide search lands there
- * too) and omeka/site/item-set/browse.
+ * too), omeka/site/item-set/browse and, for a full-text search of the site's
+ * pages, omeka/site/page/browse.
  *
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var bool        $searched  a full-text search found nothing: suggest how to widen it
  * @var string|null $lead      the sentence when filters, not a search, emptied the list
  * @var string|null $browseController  the list "Browse all" leads back to ('item' by default)
  * @var string|null $browseLabel       its link text (translated)
+ * @var string|null $browseUrl         that link's URL, where it is not a site/resource
+ *                                     browse route (site pages: site/page-browse)
  */
 $escape = $this->plugin('escapeHtml');
 $escapeAttr = $this->plugin('escapeHtmlAttr');
@@ -35,7 +38,7 @@ $browseLabel = $browseLabel ?? $translate('Browse all items');
     <?php endif; ?>
     <div class="search-empty__actions">
         <a class="button" href="<?php echo $escapeAttr($this->DreSearchUrl()); ?>"><?php echo $escape($translate('Search with filters')); ?></a>
-        <a class="button btn--secondary" href="<?php echo $escapeAttr($this->url(
+        <a class="button btn--secondary" href="<?php echo $escapeAttr($browseUrl ?? $this->url(
             'site/resource',
             ['controller' => $browseController, 'action' => 'browse'],
             [],

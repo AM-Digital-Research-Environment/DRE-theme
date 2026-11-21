@@ -1,8 +1,15 @@
 <?php
+$translate = $this->plugin('translate');
 $this->htmlElement('body')->appendAttribute('class', 'page browse');
+// The site search's "View all results" for pages lands here with the query:
+// say so (the filter chip) and, when nothing matched, offer the way onward.
+$fulltext = $this->params()->fromQuery('fulltext_search');
+$searched = is_string($fulltext) && trim($fulltext) !== '';
 ?>
 
-<?php echo $this->pageTitle($this->translate('Pages'), 1); ?>
+<?php echo $this->pageTitle($translate('Pages'), 1); ?>
+
+<?php echo $this->searchFilters(); ?>
 
 <?php if ($pages): ?>
     <ul class="pages-list">
@@ -10,8 +17,14 @@ $this->htmlElement('body')->appendAttribute('class', 'page browse');
             <li class="page"><?php echo $page->link($page->title()); ?></li>
         <?php endforeach; ?>
     </ul>
+<?php elseif ($searched): ?>
+    <?php echo $this->partial('common/search-empty', [
+        'lead' => $translate('No pages match this search.'),
+        'browseUrl' => $this->url('site/page-browse', [], [], true),
+        'browseLabel' => $translate('Browse all pages'),
+    ]); ?>
 <?php else: ?>
-    <p><?php echo $this->escapeHtml($this->translate('No pages found')); ?></p>
+    <p><?php echo $this->escapeHtml($translate('No pages found')); ?></p>
 <?php endif; ?>
 
 <?php echo $this->pagination(); ?>

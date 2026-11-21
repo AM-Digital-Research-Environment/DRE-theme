@@ -177,6 +177,25 @@ dre_check($failures, $checks, 'on a locale-filtered site the title and its lang=
     trim((string) $x->query('//h2/a')->item(0)?->textContent) === 'Titre français' && $x->query('//h2/a')->item(0)?->getAttribute('lang') === 'fr');
 $view->settings = [];
 
+// --- Site-page browse ----------------------------------------------------------
+$view = dre_page_view($chain);
+$view->callbacks['searchFilters'] = fn() => '<div class="search-filters">filters</div>';
+$view->callbacks['url'] = fn($route, $params = [], $options = [], $reuse = false) => $route === 'site/page-browse' ? '/s/a/page' : '/s/a/item';
+$page = new class { public function title() { return 'About <us>'; } public function link($text) { return '<a href="/s/a/page/about">' . htmlspecialchars($text) . '</a>'; } };
+$x = dre_doc($view->render('omeka/site/page/browse', ['pages' => [$page]]));
+dre_check($failures, $checks, 'site-page browse lists the pages under one h1 and shows the active filters',
+    $x->query('//h1')->length === 1 && $x->query('//ul[@class="pages-list"]/li/a')->item(0)?->textContent === 'About <us>'
+    && $x->query('//div[@class="search-filters"]')->length === 1);
+$view->query = ['fulltext_search' => 'nothing here'];
+$x = dre_doc($view->render('omeka/site/page/browse', ['pages' => []]));
+dre_check($failures, $checks, 'a fruitless page search shows the shared empty state, leading back to all pages',
+    str_contains($x->query('//p[@class="search-empty__lead"]')->item(0)?->textContent ?? '', 'No pages match this search')
+    && $x->query('//div[@class="search-empty__actions"]/a[@href="/s/a/page"]')->item(0)?->textContent === 'Browse all pages');
+$view->query = [];
+$x = dre_doc($view->render('omeka/site/page/browse', ['pages' => []]));
+dre_check($failures, $checks, 'a site without pages keeps the plain notice',
+    $x->query('//div[@class="search-empty"]')->length === 0 && str_contains($x->document->textContent, 'No pages found'));
+
 // --- Browse-preview block ----------------------------------------------------
 class RenderTestPreviewView extends ThemeTestView
 {

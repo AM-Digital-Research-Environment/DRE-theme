@@ -146,8 +146,12 @@ msgstr ""
 msgid "Browse all item sets"
 msgstr ""
 
-#: view/common/search-empty.phtml:23
+#: view/common/search-empty.phtml:26
 msgid "Browse all items"
+msgstr ""
+
+#: view/omeka/site/page/browse.phtml:24
+msgid "Browse all pages"
 msgstr ""
 
 #: config/amira-pages.php:51
@@ -170,7 +174,7 @@ msgstr ""
 msgid "by %s"
 msgstr ""
 
-#: view/common/search-empty.phtml:29
+#: view/common/search-empty.phtml:32
 msgid "Check the spelling, or try another form of the word."
 msgstr ""
 
@@ -344,7 +348,7 @@ msgstr ""
 msgid "Export list"
 msgstr ""
 
-#: view/common/search-empty.phtml:30
+#: view/common/search-empty.phtml:33
 msgid "Fewer, broader terms cast a wider net."
 msgstr ""
 
@@ -545,7 +549,7 @@ msgstr ""
 msgid "More about access"
 msgstr ""
 
-#: view/common/search-empty.phtml:31
+#: view/common/search-empty.phtml:34
 msgid "Names may appear transliterated — try a variant spelling."
 msgstr ""
 
@@ -567,12 +571,16 @@ msgstr ""
 msgid "No items in this grouping match."
 msgstr ""
 
-#: view/common/search-empty.phtml:34
+#: view/common/search-empty.phtml:37
 msgid "No items match the current filters."
 msgstr ""
 
-#: view/omeka/site/page/browse.phtml:14
+#: view/omeka/site/page/browse.phtml:27
 msgid "No pages found"
+msgstr ""
+
+#: view/omeka/site/page/browse.phtml:22
+msgid "No pages match this search."
 msgstr ""
 
 #: view/common/record-access.phtml:138
@@ -595,7 +603,7 @@ msgstr ""
 msgid "Not %s: it keeps the material but does not handle access requests."
 msgstr ""
 
-#: view/common/search-empty.phtml:27
+#: view/common/search-empty.phtml:30
 msgid "Nothing in the collections matched this search."
 msgstr ""
 
@@ -662,7 +670,7 @@ msgstr ""
 msgid "Page not found"
 msgstr ""
 
-#: view/omeka/site/page/browse.phtml:5
+#: view/omeka/site/page/browse.phtml:10
 msgid "Pages"
 msgstr ""
 
@@ -898,7 +906,7 @@ msgstr ""
 msgid "Search these records"
 msgstr ""
 
-#: view/common/search-empty.phtml:37
+#: view/common/search-empty.phtml:40
 msgid "Search with filters"
 msgstr ""
 
