@@ -40,6 +40,12 @@ for (const width of [375, 1280]) for (const mode of ['light', 'dark']) {
         await page.keyboard.press('Escape');
         await expect(page.locator('details')).not.toHaveAttribute('open','');
         await expect(summary).toBeFocused();
+        // The stylesheet is injected after load, so controls transition from the
+        // UA's grey to the theme's colours; axe must see where they settle, not
+        // a mid-transition mix (WebKit on CI caught the pager's Go button there).
+        await page.evaluate(() => Promise.all(document.getAnimations()
+            .filter(animation => animation instanceof CSSTransition)
+            .map(animation => animation.finished.catch(() => {}))));
         const results = await new AxeBuilder({page}).include('main').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
         expect(results.violations).toEqual([]);
         await page.screenshot({path:`test-results/local/${width}-${mode}.png`,fullPage:true});
