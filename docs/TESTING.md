@@ -297,7 +297,7 @@ inside that browser only.
 A second script, `audit:roadmap`, walked the DRE Search page's old controls and
 broke when DRE Search 1.28.1 removed them; it was retired in 2.52.0, with the
 browser-local visual experiments (`test:visual:experiment`), whose header touch
-targets `npm run lint:touch` now enforces.
+targets `tests/local/header.spec.mjs` now measures as rendered.
 
 The scheduled job is intentionally separate from pull-request CI because a
 deployment, network or production-data issue should not make a source change

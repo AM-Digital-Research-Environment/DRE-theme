@@ -2,7 +2,8 @@
  * Stylelint — bug-catching rules only (unknown properties, units and
  * selectors, invalid hex, duplicate declarations, shorthand overrides…), not
  * a house style and not the design rules: those are scripts/check-design-tokens.mjs
- * and scripts/check-touch-targets.mjs. Ported from IWAC-theme's correctness set.
+ * and, for the 44px touch targets, tests/local/header.spec.mjs. Ported from
+ * IWAC-theme's correctness set.
  */
 export default {
     customSyntax: 'postcss-scss',

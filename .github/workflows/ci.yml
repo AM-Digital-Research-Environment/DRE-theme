@@ -52,8 +52,8 @@ jobs:
       - run: npm ci
 
       # The same command a contributor runs before pushing. In order:
-      #   lint:source lint:tokens (incl. computed WCAG contrast), lint:touch,
-      #               lint:ini, lint:templates, lint:contract (the theme half
+      #   lint:source lint:tokens (incl. computed WCAG contrast), lint:ini,
+      #               lint:templates, lint:contract (the theme half
       #               of the module contract), lint:js, lint:styles
       #   build       the Sass build, the script minification and the
       #               compiled-CSS integrity lint

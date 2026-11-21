@@ -217,3 +217,63 @@ test('the core search submit is labelled in the primary contrast ink, in both mo
         expect(ink, mode).toBe(expected);
     }
 });
+
+// The header's high-frequency controls keep compact glyphs inside 44px boxes
+// (--size-control-lg, DESIGN-INTEGRATION.md). Measured as rendered, so a rule
+// later in the cascade that shrinks a box fails here; the regex lint over the
+// Sass source this replaces (scripts/check-touch-targets.mjs) could not see one.
+const TOUCH = 44;
+async function box(locator) {
+    await expect(locator).toBeVisible();
+    return locator.boundingBox();
+}
+for (const width of [320, 390, 1280]) {
+    test(`header controls are 44px touch targets at ${width}`, async ({page}) => {
+        await fixture(page, width);
+        // As a real page: html.js (the layout's head script), and the install
+        // button revealed, as the browser's install offer does.
+        await page.evaluate(() => {
+            document.documentElement.classList.add('js');
+            document.querySelector('[data-pwa-install]').hidden = false;
+        });
+        const targets = {
+            'theme toggle': page.locator('[data-theme-toggle]'),
+            'install button': page.locator('[data-pwa-install]'),
+        };
+        if (width < 1200) {
+            targets['menu toggle'] = page.locator('.main-navigation__toggle');
+            targets['search toggle'] = page.locator('.core-search.d-xl-none .main-search-button');
+        }
+        for (const [name, locator] of Object.entries(targets)) {
+            const {width: w, height: h} = await box(locator);
+            expect(w, `${name} width`).toBeGreaterThanOrEqual(TOUCH);
+            expect(h, `${name} height`).toBeGreaterThanOrEqual(TOUCH);
+        }
+        if (width < 1200) {
+            // The larger target keeps the compact hamburger glyph.
+            const bars = await box(page.locator('.main-navigation__toggle span').first());
+            expect(bars.width).toBe(35);
+        }
+    });
+}
+// With DRE Search, the mobile field drops below the header row; its
+// suggestions start below the 44px field and the gaps either side of it.
+test('the mobile DRE Search suggestions clear the 44px field', async ({page}) => {
+    await page.setViewportSize({width: 390, height: 850});
+    await routeFixture(page, renderFixture('header', '--dre-search-bar'));
+    await page.goto('https://theme.test/');
+    const [offset, gap] = await page.evaluate(() => {
+        const bar = document.querySelector('.main-header__search-bar.d-xl-none');
+        const probe = (height) => {
+            const el = document.createElement('div');
+            el.style.cssText = `position:absolute;visibility:hidden;height:${height}`;
+            bar.append(el);
+            const px = el.getBoundingClientRect().height;
+            el.remove();
+            return px;
+        };
+        return [probe('var(--dre-search-bar-suggest-offset)'), probe('var(--space-2)')];
+    });
+    expect(gap).toBeGreaterThan(0);
+    expect(offset).toBe(TOUCH + 2 * gap);
+});
