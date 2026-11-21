@@ -249,9 +249,12 @@ passed it for a while. Today only accessibility (≥ 95) and SEO (≥ 90) fail t
 job. The performance score (≥ 80), best practices (≥ 90), LCP and total
 blocking time only annotate, because they swing between runs on a shared runner
 and partly depend on nginx cache headers, which no repository here controls.
-Layout shift (CLS ≤ 0.1) annotates too until the DRESearch fix for the footer
-jump on `/s/amira/dre-search` (DRE Search 1.32.1) is deployed;
-then make it an `error`. Every other smoke surface stays under 0.03.
+Layout shift (CLS ≤ 0.1) annotates too. DRE Search's footer jump on
+`/s/amira/dre-search` is fixed in production (1.32.1), but before 2.51.0 the
+theme's header shifted `main` by about 0.15 on desktop item browse and the
+dashboard pages. The first nightly run on 2.51.0 had every surface under 0.1
+(the media record closest, at 0.098); after a week of such runs, make it an
+`error` (#45).
 
 A surface marked `indexable: false` in `surfaces.mjs` (the media record and
 the federated search, both `noindex` by design) is not held to the SEO score. On

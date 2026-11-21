@@ -85,7 +85,7 @@ jobs:
   # of three runs. Thresholds are warn-first (scripts/lib/lighthouse-report.mjs):
   # only accessibility and SEO fail the job; performance, layout shift and the
   # other metrics annotate, since performance swings between runs on a shared
-  # runner and CLS waits on DRE Search 1.32.1 being deployed. The job summary
+  # runner and CLS waits for a week of clean nights on 2.51.0 (#45). The job summary
   # groups findings and transferred JS/CSS under each surface owner.
   lighthouse:
     name: Lighthouse (${{ matrix.form-factor }})

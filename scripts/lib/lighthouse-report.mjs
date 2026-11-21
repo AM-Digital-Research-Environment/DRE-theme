@@ -10,9 +10,12 @@
  * Warn first: a threshold starts as `warn` and becomes `error` only once the
  * production baseline has passed it for a while. The performance score on a
  * shared runner swings by several points between runs, so it stays a warning.
- * Layout shift is a warning until the DRESearch fix for the search page's
- * footer jump (CLS 0.22, DRE Search 1.32.1) is deployed; every other
- * smoke surface stays under 0.03.
+ * Layout shift is still a warning. DRE Search's footer jump on the search page
+ * (1.32.1) is long fixed in production, but until 2.51.0 the theme's own
+ * header moved `main` by about 0.15 on desktop browse and block pages. The
+ * first nightly run on 2.51.0 (20 Nov 2026) had every surface under 0.1, the
+ * media record closest at 0.098 (its linked-data section). Make it an `error`
+ * after a week of clean nights (#45).
  *
  * A surface marked `indexable: false` is noindex by design, so its SEO score is
  * not asserted. On every other surface an accidental noindex costs `is-crawlable`
