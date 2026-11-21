@@ -60,15 +60,6 @@
             }
         }
 
-        // Stay flat on hover — no fill, no CTA lift, no glow. The double :not()
-        // matches the global button mixin's hover specificity so this wins
-        // (no !important needed).
-        &:hover:not(.disabled):not(:disabled) {
-            background-color: transparent;
-            transform: none;
-            box-shadow: none;
-        }
-
         span {
             display: block;
             position: absolute;
@@ -215,14 +206,9 @@
 
                 // Keyboard / touch toggle injected by navigation.js — a
                 // transparent hit-area over the caret; the label still navigates.
-                // It's a <button>, so it inherits the global primary-button
-                // mixin. The base properties below neutralise the fill/border,
-                // but the mixin's :hover (green --glow-sm + --lift-xs) and
-                // resting --shadow-xs leak through — they'd paint a floating
-                // green glow-pill over the caret that jumps on hover and shifts
-                // with the fluid pill geometry across breakpoints. Reset the
-                // shadow at rest and flatten every interaction state, exactly as
-                // .main-navigation__toggle does, so only the caret reads.
+                // A bare <button> (the primary mixin applies only to `.button`):
+                // the properties below drop the native button chrome, so only
+                // the caret reads.
                 .submenu-btn {
                     align-self: stretch;
                     width: 1.5rem;
@@ -233,19 +219,8 @@
                     background-color: transparent;
                     border: none;
                     border-radius: var(--radius-full);
-                    box-shadow: none;        // drop the inherited resting --shadow-xs
-                    color: inherit;          // not the mixin's near-white --primary-contrast
+                    color: inherit;          // not the UA's ButtonText
                     cursor: pointer;
-
-                    // The double :not() matches the global mixin's hover
-                    // specificity; transparent base already wins the fill, this
-                    // kills the glow + lift the mixin would otherwise add.
-                    &:hover:not(.disabled):not(:disabled),
-                    &:active:not(.disabled):not(:disabled) {
-                        background-color: transparent;
-                        box-shadow: none;
-                        transform: none;
-                    }
 
                     &:focus-visible {
                         outline: 2px solid var(--focus-color);

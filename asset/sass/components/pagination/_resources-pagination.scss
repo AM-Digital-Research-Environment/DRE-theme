@@ -28,7 +28,7 @@
     // fields (was a 15/22px pill, the only pill-shaped input in the system).
     input[type=text] {
         display: inline-block;
-        margin: 0 0 0 var(--space-2) !important;
+        margin: 0 0 0 var(--space-2);
         padding: var(--space-3) var(--space-2);
         text-align: center;
         width: auto;

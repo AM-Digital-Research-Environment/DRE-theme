@@ -166,6 +166,9 @@
 
 // Wider gutter once there is room for one. A single responsive token beats a
 // media query inside every component that needs the page's side padding.
+// A raw query, the one place bp-up() is not used: this variables module would
+// have to load the mixins, and their module emits CSS that would then land
+// ahead of the tokens in the stylesheet.
 @media (min-width: $md) {
   :root { --container-gutter: var(--space-8); }
 }

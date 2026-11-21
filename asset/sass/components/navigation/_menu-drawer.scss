@@ -6,6 +6,9 @@
 // 100%-wide rows read as unfinished; a capped panel reads as designed at any
 // width. Phones keep the full-bleed sheet.
 .menu-drawer {
+    // Beats the inline `style="display: none"` on the <nav>
+    // (common/menu-drawer.phtml), which keeps the drawer out of sight while
+    // this stylesheet has not loaded; with it, transform and visibility hide it.
     display: block !important;
     position: fixed;
     height: calc(100% - var(--header-height));
@@ -31,9 +34,10 @@
     // Keep the drawer parked off-canvas once the inline menu takes over — but
     // only in inline mode: when navigation.js has collapsed an over-wide menu
     // (data-nav="drawer"), the drawer must be able to open at any width.
-    @media screen and (min-width: $xl) {
+    // (0,3,0) out-ranks `.toggled` below without !important.
+    @include bp-up($xl) {
         .main-header:not([data-nav="drawer"]) & {
-            transform: translateX( 100% ) !important;
+            transform: translateX( 100% );
         }
     }
 

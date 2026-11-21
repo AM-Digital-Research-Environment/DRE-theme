@@ -19,9 +19,10 @@ button.main-search-button {
         order: initial;
     }
 
-    // Cancel the global primary-button hover lift — it reads as twitchy on a
-    // small header control. The double :not() matches the mixin's specificity.
-    &:hover:not(.disabled):not(:disabled) {
+    // It carries `.button`: cancel the primary hover lift, which reads as
+    // twitchy on a small header control. (0,2,1) beats the mixin's
+    // `:where()` hover (0,1,0).
+    &:hover {
         transform: none;
     }
 }
@@ -68,8 +69,9 @@ button.main-search-button {
         width: 100%;
     }
 
+    // A primary-filled submit (base/elements/_buttons.scss): its label colour
+    // is the mixin's --primary-contrast, not --surface.
     button {
-        color: $color__white;
         padding: 10px 15px;
         border-radius: 0 22px 22px 0;
     }

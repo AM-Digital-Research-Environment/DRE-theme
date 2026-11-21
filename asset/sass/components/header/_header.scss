@@ -260,14 +260,12 @@ html:not(.js) .main-header:not(.nav-ready),
     // the system setting and the button would do nothing.
     html:not(.js) & { display: none; }
 
-    // The double :not() matches the global button mixin's hover specificity so
-    // this quiet icon-button hover wins — no green fill, no CTA lift, no glow.
-    &:hover:not(.disabled):not(:disabled) {
+    // A quiet icon-button hover. The toggle is a bare <button>: the primary
+    // mixin (fill, lift, glow) applies only to `.button`.
+    &:hover {
         background-color: var(--surface-sunken);
         border-color: var(--border-strong);
         color: var(--primary-text);
-        box-shadow: none;
-        transform: none;
     }
 
     &:focus-visible {
@@ -295,9 +293,4 @@ html:not(.js) .main-header:not(.nav-ready),
         .theme-toggle__icon--sun { display: none; }
         .theme-toggle__icon--moon { display: inline-flex; }
     }
-}
-
-// Keep state changes immediate without spatial animation.
-@media (prefers-reduced-motion: reduce) {
-    .main-header { transition: background-color var(--transition-base), border-color var(--transition-base); }
 }

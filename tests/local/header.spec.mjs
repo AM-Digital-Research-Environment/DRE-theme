@@ -198,3 +198,22 @@ test('the measured header height feeds the anchor offset', async ({page}) => {
     const header = await page.evaluate(() => document.querySelector('.main-header').getBoundingClientRect().height);
     expect(offset).toBeGreaterThan(header);
 });
+// The core search form's submit is a primary-filled button: its label takes
+// the fill's contrast ink, which in dark mode is not the page surface.
+test('the core search submit is labelled in the primary contrast ink, in both modes', async ({page}) => {
+    await fixture(page, 1280);
+    for (const mode of ['light', 'dark']) {
+        const [ink, expected] = await page.evaluate(mode => {
+            document.documentElement.dataset.theme = mode;
+            document.body.dataset.theme = mode;
+            const submit = document.querySelector('.main-header-search button[type="submit"]');
+            const probe = document.createElement('span');
+            probe.style.color = 'var(--primary-contrast)';
+            submit.parentNode.append(probe);
+            const result = [getComputedStyle(submit).color, getComputedStyle(probe).color];
+            probe.remove();
+            return result;
+        }, mode);
+        expect(ink, mode).toBe(expected);
+    }
+});

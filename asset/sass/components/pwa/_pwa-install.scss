@@ -34,14 +34,11 @@
         display: inline-flex;
     }
 
-    // Match the theme-toggle's double :not() so this quiet icon-button hover
-    // beats the global button mixin — no green fill, no CTA lift, no glow.
-    &:hover:not(.disabled):not(:disabled) {
+    // The theme toggle's quiet hover (a bare <button>, so no primary mixin).
+    &:hover {
         background-color: var(--surface-sunken);
         border-color: var(--border-strong);
         color: var(--primary-text);
-        box-shadow: none;
-        transform: none;
     }
 
     &:focus-visible {
@@ -133,11 +130,9 @@
         cursor: pointer;
         transition: color var(--transition-fast), background-color var(--transition-fast);
 
-        &:hover:not(.disabled):not(:disabled) {
+        &:hover {
             background-color: var(--surface-sunken);
             color: var(--primary-text);
-            box-shadow: none;
-            transform: none;
         }
 
         &:focus-visible {

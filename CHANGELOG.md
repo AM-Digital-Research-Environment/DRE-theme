@@ -13,6 +13,7 @@ to create.
 
 ### Changed
 
+- Sass cleanup, no visible change: three `!important`s that won nothing are gone (the menu drawer's desktop transform, the pager's page field margin, a vestigial `.connection::before` reset), and the one the drawer needs now says why; the theme toggle, menu toggle, submenu caret and install controls lose hover resets aimed at a button mixin that no longer reaches them; a repeated reduced-motion block and a raw media query in the drawer go; and the Linked resources request-state rules move from the research styles into the Linked resources partial (#64).
 - The hierarchy page offers the curated sorts of item browse instead of every sortable column, and a grouping with no matching items shows the shared empty state instead of an empty list (#49).
 - **A project's page no longer builds Linked resources only to discard them.** Omeka renders every resource-page block before the page chooses, so on a project whose records DRE Search lists, the Linked resources block ran its connection queries, rendered a page of cards and added its script, and then the page dropped it. With DRE Search installed, the block now leaves a marker on a project's page, and `item/show.phtml` renders it for real only where DRE Search's block is empty or absent (#43).
 
@@ -42,6 +43,7 @@ to create.
   - On a site that filters values by locale, the record rail glosses "Access rights" in the page language, as the metadata beside it already did.
   - The default brand colour and the check on the "Brand colour" setting live in one place (`BrandPalette`). The layout's own check accepted a colour followed by a line break, which `BrandPalette` then refused, leaving the custom colour without its contrast-safe palette; such a value now falls back to Uni-Grün.
 - The Previous and Next buttons under a list are 44px touch targets (`--size-control-lg`), as the paging contract in DESIGN-INTEGRATION.md and DRE Search's pager have them; they were 40px (#63).
+- The core search form's submit button (shown without DRE Search) is labelled in the primary fill's contrast colour; it used the page surface colour, which in dark mode is not the colour the fill was checked against (#64).
 - **Image alt text follows Omeka's "alt text property" setting.** Browse cards, the file and item-with-metadata blocks, media embeds, the media render and the video embeds each took a media's own alt text, else its title, so the installation's alt-text property was ignored everywhere. They now read core's resolved alt text through one rule (`ValueReader::altText()`), keeping the title as the fallback. In the media list, where the link already reads the title, a thumbnail without a description now has an empty alt instead of repeating it (#48).
 
 ### Removed

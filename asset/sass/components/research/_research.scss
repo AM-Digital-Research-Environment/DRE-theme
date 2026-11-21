@@ -90,11 +90,6 @@
     li > button { display: block; margin-block-start: var(--space-2); }
     .shortlist-download { margin-inline: var(--space-2); }
 }
-[data-connection-recovery][hidden] { display: none; }
-[data-connection-status]:empty { display: none; }
-[aria-busy="true"] .resources-linked { opacity: .7; }
-.linked-footer { display: flex; gap: var(--space-4); align-items: center; }
-
 // The bookmark sits in the card's top corner, over the card rather than in it
 // (a button cannot nest in the card's link); the card keeps a gutter for it.
 .connection {

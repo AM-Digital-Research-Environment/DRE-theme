@@ -294,7 +294,6 @@
 
 .connection {
     margin: 0;                       // neutralise the global `ul li` margin
-    &::before { content: none !important; }
 
     // [hidden] must beat the grid item display, or filtered-out cards stay.
     &[hidden] { display: none; }
@@ -435,4 +434,15 @@
 // Keep state changes immediate without spatial animation.
 @media (prefers-reduced-motion: reduce) {
     .resources-linked__chevron { transition: border-color var(--transition-fast); }
+}
+
+// Request state: the recovery link while a page fails, the status line once it
+// has something to say, and the list dimmed while a page loads.
+[data-connection-recovery][hidden] { display: none; }
+[data-connection-status]:empty { display: none; }
+[aria-busy="true"] .resources-linked { opacity: .7; }
+.linked-footer {
+    display: flex;
+    gap: var(--space-4);
+    align-items: center;
 }
