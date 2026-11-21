@@ -16,7 +16,6 @@ use Laminas\View\Helper\AbstractHelper;
  *   $layout = $this->BrowseLayout();   // casing must match theme.ini helpers[]
  *   $layout['isGrid']      bool    render the masonry grid rather than the list
  *   $layout['hasToggle']   bool    the theme setting offers a visitor toggle
- *   $layout['setting']     string  the raw browse_layout theme setting
  *   $layout['bodyTerm']    string  site setting: property shown as card body
  *   $layout['truncate']    string  theme setting: '', 'full', 'fadeout', 'ellipsis'
  *
@@ -25,7 +24,7 @@ use Laminas\View\Helper\AbstractHelper;
  */
 final class BrowseLayout extends AbstractHelper
 {
-    /** @return array{setting: string, isGrid: bool, hasToggle: bool, bodyTerm: string|null, truncate: string} */
+    /** @return array{isGrid: bool, hasToggle: bool, bodyTerm: string|null, truncate: string} */
     public function __invoke(): array
     {
         $view = $this->getView();
@@ -43,7 +42,6 @@ final class BrowseLayout extends AbstractHelper
         }
 
         return [
-            'setting' => $setting,
             'isGrid' => $isGrid,
             'hasToggle' => str_contains($setting, 'toggle'),
             'bodyTerm' => $view->siteSetting('browse_body_property_term'),

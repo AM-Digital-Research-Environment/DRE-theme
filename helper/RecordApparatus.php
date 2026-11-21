@@ -9,7 +9,7 @@ final class RecordApparatus extends AbstractHelper
 {
     /**
      * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
-     * @return array{citation: string, citeStyles: array<string, array{label: string, html: string}>, citeDefault: string, citeDownloads: array<string, array{url: string, label: string, ext: string}>, citeId: string, panelTitle: string, copyLabel: string, copyText: string, copyLink: string, permalink: string, identifier: string, rows: list<array{label: string, layout: string, values: list<array<string, string>>}>, copyInRow: bool}|array{}
+     * @return array{citation: string, citeStyles: array<string, array{label: string, html: string}>, citeDefault: string, citeDownloads: array<string, array{url: string, label: string, ext: string}>, citeId: string, panelTitle: string, copyLabel: string, copyText: string, copyLink: string, permalink: string, rows: list<array{label: string, layout: string, values: list<array<string, string>>}>, copyInRow: bool}|array{}
      */
     public function __invoke($resource): array
     {
@@ -200,6 +200,6 @@ final class RecordApparatus extends AbstractHelper
         // link row (when shown) carries no copy button of its own.
         $copyInRow = false;
 
-        return compact('citation', 'citeStyles', 'citeDefault', 'citeDownloads', 'citeId', 'panelTitle', 'copyLabel', 'copyText', 'copyLink', 'permalink', 'identifier', 'rows', 'copyInRow');
+        return compact('citation', 'citeStyles', 'citeDefault', 'citeDownloads', 'citeId', 'panelTitle', 'copyLabel', 'copyText', 'copyLink', 'permalink', 'rows', 'copyInRow');
     }
 }

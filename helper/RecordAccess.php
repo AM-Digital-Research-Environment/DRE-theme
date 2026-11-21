@@ -20,7 +20,7 @@ require_once __DIR__ . '/ProjectCollections.php';
  *    project(s), who to contact about access, the online copies the record links
  *    to, and whether the holding institution should be named as *not* the contact;
  *  - a PROJECT — an item of class `foaf:Project`: the facts its standard statement
- *    is built from (section, years, contacts).
+ *    is built from (its records and contacts).
  *
  * Anything else — publications, podcasts, videos, people, subjects — gets []: they
  * are not research data, and a notice there would say something untrue.
@@ -46,7 +46,7 @@ require_once __DIR__ . '/ProjectCollections.php';
  * @phpstan-type Person array{label: string, href: string, staffPage?: string}
  * @phpstan-type Contact array{source: 'mediator'|'team'|'dre', contacts: list<Person>, pis: list<Person>, researchers: list<Person>}
  * @phpstan-type ProjectRecords array{href: string, count: int, collections: list<string>}|array{}
- * @phpstan-type ProjectAccess array{email: string, accessPageUrl: string, kind: 'project', id: int, title: string, permalink: string, sections: list<Person>, years: string, records: ProjectRecords, contactSource: 'mediator'|'team'|'dre', contacts: list<Person>, pis: list<Person>, researchers: list<Person>, reportMailto: string, requestMailto: string}
+ * @phpstan-type ProjectAccess array{email: string, accessPageUrl: string, kind: 'project', id: int, title: string, permalink: string, records: ProjectRecords, contactSource: 'mediator'|'team'|'dre', contacts: list<Person>, pis: list<Person>, researchers: list<Person>, reportMailto: string, requestMailto: string}
  * @phpstan-type RecordAccessData array{email: string, accessPageUrl: string, kind: 'record', id: int, title: string, permalink: string, projects: list<Link>, contactSource: 'mediator'|'team'|'dre', contacts: list<Person>, pis: list<Person>, researchers: list<Person>, holders: list<string>, links: list<Link>, hasMedia: bool, reportMailto: string, requestMailto: string}
  */
 final class RecordAccess extends AbstractHelper
@@ -108,8 +108,6 @@ final class RecordAccess extends AbstractHelper
                 'id' => (int) $resource->id(),
                 'title' => (string) $resource->displayTitle(),
                 'permalink' => $this->permalink($resource),
-                'sections' => $this->linkedTitles($resource, ValueReader::IS_PART_OF),
-                'years' => self::years(ValueReader::firstLiteral($resource, 'dcterms:temporal')),
                 'records' => $this->projectRecords($resource),
                 'contactSource' => $contact['source'],
                 'contacts' => $contact['contacts'],
@@ -358,17 +356,6 @@ final class RecordAccess extends AbstractHelper
         $b = $norm($b);
         $k = min(25, mb_strlen($a), mb_strlen($b));
         return $k === 0 || mb_substr($a, 0, $k) === mb_substr($b, 0, $k);
-    }
-
-    /** "2020-01-01/2023-12-31" → "2020–2023"; one year → "2020"; else "". */
-    public static function years(string $temporal): string
-    {
-        if (!preg_match_all('~(?<!\d)(\d{4})(?:-\d{2}){0,2}(?!\d)~', $temporal, $m)) {
-            return '';
-        }
-        $first = $m[1][0];
-        $last = end($m[1]);
-        return $first === $last ? $first : $first . '–' . $last;
     }
 
     /**

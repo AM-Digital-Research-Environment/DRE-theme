@@ -150,7 +150,6 @@ $project->values['foaf:member'] = $members;
 // --- A project ---------------------------------------------------------------
 $access = $helper($project);
 dre_check($failures, $checks, 'a foaf:Project item gets the project statement', ($access['kind'] ?? null) === 'project');
-dre_check($failures, $checks, 'the statement carries section and years', $access['sections'][0]['label'] === 'Arts & Aesthetics' && $access['years'] === '2020–2023');
 
 // --- The access page is looked up once per request ----------------------------
 $lookups = 0;
@@ -277,9 +276,6 @@ dre_check($failures, $checks, 'a corpus restating its project is the same name',
     && !RecordAccess::sameName('Youth and Informal Labour Migration in West Africa Urban Corridors', 'Mobilities and Flows Across West African Urban Corridors'));
 
 // --- Pure helpers ------------------------------------------------------------
-dre_check($failures, $checks, 'an interval reads as a year range', RecordAccess::years('2020-01-01/2023-12-31') === '2020–2023');
-dre_check($failures, $checks, 'one year stays one year', RecordAccess::years('2021') === '2021' && RecordAccess::years('2021-03/2021-09') === '2021');
-dre_check($failures, $checks, 'no year gives nothing', RecordAccess::years('') === '' && RecordAccess::years('n.d.') === '');
 dre_check($failures, $checks, 'an RDSpace handle is named', RecordAccess::linkLabel('https://rdspace.uni-bayreuth.de/handle/1') === 'RDSpace, University of Bayreuth');
 
 // --- Rendering ---------------------------------------------------------------
