@@ -3,7 +3,8 @@
 <div class="footer-contact-info container">
     <address class="footer-contact-info__content">
         <?php if ($contactInfo['location']) : ?>
-            <p class="contact_info contact_info_location"><?php echo $this->escapeHtml($contactInfo['location']); ?></p>
+            <?php // Linked as in the top bar (common/top-header) when "Location Link" is set. ?>
+            <p class="contact_info contact_info_location"><?php if (!empty($contactInfo['location_link'])): ?><a href="<?php echo $this->escapeHtmlAttr($contactInfo['location_link']); ?>" target="_blank" rel="noopener noreferrer"><?php echo $this->escapeHtml($contactInfo['location']); ?></a><?php else: ?><?php echo $this->escapeHtml($contactInfo['location']); ?><?php endif; ?></p>
         <?php endif; ?>
         <?php if ($contactInfo['phone']) : ?>
             <p class="contact_info contact_info_phone"><a href="tel:<?php echo $this->escapeHtmlAttr($contactInfo['phone']); ?>"><?php echo $this->escapeHtml($contactInfo['phone']); ?></a></p>

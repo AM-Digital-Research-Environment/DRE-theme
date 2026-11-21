@@ -82,6 +82,16 @@ dre_check($failures, $checks, 'contact details in the footer are escaped links',
 dre_check($failures, $checks, 'a privacy link without a title shows its URL',
     $x->query('//ul[@class="main-footer__links"]/li/a')->item(0)?->textContent === 'https://example.test/privacy');
 dre_check($failures, $checks, 'a configured network joins the defaults with its label', $x->query('//a[@aria-label="X (Twitter)"]')->length === 1);
+dre_check($failures, $checks, 'a location without a link is plain text',
+    $x->query('//p[contains(@class,"contact_info_location")]')->length === 0);
+$view->themeSettings += ['contact_info_location' => 'Bayreuth <campus>', 'contact_info_location_link' => 'https://maps.example/?q=a&b'];
+$x = dre_doc($view->render('common/footer', ['site' => $site]));
+dre_check($failures, $checks, 'the footer links the location when "Location Link" is set, as the top bar does',
+    $x->query('//p[contains(@class,"contact_info_location")]/a[@href="https://maps.example/?q=a&b"][@rel="noopener noreferrer"]')->item(0)?->textContent === 'Bayreuth <campus>');
+unset($view->themeSettings['contact_info_location_link']);
+$x = dre_doc($view->render('common/footer', ['site' => $site]));
+dre_check($failures, $checks, 'without the link setting the location stays plain text',
+    $x->query('//p[contains(@class,"contact_info_location")]')->item(0)?->textContent === 'Bayreuth <campus>' && $x->query('//p[contains(@class,"contact_info_location")]/a')->length === 0);
 // The footer renders on every page: a translation asking for a second argument
 // must fall back to the msgid, not throw ArgumentCountError site-wide.
 $view->translations = ['Designed & developed by %s' => 'Conçu par %1$s et %2$s'];
