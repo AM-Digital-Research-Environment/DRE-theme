@@ -11,6 +11,11 @@
 (function () {
     'use strict';
 
+    // As linked-resources.js: a stalled request gives up, says so, and the
+    // link can be tried again (the busy guard below would otherwise hold
+    // the "Loading" state until the page is reloaded).
+    const TIMEOUT_MS = 30000;
+
     // The value at the template's index, if it is the text the opening was cut
     // from; otherwise whichever value starts the same way. The index can drift
     // when the API and the page see different values (a private value shown to
@@ -28,17 +33,18 @@
     // A private value is not in the API's representation (Omeka's API ignores
     // the sign-in session), so its link is this record page with ?full-text=1,
     // which renders the text whole under the same id.
-    async function fromPage(link, text) {
-        const response = await fetch(link.href.split('#')[0], { credentials: 'same-origin' });
+    async function fromPage(link, text, signal) {
+        const response = await fetch(link.href.split('#')[0], { credentials: 'same-origin', signal });
         if (!response.ok) throw new Error('HTTP ' + response.status);
         const page = new DOMParser().parseFromString(await response.text(), 'text/html');
         return page.getElementById(text.id)?.textContent ?? null;
     }
 
-    async function fromApi(link, text) {
+    async function fromApi(link, text, signal) {
         const response = await fetch(link.href, {
             headers: { Accept: 'application/json' },
             credentials: 'same-origin',
+            signal,
         });
         if (!response.ok) throw new Error('HTTP ' + response.status);
         const record = await response.json();
@@ -50,10 +56,13 @@
         if (link.getAttribute('aria-busy') === 'true') return;
         link.setAttribute('aria-busy', 'true');
         link.textContent = link.dataset.loading;
+        // The signal covers reading the body as well as the response headers.
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
         try {
             const full = link.dataset.fulltextSource === 'page'
-                ? await fromPage(link, text)
-                : await fromApi(link, text);
+                ? await fromPage(link, text, controller.signal)
+                : await fromApi(link, text, controller.signal);
             if (full === null) throw new Error('Full text not found');
 
             text.textContent = full;
@@ -67,6 +76,7 @@
             link.textContent = link.dataset.error;
             window.DREUtils.announce(link.dataset.error);
         } finally {
+            clearTimeout(timeout);
             link.removeAttribute('aria-busy');
         }
     }

@@ -110,3 +110,30 @@ test('a text the response does not hold counts as a failure', async () => {
     assert.equal(f.link().textContent, 'Could not load');
     f.w.close();
 });
+
+test('a stalled load gives up after a timeout and can be tried again', async () => {
+    const f = fixture();
+    // The script's own timer, fired by hand instead of waited for.
+    const timers = [];
+    f.w.setTimeout = (callback, ms) => timers.push({ callback, ms });
+    f.w.clearTimeout = () => {};
+    // A request that never answers, until its signal aborts it.
+    f.respond(() => new Promise((_resolve, reject) => {
+        const signal = f.requests.at(-1).options.signal;
+        signal?.addEventListener('abort', () => reject(new f.w.DOMException('Aborted', 'AbortError')));
+    }));
+    f.click();
+    await settle();
+    assert.equal(f.link().getAttribute('aria-busy'), 'true');
+    assert.equal(timers.length, 1, 'one timeout per load');
+    assert.equal(timers[0].ms, 30000);
+    timers[0].callback();
+    await settle();
+    assert.equal(f.link().textContent, 'Could not load');
+    assert.equal(f.link().hasAttribute('aria-busy'), false, 'the busy guard lets go');
+    f.respond(() => ({ ok: true, json: async () => ({ 'bibo:content': [{ '@value': WHOLE }] }) }));
+    f.click();
+    await settle();
+    assert.equal(f.text.textContent, WHOLE, 'a second click loads the text');
+    f.w.close();
+});
