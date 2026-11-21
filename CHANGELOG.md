@@ -11,6 +11,8 @@ to create.
 
 ## [Unreleased]
 
+## [2.52.0] - 2026-11-21
+
 ### Changed
 
 - Development tooling only: the header's 44px touch targets (theme toggle, install button, menu toggle, search toggle, the menu glyph, the DRE Search suggestions offset) are measured as rendered in `tests/local/header.spec.mjs` at 320, 390 and 1280px, replacing `npm run lint:touch`, whose regular expressions over the Sass broke on reformatting and could not see a later rule overriding a size (#66, part of #33).
@@ -821,7 +823,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.51.0...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.52.0...HEAD
+[2.52.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.51.0...v2.52.0
 [2.51.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.50.1...v2.51.0
 [2.50.1]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.50.0...v2.50.1
 [2.50.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.49.0...v2.50.0
