@@ -20,7 +20,8 @@
  *     stash the event, reveal the button. Click → prompt(). Hide on dismissal until the next event,
  *     hide on `appinstalled`, and stay hidden when already in standalone mode.
  *   - iOS Safari → reveal the same button; click toggles a dismissible
- *     "Share → Add to Home Screen" hint (Esc / outside-click / re-click closes).
+ *     "Share → Add to Home Screen" hint (Esc / outside click / focus leaving /
+ *     re-click closes).
  *
  * Vanilla, loaded deferred at body end after utils.js (window.DREUtils). No service worker
  * (see docs/PWA.md for why the manifest alone is enough for installability).
@@ -197,6 +198,7 @@
 
         document.addEventListener('keydown', onHintKeydown, true);
         document.addEventListener('click', onDocumentClick, true);
+        document.addEventListener('focusin', onDocumentFocusIn, true);
     }
 
     function closeHint() {
@@ -210,6 +212,7 @@
         }
         document.removeEventListener('keydown', onHintKeydown, true);
         document.removeEventListener('click', onDocumentClick, true);
+        document.removeEventListener('focusin', onDocumentFocusIn, true);
     }
 
     function toggleHint() {
@@ -233,6 +236,15 @@
         }
         // Ignore clicks on the hint itself or the button (the button toggles it).
         if (event.target.closest('.pwa-install__hint') || event.target.closest(BUTTON_SELECTOR)) {
+            return;
+        }
+        closeHint();
+    }
+
+    // Keyboard focus leaving the hint and its button closes it, as a click
+    // outside does: a popover left open behind the focus is one nobody sees.
+    function onDocumentFocusIn(event) {
+        if (!hint || hint.contains(event.target) || event.target === button) {
             return;
         }
         closeHint();
@@ -272,6 +284,9 @@
             // iOS Safari never fires beforeinstallprompt, so reveal the button up
             // front there; the click shows the Share-sheet hint.
             if (isIOSSafari()) {
+                // Only here is the button a disclosure (of the hint), so only
+                // here does it carry the state.
+                button.setAttribute('aria-expanded', 'false');
                 showButton();
             }
         }

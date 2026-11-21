@@ -195,7 +195,7 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
-#: view/common/header.phtml:105
+#: view/common/header.phtml:107
 msgid "Close menu"
 msgstr ""
 
@@ -296,7 +296,7 @@ msgstr ""
 msgid "Digital Research Environment (DRE)"
 msgstr ""
 
-#: view/common/header.phtml:77
+#: view/common/header.phtml:79
 msgid "Dismiss"
 msgstr ""
 
@@ -420,7 +420,7 @@ msgstr ""
 msgid "In the collection"
 msgstr ""
 
-#: view/common/header.phtml:74
+#: view/common/header.phtml:77
 msgid "Install app"
 msgstr ""
 
@@ -627,8 +627,8 @@ msgstr ""
 msgid "Open media record"
 msgstr ""
 
-#: view/common/header.phtml:104
-#: view/common/header.phtml:107
+#: view/common/header.phtml:106
+#: view/common/header.phtml:109
 msgid "Open menu"
 msgstr ""
 
@@ -725,7 +725,7 @@ msgstr ""
 msgid "Previous"
 msgstr ""
 
-#: view/common/header.phtml:125
+#: view/common/header.phtml:127
 msgid "Primary navigation"
 msgstr ""
 
@@ -922,7 +922,7 @@ msgstr ""
 msgid "Selected relationship"
 msgstr ""
 
-#: view/common/header.phtml:126
+#: view/common/header.phtml:128
 msgid "Show submenu for “%s”"
 msgstr ""
 
@@ -971,11 +971,11 @@ msgstr ""
 msgid "Submit"
 msgstr ""
 
-#: view/common/header.phtml:86
+#: view/common/header.phtml:88
 msgid "Switch to dark mode"
 msgstr ""
 
-#: view/common/header.phtml:85
+#: view/common/header.phtml:87
 msgid "Switch to light mode"
 msgstr ""
 
@@ -1066,11 +1066,11 @@ msgstr ""
 msgid "Title (Z–A)"
 msgstr ""
 
-#: view/common/header.phtml:76
+#: view/common/header.phtml:78
 msgid "To install this app, tap the Share button, then “Add to Home Screen”."
 msgstr ""
 
-#: view/common/header.phtml:84
+#: view/common/header.phtml:86
 msgid "Toggle dark mode"
 msgstr ""
 

@@ -69,10 +69,12 @@ $pwaEnabled = isset($pwaEnabled) ? (bool) $pwaEnabled : false;
 				      // component scopes `display` to :not([hidden])). pwa-install.js
 				      // reveals it only when the browser fires beforeinstallprompt, or
 				      // on iOS Safari (where the click shows a Share-sheet hint). The
-				      // translated hint copy rides along in the data-* attributes. ?>
+				      // translated hint copy rides along in the data-* attributes.
+				      // No aria-expanded here: only the iOS hint is a disclosure, and
+				      // the script adds the state there. Elsewhere the click opens
+				      // the browser's own install prompt. ?>
 				<button class="pwa-install" data-pwa-install type="button" hidden
 					aria-label="<?php echo $this->escapeHtmlAttr($translate('Install app')); ?>"
-					aria-expanded="false"
 					data-pwa-hint="<?php echo $this->escapeHtmlAttr($translate('To install this app, tap the Share button, then “Add to Home Screen”.')); ?>"
 					data-pwa-hint-dismiss="<?php echo $this->escapeHtmlAttr($translate('Dismiss')); ?>">
 					<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>

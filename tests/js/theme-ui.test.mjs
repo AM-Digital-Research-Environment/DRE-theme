@@ -231,6 +231,48 @@ test('PWA manifest is attached and install prompt controls button visibility', (
     dom.window.close();
 });
 
+test('the PWA install button is a disclosure only on the iOS hint path', () => {
+    const page = (ua) => {
+        const dom = new JSDOM(`<!doctype html><html><head></head><body><header><div class="main-header__utilities">
+            <button data-pwa-install hidden aria-label="Install app" data-pwa-hint="Tap Share" data-pwa-hint-dismiss="Dismiss"></button>
+            <a href="#next" id="next">Next</a></div></header></body></html>`,
+            { url: 'https://example.test/s/a/', runScripts: 'outside-only' });
+        Object.defineProperty(dom.window.navigator, 'userAgent', { value: ua });
+        dom.window.matchMedia = () => matchMedia(false);
+        dom.window.eval(source('utils'));
+        dom.window.eval(source('pwa-install'));
+        ready(dom);
+        return dom;
+    };
+
+    // Where the browser offers its own install prompt, the button opens it.
+    const chromium = page('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0 Safari/537.36');
+    const prompt = new chromium.window.Event('beforeinstallprompt', { cancelable: true });
+    prompt.prompt = () => Promise.resolve();
+    prompt.userChoice = Promise.resolve({ outcome: 'dismissed' });
+    chromium.window.dispatchEvent(prompt);
+    const plain = chromium.window.document.querySelector('[data-pwa-install]');
+    assert.equal(plain.hidden, false);
+    assert.equal(plain.hasAttribute('aria-expanded'), false, 'no disclosure state on the native-prompt button');
+    chromium.window.close();
+
+    // iOS Safari: the button discloses the hint, which focus leaving closes.
+    const ios = page('Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1');
+    const doc = ios.window.document;
+    const button = doc.querySelector('[data-pwa-install]');
+    assert.equal(button.getAttribute('aria-expanded'), 'false');
+    button.click();
+    assert.equal(button.getAttribute('aria-expanded'), 'true');
+    doc.querySelector('.pwa-install__hint-close').focus();
+    assert.ok(doc.querySelector('.pwa-install__hint'), 'focus inside the hint keeps it open');
+    button.focus();
+    assert.ok(doc.querySelector('.pwa-install__hint'), 'focus on its button keeps it open');
+    doc.getElementById('next').focus();
+    assert.equal(doc.querySelector('.pwa-install__hint'), null, 'focus leaving closes the hint');
+    assert.equal(button.getAttribute('aria-expanded'), 'false');
+    ios.window.close();
+});
+
 test('the PWA manifest URLs are made absolute before the blob is built', () => {
     const dom = new JSDOM(`<!doctype html><html><head>
         <script type="application/json" id="dre-pwa-manifest">{"id":"/s/a/","start_url":"/s/a/","scope":"/s/a/","icons":[{"src":"icon.png"}],"shortcuts":[{"url":"search","icons":[{"src":"s.png"}]}]}</script>

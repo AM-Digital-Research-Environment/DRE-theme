@@ -29,6 +29,7 @@ to create.
 - The footer's contact details link the location when the "Location Link" theme setting is filled in, as the top bar always did (#55).
 - **Changing the sort keeps the grid or list view.** The grid/list switch updated the pager but not the sort form, whose hidden fields Omeka builds when the page loads: a new sort brought the list back in the default view, or in the view the page was first loaded with (#56).
 - "Read the full text" gives up after 30 seconds on a stalled connection, says it could not load, and can be clicked again. It used to stay on "Loading" until the page was reloaded (#57).
+- The "Install app" button no longer announces itself as a collapsed disclosure where it opens the browser's own install prompt; only on iOS Safari, where it shows the "Add to Home Screen" hint, does it carry `aria-expanded`. That hint now also closes when keyboard focus leaves it (#58).
 - **Image alt text follows Omeka's "alt text property" setting.** Browse cards, the file and item-with-metadata blocks, media embeds, the media render and the video embeds each took a media's own alt text, else its title, so the installation's alt-text property was ignored everywhere. They now read core's resolved alt text through one rule (`ValueReader::altText()`), keeping the title as the fallback. In the media list, where the link already reads the title, a thumbnail without a description now has an empty alt instead of repeating it (#48).
 
 ### Removed

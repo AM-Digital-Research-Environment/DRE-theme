@@ -105,6 +105,9 @@ dre_check($failures, $checks, 'a deleted logo asset renders the bundled lockup, 
     str_contains($html, 'site-logo--light') && !str_contains($html, 'src=""'));
 dre_check($failures, $checks, 'the theme toggle names its action without a contradictory pressed state',
     !preg_match('/data-theme-toggle[^>]*aria-pressed/', $html));
+$pwaHeader = $view->render('common/header', ['site' => new ThemeNavSite(), 'userBar' => '', 'pwaEnabled' => true]);
+dre_check($failures, $checks, 'the install button renders without a disclosure state (the script sets it on iOS only)',
+    (bool) preg_match('/<button class="pwa-install"[^>]*>/', $pwaHeader, $pwaButton) && !str_contains($pwaButton[0], 'aria-expanded'));
 $view->themeSettings['research_shortlist'] = 0;
 dre_check($failures, $checks, 'a disabled shortlist renders no header control',
     !str_contains($view->render('common/header', ['site' => new ThemeNavSite(), 'userBar' => '']), 'data-shortlist-open'));
