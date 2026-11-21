@@ -132,7 +132,12 @@
     // held to the right by its own margin-left:auto. Everything wraps on narrow
     // widths (search and sort each take a full row on mobile — see the query
     // at the foot of this file).
+    // The relationship buttons and the sort only filter and reorder the cards
+    // in the browser (linked-resources.js): without JavaScript they would do
+    // nothing, so they are not offered. The Apply form above works without it.
     &__controls {
+        html:not(.js) & { display: none; }
+
         display: flex;
         flex-wrap: wrap;
         align-items: center;

@@ -256,6 +256,10 @@ html:not(.js) .main-header:not(.nav-ready),
         background-color var(--transition-fast),
         border-color var(--transition-fast);
 
+    // theme-toggle.js does the switching; without JavaScript the page follows
+    // the system setting and the button would do nothing.
+    html:not(.js) & { display: none; }
+
     // The double :not() matches the global button mixin's hover specificity so
     // this quiet icon-button hover wins — no green fill, no CTA lift, no glow.
     &:hover:not(.disabled):not(:disabled) {

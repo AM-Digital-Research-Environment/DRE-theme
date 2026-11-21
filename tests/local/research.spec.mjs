@@ -9,6 +9,9 @@ async function fixture(page, width = 1280, mode = 'light') {
     await routeFixture(page, html);
     await page.goto('https://theme.test/s/a/item/42');
     await page.evaluate(mode => {
+        // As the layout's head script: html.js (which reveals the
+        // script-driven controls) and both theme attributes.
+        document.documentElement.classList.add('js');
         document.documentElement.dataset.theme = mode;
         document.body.dataset.theme = mode;
     }, mode);
@@ -161,4 +164,25 @@ test('in-page links never refetch connections; a new connection page still does'
     await expect.poll(() => requests).toBe(1);
     await page.goBack();
     await expect.poll(() => requests).toBe(2);
+});
+
+// The theme toggle, the grid/list switch and the linked-resources filters and
+// sort only act through their scripts. Without JavaScript (no html.js, which
+// the layout's head script sets) they are not offered.
+test('controls that need JavaScript are hidden without it and shown with it', async ({browser}) => {
+    const linkedControls = '<div class="resources-linked"><div class="resources-linked__controls">'
+        + '<button type="button" class="lr-facet" data-lr-facet="all" aria-pressed="true">All</button>'
+        + '<select data-lr-sort aria-label="Sort this page"><option>Relationship</option></select></div></div>';
+    const page_ = html.replace('</main>', linkedControls + '</main>');
+    for (const [javaScriptEnabled, markup] of [[false, page_], [true, page_.replace('<html lang="en">', '<html lang="en" class="js">')]]) {
+        const context = await browser.newContext({javaScriptEnabled, viewport: {width: 1280, height: 900}});
+        const page = await context.newPage();
+        await routeFixture(page, markup);
+        await page.goto('https://theme.test/s/a/item/42');
+        for (const selector of ['[data-theme-toggle]', '.browse-controls .layout-toggle', '.resources-linked__controls']) {
+            if (javaScriptEnabled) await expect(page.locator(selector)).toBeVisible();
+            else await expect(page.locator(selector)).toBeHidden();
+        }
+        await context.close();
+    }
 });

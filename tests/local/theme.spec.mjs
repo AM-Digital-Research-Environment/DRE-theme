@@ -12,6 +12,9 @@ async function fixture(page, width, mode) {
     // Match the real layout: resolve both theme attributes before CSS can paint.
     await page.emulateMedia({reducedMotion:'reduce'});
     await page.evaluate(theme => {
+        // As the layout's head script: JavaScript runs, so html.js (which
+        // reveals the script-driven controls) and both theme attributes.
+        document.documentElement.classList.add('js');
         document.documentElement.dataset.theme = theme;
         document.body.dataset.theme = theme;
     }, mode);
