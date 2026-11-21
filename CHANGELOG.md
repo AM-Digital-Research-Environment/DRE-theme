@@ -41,6 +41,7 @@ to create.
   - An item set without a "Is Part Of" link finds its project by the shared `dre:id` among `foaf:Project` items only; other records with the same identifier could push the project out of the five results it looked at.
   - On a site that filters values by locale, the record rail glosses "Access rights" in the page language, as the metadata beside it already did.
   - The default brand colour and the check on the "Brand colour" setting live in one place (`BrandPalette`). The layout's own check accepted a colour followed by a line break, which `BrandPalette` then refused, leaving the custom colour without its contrast-safe palette; such a value now falls back to Uni-Grün.
+- The Previous and Next buttons under a list are 44px touch targets (`--size-control-lg`), as the paging contract in DESIGN-INTEGRATION.md and DRE Search's pager have them; they were 40px (#63).
 - **Image alt text follows Omeka's "alt text property" setting.** Browse cards, the file and item-with-metadata blocks, media embeds, the media render and the video embeds each took a media's own alt text, else its title, so the installation's alt-text property was ignored everywhere. They now read core's resolved alt text through one rule (`ValueReader::altText()`), keeping the title as the fallback. In the media list, where the link already reads the title, a thumbnail without a description now has an empty alt instead of repeating it (#48).
 
 ### Removed

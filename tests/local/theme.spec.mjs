@@ -45,6 +45,20 @@ for (const width of [375, 1280]) for (const mode of ['light', 'dark']) {
         await page.screenshot({path:`test-results/local/${width}-${mode}.png`,fullPage:true});
     });
 }
+// DESIGN-INTEGRATION.md: paging is a high-frequency control at
+// --size-control-lg, the 44px touch target DRE Search's pager also uses.
+for (const width of [375, 1280]) {
+    test(`pager controls are 44px touch targets at ${width}`, async ({page}) => {
+        await fixture(page, width, 'light');
+        const controls = page.locator('.pagination .button');
+        expect(await controls.count()).toBeGreaterThanOrEqual(2);
+        for (const control of await controls.all()) {
+            const box = await control.boundingBox();
+            expect(box.width).toBeGreaterThanOrEqual(44);
+            expect(box.height).toBeGreaterThanOrEqual(44);
+        }
+    });
+}
 test('a plain button takes the theme focus ring from the keyboard, in every engine', async ({page}) => {
     // The layout toggle has no focus rule of its own. normalize's
     // button:-moz-focusring (a 1px dotted outline) once out-ranked the global

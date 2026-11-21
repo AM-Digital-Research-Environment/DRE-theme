@@ -13,4 +13,15 @@ echo '</div><div class="resources resource-grid"><div class="grid-sizer"></div><
 foreach (range(1, 6) as $n) {
     echo $v->render('common/resource-card', ['resource' => new ThemeTestResource('Record ' . $n, $n), 'body' => 'Collection description for browsing.', 'showTags' => false, 'isGrid' => true]);
 }
-echo '</div></main></body></html>';
+echo '</div>';
+// The pager under a list, with the variables Omeka's pagination helper passes.
+$v->callbacks['hyperlink'] = fn($text, $href, array $attributes = []) => '<a href="' . htmlspecialchars($href) . '"'
+    . implode('', array_map(fn($k, $val) => ' ' . $k . '="' . htmlspecialchars((string) $val) . '"', array_keys($attributes), $attributes))
+    . '>' . htmlspecialchars($text) . '</a>';
+$v->callbacks['queryToHiddenInputs'] = fn(array $remove = []) => '';
+echo $v->render('common/pagination', [
+    'totalCount' => 97, 'perPage' => 25, 'currentPage' => 2, 'previousPage' => 1, 'nextPage' => 3, 'pageCount' => 4,
+    'query' => [], 'offset' => 25, 'firstPageUrl' => '?page=1', 'previousPageUrl' => '?page=1',
+    'nextPageUrl' => '?page=3', 'lastPageUrl' => '?page=4', 'pagelessUrl' => '?',
+]);
+echo '</main></body></html>';
