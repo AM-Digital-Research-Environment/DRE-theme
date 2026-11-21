@@ -157,12 +157,17 @@ test('visiting a saved detail page enriches only that record with its displayed 
     w.localStorage.setItem(key, JSON.stringify({version: 1, records: [{url: '/item/2', title: 'Browse title'}]}));
     w.document.querySelector('[data-shortlist-save]').setAttribute('data-shortlist-detail', '');
     w.document.body.insertAdjacentHTML('beforeend', `<section class="record-apparatus" data-shortlist-record-url="/item/2">
-        <p data-citation-panel="chicago">Displayed citation</p><p data-citation-panel="apa" hidden>Other citation</p>
-        <div class="record-apparatus__downloads"><a href="/citation/2.ris">RIS</a></div></section>`);
+        <p data-citation-panel="chicago">
+            Displayed
+              citation
+        </p><p data-citation-panel="apa" hidden>Other citation</p>
+        <div class="record-apparatus__downloads"><a href="/citation/2.ris">
+            RIS   file</a></div></section>`);
     w.eval(source('utils.js'));w.eval(source('shortlist.js'));
     const [saved] = JSON.parse(w.localStorage.getItem(key)).records;
+    // The template's indentation and line breaks stay out of the exports.
     assert.equal(saved.citation, 'Displayed citation');
-    assert.equal(saved.downloads[0].label, 'RIS');
+    assert.equal(saved.downloads[0].label, 'RIS file');
     assert.equal(w.document.querySelector('[data-shortlist-save]').getAttribute('aria-pressed'), 'true');
     w.close();
 });

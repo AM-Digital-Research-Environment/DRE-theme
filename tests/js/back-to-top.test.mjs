@@ -10,7 +10,8 @@ const source = (name) => readFileSync(new URL('../../' + themeScript(name), impo
 /** The control as layout.phtml renders it, with a stub IntersectionObserver. */
 function fixture({ observer = true, reduced = false } = {}) {
     const dom = new JSDOM(`<!doctype html><html><body>
-        <main id="content" tabindex="-1">Content</main>
+        <main id="site-main" tabindex="-1"><div class="banner"><h1>Home</h1><input type="search" aria-label="Search"></div>
+            <div id="content" class="container" tabindex="-1">Content</div></main>
         <button type="button" class="back-to-top" data-back-to-top aria-label="Back to top"></button>
     </body></html>`, { url: 'https://example.test/', runScripts: 'outside-only' });
     const w = dom.window;
@@ -68,7 +69,9 @@ test('a click returns to the top and moves focus to the content, honouring reduc
     const { w, button, scrolls, preference } = fixture();
     button.click();
     assert.deepEqual(scrolls.at(-1), { top: 0, behavior: 'smooth' });
-    assert.equal(w.document.activeElement, w.document.getElementById('content'));
+    // <main>, the skip link's target, so the next Tab reaches the masthead's
+    // search; #content comes after it.
+    assert.equal(w.document.activeElement, w.document.getElementById('site-main'));
 
     preference.reduced = true; // switched on while the page was open
     button.click();

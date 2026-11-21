@@ -37,10 +37,12 @@
 		const smooth = !window.DREUtils.prefersReducedMotion();
 		window.scrollTo({ top: 0, behavior: smooth ? 'smooth' : 'auto' });
 
-		// Move focus to the main content region for keyboard / screen-reader
-		// users. NB: target #content (the content column inside <main>, tabindex="-1") — never the
-		// skip link, whose :focus style would flash a visible popup.
-		const target = document.getElementById('content');
+		// Move focus to the top of the main content for keyboard / screen-reader
+		// users: <main id="site-main" tabindex="-1">, the skip link's target. Not
+		// #content, the column after the masthead: from there the next Tab
+		// skipped the home page's h1 and search. Never the skip link itself,
+		// whose :focus style would flash a visible popup.
+		const target = document.getElementById('site-main') || document.getElementById('content');
 		if (target && typeof target.focus === 'function') {
 			target.focus({ preventScroll: true });
 		}

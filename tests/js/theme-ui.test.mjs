@@ -97,7 +97,7 @@ test('theme toggle still works when storage is blocked', () => {
 });
 
 /** The header as common/header.phtml renders it, in the mode given. */
-function navigationFixture(mode = 'drawer') {
+function navigationFixture(mode = 'drawer', research = 'Research') {
     const dom = new JSDOM(`<!doctype html><html><body>
         <header class="main-header" data-nav="${mode}">
             <div class="main-header__main-bar">
@@ -111,7 +111,7 @@ function navigationFixture(mode = 'drawer') {
             <nav class="main-navigation" data-submenu-label="Sous-menu %s">
                 <div class="main-navigation__container">
                     <ul class="navigation">
-                        <li><a href="/research">Research</a>
+                        <li><a href="/research">${research}</a>
                             <ul><li><a href="/projects">Projects</a></li><li><a href="/people">People</a></li></ul>
                         </li>
                         <li><a href="/about">About</a></li>
@@ -129,6 +129,12 @@ function navigationFixture(mode = 'drawer') {
     const key = (target, name) => target.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: name, bubbles: true }));
     return { dom, doc, key };
 }
+
+test('a submenu label is text, never a replacement pattern', () => {
+    const { dom, doc } = navigationFixture('drawer', "Costs $& and $' and $1");
+    assert.equal(doc.querySelector('.submenu-btn .screen-reader-text').textContent, "Sous-menu Costs $& and $' and $1");
+    dom.window.close();
+});
 
 test('mobile navigation opens and closes with synchronized ARIA state', () => {
     const { dom, doc } = navigationFixture();

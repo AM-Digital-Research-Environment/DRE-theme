@@ -59,10 +59,12 @@
             : null;
         const citation = apparatus?.querySelector('[data-citation-panel]:not([hidden]), .record-apparatus__citation:not([hidden])');
         return {url, title: (button.dataset.title || '').slice(0, 2000),
-            citation: (citation?.textContent.trim() || '').slice(0, 20000),
+            // normaliseSpace, as record.js reads the same panel: the template's
+            // indentation and line breaks are not part of the citation.
+            citation: (citation ? window.DREUtils.normaliseSpace(citation.textContent) : '').slice(0, 20000),
             downloads: Array.from(apparatus?.querySelectorAll('.record-apparatus__downloads a') || [])
                 .filter(link => safeUrl(link.href)).slice(0, 10)
-                .map(link => ({url: link.href, label: link.textContent.trim().slice(0, 100)})),
+                .map(link => ({url: link.href, label: window.DREUtils.normaliseSpace(link.textContent).slice(0, 100)})),
         };
     }
 

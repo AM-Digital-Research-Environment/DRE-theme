@@ -302,7 +302,9 @@
         srText.className = 'screen-reader-text';
         // textContent, not innerHTML — the label comes from site nav config and
         // was previously concatenated into an insertAdjacentHTML string.
-        srText.textContent = labels.submenu.replace('%s', parentLabel);
+        // A function replacer: a label holding `$&` or `$'` is text, not a
+        // replacement pattern.
+        srText.textContent = labels.submenu.replace('%s', () => parentLabel);
 
         outer.appendChild(srText);
         button.appendChild(outer);

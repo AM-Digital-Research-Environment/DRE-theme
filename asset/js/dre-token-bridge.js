@@ -37,6 +37,10 @@
     let ctx = null;
     const listeners = [];
     let observer = null;
+    // The mode the listeners last heard about: data-theme is rewritten with
+    // its current value too (theme-toggle.js syncs it at load), and a
+    // listener repainting a canvas should not run for a change that is none.
+    let lastDark = null;
 
     /**
      * The hidden probe. Parented to <body> so it sits inside the
@@ -145,8 +149,11 @@
         if (typeof handler !== 'function') return () => {};
         listeners.push(handler);
         if (!observer && window.MutationObserver) {
+            lastDark = ns.isDark();
             observer = new window.MutationObserver(() => {
                 const dark = ns.isDark();
+                if (dark === lastDark) return;
+                lastDark = dark;
                 // A copy: a listener that unsubscribes must not skip the next.
                 for (const listener of listeners.slice()) {
                     try {

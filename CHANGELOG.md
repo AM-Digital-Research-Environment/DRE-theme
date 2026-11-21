@@ -31,6 +31,11 @@ to create.
 - "Read the full text" gives up after 30 seconds on a stalled connection, says it could not load, and can be clicked again. It used to stay on "Loading" until the page was reloaded (#57).
 - The "Install app" button no longer announces itself as a collapsed disclosure where it opens the browser's own install prompt; only on iOS Safari, where it shows the "Add to Home Screen" hint, does it carry `aria-expanded`. That hint now also closes when keyboard focus leaves it (#58).
 - Without JavaScript, controls that only work through it are no longer offered: the theme toggle (the page follows the system setting), the grid/list switch, and the Linked resources relationship buttons and "Sort this page". The Linked resources "Apply" form, which works without it, stays (#59).
+- Script fixes (#60):
+  - "Back to top" moves focus to `<main>`, the skip link's target, so the next Tab reaches the home page's search; it focused the content column after the masthead.
+  - The research shortlist stores a citation and its download labels with their whitespace collapsed: the template's indentation and line breaks leaked into the CSV and JSON exports.
+  - `DRETokens.onThemeChange` calls its listeners only when the mode changes, not each time `data-theme` is rewritten with the same value (as the theme toggle does at load), so a module no longer repaints its charts for nothing.
+  - A menu label containing `$&` or `$'` no longer garbles the submenu button's screen-reader label.
 - **Image alt text follows Omeka's "alt text property" setting.** Browse cards, the file and item-with-metadata blocks, media embeds, the media render and the video embeds each took a media's own alt text, else its title, so the installation's alt-text property was ignored everywhere. They now read core's resolved alt text through one rule (`ValueReader::altText()`), keeping the title as the fallback. In the media list, where the link already reads the title, a thumbnail without a description now has an empty alt instead of repeating it (#48).
 
 ### Removed

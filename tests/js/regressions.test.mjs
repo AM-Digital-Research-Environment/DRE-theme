@@ -185,3 +185,19 @@ test('token bridge follows explicit preferences and supports unsubscribe', async
     assert.equal(values.length, count);
     d.window.close();
 });
+test('token bridge listeners hear a mode change, not a rewrite of the same mode', async () => {
+    const d = dom('<html data-theme="dark"><body data-theme="dark"></body></html>');
+    d.window.eval(source('dre-token-bridge.js'));
+    const values = []; d.window.DRETokens.onThemeChange(value => values.push(value));
+    const doc = d.window.document;
+    // theme-toggle.js's sync at load writes the value already there, on both elements.
+    doc.documentElement.setAttribute('data-theme', 'dark'); doc.body.setAttribute('data-theme', 'dark');
+    await Promise.resolve();
+    assert.deepEqual(values, [], 'no change, no call');
+    doc.documentElement.setAttribute('data-theme', 'light'); doc.body.setAttribute('data-theme', 'light');
+    await Promise.resolve();
+    doc.body.setAttribute('data-theme', 'light');
+    await Promise.resolve();
+    assert.deepEqual(values, [false], 'one call for the one change');
+    d.window.close();
+});
