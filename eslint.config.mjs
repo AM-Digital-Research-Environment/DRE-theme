@@ -12,6 +12,8 @@ export default [
     {
         ignores: [
             'node_modules/',
+            // Agent worktrees (.claude/worktrees/<name>/) are whole checkouts.
+            '.claude/',
             'test-results/',
             'artifacts/',
             'asset/css/',

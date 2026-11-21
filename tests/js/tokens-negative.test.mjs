@@ -106,6 +106,17 @@ test('removing the field-border token is reported, not silently skipped', (t) =>
     assert.match(output, /light: --field-border is not declared/);
 });
 
+test('a renamed surface is reported, not dropped from the contrast pairs', (t) => {
+    const root = fixture(t);
+    // The light mode's sunken surface, renamed: every ink on it used to fall
+    // out of the check without a word.
+    edit(root, COLORS, (src) => src.replace('--surface-sunken:  oklch(95.6%', '--surface-well:  oklch(95.6%'));
+    const {status, output} = lint(root);
+    assert.equal(status, 1, output);
+    assert.match(output, /light: --surface-sunken is not a hand-authored oklch\(\) literal/);
+    assert.match(output, /light: --surface-sunken is not declared — --field-border on it cannot be asserted/);
+});
+
 // The ratchet counts: an allow-listed file may not gain findings, and one that
 // lost some fails until the baseline is lowered, so the list cannot go slack.
 const COPY = 'asset/sass/base/typography/_copy.scss';

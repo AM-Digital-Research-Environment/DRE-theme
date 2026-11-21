@@ -20,20 +20,25 @@ import { spawnSync } from 'node:child_process';
 
 import { REPOSITORY_ROOT as ROOT, compiledCssPath, sassEntryPoints } from './lib/files.mjs';
 
+// Both outputs come from tools whose versions the lockfile pins (sass and
+// autoprefixer; esbuild), and both read package.json (browserslist, the
+// version): either file changing can change either output.
+const TOOLING = ['package.json', 'package-lock.json'];
+
 const GROUPS = [
     {
         label: 'Compiled CSS freshness',
         noun: 'the rebuilt CSS',
         // Every Sass entry point (not a partial) compiles to asset/css/<name>.css.
         outputs: sassEntryPoints(ROOT).map(compiledCssPath),
-        inputs: ['asset/sass', 'config/theme.ini', 'package.json'],
+        inputs: ['asset/sass', 'config/theme.ini', ...TOOLING],
     },
     {
         label: 'Minified scripts freshness',
         noun: 'the rebuilt asset/js/dist/',
         outputs: ['asset/js/dist'],
         // `:(glob)` so `*` stops at the slash: dist/ is an output, not an input.
-        inputs: [':(glob)asset/js/*.js', 'scripts/build-js.mjs', 'package-lock.json'],
+        inputs: [':(glob)asset/js/*.js', 'scripts/build-js.mjs', ...TOOLING],
     },
 ];
 

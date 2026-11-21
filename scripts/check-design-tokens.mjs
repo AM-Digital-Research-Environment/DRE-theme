@@ -29,7 +29,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { themeRoot } from './lib/files.mjs';
-import { blockBody, stripComments } from './lib/scss-blocks.mjs';
+import { blockBody, collectMixins, declarations, stripComments } from './lib/scss-blocks.mjs';
 import { parseOklch, contrastRatio, contrastRatioResolved } from './lib/contrast.mjs';
 import { runRules, report } from './lib/token-rules.mjs';
 
@@ -200,20 +200,22 @@ for (const [key, allowed] of ratchet) {
 // own selectors in prose, and brace matching from a comment finds the wrong block.
 const colorsSrc = stripComments(readFileSync(join(SASS, 'abstracts', 'variables', '_colors.scss'), 'utf8'));
 
+// The block parser gen-token-fallbacks.mjs uses, `@include`s expanded in place,
+// so a token a mode takes from a mixin is seen here exactly as in the table.
+const MIXINS = collectMixins(colorsSrc);
+const tokensOf = (opener) => declarations(blockBody(colorsSrc, opener), MIXINS);
+
 /** name → `oklch(…)` literal, for the hand-authored declarations in a block. */
-function oklchTokens(body) {
-  const out = new Map();
-  if (!body) return out;
-  for (const m of body.matchAll(/(--[\w-]+)\s*:\s*(oklch\([^)]*\))\s*;/g)) out.set(m[1], m[2]);
-  return out;
+function oklchTokens(opener) {
+  return new Map([...tokensOf(opener)].filter(([, value]) => /^oklch\([^)]*\)$/.test(value)));
 }
 
 const AA = 4.5;
 
-const light = oklchTokens(blockBody(colorsSrc, '@mixin am-light-theme'));
-const dark = oklchTokens(blockBody(colorsSrc, '@mixin am-dark-theme'));
-const boldLight = oklchTokens(blockBody(colorsSrc, 'body[data-brand="bold"]'));
-const boldDark = oklchTokens(blockBody(colorsSrc, '@mixin am-masthead-bold-dark'));
+const light = oklchTokens('@mixin am-light-theme');
+const dark = oklchTokens('@mixin am-dark-theme');
+const boldLight = oklchTokens('body[data-brand="bold"]');
+const boldDark = oklchTokens('@mixin am-masthead-bold-dark');
 
 // Every ink is checked against every surface it can legitimately land on. The
 // quiet tiers are held to the same 4.5:1 — the point of the audit fix.
@@ -221,6 +223,15 @@ const INKS = ['--ink-strong', '--ink', '--ink-light', '--ink-subtle', '--muted']
 const SURFACES = ['--surface', '--surface-raised', '--surface-sunken', '--background'];
 
 function checkPairs(modeName, tokens, inks, surfaces) {
+  // A ground that is renamed or no longer a literal must not quietly take every
+  // pair on it out of the check.
+  const grounds = surfaces.filter((surfName) => {
+    if (tokens.get(surfName)) return true;
+    findings.push(
+      `_colors.scss  ${modeName}: ${surfName} is not a hand-authored oklch() literal — contrast on it cannot be asserted`
+    );
+    return false;
+  });
   for (const inkName of inks) {
     const ink = tokens.get(inkName);
     if (!ink) {
@@ -229,9 +240,8 @@ function checkPairs(modeName, tokens, inks, surfaces) {
       );
       continue;
     }
-    for (const surfName of surfaces) {
+    for (const surfName of grounds) {
       const surf = tokens.get(surfName);
-      if (!surf) continue;
       const ratio = contrastRatio(parseOklch(ink), parseOklch(surf));
       if (ratio < AA) {
         findings.push(
@@ -278,25 +288,10 @@ checkPairs('brand=bold dark', boldDark, BOLD_INKS, BOLD_GROUNDS);
 // ==========================================================================
 const NON_TEXT = 3;
 
-/** Every `--name: value;` declared at the top level of a block. */
-function allTokens(body) {
-  const out = new Map();
-  if (!body) return out;
-  let depth = 0;
-  for (const bare of body.split(/\r?\n/)) {
-    if (depth === 0) {
-      const m = /^\s*(--[\w-]+)\s*:\s*(.+?);\s*$/.exec(bare);
-      if (m) out.set(m[1], m[2].trim());
-    }
-    depth += (bare.match(/\{/g) ?? []).length - (bare.match(/\}/g) ?? []).length;
-  }
-  return out;
-}
-
 const seed = /--primary-base\s*:\s*([^;]+);/.exec(colorsSrc)?.[1].trim();
 const modeTokens = {
-  light: allTokens(blockBody(colorsSrc, '@mixin am-light-theme')),
-  dark: allTokens(blockBody(colorsSrc, '@mixin am-dark-theme')),
+  light: tokensOf('@mixin am-light-theme'),
+  dark: tokensOf('@mixin am-dark-theme'),
 };
 
 function checkNonText(modeName, tokens, name, grounds) {
@@ -306,7 +301,10 @@ function checkNonText(modeName, tokens, name, grounds) {
   }
   const lookup = (n) => (n === '--primary-base' ? seed : tokens.get(n)) ?? null;
   for (const ground of grounds) {
-    if (!tokens.get(ground)) continue;
+    if (!tokens.get(ground)) {
+      findings.push(`_colors.scss  ${modeName}: ${ground} is not declared — ${name} on it cannot be asserted`);
+      continue;
+    }
     let ratio;
     try {
       ratio = contrastRatioResolved(`var(${name})`, `var(${ground})`, lookup);

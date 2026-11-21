@@ -6,12 +6,12 @@
  *
  *   node scripts/fetch-template-fixture.mjs      (also: npm run fixtures:refresh)
  *
- * The fixture is the ground truth the metadata-grouping check runs against: the
- * full property list of the "Research Items" resource template, plus the terms
- * actually present on a representative record. It is COMMITTED so the check
- * works offline and in CI, and refreshed deliberately when the template changes.
+ * The fixtures are the ground truth tests/ResourceGroupsTest.php runs the real
+ * grouping helper against: each template's full property list, plus the terms
+ * actually present on a representative record. They are COMMITTED so the test
+ * works offline and in CI, and refreshed deliberately when a template changes.
  *
- * Why a fixture and not a hard-coded list in the check: the grouping map in
+ * Why a fixture and not a hard-coded list in the test: the grouping map in
  * helper/ResourceGroups.php was first written from the field names visible in
  * the MongoDB2OmekaS mapper source, and that was wrong in a way no amount of
  * re-reading the mapper would have revealed — the template carries 54
