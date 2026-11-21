@@ -67,8 +67,14 @@ $found = ['items' => [$section, $project]];
 $result = $helper->projectOf($set);
 dre_check($failures, $checks, 'without the link, the project sharing the set\'s dre:id is found, by class',
     $result === $project
-    && ($queries[0][1]['property'][0]['property'] ?? null) === 'dre:id'
-    && ($queries[0][1]['property'][0]['text'] ?? null) === 'UBT_ELTVTapes2021');
+    && ($queries[1][1]['property'][0]['property'] ?? null) === 'dre:id'
+    && ($queries[1][1]['property'][0]['text'] ?? null) === 'UBT_ELTVTapes2021');
+dre_check($failures, $checks, 'without a foaf:Project class to filter by, the dre:id search runs unfiltered',
+    ($queries[0] ?? null) === ['resource_classes', ['term' => 'foaf:Project', 'limit' => 1]] && !isset($queries[1][1]['resource_class_id']));
+$queries = [];
+$found = ['resource_classes' => [new class { public function id() { return 42; } }], 'items' => [$project]];
+dre_check($failures, $checks, 'the dre:id search asks for foaf:Project items only, so other records cannot crowd it out',
+    $helper->projectOf($set) === $project && ($queries[1][0] ?? null) === 'items' && ($queries[1][1]['resource_class_id'] ?? null) === 42);
 
 $found = ['items' => [$section]];
 dre_check($failures, $checks, 'an item set with no project resolves to none', $helper->projectOf($set) === null);

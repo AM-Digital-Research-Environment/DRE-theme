@@ -33,10 +33,7 @@ $this->htmlElement('body')->setAttribute('data-brand', $brandPresence);
 // --primary-base seed via color-mix(in oklab, …). PHP only injects the seed
 // (defaulting to Uni-Grün) plus a contrast-safe label colour. Changing the
 // "Brand colour" in theme settings re-tints the entire palette automatically.
-$primaryColor = (string) ($this->themeSetting('primary_color') ?: '#009260');
-if (!preg_match('/^#[0-9a-f]{6}$/i', $primaryColor)) {
-    $primaryColor = '#009260';
-}
+$primaryColor = $this->plugin('BrandPalette')->seed($this->themeSetting('primary_color'));
 
 // ===== Installable PWA ====================================================
 // Build a per-site Web App Manifest in PHP and emit it as a JSON island in

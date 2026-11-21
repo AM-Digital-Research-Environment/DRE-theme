@@ -25,15 +25,18 @@ final class RecordApparatus extends AbstractHelper
         //
         // All values, not just the first: records legitimately carry two access-rights
         // statements, one linked and one spelled out.
-        $displayValues = function (string $term, bool $withGloss = false) use ($resource, $view): array {
+        // The gloss in the page language where the site filters values by locale,
+        // as common/resource-values.phtml asks for it beside the same value.
+        $glossLang = $view->ValueReader()->valueLang() !== null ? (string) $view->lang() : null;
+        $displayValues = function (string $term, bool $withGloss = false) use ($resource, $view, $glossLang): array {
             if (!$withGloss) {
                 return ValueReader::entries($resource, $term);
             }
             // "Public" under Access rights reads as "downloadable here"; its
             // authority record says what it means.
-            return ValueReader::entries($resource, $term, false, function (array $entry, $value) use ($view): array {
+            return ValueReader::entries($resource, $term, false, function (array $entry, $value) use ($view, $glossLang): array {
                 try {
-                    $gloss = (string) $view->ValueGloss($value);
+                    $gloss = (string) $view->ValueGloss($value, $glossLang);
                 } catch (\Throwable $e) {
                     // One malformed value must not cost the reader the whole rail.
                     $gloss = '';

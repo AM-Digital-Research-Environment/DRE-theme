@@ -37,6 +37,10 @@ to create.
   - `DRETokens.onThemeChange` calls its listeners only when the mode changes, not each time `data-theme` is rewritten with the same value (as the theme toggle does at load), so a module no longer repaints its charts for nothing.
   - A menu label containing `$&` or `$'` no longer garbles the submenu button's screen-reader label.
 - **Signed-in curators see private links in Linked resources again.** The block added its own "public values only" condition on top of Omeka's visibility rules, so it hid private links from the curators who may see them and need to check them. It now applies Omeka's rules alone, as core's own list does; visitors still see public links only (#61).
+- Helper fixes (#62):
+  - An item set without a "Is Part Of" link finds its project by the shared `dre:id` among `foaf:Project` items only; other records with the same identifier could push the project out of the five results it looked at.
+  - On a site that filters values by locale, the record rail glosses "Access rights" in the page language, as the metadata beside it already did.
+  - The default brand colour and the check on the "Brand colour" setting live in one place (`BrandPalette`). The layout's own check accepted a colour followed by a line break, which `BrandPalette` then refused, leaving the custom colour without its contrast-safe palette; such a value now falls back to Uni-Grün.
 - **Image alt text follows Omeka's "alt text property" setting.** Browse cards, the file and item-with-metadata blocks, media embeds, the media render and the video embeds each took a media's own alt text, else its title, so the installation's alt-text property was ignored everywhere. They now read core's resolved alt text through one rule (`ValueReader::altText()`), keeping the title as the fallback. In the media list, where the link already reads the title, a thumbnail without a description now has an empty alt instead of repeating it (#48).
 
 ### Removed

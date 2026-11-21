@@ -240,6 +240,16 @@ dre_check($failures, $checks, 'the gloss prefers the reader\'s language',
         return $view->ValueGloss($value, 'en') === 'Public: the description only.' && $view->ValueGloss($value) === 'Öffentlich: nur die Beschreibung.'
             && $view->ValueGloss(new ThemeTestValue('Public')) === '';
     })());
+// On a site filtering values by locale the rail glosses in the page language
+// (fr in the stub view), as the metadata beside it does.
+$frenchRight = new ThemeTestResource('Public', 5839);
+$frenchRight->values['dcterms:description'] = [new GlossValue('Öffentlich: nur die Beschreibung.', true, 'de'), new GlossValue('Public : la description seulement.', true, 'fr')];
+$resource->values['dcterms:accessRights'] = [new ThemeTestValue('', 'resource:item', $frenchRight)];
+$view->settings['filter_locale_values'] = true;
+[$html, $xp] = $apparatusDom();
+dre_check($failures, $checks, 'on a locale-filtered site the rail glosses in the page language',
+    $xp->query('//span[@class="record-apparatus__gloss"][.="Public : la description seulement."]')->length === 1, $html);
+unset($view->settings['filter_locale_values']);
 unset($resource->values['dcterms:accessRights']);
 
 // The metadata glosses the same value, and an untagged value inherits the page language.

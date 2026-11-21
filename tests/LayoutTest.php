@@ -172,6 +172,9 @@ try {
 
     [$html] = $render(['primary_color' => '#7A1F5C', 'masthead_brand' => 'quiet']);
     dre_check($failures, $checks, 'a valid custom brand seed is used', str_contains($html, '--primary-base: #7A1F5C;'));
+    [$html] = $render(['primary_color' => "#7A1F5C\n"]);
+    dre_check($failures, $checks, 'a seed with a trailing newline is not a seed: the default, as BrandPalette sees it',
+        str_contains($html, '--primary-base: #009260;'));
 
     [$html, $view] = $render(['title_installation' => '1'], 'https://theme.test/s/a/page/about', ['installation_title' => 'AMIRA']);
     dre_check($failures, $checks, 'the setting appends the installation title',

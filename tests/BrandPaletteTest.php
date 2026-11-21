@@ -19,4 +19,10 @@ foreach (['#ffffff', '#000000', '#ffff00', '#ff0000', '#00ff00', '#0000ff', '#ff
     }
 }
 dre_check($failures, $checks, 'authored palette and invalid input require no override', $palette('#009260') === [] && $palette('url(evil)') === []);
+use OmekaTheme\Helper\BrandPalette;
+dre_check($failures, $checks, 'a hex setting is the seed; anything else, a trailing newline included, is the default',
+    BrandPalette::seed('#7A1F5C') === '#7A1F5C' && BrandPalette::seed("#7a1f5c\n") === '#009260'
+    && BrandPalette::seed(null) === '#009260' && BrandPalette::seed('') === '#009260' && BrandPalette::seed(['#7a1f5c']) === '#009260');
+preg_match('/^elements\.primary_color\.attributes\.value\s*=\s*"([^"]*)"/m', (string) file_get_contents(__DIR__ . '/../config/theme.ini'), $iniDefault);
+dre_check($failures, $checks, 'theme.ini offers the same default brand colour as the helper', ($iniDefault[1] ?? null) === BrandPalette::DEFAULT_SEED);
 dre_report('BrandPalette', $failures, $checks);

@@ -101,10 +101,15 @@ final class ProjectCollections extends AbstractHelper
             if ($code === '') {
                 return null;
             }
-            $items = $this->getView()->api()->search('items', [
-                'property' => [self::eq(ValueReader::DRE_ID, $code)],
-                'limit' => 5,
-            ])->getContent();
+            $api = $this->getView()->api();
+            $query = ['property' => [self::eq(ValueReader::DRE_ID, $code)], 'limit' => 5];
+            // Projects only: other records can carry the same identifier, and
+            // under the limit they could push the project out of the results.
+            $class = $api->search('resource_classes', ['term' => self::PROJECT_CLASS, 'limit' => 1])->getContent()[0] ?? null;
+            if ($class) {
+                $query['resource_class_id'] = (int) $class->id();
+            }
+            $items = $api->search('items', $query)->getContent();
             foreach ($items ?: [] as $item) {
                 if (self::isProject($item)) {
                     return $item;
