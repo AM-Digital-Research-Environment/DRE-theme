@@ -1,6 +1,6 @@
 /**
- * The request routing shared by the hand-run production audits
- * (scripts/audit-roadmap.mjs, scripts/audit-live-surfaces.mjs).
+ * The request routing of the hand-run production audit
+ * (scripts/audit-live-surfaces.mjs).
  *
  * Every request goes through the production guard the smoke suite uses
  * (tests/browser/production-request-policy.mjs), so an audit can read the

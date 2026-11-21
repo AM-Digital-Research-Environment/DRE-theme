@@ -280,24 +280,24 @@ LIGHTHOUSE_RUNS=1 LIGHTHOUSE_SURFACES=home,item-record npm run audit:lighthouse 
 
 Reports go to the Git-ignored `test-results/lighthouse/`.
 
-### Acceptance audits
+### Acceptance audit
 
-Two heavier read-only scripts are run by hand, not by CI. They use the same
-production-request guard and write screenshots and JSON reports to the
-Git-ignored `artifacts/roadmap-acceptance/`:
+`npm run audit:surfaces`, a heavier read-only script, is run by hand, not by
+CI. It uses the same production-request guard and writes a JSON report to the
+Git-ignored `artifacts/roadmap-acceptance/`: the main routes at 390px with
+axe-core (WCAG 2.1 AA), map-control sizes, overflow and timing samples. The
+routes are the home, research and search surfaces and every visualization page
+in `tests/browser/surfaces.mjs`; `AUDIT_ROUTES=home,networks` (surface ids)
+narrows them.
 
-- `npm run audit:roadmap` — the DRESearch surface in light/dark at 320, 390 and
-  1280px: keyboard tabs, mobile chooser, filters, empty state, drawer, 200%
-  text zoom and long translated labels.
-- `npm run audit:surfaces` — the main routes at 390px with axe-core (WCAG 2.1
-  AA), map-control sizes, overflow and timing samples. The routes are the
-  home, research and search surfaces and every visualization page in
-  `tests/browser/surfaces.mjs`; `AUDIT_ROUTES=home,networks` (surface ids)
-  narrows them.
+Append `-- --local-assets` to serve sibling checkouts' builds (`../DRESearch`,
+`../DREVisualizations`, this theme's CSS) in place of the deployed assets,
+inside that browser only.
 
-Append `-- --local-assets` to either to serve sibling checkouts' builds
-(`../DRESearch`, `../DREVisualizations`, this theme's CSS) in place of the
-deployed assets, inside that browser only.
+A second script, `audit:roadmap`, walked the DRE Search page's old controls and
+broke when DRE Search 1.28.1 removed them; it was retired in 2.52.0, with the
+browser-local visual experiments (`test:visual:experiment`), whose header touch
+targets `npm run lint:touch` now enforces.
 
 The scheduled job is intentionally separate from pull-request CI because a
 deployment, network or production-data issue should not make a source change
@@ -346,48 +346,6 @@ http://localhost:4173/tests/fixtures/design-system/
 The catalogue contains invented content and makes no API or analytics request.
 Its README records the production templates that each structure represents and
 the deliberate refresh policy.
-
-### Browser-local production experiment
-
-`playwright.visual.config.mjs` is separate from the nightly configuration. Its
-tests are skipped unless explicitly enabled, use the same mutation blocker,
-bypass CSP only inside the isolated browser context, and write traces and
-screenshots below the Git-ignored `artifacts/visual-experiments/` directory.
-
-An experiment must name the deployed theme version it is designed to inspect.
-For the version observed on 2026-08-27, PowerShell syntax is:
-
-```powershell
-$env:RUN_VISUAL_EXPERIMENTS = '1'
-$env:EXPECTED_THEME_VERSION = '2.29.0'
-$env:LIVE_BASE_URL = 'https://data.africamultiple.uni-bayreuth.de'
-npm run test:visual:experiment
-```
-
-Update `EXPECTED_THEME_VERSION` only after inspecting the production asset URL;
-do not weaken or remove the guard to make an experiment pass. Rules in an
-experiment stylesheet must remain scoped below a body attribute installed by
-that experiment. They are disposable evidence, not theme source.
-
-After compatible releases are deployed, the header and module touch checks can
-measure the served CSS without adding any local stylesheet. Name every expected
-version and select only those acceptance files:
-
-```powershell
-$env:RUN_VISUAL_EXPERIMENTS = '1'
-$env:USE_DEPLOYED_ASSETS = '1'
-$env:EXPECTED_THEME_VERSION = '2.30.1'
-$env:EXPECTED_DRESEARCH_VERSION = '1.20.1'
-$env:EXPECTED_VISUALIZATIONS_VERSION = '2.28.1'
-npx playwright test --config=playwright.visual.config.mjs `
-  tests/visual-experiments/header-touch-targets.visual.mjs `
-  tests/visual-experiments/module-touch-targets.visual.mjs
-```
-
-`USE_DEPLOYED_ASSETS=1` disables all CSS injection in those files. A failure is
-therefore deployment evidence, not a prototype result. Keep it opt-in: the
-nightly suite remains a small functional and semantic monitor rather than a
-visual-release gate.
 
 ### Reporting findings
 

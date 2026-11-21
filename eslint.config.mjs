@@ -58,7 +58,7 @@ export default [
     {
         // Playwright specs and their helpers pass functions to page.evaluate(),
         // which run in the page, not in Node.
-        files: ['tests/browser/**/*.mjs', 'tests/local/**/*.mjs', 'tests/visual-experiments/**/*.mjs', 'scripts/audit-*.mjs'],
+        files: ['tests/browser/**/*.mjs', 'tests/local/**/*.mjs', 'scripts/audit-*.mjs'],
         languageOptions: {
             globals: { ...globals.node, ...globals.browser },
         },

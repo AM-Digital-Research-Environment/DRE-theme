@@ -23,6 +23,7 @@ to create.
 
 ### Removed
 
+- Development tooling only: `npm run audit:roadmap`, which clicked DRE Search controls removed in 1.28.1 and so could no longer finish, and the browser-local visual experiments (`npm run test:visual:experiment`, `playwright.visual.config.mjs`, `tests/visual-experiments/`), unchanged since August and pinned to theme 2.29/2.30; `npm run lint:touch` enforces the header touch targets they explored. `npm run audit:surfaces` remains (#46).
 - Development tooling only: the npm `overrides` for `glob` and `minimatch`. Lighthouse's `@sentry/node` 11.16.0 now asks for glob 14 itself, so the lockfile resolves the same versions without them and Dependabot can update both again (#47).
 - The compatibility rules for DRE Search 1.35.0 in `components/header/_search.scss`, which set the header search bar's layout on DRE Search's internal classes. DRE Search reads the `--dre-search-bar-*` properties from 1.36.0, and AMIRA runs 1.37.1; the theme now names none of the module's classes (#40). **Needs DRE Search 1.36.0 or later.**
 
