@@ -54,8 +54,9 @@ for (const width of [375, 1280]) {
         expect(await controls.count()).toBeGreaterThanOrEqual(2);
         for (const control of await controls.all()) {
             const box = await control.boundingBox();
-            expect(box.width).toBeGreaterThanOrEqual(44);
-            expect(box.height).toBeGreaterThanOrEqual(44);
+            // Rounded: Firefox lays 2.75rem out as 43.99997px.
+            expect(Math.round(box.width)).toBeGreaterThanOrEqual(44);
+            expect(Math.round(box.height)).toBeGreaterThanOrEqual(44);
         }
     });
 }

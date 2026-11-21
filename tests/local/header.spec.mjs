@@ -246,8 +246,9 @@ for (const width of [320, 390, 1280]) {
         }
         for (const [name, locator] of Object.entries(targets)) {
             const {width: w, height: h} = await box(locator);
-            expect(w, `${name} width`).toBeGreaterThanOrEqual(TOUCH);
-            expect(h, `${name} height`).toBeGreaterThanOrEqual(TOUCH);
+            // Rounded: Firefox can lay 2.75rem out a hair under 44px.
+            expect(Math.round(w), `${name} width`).toBeGreaterThanOrEqual(TOUCH);
+            expect(Math.round(h), `${name} height`).toBeGreaterThanOrEqual(TOUCH);
         }
         if (width < 1200) {
             // The larger target keeps the compact hamburger glyph.
