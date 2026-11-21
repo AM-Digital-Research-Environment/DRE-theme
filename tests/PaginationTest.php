@@ -8,7 +8,15 @@ $view = new ThemeTestView();
 $view->callbacks['hyperlink'] = fn($text, $href, array $attributes = []) => '<a href="' . htmlspecialchars($href)
     . '"' . implode('', array_map(fn($k, $v) => ' ' . $k . '="' . htmlspecialchars((string) $v) . '"', array_keys($attributes), $attributes))
     . '>' . htmlspecialchars($text) . '</a>';
-$view->callbacks['queryToHiddenInputs'] = fn() => '<input type="hidden" name="sort_by" value="title">';
+// Core's helper: the request's query as hidden inputs, minus the names given.
+$requestQuery = ['sort_by' => 'title'];
+$view->callbacks['queryToHiddenInputs'] = function (array $remove = []) use (&$requestQuery) {
+    $html = '';
+    foreach (array_diff_key($requestQuery, array_flip($remove)) as $name => $value) {
+        $html .= '<input type="hidden" name="' . htmlspecialchars($name) . '" value="' . htmlspecialchars((string) $value) . '">';
+    }
+    return $html;
+};
 
 /** The variables Omeka\View\Helper\Pagination::__toString() passes. */
 function dre_pager(int $page, int $pageCount, int $perPage = 25): array
@@ -59,6 +67,22 @@ $next = $x->query('//*[contains(concat(" ", @class, " "), " next ")]');
 dre_check($failures, $checks, 'the unavailable Next is aria-disabled', $next->length === 1 && $next->item(0)->nodeName === 'span'
     && $next->item(0)->getAttribute('aria-disabled') === 'true');
 dre_check($failures, $checks, 'the last page counts to the total', str_contains($x->query('//span[@class="row-count"]')->item(0)->textContent, '76–97 of 97'));
+
+// A default sort, as SetBrowseDefaults leaves the request on every site browse:
+// the form drops the flags and the sorts they stand for, as core's pager does.
+$requestQuery = ['fulltext_search' => 'Bayreuth', 'sort_by' => 'created', 'sort_order' => 'desc',
+    'sort_by_default' => '', 'sort_order_default' => '', 'page' => '2'];
+$x = dre_xpath($view->render('common/pagination', ['query' => $requestQuery] + dre_pager(2, 4)));
+$hidden = array_map(fn($n) => $n->getAttribute('name'), iterator_to_array($x->query('//form[@class="pager"]/input[@type="hidden"]')));
+dre_check($failures, $checks, 'a default sort is not re-submitted by the page form (full-text relevance survives)',
+    $hidden === ['fulltext_search'], implode(', ', $hidden));
+// An explicit sort is the visitor's, and stays. (SetBrowseDefaults sets the
+// flags to null, which http_build_query, and so the request query, omits.)
+$requestQuery = ['sort_by' => 'title', 'sort_order' => 'asc'];
+$x = dre_xpath($view->render('common/pagination', ['query' => $requestQuery] + dre_pager(2, 4)));
+$hidden = array_map(fn($n) => $n->getAttribute('name'), iterator_to_array($x->query('//form[@class="pager"]/input[@type="hidden"]')));
+dre_check($failures, $checks, 'an explicit sort is kept by the page form', $hidden === ['sort_by', 'sort_order'], implode(', ', $hidden));
+$requestQuery = ['sort_by' => 'title'];
 
 // One page: no pager controls; no results: the empty message.
 $x = dre_xpath($view->render('common/pagination', dre_pager(1, 1)));

@@ -35,7 +35,17 @@ $landmark = match ($position) {
 
                 <!-- Pager -->
                 <form class="pager" method="GET" action="">
-                    <?php echo $this->queryToHiddenInputs(['page']); ?>
+                    <?php
+                    // As core's pager: never re-submit the sort-default flags
+                    // SetBrowseDefaults adds, nor the sorts they stand for. Sent
+                    // back, they turn the default into an explicit sort, which
+                    // drops full-text relevance order and disagrees with the
+                    // Previous/Next links (Omeka\View\Helper\Pagination::getUrl).
+                    $query = $query ?? [];
+                    $removeQueries = ['page', 'sort_by_default', 'sort_order_default'];
+                    if (isset($query['sort_by_default'])) $removeQueries[] = 'sort_by';
+                    if (isset($query['sort_order_default'])) $removeQueries[] = 'sort_order';
+                    echo $this->queryToHiddenInputs($removeQueries); ?>
                     <label>
                         <?php echo $this->escapeHtml($translate('Page')); ?>
                         <input type="text" name="page" class="page-input-top" value="<?php echo (int) $currentPage; ?>" size="4" <?php echo ($pageCount == 1) ? 'readonly' : ''; ?> aria-label="<?php echo $this->escapeHtmlAttr($translate('Page')); ?>">

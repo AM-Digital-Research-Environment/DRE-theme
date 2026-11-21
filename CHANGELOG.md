@@ -14,6 +14,7 @@ to create.
 ### Fixed
 
 - **Firefox shows the theme's focus ring on buttons.** normalize's `button:-moz-focusring` (a 1px dotted outline) out-ranked the global `:focus-visible` ring, so in Firefox the grid/list toggle, the menu drawer's back button and other buttons without a focus rule of their own showed it instead of the 2px ring. The rule is gone, and a browser test focuses a plain button from the keyboard in all three engines (#41).
+- The page-number form under a browse list no longer re-submits the sort that Omeka applies by default. It sent `sort_by=created&sort_by_default=` back, which made the default an explicit sort: a full-text browse lost its relevance order on "Go" while Previous and Next kept it. The form now leaves out what core's own pager leaves out (#42).
 
 ### Removed
 

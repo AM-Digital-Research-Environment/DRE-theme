@@ -48,7 +48,7 @@ msgstr ""
 msgid "%s (unavailable)"
 msgstr ""
 
-#: view/common/pagination.phtml:58
+#: view/common/pagination.phtml:68
 msgid "0 results"
 msgstr ""
 
@@ -380,7 +380,7 @@ msgstr ""
 msgid "Further details"
 msgstr ""
 
-#: view/common/pagination.phtml:44
+#: view/common/pagination.phtml:54
 msgid "Go"
 msgstr ""
 
@@ -554,8 +554,8 @@ msgid "Names may appear transliterated — try a variant spelling."
 msgstr ""
 
 #: view/common/linked-resources.phtml:191
-#: view/common/pagination.phtml:49
-#: view/common/pagination.phtml:51
+#: view/common/pagination.phtml:59
+#: view/common/pagination.phtml:61
 msgid "Next"
 msgstr ""
 
@@ -599,7 +599,7 @@ msgstr ""
 msgid "Nothing in the collections matched this search."
 msgstr ""
 
-#: view/common/pagination.phtml:43
+#: view/common/pagination.phtml:53
 msgid "of %s"
 msgstr ""
 
@@ -648,8 +648,8 @@ msgstr ""
 msgid "Orishas — Gregório de Mattos Foundation"
 msgstr ""
 
-#: view/common/pagination.phtml:40
-#: view/common/pagination.phtml:41
+#: view/common/pagination.phtml:50
+#: view/common/pagination.phtml:51
 msgid "Page"
 msgstr ""
 
