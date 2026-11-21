@@ -4,7 +4,7 @@ $resourceMedia = $resource->media();
 <?php if ($resourceMedia): ?>
 <div class="media-embeds">
     <?php foreach ($resourceMedia as $media): ?>
-        <?php $altText = $media->altText() ?: $media->displayTitle() ?: ''; ?>
+        <?php $altText = $this->ValueReader()->altText($media) ?: $media->displayTitle() ?: ''; ?>
         <div class="media-embed">
             <div class="<?php echo $this->ImageDecoration('media') ? 'decoration' : ''; ?>">
                 <?php echo $media->render(['thumbnailAttribs' => ['alt' => $altText]]); ?>

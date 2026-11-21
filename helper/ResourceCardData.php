@@ -1,5 +1,8 @@
 <?php
 namespace OmekaTheme\Helper;
+
+require_once __DIR__ . '/ValueReader.php';
+
 use Laminas\View\Helper\AbstractHelper;
 
 /** Common locale, description and primary-thumbnail preparation for browse cards. */
@@ -26,7 +29,7 @@ final class ResourceCardData extends AbstractHelper
         if ($options['showThumbnail'] ?? true) {
             $media = $resource->resourceName() === 'items' ? $resource->primaryMedia() : null;
             $thumbnail = $view->thumbnail($resource, $options['thumbnailSize'] ?? 'large', [
-                'alt' => $media ? ($media->altText() ?: $title) : $title,
+                'alt' => ($media ? ValueReader::altText($media) : '') ?: $title,
                 'loading' => 'lazy', 'decoding' => 'async',
             ]);
         }

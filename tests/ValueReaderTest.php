@@ -153,4 +153,21 @@ if (class_exists(\NumberFormatter::class)) {
 }
 dre_check($failures, $checks, 'small numbers are left alone', FormatNumber::format(7, 'en') === '7');
 
+// Alt text: core's resolution (the media's own, else the installation's alt
+// text property), read as a label; the caller chooses the fallback.
+$altMedia = fn($own, $resolved) => new class($own, $resolved) {
+    public function __construct(private $own, private $resolved) {}
+    public function altText() { return $this->own; }
+    public function altTextResolved() { return $this->own ?: $this->resolved; }
+};
+dre_check($failures, $checks, "a media's own alt text is used", ValueReader::altText($altMedia(' Market at dawn ', null)) === 'Market at dawn');
+dre_check($failures, $checks, 'without one, the alt text property gives it (core altTextResolved)',
+    ValueReader::altText($altMedia(null, new ReaderTestValue('Women at the market'))) === 'Women at the market');
+$depicted = new ThemeTestResource('Bayreuth market', 12);
+dre_check($failures, $checks, 'a linked alt text value reads as its title, not its URL',
+    ValueReader::altText($altMedia(null, new ReaderTestValue('', 'resource:item', $depicted))) === 'Bayreuth market');
+dre_check($failures, $checks, 'no alt text at all is the empty string', ValueReader::altText($altMedia(null, null)) === '');
+dre_check($failures, $checks, 'a broken media gives no alt text rather than an error',
+    ValueReader::altText(new class { public function altTextResolved() { throw new RuntimeException(); } }) === '');
+
 dre_report('ValueReader', $failures, $checks);

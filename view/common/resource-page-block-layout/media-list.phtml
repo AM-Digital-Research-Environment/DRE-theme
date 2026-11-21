@@ -8,7 +8,10 @@ $resourceMedia = $resource->media();
         <dt><?php echo $this->escapeHtml($this->translate('Media')); ?></dt>
         <?php foreach ($resourceMedia as $media): ?>
             <?php
-            $altText = $media->altText() ?: $media->displayTitle() ?: '';
+            // The link already reads the media's title: an alt text of the
+            // title too made a screen reader say it twice. A described
+            // picture keeps its description; otherwise the image is silent.
+            $altText = $this->ValueReader()->altText($media);
             $thumbnail = $this->thumbnail($media, 'square', ['alt' => $altText]);
             $linkContent = sprintf('%s<span class="resource-name">%s</span>',
                 $thumbnail,

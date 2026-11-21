@@ -1,5 +1,5 @@
 <?php
-$altText = $resource->altText() ?: $resource->displayTitle() ?: '';
+$altText = $this->ValueReader()->altText($resource) ?: $resource->displayTitle() ?: '';
 ?>
 <div class="<?php echo $this->ImageDecoration('media') ? 'decoration' : ''; ?>">
     <?php echo $resource->render(['thumbnailAttribs' => ['alt' => $altText]]); ?>

@@ -17,7 +17,7 @@ foreach ($allMedia as $media) {
             // An embed's display title is often its source URL (a YouTube link),
             // which a screen reader spells out character by character; the
             // record's own title describes the picture better.
-            $alt = trim((string) $media->altText());
+            $alt = $this->ValueReader()->altText($media);
             if ($alt === '') {
                 $alt = trim((string) $media->displayTitle());
                 if ($alt === '' || preg_match('~^(?:[a-z][a-z0-9+.-]*:)?//\S+$|^www\.\S+$~i', $alt)) {

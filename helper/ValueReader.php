@@ -147,6 +147,27 @@ final class ValueReader extends AbstractHelper
     }
 
     /**
+     * A media's alt text as core resolves it: its own, else the value of the
+     * installation's "alt text property" (MediaRepresentation::altTextResolved),
+     * read as a label like any other value, so a linked value gives its title
+     * and not its URL. '' when there is none; the caller picks the fallback.
+     *
+     * @param \Omeka\Api\Representation\MediaRepresentation $media
+     */
+    public static function altText($media): string
+    {
+        try {
+            $alt = method_exists($media, 'altTextResolved') ? $media->altTextResolved() : $media->altText();
+        } catch (\Throwable $e) {
+            return '';
+        }
+        if (is_object($alt)) {
+            return self::entry($alt)['label'] ?? '';
+        }
+        return trim((string) $alt);
+    }
+
+    /**
      * The web address a value holds: a URI value's URI, or a literal that is
      * itself an http(s) URL. With $doi, a bare DOI (`10.x/…`, `doi:10.x/…`)
      * becomes its doi.org link. '' otherwise.

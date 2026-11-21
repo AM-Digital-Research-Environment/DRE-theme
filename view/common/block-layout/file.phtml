@@ -11,7 +11,7 @@ $classes    = $classes ?? [];
             <?php
             $media = $attachment->media() ?: $item->primaryMedia();
             if ($media) :
-                $altText = $media->altText() ?: $media->displayTitle() ?: '';
+                $altText = $this->ValueReader()->altText($media) ?: $media->displayTitle() ?: '';
             ?>
                 <div class="<?php echo $this->ImageDecoration('media') ? 'decoration' : ''; ?>">
                     <?php

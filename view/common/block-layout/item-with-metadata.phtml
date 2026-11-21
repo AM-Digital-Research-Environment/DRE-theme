@@ -52,7 +52,7 @@ $showLocale = (bool) $this->siteSetting('show_locale_label', true);
                 <!-- Thumbnail -->
                 <?php if ($primaryMedia): ?>
                     <div class="item-with-metadata__thumbnail <?php echo $this->ImageDecoration('media') ? 'decoration' : ''; ?>">
-                        <?php $altText = $primaryMedia->altText() ?: $primaryMedia->displayTitle() ?: ''; ?>
+                        <?php $altText = $this->ValueReader()->altText($primaryMedia) ?: $primaryMedia->displayTitle() ?: ''; ?>
                         <?php echo $this->thumbnail($primaryMedia, 'large', ['class' => 'item-thumbnail', 'alt' => $altText]); ?>
                     </div>
                 <?php endif; ?>

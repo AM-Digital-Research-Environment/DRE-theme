@@ -184,4 +184,22 @@ dre_check($failures, $checks, 'a deferred block in a sidebar, where nothing repl
 $pageBlocks->regions = [];
 unset($v->callbacks['dreSearchBar']);
 
+// The media list links each media by its title: the thumbnail inside the link
+// says nothing more unless the picture is described.
+$v->callbacks['thumbnail'] = fn($media, $type = null, array $attributes = []) => '<img alt="' . htmlspecialchars($attributes['alt'] ?? '') . '">';
+$listMedia = fn(string $title, string $alt) => new class($title, $alt) extends ThemeTestResource {
+    public function __construct(string $title, private string $alt) { parent::__construct($title, 30); }
+    public function altText() { return $this->alt; }
+    public function altTextResolved() { return $this->alt; }
+};
+$owner = new class([$listMedia('Market photograph', ''), $listMedia('Second view', 'Stalls under awnings')]) extends ThemeTestResource {
+    public function __construct(private array $list) { parent::__construct('Owner', 31); }
+    public function media(): array { return $this->list; }
+};
+$html = $v->render('common/resource-page-block-layout/media-list', ['resource' => $owner]);
+dre_check($failures, $checks, 'a media list link names its media once: an undescribed thumbnail has an empty alt',
+    substr_count($html, 'Market photograph') === 1 && str_contains($html, '<img alt="">'));
+dre_check($failures, $checks, 'a described thumbnail keeps its description', str_contains($html, '<img alt="Stalls under awnings">'));
+$v->callbacks['thumbnail'] = fn() => '';
+
 dre_report('IntegrationShapes', $failures, $checks);
