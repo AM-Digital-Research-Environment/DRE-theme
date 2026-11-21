@@ -35,7 +35,14 @@ $lang = $this->ValueReader()->valueLang()[0] ?? null;
             echo $valueResource
                 ? $valueResource->link($valueResource->displayTitle(null, $lang))
                 : (null !== $lang ? $value->asHtml($lang) : $value->asHtml());
-        ?></span></dd>
+        ?></span><?php
+            // As core's common/resource-values: a curator sees which values
+            // visitors cannot, and modules can add to each value.
+            if (!$value->isPublic()): ?>
+            <span class="o-icon-private" role="img" title="<?php echo $escapeAttr($translate('Private')); ?>" aria-label="<?php echo $escapeAttr($translate('Private')); ?>"></span><?php
+            endif;
+            $this->trigger('view.show.value', ['value' => $value]);
+        ?></dd>
         <?php endforeach; ?>
     </div>
 <?php endforeach; ?>

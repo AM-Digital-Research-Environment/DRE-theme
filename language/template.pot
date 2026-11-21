@@ -728,6 +728,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: view/common/resource-values.phtml:205
+#: view/common/value-annotation-resource-values.phtml:42
 msgid "Private"
 msgstr ""
 

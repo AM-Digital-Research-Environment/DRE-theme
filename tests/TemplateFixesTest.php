@@ -155,6 +155,7 @@ $annotationValues = [
         new class($linked) {
             public function __construct(private object $linked) {}
             public function lang() { return ''; } public function valueResource() { return $this->linked; }
+            public function isPublic() { return false; }
             public function asHtml(...$args) { return '<img src="/thumb.jpg"><span>pretty</span>'; }
         },
         $annotated('International Library of African Music', null),
@@ -162,6 +163,11 @@ $annotationValues = [
 ];
 $view = new ThemeTestView();
 $popover = $view->render('common/value-annotation-resource-values', ['values' => $annotationValues]);
+dre_check($failures, $checks, 'an annotation marks its private value, as core does, and only that one',
+    substr_count($popover, 'class="o-icon-private" role="img"') === 1 && str_contains($popover, 'aria-label="Private"'), $popover);
+dre_check($failures, $checks, 'an annotation triggers view.show.value once per value, as core does',
+    array_map(fn($call) => $call[0], $view->triggered) === ['view.show.value', 'view.show.value']
+    && $view->triggered[1][1]['value'] === $annotationValues['dcterms:isPartOf']['values'][1]);
 dre_check($failures, $checks, 'an annotation renders a flat label-over-value list',
     str_contains($popover, '<dl class="annotation-values">') && str_contains($popover, '<dt>Is Part Of</dt>')
     && str_contains($popover, 'International Library of African Music'), $popover);

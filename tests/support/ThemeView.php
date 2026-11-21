@@ -48,7 +48,9 @@ class ThemeTestView
     public function assetUrl(string $file): string { return '/themes/dre/asset/' . $file; }
     public function params(): self { return $this; }
     public function fromQuery(?string $key = null, $default = null) { return $key === null ? $this->query : ($this->query[$key] ?? $default); }
-    public function trigger(...$args): void {}
+    /** Every view event a template triggered, as [name, params]. */
+    public array $triggered = [];
+    public function trigger(...$args): void { $this->triggered[] = $args; }
     public function status(): self { return $this; }
     public function isSiteRequest(): bool { return true; }
     public function __call(string $name, array $args)
