@@ -1,4 +1,8 @@
-/** Connection pages progressively enhance ordinary GET forms and links. */
+/**
+ * Connection pages progressively enhance ordinary GET forms and links: the
+ * filters, search, sort and paging all act on the whole linked set on the
+ * server, and this swaps the block in place instead of reloading the page.
+ */
 (function () {
     'use strict';
 
@@ -6,9 +10,9 @@
     // The connection state each block currently displays. History traversal
     // reloads a block only when this changes: fragment jumps (the skip link,
     // Record contents, section anchors) fire popstate too, and must not refetch
-    // the page or throw away the reader's facet and sort.
+    // the block.
     const shown = new WeakMap();
-    const stateKeys = ['lr_property', 'lr_q', 'lr_page'];
+    const stateKeys = ['lr_property', 'lr_class', 'lr_q', 'lr_sort', 'lr_page'];
 
     function connectionState(url) {
         const params = new URLSearchParams(url.search);
@@ -59,7 +63,13 @@
             if (requests.get(container) !== state) return;
             const current = container.querySelector('.resources-linked');
             if (!current) throw new Error('Connection block missing');
-            const hadFocus = container.contains(document.activeElement);
+            // Focus returns to the same control in the new block: the field by
+            // its id, a filter or page link by its address (a filter just
+            // chosen is the current one, at the same URL); else the toggle.
+            const active = container.contains(document.activeElement) ? document.activeElement : null;
+            const same = (selector, attribute) => active.getAttribute(attribute)
+                && [...replacement.querySelectorAll(selector)].find(node => node.getAttribute(attribute) === active.getAttribute(attribute));
+            const sameControl = active && (same('[id]', 'id') || same('a[href]', 'href'));
             current.replaceWith(replacement);
             shown.set(container, state.key);
             document.dispatchEvent(new CustomEvent('dre:connections-loaded'));
@@ -67,9 +77,9 @@
             if (push && stateKey(new URL(location.href)) !== state.key) history.pushState(null, '', destination);
             // The content is in place from here on: nothing below may fall
             // through to the "failed" message over a block that loaded.
-            const summary = replacement.querySelector('.resources-linked__summary');
-            say(summary ? window.DREUtils.normaliseSpace(summary.textContent) : '');
-            if (hadFocus) replacement.querySelector('summary')?.focus();
+            const result = replacement.querySelector('[data-lr-status]') || replacement.querySelector('.resources-linked__summary');
+            say(result ? window.DREUtils.normaliseSpace(result.textContent) : '');
+            if (active) (sameControl || replacement.querySelector('summary'))?.focus();
         } catch (error) {
             if ((error.name === 'AbortError' && !state.timedOut) || requests.get(container) !== state) return;
             say(container.dataset.failed);
@@ -98,15 +108,19 @@
         event.preventDefault();
         const destination = new URL(location.href);
         clearState(destination);
-        new FormData(form).forEach((value, key) => destination.searchParams.set(key, value));
+        // Empty fields stay out of the address, as the server's own links do.
+        // The default order (ConnectionQuery::SORTS[0]) is left out too.
+        new FormData(form).forEach((value, key) => {
+            if (value !== '' && !(key === 'lr_sort' && value === 'title')) destination.searchParams.set(key, value);
+        });
         destination.hash = 'linked-resources';
         loadPage(container, destination);
     });
     document.addEventListener('click', event => {
-        const control = event.target.closest?.('[data-connection-page], [data-connection-retry]');
+        const control = event.target.closest?.('[data-connection-page], [data-connection-link], [data-connection-retry]');
         const container = control?.closest('[data-connection-endpoint]');
         if (!container || typeof fetch !== 'function') return;
-        if (control.hasAttribute('data-connection-page')) {
+        if (!control.hasAttribute('data-connection-retry')) {
             if (!window.DREUtils.isPlainClick(event)) return;
             event.preventDefault();
             const link = new URL(control.href);
@@ -130,60 +144,5 @@
             if ((pending ? pending.key : shown.get(container)) === key) return;
             loadPage(container, new URL(destination), false);
         });
-    });
-
-    // --- Facets and sorting refine the rendered page only. ---------------------
-
-    function applyFacet(root) {
-        const active = root.querySelector('[data-lr-facet].is-active')?.getAttribute('data-lr-facet') || 'all';
-        let visible = 0;
-        root.querySelectorAll('[data-lr-list] .connection').forEach(li => {
-            const show = active === 'all' || (li.getAttribute('data-props') || '').split(' ').includes(active);
-            li.hidden = !show;
-            if (show) visible++;
-        });
-        const count = root.querySelector('[data-lr-count]');
-        if (count) count.textContent = visible;
-        const label = root.querySelector('[data-lr-label]');
-        if (label) label.textContent = visible === 1 ? label.dataset.one : label.dataset.many;
-        const empty = root.querySelector('[data-lr-empty]');
-        if (empty) empty.hidden = visible !== 0;
-        // Matches read from the first row, not wherever the panel was scrolled.
-        const list = root.querySelector('[data-lr-list]');
-        if (list) list.scrollTop = 0;
-    }
-
-    function sortItems(root, mode) {
-        const list = root.querySelector('[data-lr-list]');
-        if (!list) return;
-        const byTitle = (a, b) => (a.dataset.title || '').localeCompare(b.dataset.title || '');
-        const items = Array.from(list.querySelectorAll('.connection')).sort((a, b) => {
-            if (mode === 'title-asc') return byTitle(a, b);
-            if (mode === 'title-desc') return -byTitle(a, b);
-            // "relationship": cluster by the primary relationship, then by title.
-            const order = parseInt(a.dataset.relOrder || '0', 10) - parseInt(b.dataset.relOrder || '0', 10);
-            return order || byTitle(a, b);
-        });
-        // append() moves nodes, preserving each row's hidden state, so the
-        // active facet survives a re-sort.
-        items.forEach(li => list.append(li));
-    }
-
-    document.addEventListener('click', event => {
-        const button = event.target.closest?.('[data-lr-facet]');
-        const root = button?.closest('.resources-linked');
-        if (!root) return;
-        root.querySelectorAll('[data-lr-facet]').forEach(other => {
-            const on = other === button;
-            other.classList.toggle('is-active', on);
-            other.setAttribute('aria-pressed', on ? 'true' : 'false');
-        });
-        applyFacet(root);
-    });
-
-    document.addEventListener('change', event => {
-        const select = event.target.closest?.('[data-lr-sort]');
-        const root = select?.closest('.resources-linked');
-        if (root) sortItems(root, select.value);
     });
 })();

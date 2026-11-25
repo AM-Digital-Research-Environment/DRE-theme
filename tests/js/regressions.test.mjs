@@ -125,32 +125,13 @@ test('consumed or rejected PWA prompts stay hidden until a fresh event', async (
     d.window.close();
 });
 
-test('linked-resource facets update the pluralised count and sorting preserves visible state', () => {
-    const d = dom(`<details class="resources-linked"><summary><span class="resources-linked__summary"><b data-lr-count>2</b>
-        <span data-lr-label data-one="connection to this record" data-many="connections to this record">connections to this record</span></span></summary>
-        <button data-lr-facet="all" class="is-active">All</button><button data-lr-facet="p1">Author</button>
-        <select data-lr-sort><option value="title-desc">Title</option></select><p data-lr-empty hidden></p>
-        <ul data-lr-list><li class="connection" data-title="alpha" data-props="p1"></li><li class="connection" data-title="beta" data-props="p2"></li></ul></details>`);
-    start(d, 'linked-resources.js');
-    const doc = d.window.document;
-    doc.querySelector('[data-lr-facet=p1]').click();
-    assert.equal(doc.querySelector('[data-lr-count]').textContent, '1');
-    assert.equal(doc.querySelector('[data-lr-label]').textContent, 'connection to this record');
-    assert.equal(doc.querySelector('[data-lr-facet=p1]').getAttribute('aria-pressed'), 'true');
-    doc.querySelector('select').dispatchEvent(new d.window.Event('change', { bubbles: true }));
-    assert.equal(doc.querySelector('li').dataset.title, 'beta');
-    assert.equal(doc.querySelector('li').hidden, true);
-    doc.querySelector('[data-lr-facet=all]').click();
-    assert.equal(doc.querySelector('[data-lr-label]').textContent, 'connections to this record');
-    assert.equal(doc.querySelector('[data-lr-empty]').hidden, true);
-    d.window.close();
-});
-
-test('every data-lr hook the connection script reads is rendered by the partial', () => {
+test('every data-lr and in-block data-connection hook the connection script reads is rendered by the partial', () => {
     const script = source('linked-resources.js');
     const partial = readFileSync(join(root, 'view/common/linked-resources.phtml'), 'utf8');
-    const hooks = new Set([...script.matchAll(/\[(data-lr-[a-z-]+)/g)].map(match => match[1]));
-    assert.ok(hooks.size >= 5, 'the scan found the script hooks');
+    const hooks = new Set([...script.matchAll(/\[(data-(?:lr|connection)-[a-z-]+)/g)].map(match => match[1]))
+        // The block wrapper and its status and recovery controls are the block template's.
+        .difference(new Set(['data-connection-endpoint', 'data-connection-status', 'data-connection-recovery', 'data-connection-retry', 'data-connection-continue']));
+    assert.ok(hooks.size >= 1, 'the scan found the script hooks');
     for (const hook of hooks) assert.ok(partial.includes(hook), `${hook} is used by the script but not rendered`);
 });
 

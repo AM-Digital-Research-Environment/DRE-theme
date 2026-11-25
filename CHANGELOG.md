@@ -11,6 +11,16 @@ to create.
 
 ## [Unreleased]
 
+### Changed
+
+- **Linked resources show the whole linked set, not one page of it.** The block's head said "25 connections on this page" on a subject that hundreds of records link to, and its relationship buttons, counts and "Sort this page" only knew the 25 cards on screen, beside a separate select that filtered everything. Now:
+  - the head gives the total number of linked records, and a status line places the page in it ("Showing 1–25 of 147", "… of 30 matching records", with "Clear filters");
+  - the relationships are counted over the whole set, one grouped `COUNT(DISTINCT)` per resource type (never every edge), and those counted links are the filter, replacing both the page-local buttons and the relationship select;
+  - a second row breaks the set down by kind of record (resource class, "Unclassified" for records without one) and filters by it (`lr_class`); each row is counted within the other's selection and the title search, a relationship the search empties stays listed but unlinked, and lists longer than nine open under "N more";
+  - the title search and the sort (title A–Z or Z–A, recently added; `lr_sort`) act on the whole set on the server before it is paged.
+  
+  Filters are ordinary links and the search a GET form, so everything works without JavaScript; with it the block is swapped in place, its state kept in the address and history, and focus returns to the chosen filter or field. Visibility is still core's builder and `value_visibility` filter, unchanged.
+
 ## [2.52.0] - 2026-11-21
 
 ### Changed

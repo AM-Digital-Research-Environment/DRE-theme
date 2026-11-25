@@ -121,26 +121,19 @@ test('the view toggle keeps keyboard focus and reports the pressed view', async 
     await expect(page.getByRole('button', {name: 'List', exact: true})).not.toBeFocused();
 });
 
-test('in-page links never refetch connections; a new connection page still does', async ({page}) => {
+test('in-page links never refetch connections; a whole-set filter swaps the block in place', async ({page}) => {
     await fixture(page);
+    const filtered = renderFixture('research', 'filtered');
     let requests = 0;
-    await page.route('**/index/linked-resources/**', route => {
+    await page.route(url => url.pathname.endsWith('/index/linked-resources'), route => {
         requests++;
-        return route.fulfill({contentType: 'text/html', body: '<details class="resources-linked" open><summary><span class="resources-linked__summary">Second page</span></summary><ul data-lr-list></ul></details>'});
+        const url = new URL(route.request().url());
+        return route.fulfill({contentType: 'text/html', body: url.searchParams.has('lr_property') ? filtered : html});
     });
-    await page.evaluate(() => document.querySelector('main').insertAdjacentHTML('beforeend', `
-        <a href="#record-42-description">Jump to the description</a>
-        <div data-connection-endpoint="/index/linked-resources/42" data-loading="Loading" data-failed="Failed">
-        <p data-connection-status role="status"></p>
-        <div data-connection-recovery hidden><button type="button" data-connection-retry>Retry</button><a data-connection-continue href="#">Full page</a></div>
-        <details class="resources-linked" id="linked-resources" open><summary><span class="resources-linked__summary">Connections</span></summary>
-        <button type="button" data-lr-facet="all" class="is-active" aria-pressed="true">All</button>
-        <button type="button" data-lr-facet="p1" aria-pressed="false">Authors</button>
-        <ul data-lr-list><li class="connection" data-props="p1">Author record</li><li class="connection" data-props="p2">Editor record</li></ul>
-        <a data-connection-page href="?lr_page=2#linked-resources">Next connections</a></details></div>`));
+    await page.evaluate(() => document.querySelector('main').insertAdjacentHTML('afterbegin', '<a href="#record-42-description">Jump to the description</a>'));
     await page.addScriptTag({path: themeScript('linked-resources')});
-    await page.getByRole('button', {name: 'Authors', exact: true}).click();
-    await expect(page.getByText('Editor record', {exact: true})).toBeHidden();
+    const block = page.locator('.resources-linked');
+    await expect(block.locator('.resources-linked__summary')).toHaveText(/147\s+linked records/);
 
     // Real fragment navigation fires popstate in every engine.
     // The skip link is revealed on focus, as a keyboard user meets it.
@@ -153,33 +146,62 @@ test('in-page links never refetch connections; a new connection page still does'
     await expect(page).toHaveURL(/#record-42-description$/);
     await page.goBack();
     // Back on the bare URL means the popstate handler has run, instead of a
-    // fixed wait. A refetch it started late would still replace the list and
-    // its Next link, so the click and the counts below would fail on it.
+    // fixed wait. A refetch it started late would replace the block.
     await expect(page).not.toHaveURL(/#record-42-description$/);
-    await expect(page.getByText('Editor record', {exact: true})).toBeHidden();
     expect(requests).toBe(0);
 
-    await page.getByRole('link', {name: 'Next connections'}).click();
-    await expect(page.locator('.resources-linked__summary')).toHaveText('Second page');
-    await expect.poll(() => requests).toBe(1);
+    // A relationship is a filter over the whole set: the total stays, the
+    // status places the page in the 30 matching records, focus stays on the
+    // chosen (now current) filter, and the address can be shared.
+    const creator = block.getByRole('link', {name: /^Creator/});
+    await creator.focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('[data-lr-status]')).toContainText('Showing 1–3 of 30 matching records');
+    await expect(page.locator('.resources-linked__summary')).toHaveText(/147\s+linked records/);
+    await expect(page).toHaveURL(/lr_property=items%3A2-0/);
+    await expect(page.locator(':focus')).toHaveAttribute('aria-current', 'true');
+    await expect(page.locator('[data-connection-status]')).toContainText('30 matching records');
+    expect(requests).toBe(1);
+    expect((await new AxeBuilder({page}).include('.resources-linked').withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze()).violations).toEqual([]);
     await page.goBack();
     await expect.poll(() => requests).toBe(2);
+    await expect(page.locator('[data-lr-status]')).toContainText('Showing 1–3 of 147');
 });
 
-// The theme toggle, the grid/list switch and the linked-resources filters and
-// sort only act through their scripts. Without JavaScript (no html.js, which
-// the layout's head script sets) they are not offered.
+test('without JavaScript the whole-set filters, search and sort are ordinary links and a GET form', async ({browser}) => {
+    const filtered = renderFixture('research', 'filtered');
+    const context = await browser.newContext({javaScriptEnabled: false, viewport: {width: 1280, height: 900}});
+    const page = await context.newPage();
+    const seen = [];
+    await routeFixture(page, html, async (url, route) => {
+        if (url.pathname !== '/s/a/item/42' || !url.search) return false;
+        seen.push(url);
+        await route.fulfill({contentType: 'text/html', body: filtered});
+        return true;
+    });
+    await page.goto('https://theme.test/s/a/item/42');
+    await page.locator('.resources-linked').getByRole('link', {name: /^Creator/}).click();
+    await expect(page.locator('[data-lr-status]')).toContainText('Showing 1–3 of 30 matching records');
+    expect(seen.at(-1).searchParams.get('lr_property')).toBe('items:2-0');
+    await page.getByLabel('Search linked records by title').fill('Linked');
+    await page.getByLabel('Sort by').selectOption('title-desc');
+    await page.getByRole('button', {name: 'Apply', exact: true}).click();
+    await expect.poll(() => seen.length).toBe(2);
+    expect(Object.fromEntries(seen[1].searchParams)).toEqual({lr_property: 'items:2-0', lr_q: 'Linked', lr_sort: 'title-desc'});
+    await context.close();
+});
+
+// The theme toggle and the grid/list switch only act through their scripts.
+// Without JavaScript (no html.js, which the layout's head script sets) they are
+// not offered.
 test('controls that need JavaScript are hidden without it and shown with it', async ({browser}) => {
-    const linkedControls = '<div class="resources-linked"><div class="resources-linked__controls">'
-        + '<button type="button" class="lr-facet" data-lr-facet="all" aria-pressed="true">All</button>'
-        + '<select data-lr-sort aria-label="Sort this page"><option>Relationship</option></select></div></div>';
-    const page_ = html.replace('</main>', linkedControls + '</main>');
+    const page_ = html;
     for (const [javaScriptEnabled, markup] of [[false, page_], [true, page_.replace('<html lang="en">', '<html lang="en" class="js">')]]) {
         const context = await browser.newContext({javaScriptEnabled, viewport: {width: 1280, height: 900}});
         const page = await context.newPage();
         await routeFixture(page, markup);
         await page.goto('https://theme.test/s/a/item/42');
-        for (const selector of ['[data-theme-toggle]', '.browse-controls .layout-toggle', '.resources-linked__controls']) {
+        for (const selector of ['[data-theme-toggle]', '.browse-controls .layout-toggle']) {
             if (javaScriptEnabled) await expect(page.locator(selector)).toBeVisible();
             else await expect(page.locator(selector)).toBeHidden();
         }

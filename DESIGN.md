@@ -433,8 +433,10 @@ Record metadata is grouped semantically: Abstract; Description; People and
 roles; Subjects; Origins and context; Rights and access; Identifiers and
 sources; and Further details as a lossless fallback. The apparatus rail owns
 citation styles, DOI, licence, permalink, and copy actions. Linked resources
-merge duplicate records, expose relationship facets, and use a native
-`<details>` disclosure with a dense responsive card grid.
+lead with the total of the whole linked set, count its relationships and kinds
+of record as filter pills over that whole set (never one page), merge duplicate
+records, and use a native `<details>` disclosure with a dense responsive card
+grid.
 
 ### Visualizations and maps
 

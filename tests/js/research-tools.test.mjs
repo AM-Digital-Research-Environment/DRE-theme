@@ -80,6 +80,36 @@ test('modified clicks on connection pages stay the browser’s', () => {
     assert.equal(calls, 0);
     w.close();
 });
+test('whole-set filter links carry kind and sort, announce the result and keep focus on the chosen filter', async () => {
+    const link = '?lr_property=items%3A7-0&lr_class=5&lr_sort=title-desc#linked-resources';
+    const block = current => `<details class="resources-linked"><summary>Connections</summary>
+        <ul class="lr-facets"><li><a data-connection-link href="${link}"${current ? ' aria-current="true"' : ''}>Person</a></li></ul>
+        <form data-connection-form><input type="hidden" name="lr_property" value="items:7-0"><input name="lr_q" id="linked-resources-query" value="">
+        <select name="lr_sort" id="linked-resources-sort"><option value="title" selected>A–Z</option></select><button>Apply</button></form>
+        ${current ? '<p data-lr-status>Showing 1–25 of 40 matching records <a data-connection-link href="?">Clear filters</a></p>' : ''}</details>`;
+    const d = dom(`<div data-connection-endpoint="/index/linked-resources/1" data-loading="Loading" data-failed="Failed">
+        <p data-connection-status role="status"></p>${block(false)}</div>`);
+    const w = d.window, requests = [];
+    w.fetch = async url => { requests.push(new URL(url)); return {ok: true, text: async () => block(true)}; };
+    w.eval(source('utils.js')); w.eval(source('linked-resources.js'));
+    const filter = w.document.querySelector('[data-connection-link]');
+    filter.focus();
+    filter.click(); await tick();
+    assert.equal(requests[0].searchParams.get('lr_class'), '5');
+    assert.equal(requests[0].searchParams.get('lr_sort'), 'title-desc');
+    assert.equal(new URL(w.location.href).searchParams.get('lr_class'), '5');
+    assert.equal(new URL(w.location.href).searchParams.get('view'), 'list');
+    assert.equal(w.document.activeElement.getAttribute('aria-current'), 'true');
+    assert.match(w.document.querySelector('[data-connection-status]').textContent, /^Showing 1–25 of 40 matching records Clear filters$/);
+    // The form leaves the default order and an empty search out of the address
+    // and drops the kind it does not carry; focus returns to the same field.
+    w.document.querySelector('#linked-resources-query').focus();
+    w.document.querySelector('form').dispatchEvent(new w.Event('submit', {bubbles: true, cancelable: true})); await tick();
+    assert.equal(requests[1].searchParams.get('lr_property'), 'items:7-0');
+    for (const key of ['lr_sort', 'lr_q', 'lr_class']) assert.equal(requests[1].searchParams.has(key), false, key);
+    assert.equal(w.document.activeElement.id, 'linked-resources-query');
+    w.close();
+});
 function shortlistFixture() {
     const d=dom(`<button data-shortlist-open hidden>Shortlist <span data-shortlist-count></span></button><button data-shortlist-save data-url="/item/2" data-title="Record &lt;two&gt;" hidden>Save</button>
     <dialog data-shortlist-dialog data-save="Save" data-saved="Saved" data-remove="Remove" data-empty="Empty" data-storage-error="Storage unavailable" data-limit="Full"><button>Close</button><p data-shortlist-status></p><ul data-shortlist-list></ul><select data-shortlist-format><option value="json">JSON</option></select><button data-shortlist-export>Export</button><button data-shortlist-clear>Clear</button><button data-shortlist-undo>Undo</button></dialog>`);

@@ -48,6 +48,16 @@ msgstr ""
 msgid "%s (unavailable)"
 msgstr ""
 
+#: view/common/linked-resources.phtml:60
+msgid "%s matching record"
+msgid_plural "%s matching records"
+msgstr[0] ""
+msgstr[1] ""
+
+#: view/common/linked-resources.phtml:92
+msgid "%s more"
+msgstr ""
+
 #: view/common/pagination.phtml:68
 msgid "0 results"
 msgstr ""
@@ -101,12 +111,15 @@ msgstr ""
 msgid "Africa's foremost music archive"
 msgstr ""
 
-#: helper/LinkedConnections.php:172
-#: view/common/linked-resources.phtml:119
+#: helper/LinkedConnections.php:179
 msgid "All"
 msgstr ""
 
-#: helper/LinkedConnections.php:172
+#: helper/LinkedConnections.php:213
+msgid "All kinds"
+msgstr ""
+
+#: helper/LinkedConnections.php:179
 msgid "All relationships"
 msgstr ""
 
@@ -118,7 +131,7 @@ msgstr ""
 msgid "AMIRA holds the descriptions of this collection only, not the material."
 msgstr ""
 
-#: view/common/linked-resources.phtml:110
+#: view/common/linked-resources.phtml:159
 msgid "Apply"
 msgstr ""
 
@@ -186,6 +199,11 @@ msgstr ""
 msgid "Cite this record"
 msgstr ""
 
+#: view/common/linked-resources.phtml:167
+#: view/common/linked-resources.phtml:211
+msgid "Clear filters"
+msgstr ""
+
 #: view/common/shortlist.phtml:23
 msgid "Clear list"
 msgstr ""
@@ -207,21 +225,9 @@ msgstr ""
 msgid "Collections@UBT, University of Bayreuth"
 msgstr ""
 
-#: view/common/linked-resources.phtml:30
-msgid "connection on this page"
-msgid_plural "connections on this page"
-msgstr[0] ""
-msgstr[1] ""
-
-#: view/common/linked-resources.phtml:188
+#: view/common/linked-resources.phtml:217
 msgid "Connection pages"
 msgstr ""
-
-#: view/common/linked-resources.phtml:31
-msgid "connection to this record"
-msgid_plural "connections to this record"
-msgstr[0] ""
-msgstr[1] ""
 
 #: view/common/resource-page-block-layout/linked-resources.phtml:20
 msgid "Connections could not be loaded."
@@ -352,14 +358,6 @@ msgstr ""
 msgid "Fewer, broader terms cast a wider net."
 msgstr ""
 
-#: view/common/linked-resources.phtml:92
-msgid "Filter all connections by relationship"
-msgstr ""
-
-#: view/common/linked-resources.phtml:117
-msgid "Filter this page by relationship"
-msgstr ""
-
 #: view/common/record-linked-data.phtml:27
 msgid "Formats"
 msgstr ""
@@ -443,7 +441,7 @@ msgid "It comes from %s. The original material is kept elsewhere: the images or 
 msgstr ""
 
 #: view/common/block-layout/item-with-metadata.phtml:62
-#: view/common/linked-resources.phtml:40
+#: view/common/linked-resources.phtml:29
 #: view/omeka/site/index/search.phtml:19
 #: view/omeka/site/item-set/browse.phtml:14
 msgid "Item sets"
@@ -453,12 +451,16 @@ msgstr ""
 msgid "Item: %s"
 msgstr ""
 
-#: view/common/linked-resources.phtml:39
+#: view/common/linked-resources.phtml:28
 #: view/hierarchy/site/index/hierarchy.phtml:80
 #: view/omeka/site/index/search.phtml:18
 #: view/omeka/site/item/browse.phtml:59
 #: view/omeka/site/item/browse.phtml:61
 msgid "Items"
+msgstr ""
+
+#: view/common/linked-resources.phtml:134
+msgid "Kind of record"
 msgstr ""
 
 #: config/amira-pages.php:57
@@ -482,8 +484,14 @@ msgstr ""
 msgid "Linked data"
 msgstr ""
 
-#: view/common/linked-resources.phtml:70
-#: view/common/linked-resources.phtml:75
+#: view/common/linked-resources.phtml:110
+msgid "linked record"
+msgid_plural "linked records"
+msgstr[0] ""
+msgstr[1] ""
+
+#: view/common/linked-resources.phtml:102
+#: view/common/linked-resources.phtml:107
 msgid "Linked resources"
 msgstr ""
 
@@ -507,7 +515,7 @@ msgstr ""
 msgid "Machine-generated"
 msgstr ""
 
-#: view/common/linked-resources.phtml:41
+#: view/common/linked-resources.phtml:30
 #: view/common/resource-page-block-layout/media-list.phtml:8
 #: view/omeka/site/index/search.phtml:20
 msgid "Media"
@@ -553,14 +561,10 @@ msgstr ""
 msgid "Names may appear transliterated — try a variant spelling."
 msgstr ""
 
-#: view/common/linked-resources.phtml:191
+#: view/common/linked-resources.phtml:220
 #: view/common/pagination.phtml:59
 #: view/common/pagination.phtml:61
 msgid "Next"
-msgstr ""
-
-#: view/common/linked-resources.phtml:185
-msgid "No connections match this filter."
 msgstr ""
 
 #: view/omeka/site/item-set/browse.phtml:35
@@ -573,6 +577,10 @@ msgstr ""
 
 #: view/common/search-empty.phtml:37
 msgid "No items match the current filters."
+msgstr ""
+
+#: view/common/linked-resources.phtml:209
+msgid "No linked records match these filters."
 msgstr ""
 
 #: view/omeka/site/page/browse.phtml:27
@@ -661,7 +669,7 @@ msgstr ""
 msgid "Page"
 msgstr ""
 
-#: view/common/linked-resources.phtml:190
+#: view/common/linked-resources.phtml:219
 msgid "Page %1$s of %2$s"
 msgstr ""
 
@@ -719,7 +727,7 @@ msgstr ""
 msgid "Podcasts"
 msgstr ""
 
-#: view/common/linked-resources.phtml:189
+#: view/common/linked-resources.phtml:218
 #: view/common/pagination.phtml:30
 #: view/common/pagination.phtml:33
 msgid "Previous"
@@ -796,6 +804,10 @@ msgstr ""
 msgid "Reason: %s"
 msgstr ""
 
+#: view/common/linked-resources.phtml:154
+msgid "Recently added"
+msgstr ""
+
 #: helper/RecordAccess.php:182
 msgid "Record: %s"
 msgstr ""
@@ -808,7 +820,7 @@ msgstr ""
 msgid "Records grouped by meaning"
 msgstr ""
 
-#: view/common/linked-resources.phtml:135
+#: view/common/linked-resources.phtml:122
 msgid "Relationship"
 msgstr ""
 
@@ -868,10 +880,6 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-#: view/common/linked-resources.phtml:107
-msgid "Search all connections by title"
-msgstr ""
-
 #: view/common/dre-search-redirect.phtml:64
 msgid "Search is temporarily unavailable."
 msgstr ""
@@ -881,6 +889,10 @@ msgid "Search its %s record"
 msgid_plural "Search its %s records"
 msgstr[0] ""
 msgstr[1] ""
+
+#: view/common/linked-resources.phtml:148
+msgid "Search linked records by title"
+msgstr ""
 
 #: view/common/banner.phtml:109
 msgid "Search records, people, places, subjects…"
@@ -918,12 +930,24 @@ msgstr ""
 msgid "Seconds"
 msgstr ""
 
-#: view/common/linked-resources.phtml:95
+#: helper/LinkedConnections.php:222
+msgid "Selected kind of record"
+msgstr ""
+
+#: helper/LinkedConnections.php:194
 msgid "Selected relationship"
 msgstr ""
 
 #: view/common/header.phtml:128
 msgid "Show submenu for “%s”"
+msgstr ""
+
+#: view/common/linked-resources.phtml:59
+msgid "Showing %1$s–%2$s of %3$s"
+msgstr ""
+
+#: view/common/linked-resources.phtml:58
+msgid "Showing %1$s–%2$s of %3$s matching records"
 msgstr ""
 
 #: view/omeka/site/index/search.phtml:17
@@ -943,8 +967,8 @@ msgstr ""
 msgid "Something went wrong"
 msgstr ""
 
-#: view/common/linked-resources.phtml:133
-msgid "Sort this page"
+#: view/common/linked-resources.phtml:152
+msgid "Sort by"
 msgstr ""
 
 #: config/amira-pages.php:38
@@ -1058,11 +1082,11 @@ msgstr ""
 msgid "Time"
 msgstr ""
 
-#: view/common/linked-resources.phtml:136
+#: view/common/linked-resources.phtml:154
 msgid "Title (A–Z)"
 msgstr ""
 
-#: view/common/linked-resources.phtml:137
+#: view/common/linked-resources.phtml:154
 msgid "Title (Z–A)"
 msgstr ""
 
@@ -1080,6 +1104,10 @@ msgstr ""
 
 #: view/common/resource-page-block-layout/linked-resources.phtml:33
 msgid "Try again"
+msgstr ""
+
+#: helper/LinkedConnections.php:220
+msgid "Unclassified"
 msgstr ""
 
 #: view/common/shortlist.phtml:24

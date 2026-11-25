@@ -10,7 +10,14 @@ foreach (['items:', 'items:7', 'items:7-', 'items:7-0', 'items:7-234,345', 'medi
 }
 foreach ([[], ['items:'], null, 'item_sets:7', 'items:0', 'items:7--', 'media:7-0,', "items:7\n"] as $invalid) {
     $state = $v->ConnectionQuery(['lr_property' => $invalid, 'lr_page' => [], 'lr_q' => []]);
-    dre_check($failures, $checks, 'rejects malformed state ' . json_encode($invalid), $state === ['property' => null, 'page' => 1, 'search' => '']);
+    dre_check($failures, $checks, 'rejects malformed state ' . json_encode($invalid), $state === ['property' => null, 'page' => 1, 'search' => '', 'class' => null, 'sort' => 'title']);
+}
+foreach (['0' => 0, '12' => 12, '' => null, '-1' => null, '01' => null, '1e3' => null, '12345678901' => null] as $class => $expected) {
+    dre_check($failures, $checks, 'kind of record ' . json_encode((string) $class), $v->ConnectionQuery(['lr_class' => (string) $class])['class'] === $expected);
+}
+dre_check($failures, $checks, 'kind of record must be a string', $v->ConnectionQuery(['lr_class' => [3]])['class'] === null);
+foreach (['title' => 'title', 'title-desc' => 'title-desc', 'newest' => 'newest', 'relationship' => 'title', '' => 'title'] as $sort => $expected) {
+    dre_check($failures, $checks, 'sort ' . json_encode((string) $sort), $v->ConnectionQuery(['lr_sort' => (string) $sort])['sort'] === $expected);
 }
 $a = new ThemeTestResource('A', 1); $b = new ThemeTestResource('B', 2);
 $row = fn($id, $label, $resource) => ['property_id' => $id, 'property_label' => 'Base', 'property_alternate_label' => $label, 'resource' => $resource];
@@ -88,18 +95,48 @@ dre_check($failures, $checks, 'viewer errors have a usable recovery message with
 $v->settings = [];
 $v->callbacks['thumbnail'] = fn() => '';
 $compound = 'items:7-0,234';
-$data = ['subjectValues' => [[$row(7, 'Author', $a)]], 'totalCount' => 2, 'page' => 1, 'perPage' => 1,
-    'resourceType' => 'items', 'resourceProperty' => $compound, 'resourcePropertiesAll' => ['items' => [['compound_id' => $compound, 'label' => 'Author', 'label_is_translatable' => false]], 'media' => []], 'objectResource' => $a, 'connectionSearch' => 'A'];
+$data = ['subjectValues' => [[$row(7, 'Author', $a)]], 'totalCount' => 2, 'setTotal' => 40, 'typeTotals' => ['items' => 2, 'media' => 0], 'page' => 1, 'perPage' => 1,
+    'resourceType' => 'items', 'resourceProperty' => $compound, 'resourcePropertiesAll' => ['items' => [
+        ['compound_id' => $compound, 'label' => 'Author', 'label_is_translatable' => false, 'property_id' => 7, 'count' => 30, 'matched' => 2],
+        ['compound_id' => 'items:8-0', 'label' => 'Editor', 'label_is_translatable' => false, 'property_id' => 8, 'count' => 10, 'matched' => 0]], 'media' => []],
+    'resourceClasses' => [['id' => 5, 'label' => 'person', 'count' => 1], ['id' => 0, 'label' => '', 'count' => 1]], 'resourceClass' => null, 'sort' => 'title-desc',
+    'objectResource' => $a, 'connectionSearch' => 'A'];
 $v->callbacks['ConnectionPage'] = fn() => $data;
 $html = $v->render('omeka/site/index/linked-resources', ['resource' => $a]);
-$doc = new DOMDocument(); @$doc->loadHTML($html); $xp = new DOMXPath($doc);
-dre_check($failures, $checks, 'terminal response retains the actual compound selection', $xp->query('//option[@selected][@value="items:7-0,234"]')->length === 1);
-dre_check($failures, $checks, 'ordinary continuation links carry search, relationship and page', str_contains($html, 'lr_property=items%3A7-0%2C234&amp;lr_q=A&amp;lr_page=2'));
+$doc = new DOMDocument(); @$doc->loadHTML('<?xml encoding="utf-8"?>' . $html); $xp = new DOMXPath($doc);
+$text = fn($node) => trim(preg_replace('/\s+/u', ' ', $node->textContent));
+dre_check($failures, $checks, 'the head leads with the whole linked set, not the page',
+    $text($xp->query('//*[contains(@class,"resources-linked__summary")]')->item(0)) === '40 linked records');
+dre_check($failures, $checks, 'the status line places the page within the matching records',
+    str_contains($text($xp->query('//*[@data-lr-status]')->item(0)), 'Showing 1–1 of 2 matching records') && $xp->query('//*[@data-lr-status]//a[@data-connection-link][.="Clear filters"]')->length === 1);
+dre_check($failures, $checks, 'the selected relationship is the current filter link, with its whole-set count',
+    $xp->query('//a[@aria-current="true"][contains(@class,"lr-facet")][contains(.,"Author")][contains(.,"2")]')->length === 1);
+dre_check($failures, $checks, 'a relationship the search empties is listed but not linked',
+    $xp->query('//span[contains(@class,"is-empty")][contains(.,"Editor")]')->length === 1 && $xp->query('//a[contains(.,"Editor")]')->length === 0);
+dre_check($failures, $checks, 'filter links keep the search and sort and return to the first page',
+    $xp->query('//a[contains(.,"All relationships")][@href="/s/a/item/1?lr_property=items%3A&lr_q=A&lr_sort=title-desc#linked-resources"]')->length === 1);
+dre_check($failures, $checks, 'kinds of record are capitalised and counted, the unclassed named',
+    $xp->query('//a[contains(@class,"lr-facet")][contains(.,"Person")][contains(@href,"lr_class=5")]')->length === 1
+    && $xp->query('//a[contains(@class,"lr-facet")][contains(.,"Unclassified")][contains(@href,"lr_class=0")]')->length === 1
+    && $xp->query('//a[@aria-current="true"][contains(.,"All kinds")][contains(.,"2")]')->length === 1);
+dre_check($failures, $checks, 'the search form carries the relationship and the chosen sort',
+    $xp->query('//form[@data-connection-form]//input[@type="hidden"][@name="lr_property"][@value="items:7-0,234"]')->length === 1
+    && $xp->query('//select[@name="lr_sort"]/option[@selected][@value="title-desc"]')->length === 1);
+dre_check($failures, $checks, 'ordinary continuation links carry search, relationship, sort and page', str_contains($html, 'lr_property=items%3A7-0%2C234&amp;lr_q=A&amp;lr_sort=title-desc&amp;lr_page=2'));
 dre_check($failures, $checks, 'connection paging links are rel=nofollow', (bool) preg_match('/<a data-connection-page rel="nofollow" href="[^"]*lr_page=2/', $html));
-dre_check($failures, $checks, 'a single resource type gets no optgroup heading', $xp->query('//optgroup')->length === 0 && $xp->query('//option[@value="items:"][.="All relationships"]')->length === 1);
-$v->callbacks['ConnectionPage'] = fn() => ['totalCount' => 1, 'perPage' => 25, 'resourceProperty' => 'items:', 'connectionSearch' => ''] + $data;
+dre_check($failures, $checks, 'a single resource type gets no type heading', $xp->query('//*[contains(@class,"resources-linked__facet-type")]')->length === 0);
+$v->callbacks['ConnectionPage'] = fn() => ['resourceProperty' => 'items:7', 'resourceClass' => 99, 'resourceClasses' => [['id' => 99, 'label' => '', 'count' => 0]], 'subjectValues' => [], 'totalCount' => 0] + $data;
 $html = $v->render('omeka/site/index/linked-resources', ['resource' => $a]);
-dre_check($failures, $checks, 'a lone unfiltered connection renders no server filter', str_contains($html, 'connection__title') && !str_contains($html, 'data-connection-form'));
+$doc = new DOMDocument(); @$doc->loadHTML('<?xml encoding="utf-8"?>' . $html); $xp = new DOMXPath($doc);
+dre_check($failures, $checks, 'an unknown relationship or kind in the URL stays current and undoable',
+    $xp->query('//a[@aria-current="true"][contains(.,"Selected relationship")]')->length === 1
+    && $xp->query('//a[@aria-current="true"][contains(.,"Selected kind of record")]')->length === 1
+    && $xp->query('//p[contains(@class,"connections__empty")]//a[.="Clear filters"]')->length === 1);
+$v->callbacks['ConnectionPage'] = fn() => ['totalCount' => 1, 'setTotal' => 1, 'perPage' => 25, 'resourceProperty' => 'items:', 'connectionSearch' => '',
+    'resourceClasses' => [['id' => 5, 'label' => 'person', 'count' => 1]], 'resourcePropertiesAll' => ['items' => [$data['resourcePropertiesAll']['items'][0]], 'media' => []]] + $data;
+$html = $v->render('omeka/site/index/linked-resources', ['resource' => $a]);
+dre_check($failures, $checks, 'a lone unfiltered connection renders no filters, search or status', str_contains($html, 'connection__title')
+    && !str_contains($html, 'data-connection-form') && !str_contains($html, 'lr-facet') && !str_contains($html, 'data-lr-status') && (bool) preg_match('#<b>1</b>\s*linked record\s*<#', $html));
 $v->callbacks['ConnectionPage'] = fn() => $data;
 $html = $v->render('common/resource-page-block-layout/linked-resources', ['resource' => $a]);
 dre_check($failures, $checks, 'initial connection records are server rendered with enhancement recovery controls', str_contains($html, 'connection__title') && str_contains($html, 'data-connection-retry'));

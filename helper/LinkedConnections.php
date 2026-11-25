@@ -3,13 +3,14 @@ namespace OmekaTheme\Helper;
 use Laminas\View\Helper\AbstractHelper;
 
 require_once __DIR__ . '/ValueReader.php';
+require_once __DIR__ . '/ConnectionQuery.php';
 
 /**
  * Normalize one bounded page of subject values into distinct connection cards,
- * and the labels common/linked-resources.phtml shows around them.
+ * and the whole-set filters common/linked-resources.phtml shows around them.
  *
  * @phpstan-type Facet array{id: string, propertyId: int, label: string, count: int, groupOrder: int}
- * @phpstan-type FilterOption array{value: string, label: string, selected: bool}
+ * @phpstan-type FilterLink array{label: string, count: int, url: string, current: bool}
  */
 final class LinkedConnections extends AbstractHelper
 {
@@ -68,8 +69,8 @@ final class LinkedConnections extends AbstractHelper
             }
         }
 
-        // Rank relationships by frequency (most-connected first), ties by server
-        // order. Both the facet pills and the "relationship" sort follow this rank.
+        // Rank this page's relationships by frequency (most-connected first),
+        // ties by server order: a card lists its relationships in this order.
         $ranked = $facets;
         usort($ranked, function ($a, $b) {
             return ($b['count'] <=> $a['count']) ?: ($a['groupOrder'] <=> $b['groupOrder']);
@@ -79,24 +80,14 @@ final class LinkedConnections extends AbstractHelper
             $rankById[$facet['id']] = $i;
         }
 
-        // Give each record a sort key (its highest-ranked relationship) and order its
-        // own relationship chips by rank.
+        // Order each record's own relationship chips by rank. The records keep
+        // the order they came in: the whole set was sorted on the server.
         foreach ($connections as &$c) {
-            $ranks = array_map(function ($id) use ($rankById) {
-                return $rankById[$id];
-            }, $c['relIds']);
+            $ranks = array_map(fn($id) => $rankById[$id], $c['relIds']);
             $c['relOrder'] = $ranks ? min($ranks) : 0;
-            usort($c['rels'], function ($a, $b) use ($rankById) {
-                return $rankById[$a['id']] <=> $rankById[$b['id']];
-            });
+            usort($c['rels'], fn($a, $b) => $rankById[$a['id']] <=> $rankById[$b['id']]);
         }
         unset($c);
-
-        // Default render order = the "relationship" sort (rank, then title), so the
-        // JS sort is a no-op on load and there is no reflow.
-        uasort($connections, function ($a, $b) {
-            return ($a['relOrder'] <=> $b['relOrder']) ?: strcasecmp($a['heading'], $b['heading']);
-        });
 
         return ['connections' => $connections, 'facets' => $facets, 'ranked' => $ranked];
     }
@@ -140,45 +131,110 @@ final class LinkedConnections extends AbstractHelper
         if (!$class) {
             return '';
         }
-        $label = (string) $this->getView()->translate($class->label());
-        return mb_strtoupper(mb_substr($label, 0, 1)) . mb_substr($label, 1);
+        return $this->capitalise((string) $this->getView()->translate($class->label()));
     }
 
     /**
-     * The options of the "Filter all connections by relationship" select:
-     * per resource type that links here, "All" then each relationship, grouped
-     * under the type only when more than one type links here. A relationship
-     * the URL names but no longer offers stays selectable as `unknown`, so the
-     * form does not silently switch filter.
+     * A link to the block in another state: the record's URL with the
+     * connection parameters, defaults and empty values left out, back on the
+     * first page unless a page is given.
      *
-     * @param array<string, list<array{compound_id: string, label: string, label_is_translatable?: bool}>> $propertiesByType
-     * @param list<string> $types the resource types with values, in order
-     * @param array<string, string> $typeLabels translated, keyed by type
-     * @return array{unknown: string|null, groups: list<array{label: string|null, options: list<FilterOption>}>}
+     * @param array{property: string, class: int|null, search: string, sort: string, page?: int} $state
      */
-    public function filterOptions(string $resourceType, string $selected, array $propertiesByType, array $types, array $typeLabels): array
+    public static function stateUrl(string $baseUrl, array $state): string
+    {
+        $query = array_filter([
+            'lr_property' => $state['property'],
+            'lr_class' => $state['class'] === null ? null : (string) $state['class'],
+            'lr_q' => $state['search'],
+            'lr_sort' => $state['sort'] === ConnectionQuery::SORTS[0] ? null : $state['sort'],
+            'lr_page' => ($state['page'] ?? 1) > 1 ? (string) $state['page'] : null,
+        ], fn($value) => $value !== null && $value !== '');
+        return $baseUrl . ($query ? '?' . http_build_query($query) : '') . '#linked-resources';
+    }
+
+    /**
+     * The relationship filters: per resource type that links here, "All" then
+     * each relationship, counted over the whole linked set (within the search
+     * and kind of record), most-linked first. Types get a heading only when
+     * both link here. A relationship the URL names but no longer offers is
+     * shown as the current one, so the block never silently switches filter.
+     *
+     * @param array<string, list<array{compound_id: string, label: string, label_is_translatable?: bool, matched: int}>> $propertiesByType
+     * @param array<string, int> $typeTotals
+     * @param array<string, string> $typeLabels translated, keyed by type
+     * @param array{property: string, class: int|null, search: string, sort: string} $state
+     * @return list<array{label: string|null, links: list<FilterLink>}>
+     */
+    public function relationshipFilters(string $baseUrl, array $state, int $selectedCount, array $propertiesByType, array $typeTotals, array $typeLabels): array
     {
         $translate = $this->getView()->plugin('translate');
-        $known = [$resourceType . ':'];
-        foreach ($propertiesByType as $options) {
-            foreach ($options as $option) {
-                $known[] = $option['compound_id'];
-            }
-        }
+        $types = array_keys(array_filter($propertiesByType));
         $grouped = count($types) > 1;
+        $known = false;
         $groups = [];
         foreach ($types as $type) {
-            $all = $type . ':';
-            $options = [['value' => $all, 'label' => $grouped ? $translate('All') : $translate('All relationships'), 'selected' => $selected === $all]];
-            foreach ($propertiesByType[$type] ?? [] as $option) {
-                $options[] = [
-                    'value' => $option['compound_id'],
-                    'label' => !empty($option['label_is_translatable']) ? $translate($option['label']) : $option['label'],
-                    'selected' => $selected === $option['compound_id'],
+            $links = [];
+            // Literal msgids, so the extractor finds them.
+            $all = ['compound_id' => $type . ':', 'label' => (string) ($grouped ? $translate('All') : $translate('All relationships')),
+                'label_is_translatable' => false, 'matched' => $typeTotals[$type] ?? 0];
+            foreach (array_merge([$all], $propertiesByType[$type]) as $option) {
+                $current = $state['property'] === $option['compound_id'];
+                $known = $known || $current;
+                $links[] = [
+                    'label' => !empty($option['label_is_translatable']) ? (string) $translate($option['label']) : $option['label'],
+                    'count' => $option['matched'],
+                    'url' => self::stateUrl($baseUrl, ['property' => $option['compound_id']] + $state),
+                    'current' => $current,
                 ];
             }
-            $groups[] = ['label' => $grouped ? ($typeLabels[$type] ?? $type) : null, 'options' => $options];
+            $groups[] = ['label' => $grouped ? ($typeLabels[$type] ?? $type) : null, 'links' => $links];
         }
-        return ['unknown' => in_array($selected, $known, true) ? null : $selected, 'groups' => $groups];
+        if (!$known && $groups) {
+            array_unshift($groups[0]['links'], ['label' => (string) $translate('Selected relationship'), 'count' => $selectedCount,
+                'url' => self::stateUrl($baseUrl, $state), 'current' => true]);
+        }
+        return $groups;
+    }
+
+    /**
+     * The kind-of-record filters: "All kinds", then each resource class among
+     * the records the relationship and search select, most frequent first.
+     * Each record has one class (or none), so the counts add up to "All kinds".
+     *
+     * @param list<array{id: int, label: string, count: int}> $classes
+     * @param array{property: string, class: int|null, search: string, sort: string} $state
+     * @return list<FilterLink>
+     */
+    public function kindFilters(string $baseUrl, array $state, array $classes): array
+    {
+        $translate = $this->getView()->plugin('translate');
+        $links = [[
+            'label' => (string) $translate('All kinds'),
+            'count' => array_sum(array_column($classes, 'count')),
+            'url' => self::stateUrl($baseUrl, ['class' => null] + $state),
+            'current' => $state['class'] === null,
+        ]];
+        foreach ($classes as $class) {
+            if ($class['id'] === 0) {
+                $label = (string) $translate('Unclassified');
+            } elseif ($class['label'] === '') {
+                $label = (string) $translate('Selected kind of record');
+            } else {
+                $label = $this->capitalise((string) $translate($class['label']));
+            }
+            $links[] = [
+                'label' => $label,
+                'count' => $class['count'],
+                'url' => self::stateUrl($baseUrl, ['class' => $class['id']] + $state),
+                'current' => $state['class'] === $class['id'],
+            ];
+        }
+        return $links;
+    }
+
+    private function capitalise(string $label): string
+    {
+        return mb_strtoupper(mb_substr($label, 0, 1)) . mb_substr($label, 1);
     }
 }

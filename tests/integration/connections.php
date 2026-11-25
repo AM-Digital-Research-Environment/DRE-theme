@@ -78,6 +78,10 @@ for ($i = 0; $i < 1000; ++$i) $edge($a);
 $b = $item('Beta'); $b->setResourceTemplate($templates[1][0]); $edge($b);
 $c = $item('Gamma'); $edge($c);
 $edge($item('Excluded site', false)); $edge($item('Private record', true, false)); $edge($item('Private edge'), false);
+// Two kinds of record and the unclassed; Gamma is the newest.
+$textClass = new Omeka\Entity\ResourceClass(); $textClass->setVocabulary($vocabulary); $textClass->setLocalName('Text'); $textClass->setLabel('Text'); $em->persist($textClass);
+$a->setResourceClass($textClass); $b->setResourceClass($textClass);
+$a->setCreated(new DateTime('2020-01-01')); $b->setCreated(new DateTime('2021-01-01')); $c->setCreated(new DateTime('2022-01-01'));
 $media = new Omeka\Entity\Media(); $media->setItem($a); $media->setTitle('Media Alpha'); $media->setCreated(new DateTime()); $media->setIngester('url'); $media->setRenderer('file'); $media->setData([]); $media->setResourceTemplate($templates[0][0]); $em->persist($media); $edge($media);
 $em->flush();
 
@@ -122,6 +126,30 @@ $empty = $helper($resource, ['lr_q' => 'Not present']);
 dre_check($failures, $checks, 'empty searches preserve the available relationship controls', $empty['totalCount'] === 0 && count($empty['resourcePropertiesAll']['items']) === 3 && !$empty['subjectValues']);
 $mediaPage = $helper($resource, ['lr_property' => 'media:' . $property->getId() . '-0,' . $templates[0][1]->getId()]);
 dre_check($failures, $checks, 'media compound filters retain their resource type and template constraints', $mediaPage['resourceType'] === 'media' && $mediaPage['totalCount'] === 1 && $mediaPage['subjectValues'][0][0]['resource_id'] === $media->getId());
+$group = fn($result, $label) => array_values(array_filter($result['resourcePropertiesAll']['items'], fn($g) => $g['label'] === $label))[0] ?? null;
+dre_check($failures, $checks, 'the whole set is counted once per record, per type and per relationship',
+    $all['setTotal'] === 4 && $all['typeTotals'] === ['items' => 3, 'media' => 1]
+    && $group($all, 'Author')['count'] === 1 && $group($all, 'Editor')['count'] === 1 && $group($all, 'Related')['count'] === 1
+    && count($all['resourcePropertiesAll']['media']) === 1 && $all['resourcePropertiesAll']['media'][0]['count'] === 1);
+dre_check($failures, $checks, 'kinds of record are counted over the whole selection, the unclassed as kind 0',
+    array_map(fn($k) => [$k['id'], $k['count']], $all['resourceClasses']) === [[$textClass->getId(), 2], [0, 1]]);
+$search = $helper($resource, ['lr_q' => 'beta']);
+dre_check($failures, $checks, 'a search narrows the relationship counts but keeps every relationship and the set total',
+    $search['setTotal'] === 4 && $search['typeTotals']['items'] === 1 && count($search['resourcePropertiesAll']['items']) === 3
+    && $group($search, 'Editor')['matched'] === 1 && $group($search, 'Editor')['count'] === 1 && $group($search, 'Author')['matched'] === 0
+    && $search['resourcePropertiesAll']['items'][0]['label'] === 'Editor');
+$kind = $helper($resource, ['lr_class' => (string) $textClass->getId()]);
+dre_check($failures, $checks, 'a kind of record filters the whole set and narrows the relationship counts, not its own',
+    $kind['totalCount'] === 2 && $kind['resourceClass'] === $textClass->getId() && $group($kind, 'Related')['matched'] === 0
+    && $group($kind, 'Author')['matched'] === 1 && array_column($kind['resourceClasses'], 'count') === [2, 1]);
+$unclassed = $helper($resource, ['lr_class' => '0']);
+dre_check($failures, $checks, 'kind 0 selects the records without a class', $unclassed['totalCount'] === 1 && $unclassed['subjectValues'][0][0]['resource_id'] === $c->getId());
+$kindAndRelationship = $helper($resource, ['lr_class' => (string) $textClass->getId(), 'lr_property' => 'items:' . $property->getId() . '-0']);
+dre_check($failures, $checks, 'a selected kind with no match stays listed at zero',
+    $kindAndRelationship['totalCount'] === 0 && in_array([$textClass->getId(), 0], array_map(fn($k) => [$k['id'], $k['count']], $kindAndRelationship['resourceClasses']), true));
+$first = fn($sort) => $helper($resource, ['lr_sort' => $sort])['subjectValues'][0][0]['resource_id'];
+dre_check($failures, $checks, 'the whole set is sorted before it is paged',
+    $first('title') === $a->getId() && $first('title-desc') === $c->getId() && $first('newest') === $c->getId() && $first('bogus') === $a->getId());
 $rawSelector = $adapter->getSubjectValuesQueryBuilder($target, null, 'items', $site->getId())->join('value.property', 'property')->select(['property.id property_id', 'resource_template_property.id template_id']);
 $rawRows = count($rawSelector->getQuery()->getArrayResult());
 $distinctRows = count($rawSelector->distinct()->getQuery()->getArrayResult());
@@ -134,5 +162,5 @@ echo "Selector fixture: $rawRows edge rows → $distinctRows distinct rows; reco
 $acl->viewAll = true;
 foreach (['resource_visibility', 'value_visibility'] as $name) $em->getFilters()->getFilter($name)->setParameter('dre_test_identity', 'curator');
 $curator = $helper($resource);
-dre_check($failures, $checks, 'a curator also sees private links, as in core, still site scoped', $curator['totalCount'] === 5);
+dre_check($failures, $checks, 'a curator also sees private links, as in core, still site scoped', $curator['totalCount'] === 5 && $curator['setTotal'] === 6);
 dre_report('OmekaConnections', $failures, $checks);

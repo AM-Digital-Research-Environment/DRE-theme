@@ -1,67 +1,99 @@
 <?php
-// Shared server-rendered connection page. Local facets/sorting refine this page;
-// the GET form searches the entire bounded, authorized relationship result set.
+// Shared server-rendered connection page. Everything here acts on the whole,
+// authorised linked set: the total leads, the relationship and kind-of-record
+// filters are counted over it (helper/ConnectionPage.php), and the search and
+// sort reorder it before it is paged. The filters are links and the search a
+// GET form, so all of it works without JavaScript; linked-resources.js only
+// swaps the <details> in place.
 
 $escape     = $this->plugin('escapeHtml');
 $escapeAttr = $this->plugin('escapeHtmlAttr');
 $translate  = $this->plugin('translate');
 $formatNumber = $this->plugin('FormatNumber');
+$translateFormat = $this->TranslateFormat();
 $connectionsHelper = $this->plugin('LinkedConnections');
 
 $valueLang = $this->ValueReader()->valueLang();
 $headingTerm = $this->siteSetting('browse_heading_property_term');
 
-// Pagination (only used when the linked set spans more than one page).
 $fragment = 'linked-resources';
 $isPaginated = $totalCount > $perPage;
 
-// --- Merge the per-property groups into one list, keyed by connected record.
+// --- Merge the page's per-property rows into one card per connected record.
 //     A record linked through several properties (e.g. author *and* editor)
-//     appears once, carrying every relationship. Facet counts are per
-//     relationship, so they may sum to more than the unique record count. ---
-['connections' => $connections, 'facets' => $facets, 'ranked' => $ranked] = $connectionsHelper($subjectValues, $headingTerm, $valueLang);
+//     appears once, carrying every relationship. ---
+['connections' => $connections] = $connectionsHelper($subjectValues, $headingTerm, $valueLang);
 
-$uniqueCount = count($connections);
-// The summary noun follows the visible count; the facet filter swaps between
-// the one/many forms client-side as the count changes.
-$translatePlural = $this->plugin('translatePlural');
-$summaryLabel = function (int $count) use ($translatePlural, $isPaginated): string {
-    return $isPaginated
-        ? $translatePlural('connection on this page', 'connections on this page', $count)
-        : $translatePlural('connection to this record', 'connections to this record', $count);
-};
-$hasFacets   = count($facets) > 1;
-$showSort    = $uniqueCount > 1;
-$showControls = $hasFacets || $showSort;
-
-// Resource-type switch (only when more than one type links here).
 $typeLabels = [
     'items'     => $translate('Items'),
     'item_sets' => $translate('Item sets'),
     'media'     => $translate('Media'),
 ];
-$typesWithValues = [];
-// Item sets are never surfaced as linked resources (the public site has no
-// styled item-set page), so they are never offered as a switchable type either.
-// Keep in sync with the resource-type guard in
-// view/omeka/site/index/linked-resources.phtml.
-foreach (['items', 'media'] as $type) {
-    if (!empty($resourcePropertiesAll[$type])) {
-        $typesWithValues[] = $type;
-    }
-}
 $baseUrl = $objectResource->url();
 $connectionSearch = $connectionSearch ?? '';
-$pageUrl = function (int $number) use ($baseUrl, $resourceProperty, $connectionSearch, $fragment) {
-    return $baseUrl . '?' . http_build_query(['lr_property' => $resourceProperty, 'lr_q' => $connectionSearch, 'lr_page' => $number]) . '#' . $fragment;
+$setTotal = $setTotal ?? $totalCount;
+$state = ['property' => $resourceProperty, 'class' => $resourceClass ?? null, 'search' => $connectionSearch, 'sort' => $sort ?? 'title'];
+$pageUrl = fn(int $number) => $connectionsHelper::stateUrl($baseUrl, ['page' => $number] + $state);
+
+// Item sets are never surfaced as linked resources (the public site has no
+// styled item-set page), so they are never offered as a type either. Keep in
+// sync with the resource types ConnectionPage counts.
+$relationshipFilters = $connectionsHelper->relationshipFilters($baseUrl, $state, $totalCount,
+    array_intersect_key($resourcePropertiesAll, ['items' => true, 'media' => true]), $typeTotals ?? [], $typeLabels);
+$kindFilters = $connectionsHelper->kindFilters($baseUrl, $state, $resourceClasses ?? []);
+
+$narrowed = $resourceProperty !== $resourceType . ':' || $state['class'] !== null || $connectionSearch !== '';
+$clearUrl = $connectionsHelper::stateUrl($baseUrl, ['property' => '', 'class' => null, 'search' => '', 'sort' => $state['sort']]);
+// A filter earns its place when it divides the set (more than "All" and one
+// choice) or is in use and must stay undoable.
+$relationshipLinks = array_merge(...array_column($relationshipFilters, 'links'));
+$showRelationships = count($relationshipLinks) > 2 || $resourceProperty !== $resourceType . ':';
+$showKinds = count($kindFilters) > 2 || $state['class'] !== null;
+$showSearch = $setTotal > 1 || $connectionSearch !== '';
+
+if ($totalCount && ($isPaginated || $narrowed)) {
+    $first = $formatNumber(($page - 1) * $perPage + 1);
+    $last = $formatNumber(min($page * $perPage, $totalCount));
+    $status = match (true) {
+        $isPaginated && $narrowed => $translateFormat->translate('Showing %1$s–%2$s of %3$s matching records', $first, $last, $formatNumber($totalCount)),
+        $isPaginated => $translateFormat->translate('Showing %1$s–%2$s of %3$s', $first, $last, $formatNumber($totalCount)),
+        default => $translateFormat->translatePlural('%s matching record', '%s matching records', $totalCount, $formatNumber($totalCount)),
+    };
+} else {
+    $status = '';
+}
+
+// One filter list: the first $visible links, then the rest behind a native
+// disclosure (the current link always stays in view).
+$renderFilters = function (array $links, string $labelledBy) use ($escape, $escapeAttr, $formatNumber, $translateFormat): string {
+    $visible = 9;
+    $render = function (array $link) use ($escape, $escapeAttr, $formatNumber): string {
+        $inner = '<span class="lr-facet__label">' . $escape($link['label']) . '</span>'
+            . '<span class="lr-facet__count">' . $escape($formatNumber($link['count'])) . '</span>';
+        if ($link['current']) {
+            return '<li><a class="lr-facet is-active" data-connection-link rel="nofollow" aria-current="true" href="' . $escapeAttr($link['url']) . '">' . $inner . '</a></li>';
+        }
+        if ($link['count'] === 0) {
+            return '<li><span class="lr-facet is-empty">' . $inner . '</span></li>';
+        }
+        return '<li><a class="lr-facet" data-connection-link rel="nofollow" href="' . $escapeAttr($link['url']) . '">' . $inner . '</a></li>';
+    };
+    $shown = array_slice($links, 0, $visible);
+    $more = array_slice($links, $visible);
+    foreach ($more as $i => $link) {
+        if ($link['current']) {
+            $shown[] = $link;
+            unset($more[$i]);
+        }
+    }
+    $html = '<ul class="lr-facets" aria-labelledby="' . $escapeAttr($labelledBy) . '">' . implode('', array_map($render, $shown)) . '</ul>';
+    if ($more) {
+        $html .= '<details class="lr-facets__more"><summary>'
+            . $escape($translateFormat->translate('%s more', $formatNumber(count($more))))
+            . '</summary><ul class="lr-facets" aria-labelledby="' . $escapeAttr($labelledBy) . '">' . implode('', array_map($render, $more)) . '</ul></details>';
+    }
+    return $html;
 };
-// The server filter only earns its place when there is something to refine: a
-// result set spanning pages, several connections, or a filter to undo.
-$filterActive = $resourceProperty !== $resourceType . ':' || $connectionSearch !== '';
-$showFilter = $isPaginated || $uniqueCount > 1 || $filterActive;
-// Group the relationships by resource type only when both types link here; a
-// lone "Items" heading over every option is noise.
-$filterOptions = $connectionsHelper->filterOptions($resourceType, $resourceProperty, $resourcePropertiesAll, $typesWithValues, $typeLabels);
 ?>
 <?php // The section heading sits outside the disclosure: inside <summary> it was a
       // heading within a button, whose children assistive technology flattens to
@@ -73,12 +105,9 @@ $filterOptions = $connectionsHelper->filterOptions($resourceType, $resourcePrope
     <summary class="resources-linked__head">
         <span class="resources-linked__headwrap">
             <span class="resources-linked__heading"><?php echo $escape($translate('Linked resources')); ?></span>
-            <span class="resources-linked__summary" aria-live="polite">
-                <b data-lr-count><?php echo $escape($formatNumber($uniqueCount)); ?></b>
-                <span data-lr-label
-                    data-one="<?php echo $escapeAttr($summaryLabel(1)); ?>"
-                    data-many="<?php echo $escapeAttr($summaryLabel(2)); ?>"><?php
-                    echo $escape($summaryLabel($uniqueCount)); ?></span>
+            <span class="resources-linked__summary">
+                <b><?php echo $escape($formatNumber($setTotal)); ?></b>
+                <?php echo $escape($this->translatePlural('linked record', 'linked records', $setTotal)); ?>
             </span>
         </span>
         <span class="resources-linked__chevron" aria-hidden="true"></span>
@@ -86,81 +115,75 @@ $filterOptions = $connectionsHelper->filterOptions($resourceType, $resourcePrope
 
     <div class="resources-linked__panel">
 
-        <?php if ($showFilter): ?>
-        <form class="resources-linked__filter" method="get" action="<?php echo $escapeAttr($baseUrl); ?>#linked-resources" data-connection-form>
-            <div class="resources-linked__field">
-            <label for="resource-property-select"><?php echo $this->escapeHtml($translate('Filter all connections by relationship')); ?></label>
-            <select name="lr_property" id="resource-property-select">
-                <?php if ($filterOptions['unknown'] !== null): ?>
-                <option value="<?php echo $escapeAttr($filterOptions['unknown']); ?>" selected><?php echo $escape($translate('Selected relationship')); ?></option>
-                <?php endif; ?>
-                <?php foreach ($filterOptions['groups'] as $group): ?>
-                    <?php if ($group['label'] !== null): ?><optgroup label="<?php echo $escapeAttr($group['label']); ?>"><?php endif; ?>
-                        <?php foreach ($group['options'] as $option): ?>
-                        <option value="<?php echo $escapeAttr($option['value']); ?>"<?php echo $option['selected'] ? ' selected' : ''; ?>><?php echo $escape($option['label']); ?></option>
-                        <?php endforeach; ?>
-                    <?php if ($group['label'] !== null): ?></optgroup><?php endif; ?>
-                <?php endforeach; ?>
-            </select>
-            </div>
-            <div class="resources-linked__field">
-            <label for="linked-resources-query"><?php echo $this->escapeHtml($translate('Search all connections by title')); ?></label>
-            <input type="search" id="linked-resources-query" name="lr_q" value="<?php echo $escapeAttr($connectionSearch); ?>" maxlength="200">
-            </div>
-            <button type="submit" class="button"><?php echo $this->escapeHtml($translate('Apply')); ?></button>
-        </form>
-        <?php endif; ?>
-
-        <?php if ($showControls): ?>
-        <div class="resources-linked__controls">
-            <?php if ($hasFacets): ?>
-            <div class="resources-linked__facets" role="group" aria-label="<?php echo $escapeAttr($translate('Filter this page by relationship')); ?>">
-                <button type="button" class="lr-facet is-active" data-lr-facet="all" aria-pressed="true">
-                    <span class="lr-facet__label"><?php echo $this->escapeHtml($translate('All')); ?></span>
-                    <span class="lr-facet__count"><?php echo $escape($formatNumber($uniqueCount)); ?></span>
-                </button>
-                <?php foreach ($ranked as $facet): ?>
-                <button type="button" class="lr-facet" data-lr-facet="<?php echo $escapeAttr($facet['id']); ?>" aria-pressed="false">
-                    <span class="lr-facet__label"><?php echo $escape($facet['label']); ?></span>
-                    <span class="lr-facet__count"><?php echo $escape($formatNumber($facet['count'])); ?></span>
-                </button>
+        <?php if ($showRelationships || $showKinds): ?>
+        <div class="resources-linked__overview">
+            <?php if ($showRelationships): ?>
+            <div class="resources-linked__facet-group">
+                <h3 class="resources-linked__facet-title" id="linked-resources-relationships"><?php echo $escape($translate('Relationship')); ?></h3>
+                <?php foreach ($relationshipFilters as $i => $group): ?>
+                    <?php $labelId = 'linked-resources-relationships'; ?>
+                    <?php if ($group['label'] !== null): $labelId .= '-' . $i; ?>
+                    <p class="resources-linked__facet-type" id="<?php echo $escapeAttr($labelId); ?>"><?php echo $escape($group['label']); ?></p>
+                    <?php endif; ?>
+                    <?php echo $renderFilters($group['links'], $labelId); ?>
                 <?php endforeach; ?>
             </div>
             <?php endif; ?>
-
-            <?php if ($showSort): ?>
-            <div class="resources-linked__sort">
-                <label class="resources-linked__sort-label" for="linked-resources-sort"><?php echo $this->escapeHtml($translate('Sort this page')); ?></label>
-                <select id="linked-resources-sort" data-lr-sort>
-                    <option value="relationship"><?php echo $this->escapeHtml($translate('Relationship')); ?></option>
-                    <option value="title-asc"><?php echo $this->escapeHtml($translate('Title (A–Z)')); ?></option>
-                    <option value="title-desc"><?php echo $this->escapeHtml($translate('Title (Z–A)')); ?></option>
-                </select>
+            <?php if ($showKinds): ?>
+            <div class="resources-linked__facet-group">
+                <h3 class="resources-linked__facet-title" id="linked-resources-kinds"><?php echo $escape($translate('Kind of record')); ?></h3>
+                <?php echo $renderFilters($kindFilters, 'linked-resources-kinds'); ?>
             </div>
             <?php endif; ?>
         </div>
         <?php endif; ?>
 
-        <ul class="connections" id="linked-resources-list" data-lr-list>
+        <?php if ($showSearch): ?>
+        <form class="resources-linked__filter" method="get" action="<?php echo $escapeAttr($baseUrl); ?>#linked-resources" data-connection-form>
+            <input type="hidden" name="lr_property" value="<?php echo $escapeAttr($resourceProperty); ?>">
+            <?php if ($state['class'] !== null): ?>
+            <input type="hidden" name="lr_class" value="<?php echo $escapeAttr((string) $state['class']); ?>">
+            <?php endif; ?>
+            <div class="resources-linked__field">
+                <label for="linked-resources-query"><?php echo $escape($translate('Search linked records by title')); ?></label>
+                <input type="search" id="linked-resources-query" name="lr_q" value="<?php echo $escapeAttr($connectionSearch); ?>" maxlength="200">
+            </div>
+            <div class="resources-linked__field resources-linked__field--sort">
+                <label for="linked-resources-sort"><?php echo $escape($translate('Sort by')); ?></label>
+                <select id="linked-resources-sort" name="lr_sort">
+                    <?php foreach (['title' => $translate('Title (A–Z)'), 'title-desc' => $translate('Title (Z–A)'), 'newest' => $translate('Recently added')] as $value => $label): ?>
+                    <option value="<?php echo $escapeAttr($value); ?>"<?php echo $state['sort'] === $value ? ' selected' : ''; ?>><?php echo $escape($label); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <button type="submit" class="button"><?php echo $escape($translate('Apply')); ?></button>
+        </form>
+        <?php endif; ?>
+
+        <?php if ($status !== ''): ?>
+        <p class="resources-linked__status" data-lr-status>
+            <span><?php echo $escape($status); ?></span>
+            <?php if ($narrowed): ?>
+            <a data-connection-link rel="nofollow" href="<?php echo $escapeAttr($clearUrl); ?>"><?php echo $escape($translate('Clear filters')); ?></a>
+            <?php endif; ?>
+        </p>
+        <?php endif; ?>
+
+        <?php if ($connections): ?>
+        <ul class="connections" id="linked-resources-list">
             <?php foreach ($connections as $c): ?>
                 <?php
                 $resource = $c['resource'];
-                $propAttr = implode(' ', $c['relIds']);
                 // Item type = the record's resource class label (e.g. Person,
                 // Still Image, Bibliographic Resource); empty when unclassed.
                 $typeLabel = $connectionsHelper->typeLabel($resource);
                 // Relationship(s), already rank-ordered, joined with a middot.
-                $relText = implode(' · ', array_map(function ($rel) {
-                    return $rel['label'];
-                }, $c['rels']));
+                $relText = implode(' · ', array_column($c['rels'], 'label'));
                 // thumbnail() resolves an item's primary-media thumbnail (or an
                 // item set's / media's own) and returns '' when there is none.
                 $thumbnail = $this->thumbnail($resource, 'square', ['alt' => '']);
                 ?>
-                <li class="connection"
-                    data-props="<?php echo $escapeAttr($propAttr); ?>"
-                    data-rel-order="<?php echo (int) $c['relOrder']; ?>"
-                    data-title="<?php echo $escapeAttr(mb_strtolower($c['heading'])); ?>">
+                <li class="connection">
                     <a class="connection__card" href="<?php echo $escapeAttr($resource->url()); ?>">
                         <?php if ($thumbnail): ?>
                         <span class="connection__thumb" aria-hidden="true"><?php echo $thumbnail; ?></span>
@@ -181,14 +204,20 @@ $filterOptions = $connectionsHelper->filterOptions($resourceType, $resourcePrope
                 </li>
             <?php endforeach; ?>
         </ul>
-
-        <p class="connections__empty" data-lr-empty<?php echo $uniqueCount ? ' hidden' : ''; ?>><?php echo $this->escapeHtml($translate('No connections match this filter.')); ?></p>
+        <?php else: ?>
+        <p class="connections__empty" data-lr-status>
+            <?php echo $escape($translate('No linked records match these filters.')); ?>
+            <?php if ($narrowed): ?>
+            <a data-connection-link rel="nofollow" href="<?php echo $escapeAttr($clearUrl); ?>"><?php echo $escape($translate('Clear filters')); ?></a>
+            <?php endif; ?>
+        </p>
+        <?php endif; ?>
 
         <?php if ($isPaginated): ?>
         <nav class="linked-footer pagination" aria-label="<?php echo $escapeAttr($translate('Connection pages')); ?>">
-            <?php if ($page > 1): ?><a data-connection-page rel="nofollow" href="<?php echo $escapeAttr($pageUrl($page - 1)); ?>"><?php echo $this->escapeHtml($translate('Previous')); ?></a><?php endif; ?>
-            <span><?php echo $escape($this->TranslateFormat()->translate('Page %1$s of %2$s', $formatNumber($page), $formatNumber((int) ceil($totalCount / $perPage)))); ?></span>
-            <?php if ($page * $perPage < $totalCount): ?><a data-connection-page rel="nofollow" href="<?php echo $escapeAttr($pageUrl($page + 1)); ?>"><?php echo $this->escapeHtml($translate('Next')); ?></a><?php endif; ?>
+            <?php if ($page > 1): ?><a data-connection-page rel="nofollow" href="<?php echo $escapeAttr($pageUrl($page - 1)); ?>"><?php echo $escape($translate('Previous')); ?></a><?php endif; ?>
+            <span><?php echo $escape($translateFormat->translate('Page %1$s of %2$s', $formatNumber($page), $formatNumber((int) ceil($totalCount / $perPage)))); ?></span>
+            <?php if ($page * $perPage < $totalCount): ?><a data-connection-page rel="nofollow" href="<?php echo $escapeAttr($pageUrl($page + 1)); ?>"><?php echo $escape($translate('Next')); ?></a><?php endif; ?>
         </nav>
         <?php endif; ?>
 

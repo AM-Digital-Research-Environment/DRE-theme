@@ -31,6 +31,25 @@ foreach (range(1, 6) as $n) {
     echo $v->render('common/resource-card', ['resource' => new ThemeTestResource('Research record ' . $n, $n),
         'body' => str_repeat('Collection description for browsing. ', $n % 3 + 1), 'showTags' => false, 'isGrid' => true]);
 }
-echo '</div></section></main>';
+echo '</div></section>';
+// The Linked resources block over a large linked set: the whole-set total, its
+// counted relationship and kind filters, a page of cards. `filtered` renders
+// the block as the connection endpoint answers once Creator is chosen.
+$filtered = ($argv[1] ?? '') === 'filtered';
+$connectionRow = fn($n, $label) => ['resource_id' => $n, 'property_id' => $label === 'Creator' ? 2 : 3, 'property_label' => $label,
+    'property_alternate_label' => null, 'resource' => new ThemeTestResource('Linked record ' . $n, 100 + $n)];
+$relationship = fn($id, $label, $count, $matched) => ['label' => $label, 'property_id' => $id, 'label_is_translatable' => true,
+    'compound_id' => 'items:' . $id . '-0', 'count' => $count, 'matched' => $matched];
+$v->callbacks['thumbnail'] = fn() => '';
+$v->callbacks['ConnectionPage'] = fn() => [
+    'subjectValues' => [array_map(fn($n) => $connectionRow($n, $filtered ? 'Creator' : 'Subject'), [1, 2, 3])],
+    'totalCount' => $filtered ? 30 : 147, 'setTotal' => 147, 'typeTotals' => ['items' => 147, 'media' => 0],
+    'page' => 1, 'perPage' => 3, 'resourceType' => 'items', 'resourceProperty' => $filtered ? 'items:2-0' : 'items:',
+    'resourcePropertiesAll' => ['items' => [$relationship(3, 'Subject', 120, 120), $relationship(2, 'Creator', 30, 30), $relationship(4, 'Contributor', 5, 5)], 'media' => []],
+    'resourceClasses' => $filtered ? [['id' => 7, 'label' => 'Person', 'count' => 30]]
+        : [['id' => 5, 'label' => 'Bibliographic Resource', 'count' => 100], ['id' => 7, 'label' => 'Person', 'count' => 30], ['id' => 0, 'label' => '', 'count' => 17]],
+    'resourceClass' => null, 'sort' => 'title', 'objectResource' => $resource, 'connectionSearch' => ''];
+echo $v->render('common/resource-page-block-layout/linked-resources', ['resource' => $resource]);
+echo '</main>';
 echo $v->render('common/shortlist');
 echo '</body></html>';
