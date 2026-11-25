@@ -151,7 +151,7 @@ $renderFilters = function (array $links, string $labelledBy) use ($escape, $esca
             <div class="resources-linked__field resources-linked__field--sort">
                 <label for="linked-resources-sort"><?php echo $escape($translate('Sort by')); ?></label>
                 <select id="linked-resources-sort" name="lr_sort">
-                    <?php foreach (['title' => $translate('Title (A–Z)'), 'title-desc' => $translate('Title (Z–A)'), 'newest' => $translate('Recently added')] as $value => $label): ?>
+                    <?php foreach (['title' => $translate('Title (A–Z)'), 'title-desc' => $translate('Title (Z–A)')] as $value => $label): ?>
                     <option value="<?php echo $escapeAttr($value); ?>"<?php echo $state['sort'] === $value ? ' selected' : ''; ?>><?php echo $escape($label); ?></option>
                     <?php endforeach; ?>
                 </select>

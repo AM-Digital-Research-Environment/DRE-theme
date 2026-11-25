@@ -7,7 +7,7 @@ use Laminas\View\Helper\AbstractHelper;
 final class ConnectionQuery extends AbstractHelper
 {
     /** The orders the whole linked set can be read in; the first is the default. */
-    public const SORTS = ['title', 'title-desc', 'newest'];
+    public const SORTS = ['title', 'title-desc'];
 
     /**
      * Omeka 4.2.1: type:property[-templatePropertyIds]; zero means no template.

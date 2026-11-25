@@ -91,14 +91,10 @@ final class ConnectionPage extends AbstractHelper
         $perPage = (int) $view->siteSetting('pagination_per_page') ?: (int) $view->setting('pagination_per_page', 25);
         $perPage = max(1, min(100, $perPage));
         $page = min($state['page'], max(1, (int) ceil($total / $perPage)));
-        [$column, $direction] = match ($state['sort']) {
-            'title-desc' => ['resource.title', 'DESC'],
-            'newest' => ['resource.created', 'DESC'],
-            default => ['resource.title', 'ASC'],
-        };
+        $direction = $state['sort'] === 'title-desc' ? 'DESC' : 'ASC';
         // DISTINCT needs its ORDER BY columns selected (MySQL error 3065).
-        $ids = (clone $base)->select(['resource.id id', 'resource.title title', 'resource.created created'])->distinct()
-            ->orderBy($column, $direction)->addOrderBy('resource.id', $direction)->setFirstResult(($page - 1) * $perPage)
+        $ids = (clone $base)->select(['resource.id id', 'resource.title title'])->distinct()
+            ->orderBy('resource.title', $direction)->addOrderBy('resource.id', $direction)->setFirstResult(($page - 1) * $perPage)
             ->setMaxResults($perPage)->getQuery()->getArrayResult();
         $subjectValues = [];
         if ($ids) {

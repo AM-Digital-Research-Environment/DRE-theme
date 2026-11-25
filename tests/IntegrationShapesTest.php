@@ -16,7 +16,7 @@ foreach (['0' => 0, '12' => 12, '' => null, '-1' => null, '01' => null, '1e3' =>
     dre_check($failures, $checks, 'kind of record ' . json_encode((string) $class), $v->ConnectionQuery(['lr_class' => (string) $class])['class'] === $expected);
 }
 dre_check($failures, $checks, 'kind of record must be a string', $v->ConnectionQuery(['lr_class' => [3]])['class'] === null);
-foreach (['title' => 'title', 'title-desc' => 'title-desc', 'newest' => 'newest', 'relationship' => 'title', '' => 'title'] as $sort => $expected) {
+foreach (['title' => 'title', 'title-desc' => 'title-desc', 'newest' => 'title', 'relationship' => 'title', '' => 'title'] as $sort => $expected) {
     dre_check($failures, $checks, 'sort ' . json_encode((string) $sort), $v->ConnectionQuery(['lr_sort' => (string) $sort])['sort'] === $expected);
 }
 $a = new ThemeTestResource('A', 1); $b = new ThemeTestResource('B', 2);

@@ -804,10 +804,6 @@ msgstr ""
 msgid "Reason: %s"
 msgstr ""
 
-#: view/common/linked-resources.phtml:154
-msgid "Recently added"
-msgstr ""
-
 #: helper/RecordAccess.php:182
 msgid "Record: %s"
 msgstr ""

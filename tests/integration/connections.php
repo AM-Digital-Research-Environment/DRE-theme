@@ -78,10 +78,9 @@ for ($i = 0; $i < 1000; ++$i) $edge($a);
 $b = $item('Beta'); $b->setResourceTemplate($templates[1][0]); $edge($b);
 $c = $item('Gamma'); $edge($c);
 $edge($item('Excluded site', false)); $edge($item('Private record', true, false)); $edge($item('Private edge'), false);
-// Two kinds of record and the unclassed; Gamma is the newest.
+// Two kinds of record and the unclassed.
 $textClass = new Omeka\Entity\ResourceClass(); $textClass->setVocabulary($vocabulary); $textClass->setLocalName('Text'); $textClass->setLabel('Text'); $em->persist($textClass);
 $a->setResourceClass($textClass); $b->setResourceClass($textClass);
-$a->setCreated(new DateTime('2020-01-01')); $b->setCreated(new DateTime('2021-01-01')); $c->setCreated(new DateTime('2022-01-01'));
 $media = new Omeka\Entity\Media(); $media->setItem($a); $media->setTitle('Media Alpha'); $media->setCreated(new DateTime()); $media->setIngester('url'); $media->setRenderer('file'); $media->setData([]); $media->setResourceTemplate($templates[0][0]); $em->persist($media); $edge($media);
 $em->flush();
 
@@ -149,7 +148,7 @@ dre_check($failures, $checks, 'a selected kind with no match stays listed at zer
     $kindAndRelationship['totalCount'] === 0 && in_array([$textClass->getId(), 0], array_map(fn($k) => [$k['id'], $k['count']], $kindAndRelationship['resourceClasses']), true));
 $first = fn($sort) => $helper($resource, ['lr_sort' => $sort])['subjectValues'][0][0]['resource_id'];
 dre_check($failures, $checks, 'the whole set is sorted before it is paged',
-    $first('title') === $a->getId() && $first('title-desc') === $c->getId() && $first('newest') === $c->getId() && $first('bogus') === $a->getId());
+    $first('title') === $a->getId() && $first('title-desc') === $c->getId() && $first('bogus') === $a->getId());
 $rawSelector = $adapter->getSubjectValuesQueryBuilder($target, null, 'items', $site->getId())->join('value.property', 'property')->select(['property.id property_id', 'resource_template_property.id template_id']);
 $rawRows = count($rawSelector->getQuery()->getArrayResult());
 $distinctRows = count($rawSelector->distinct()->getQuery()->getArrayResult());
