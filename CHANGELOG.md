@@ -11,6 +11,8 @@ to create.
 
 ## [Unreleased]
 
+## [2.53.0] - 2026-11-25
+
 ### Changed
 
 - **Linked resources show the whole linked set, not one page of it.** The block's head said "25 connections on this page" on a subject that hundreds of records link to, and its relationship buttons, counts and "Sort this page" only knew the 25 cards on screen, beside a separate select that filtered everything. Now:
@@ -833,7 +835,8 @@ were also checked in local compiled fixtures at mobile and desktop widths.
 Versions before 2.30.2 are documented in
 [GitHub Releases](https://github.com/AM-Digital-Research-Environment/DRE-theme/releases).
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.52.0...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.53.0...HEAD
+[2.53.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.52.0...v2.53.0
 [2.52.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.51.0...v2.52.0
 [2.51.0]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.50.1...v2.51.0
 [2.50.1]: https://github.com/AM-Digital-Research-Environment/DRE-theme/compare/v2.50.0...v2.50.1
