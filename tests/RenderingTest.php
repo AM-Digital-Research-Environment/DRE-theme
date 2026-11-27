@@ -199,6 +199,7 @@ dre_check($failures, $checks, 'registers are named, with the identifier they hol
 $marks = $view->plugin('RecordIdentifiers');
 dre_check($failures, $checks, 'known registers have a mark, unknown hosts none',
     str_contains($marks->markFor('https://orcid.org/0000-0002-1825-0097'), 'identifier-icon')
+    && str_contains($marks->markFor('https://openalex.org/A5023888391'), 'identifier-icon--openalex')
     && str_contains($marks->markFor('https://viaf.org/viaf/12345/'), 'identifier-icon--generic')
     && $marks->markFor('https://unknown.example.org/x/1') === '' && $marks->icon('') === '');
 $person = new ThemeTestResource('Vierke, Ulf', 7);

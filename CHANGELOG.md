@@ -11,6 +11,10 @@ to create.
 
 ## [Unreleased]
 
+### Added
+
+- **OpenAlex identifiers carry OpenAlex's own mark** instead of the generic link glyph, in the rail's *Same as* row and in *Identifiers & sources*. The mark is OpenAlex's favicon (public domain, via Wikimedia Commons), drawn in the text colour so it stays visible in dark mode. No record holds an OpenAlex id yet; the badges appear once the sync writes them.
+
 ## [2.53.0] - 2026-11-25
 
 ### Changed

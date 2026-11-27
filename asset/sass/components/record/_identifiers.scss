@@ -1,12 +1,13 @@
 @use "../../abstracts" as *;
 
 // --------------------------------------------------------------------------
-// Reconciled identifiers — ORCID, Wikidata, GND, LoC, DOI
+// Reconciled identifiers — ORCID, Wikidata, GND, OpenAlex, LoC, DOI
 // --------------------------------------------------------------------------
 // A register's own mark (helper/RecordIdentifiers.php), sized to the text it
 // leads. The marks keep their brand colours in both modes: each sits on its own
 // disc, hexagon or tile, except the Wikidata barcode, whose dark red bars
-// vanish on a dark surface — in dark mode it gets a light tile of its own.
+// vanish on a dark surface — in dark mode it gets a light tile of its own —
+// and the OpenAlex mark, which has no ground and is drawn in the text colour.
 .identifier-icon {
     display: inline-block;
     flex: none;
@@ -15,8 +16,8 @@
     vertical-align: -0.2em;
 }
 
-// The two marks that are not square: the barcode is 810 × 500, the hexagon
-// 120 × 139.
+// The marks that are not square: the barcode is 810 × 500, the hexagon
+// 120 × 139, the OpenAlex mark 520 × 488.
 .identifier-icon--wikidata {
     width: 1.82em;
 
@@ -29,6 +30,10 @@
 
 .identifier-icon--gnd {
     width: 0.975em;
+}
+
+.identifier-icon--openalex {
+    width: 1.2em;
 }
 
 // In the rail and the grouped record the mark leads the link's text. In the
